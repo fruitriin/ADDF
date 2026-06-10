@@ -147,6 +147,7 @@ ADDF ファイルの配置元を決定する:
 - `.claude/tests/` — テストスイート
 - `.claude/addf-Behavior.toml`
 - `.claude/ADDF-CHANGELOG.md`, `.claude/ADDF-Release.addf.md`
+- `.claude/Questions.example.md`, `.claude/Dashboard.example.md` — CLAUDE.md が書式参照するため必須
 - `CLAUDE.repo.example.md`, `CLAUDE.local.example.md`
 - `AGENTS.md`
 - `.claudeignore`
@@ -156,14 +157,11 @@ ADDF ファイルの配置元を決定する:
 #### カテゴリ2: インテリジェントマージ
 
 - **`.claude/settings.json`**: 既存あり → ADDF の hooks と permissions をユニオン追加（既存を削除しない）。結果をユーザーに表示して確認。既存なし → ADDF テンプレートをコピー
-- **`.gitignore`**: ADDF エントリをマーカーブロック付きで追加:
+- **`.gitignore`**: ADDF エントリをマーカーブロック付きで追加する。
+  ブロックの内容は **ADDF リポジトリ（クローン元）の `.gitignore` マーカーブロックをそのままコピーする**（ここに列挙を持たない — リスト陳腐化の防止）。外部起動の場合のコピー元は `<tmp>/addf-source/.gitignore`:
   ```
   # --- ADDF Framework (do not remove) ---
-  .claude/commands/*.exp.md
-  .claude/.turn-count
-  .claude/logs/
-  CLAUDE.local.md
-  CLAUDE.repo.md
+  （クローン元 .gitignore の同ブロック内容）
   # --- /ADDF Framework ---
   ```
 - **`CLAUDE.md`**: 既存なし → ADDF テンプレートをコピー。既存あり → 以下の手順で退避・補完する:
@@ -187,7 +185,7 @@ ADDF ファイルの配置元を決定する:
 - **`TODO.md`** — 初期テンプレート
 - **`docs/plans/`** — ディレクトリ作成
 - **`docs/knowhow/INDEX.md`** — インデックス初期化
-- **`.claude/Progress.md`** — テンプレートから生成
+- **`.claude/Progress.md`** — `.claude/templates/ProgressTemplate.md` から生成（`ProgressTemplate.addf.md` は ADDF 本体用のため使わない）
 - **`.claude/Feedback.md`** — 初期テンプレート
 - **`.claude/Questions.md`** — `Questions.example.md` の書式説明を残して未回答・回答済みを空で生成（非同期質問箱。ブートシーケンス 1.5 が参照）
 

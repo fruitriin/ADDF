@@ -1,5 +1,7 @@
 # Plan: 代替わり日記 — resume/compaction を前提とした引き継ぎ設計
 
+## 実装状況: 完了（2026-06-10、2026-06-11 遡及確認）
+
 > **状態: 実装完了（2026-06-10）**
 > - ProgressTemplate 運用ルール 3.5（日記規約: 4項目書式・書くタイミング・checkpoint との分業・自動化しない方針）、CLAUDE.md/AGENTS.md ブート手順 3、addf-dev、development-process.md に実装
 > - 直近2タスク（Plan 0020/0016）で日記形式を先行運用してからテンプレ化した（実績ベース）

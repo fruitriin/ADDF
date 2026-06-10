@@ -1,5 +1,7 @@
 # 計画: Everything Claude Code 調査・取り込み
 
+## 実装状況: 完了（2026-03-18、2026-06-11 遡及確認）
+
 ## 動機
 `plan.md` #7 のオーナーリクエスト。外部リポジトリ https://github.com/affaan-m/everything-claude-code/ から ADD フレームワークに取り込めるプラクティスを調査する。
 

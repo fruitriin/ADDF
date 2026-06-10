@@ -1,5 +1,7 @@
 # 計画: スキル description 改善 & 使用計測フック
 
+## 実装状況: 完了（2026-03-21、2026-06-11 遡及確認）
+
 ## 動機
 
 Anthropic 社内の知見（[skill-design-patterns.md](../knowhow/ADDF/skill-design-patterns.md)）より:

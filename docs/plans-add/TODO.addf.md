@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: Phase 21 完了（テンプレート同期 lint）→ 残る未着手は Phase 15 のみ
+## 現在のフェーズ: Phase 24 完了（TODO⇔Plan 状態同期 lint・信用ベース転換、PR #11 同梱）。次は Phase 23（turn-reminder）— #11 マージ後に着手
 
 ## バックログ
 
@@ -23,13 +23,16 @@
 | 12 | 12 | `docs/plans-add/0012-codex-support.md` | 完了 |
 | 13 | 13 | `docs/plans-add/0013-addf-init.md` | 完了 |
 | 14 | 14 | `docs/plans-add/0014-readme-simplification.md` | 完了 |
-| 15 | 15 | `docs/plans-add/0015-existing-project-install.md` | 未着手 |
+| 15 | 15 | `docs/plans-add/0015-existing-project-install.md` | 完了 |
 | 16 | 16 | `docs/plans-add/0016-stop-or-go-doctrine.md` | 完了 |
 | 17 | 17 | `docs/plans-add/0017-progress-checkpoints.md`（代替わり日記） | 完了 |
 | 18 | 18 | `docs/plans-add/0018-knowhow-expiry.md` | 完了 |
 | 19 | 19 | `docs/plans-add/0019-failure-experience.md` | 完了 |
 | 20 | 20 | `docs/plans-add/0020-adversarial-review.md` | 完了 |
 | 21 | 21 | `docs/plans-add/0021-template-sync-lint.md` | 完了 |
+| 22 | 22 | `docs/plans-add/0022-addf-init-copylist-refresh.md` | 完了 |
+| 23 | 23 | `docs/plans-add/0023-turn-reminder-context-split.md` | 未着手 |
+| 24 | 24 | `docs/plans-add/0024-todo-plan-status-lint.md` | 完了 |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
