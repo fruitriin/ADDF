@@ -44,7 +44,7 @@ uv run --python 3.11 .claude/addfTools/lint-toml.py
 `docs/knowhow/INDEX.addf.md`（ADDF 本体の場合）または `docs/knowhow/INDEX.md`（ダウンストリームの場合）を対象に:
 - INDEX に記載されているがファイルが存在しないエントリを検出
 - `docs/knowhow/` 配下に存在するが INDEX に記載されていない `.md` ファイルを検出
-- INDEX ファイル自身（INDEX.md, INDEX.addf.md）は除外する
+- INDEX ファイル自身（INDEX.md, INDEX.addf.md）と `CLAUDE.md`（読み方の作法）は除外する
 
 INDEX ファイルからリンクを抽出するには、テーブル行の `[パス](パス)` パターンをパースする。
 
@@ -58,7 +58,7 @@ uv run --python 3.11 .claude/addfTools/lint-template-sync.py
 
 ## 7. Knowhow 鮮度チェック
 
-`docs/knowhow/` 配下の各 `.md` ファイル（INDEX を除く）について:
+`docs/knowhow/` 配下の各 `.md` ファイル（INDEX と CLAUDE.md を除く）について:
 - フロントマター（`last_verified`・`status`）の有無を確認。なければ WARNING
 - 🔴 stale のファイル（しきい値・判定基準は `addf-knowhow-index.md` の定義に従う）を列挙し、`/addf-knowhow-revise` を案内する
 - `depends_on` に存在しないファイル・スキルが含まれていれば WARNING

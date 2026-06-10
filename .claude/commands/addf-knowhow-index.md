@@ -36,7 +36,7 @@ user_invocable: true
 
 ## `reindex` の場合
 
-1. `docs/knowhow/` 内の全 `.md` ファイルを読む（`INDEX.md` 自体は除く）
+1. `docs/knowhow/` 内の全 `.md` ファイルを読む（`INDEX.md` 自体と `CLAUDE.md`（読み方の作法）は除く）
 2. 各ファイルについて以下を抽出する:
    - **ファイルパス**
    - **一行要約**: そのファイルが扱う中心トピック（1文）
