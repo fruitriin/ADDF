@@ -1,5 +1,7 @@
 # Plan: knowhow の賞味期限 — 最終検証日と依存前提
 
+## 実装状況: 完了（2026-06-10、2026-06-11 遡及確認）
+
 > **状態: 実装完了（2026-06-10）**
 > - 既存10ファイルにフロントマター一括付与（created/last_verified は git log 由来）。INDEX に鮮度マーク列（初期状態: 🟢2 / 🟡8）
 > - addf-knowhow-index（鮮度判定・📜棚・鮮度レポート）、addf-knowhow（フロントマター生成・last_verified 更新）、addf-knowhow-agent（ライフサイクルフィルタ）を拡張
