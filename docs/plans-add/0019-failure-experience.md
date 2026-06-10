@@ -1,5 +1,12 @@
 # Plan: 失敗も .exp.md に書く文化
 
+> **状態: 実装完了（2026-06-10）**
+> - 計画との差分: `ExperienceTemplate.addf.md` 新設ではなく、**既存の `ExperienceTemplate.md`（無印・汎用）を3セクション構造に更新**した（テンプレートが既存だったため。3セクション構造は汎用なので .addf 分離は不要と判断）
+> - ProgressTemplate（.addf / 無印の両方）ルール4に失敗記録トリガー、addf-knowhow に Phase 4（失敗経験の記録提案）を追加
+> - 「失敗事例ゼロ警告」は設計どおり不採用（理由は本文メモ参照）。既存 .exp.md の遡及変更もなし
+> - 実装中、ダウンストリーム版 ProgressTemplate.md に Plan 0020/0016/0017 が未同期のドリフトを発見し一括修正。再発3度目のため addf-lint への同期チェック追加を Plan 0021 として起案
+> - レビュー: Critical 0 / Warning 0 / Suggestion 3（全て対応）
+
 ## Context
 
 ADDF は「スキル定義」と「経験ファイル（.exp.md）」を分離し、エージェントが何度も同じ落とし穴を踏まないよう経験を蓄積する設計を持つ。
