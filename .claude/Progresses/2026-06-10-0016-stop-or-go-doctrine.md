@@ -61,4 +61,35 @@
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: Plan 0016 — 迷ったときの作法（7割共有原則）
+
+#### サブタスクチェックリスト
+
+- [x] `CLAUDE.md` に「迷ったときの作法」セクション追加 + ブートシーケンス 1.5/1.6（Questions/Dashboard）追加
+- [x] `AGENTS.md` ブートシーケンス同期（70% rule の言及も追加）
+- [x] `.claude/Questions.example.md` / `.claude/Questions.md` 新規作成
+- [x] `.claude/Dashboard.example.md` 新規作成 + `.gitignore` に `.claude/Dashboard.md` 追加
+- [x] `.claude/commands/addf-mode.md` 新規スキル（モード状態は CLAUDE.local.md に保存）
+- [x] `.claude/commands/addf-dev.md` にスキップフラグ・worktree 閾値の参照追加
+- [x] `.claude/commands/addf-init.md` に Questions.md 生成・check 項目追加
+- [x] ProgressTemplate/Progress.md に判断ルール参照追加・「unattended は将来導入予定」注記を5ファイルから除去
+- [x] `bash .claude/tests/run-all.sh` + @メンション整合確認（全解決）
+- [x] addf-code-review-agent でセルフレビュー（Critical 1 / Warning 4 / Suggestion 4 → S-1 以外対応、S-1 は Plan に先送り記録）
+- [x] Plan 0016 反映・TODO.addf.md 更新・knowhow 統合（実行保証 knowhow に CLAUDE.local.md 応用を追記）
+- [ ] コミット
+
+##### 2026-06-10 完了（ループ2回目）
+
+**やったこと**: doctrine 実装一式 → レビュー → C-1（サブステップ実行順）と W 群を修正 → Plan ステータス反映時に `## Context` 見出しを誤って消し、レビュー前に自分で気づいて復元。
+**今の見立て**: Plan 0016 完了。`/addf-mode` の状態保存先を CLAUDE.local.md にした判断は knowhow 化済み。
+**次の自分へ**: 次は Plan 0017（代替わり日記）。この日記形式自体が 0017 のドッグフーディングなので、実装時は運用実績2タスク分を反映できる。0017 完了時、ProgressTemplate に日記セクションの規約を足し、この日記の書き味（4項目構成）をテンプレ化すること。
+**気になっていること**: Edit ツールで見出し付きブロックを置換するとき、old_string の末尾に見出しを含めると消えやすい。次回は status 挿入を「見出しの直後に追記」する形にする。
+
+#### 日記
+
+##### 2026-06-10 着手（ループ2回目）
+
+**やったこと**: knowhow 取得（@メンション運用・実行保証・分離パターンが該当）。CLAUDE.md/AGENTS.md/addf-dev/addf-init/gitignore を読了。
+**今の見立て**: モード状態の保存先が Plan 未指定だった。CLAUDE.local.md（gitignore 済み・毎セッション自動読込）に「ADDF モード」セクションを書く設計にする — 新規ブートステップ不要で実行保証が高い。確信度 80%。
+**次の自分へ**: ブート手順の番号は 1.5/1.6 の挿入式（CLAUDE.repo.md が「手順 2」を参照しているため繰り下げ禁止）。
+**気になっていること**: CLAUDE.md の肥大化。doctrine はコンパクト版に絞り、詳細は example ファイルに逃がす。

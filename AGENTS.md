@@ -8,6 +8,8 @@
 On session start, read these files in order:
 
 1. `.claude/Feedback.md` — Check for unresolved improvement actions
+   - 1.5. `.claude/Questions.md` — If the owner answered pending questions, apply the answers to plans and move them to "answered"
+   - 1.6. If `.claude/Dashboard.md` exists, present its contents first (summary of unattended autonomous work). Delete it only after the owner has acknowledged it; re-present next session otherwise
 2. `TODO.md` — Review task backlog and priorities
 3. `.claude/Progress.md` — Continue in-progress tasks or select next
 4. If no pending tasks:
@@ -18,6 +20,7 @@ On session start, read these files in order:
 ## Development Process
 
 - **Plan-driven**: Review plans, not code. Good plans are accepted; AI ensures implementation quality
+- **70% rule (stop-or-go doctrine)**: Proceed when ~70% confident the direction matches the plan's intent. Below threshold, drop a question into `.claude/Questions.md` and move to another task instead of guessing or halting. See the stop-or-go doctrine section in CLAUDE.md (Japanese) for the full three-axis doctrine (trust / responsiveness / image clarity)
 - **Plans directory**: `docs/plans/` (downstream) or `docs/plans-add/` (ADDF development)
 - **Knowhow**: Implementation insights are stored in `docs/knowhow/`
 - **Quality gate**: Build/Lint/Test → Code review → Commit

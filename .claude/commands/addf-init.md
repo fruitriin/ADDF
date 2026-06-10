@@ -189,6 +189,7 @@ ADDF ファイルの配置元を決定する:
 - **`docs/knowhow/INDEX.md`** — インデックス初期化
 - **`.claude/Progress.md`** — テンプレートから生成
 - **`.claude/Feedback.md`** — 初期テンプレート
+- **`.claude/Questions.md`** — `Questions.example.md` の書式説明を残して未回答・回答済みを空で生成（非同期質問箱。ブートシーケンス 1.5 が参照）
 
 **Codex 対応**（ターゲットが Codex または両方の場合）:
 - `AGENTS.md` がリポジトリに存在することを確認（ADDF 同梱済み）
@@ -229,6 +230,7 @@ ADDF ファイルの配置元を決定する:
    - `TODO.md` — タスクバックログ
    - `.claude/Progress.md` — 進捗管理
    - `.claude/Feedback.md` — フィードバック記録
+   - `.claude/Questions.md` — 非同期質問箱（無ければ WARNING、`Questions.example.md` から生成を案内）
    - `.claude/addf-lock.json` — バージョンロック
    - `.claude/settings.json` — 権限設定
 

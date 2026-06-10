@@ -66,7 +66,7 @@
 | 通常タスク完了時 | 単体（ペルソナなし） |
 | マイルストーン・リリース直前 | 3体並列（skeptic + attacker + newcomer） |
 | Plan が `mode: critical` を宣言 | 5体並列 |
-| unattended（不在）モードでの自走（モード自体は将来バージョンで導入予定） | 3体並列 |
+| unattended（不在）モードでの自走（`/addf-mode unattended`） | 3体並列 |
 
 ユーザーの監督が弱まるほどレビューを厚くする、という設計です。
 

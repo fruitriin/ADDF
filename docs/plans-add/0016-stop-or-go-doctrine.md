@@ -1,5 +1,11 @@
 # Plan: 迷ったときの作法 — 7割共有原則と止まる/進む/問う判断
 
+> **状態: 実装完了（2026-06-10）**
+> - CLAUDE.md に3軸 doctrine + ブートシーケンス 1.5/1.6、AGENTS.md 同期、Questions/Dashboard の example と実ファイル、`/addf-mode` スキル（状態は CLAUDE.local.md に保存）、addf-dev/addf-init 拡張を実装
+> - レビュー指摘（Critical 1 / Warning 4 / Suggestion 4）対応済み: サブステップの実行順明記、image_clarity のキー名と3軸デフォルトの明文化、Dashboard は応答確認後に削除、Questions.md の書式参照とコミット方針明記、AGENTS.md の英語統一、checkpoint ブランチをテンプレートにも記載
+> - 未対応（先送り）: CLAUDE.md の doctrine セクションをさらに骨子化する案（S-1、レビュー Suggestion）— 現状の分量で運用開始し、肥大が問題になったら別 Plan で対応
+> - 自動切替（カレンダー連携等）は設計どおり将来 Plan へ
+
 ## Context
 
 `/loop` で長時間自走するとき、Plan が曖昧だった瞬間に「推測で進むか、止まるか」の判断はエージェントの裁量に委ねられている。
