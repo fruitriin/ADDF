@@ -151,6 +151,68 @@ assert_exit ".gitignore 欠如で WARNING" 2 $?
 assert_contains "Dashboard.md の UNCOVERED" "UNCOVERED: .claude/Dashboard.md" "$output"
 rm -rf "$box"
 
+# ペア6用サンドボックス: TODO.addf.md と Plan ファイルの最小セットを作る
+make_plans_sandbox() {
+  local box
+  box="$(make_sandbox)"
+  mkdir -p "$box/docs/plans-add"
+  cat > "$box/docs/plans-add/0001-sample.md" <<'EOF'
+# Plan: サンプル
+
+## 実装状況: 完了（2026-06-11）
+
+本文
+EOF
+  cat > "$box/docs/plans-add/TODO.addf.md" <<'EOF'
+# TODO (ADDF)
+
+| 優先度 | Phase | 計画ファイル | 状態 |
+|---|---|---|---|
+| 1 | 1 | `docs/plans-add/0001-sample.md` | 完了 |
+EOF
+  echo "$box"
+}
+
+# テスト 10: TODO「未着手」⇔ Plan ヘッダ「完了」の矛盾 → ペア6 WARNING (exit=2)
+echo "Test 10: TODO⇔Plan 状態の矛盾検出"
+box="$(make_plans_sandbox)"
+sed -i.bak 's/| 完了 |/| 未着手 |/' "$box/docs/plans-add/TODO.addf.md" \
+  && rm -f "$box/docs/plans-add/TODO.addf.md.bak"
+output=$(run_lint "$box")
+assert_exit "状態矛盾で WARNING" 2 $?
+assert_contains "ペア6の WARNING" "[6] WARNING" "$output"
+assert_contains "矛盾の特定" "矛盾: docs/plans-add/0001-sample.md" "$output"
+rm -rf "$box"
+
+# テスト 11: TODO 登録漏れと参照切れ → ペア6 WARNING (exit=2)
+echo "Test 11: TODO 登録漏れ・参照切れの検出"
+box="$(make_plans_sandbox)"
+cat > "$box/docs/plans-add/0002-unlisted.md" <<'EOF'
+# Plan: 登録漏れサンプル
+
+## 実装状況: 未着手
+EOF
+printf '| 2 | 2 | `docs/plans-add/0003-ghost.md` | 未着手 |\n' >> "$box/docs/plans-add/TODO.addf.md"
+output=$(run_lint "$box")
+assert_exit "登録漏れで WARNING" 2 $?
+assert_contains "登録漏れの特定" "登録漏れ: docs/plans-add/0002-unlisted.md" "$output"
+assert_contains "参照切れの特定" "不在: docs/plans-add/TODO.addf.md が参照する docs/plans-add/0003-ghost.md" "$output"
+rm -rf "$box"
+
+# テスト 12: 実装状況ヘッダの無い Plan は検査対象外（信用ベース・旧 Plan 互換）→ exit=0
+# あわせて TODO が無い環境（make_sandbox のまま）で SKIP になることも確認する
+# 注: テスト1と同じく実リポジトリのコピーが前提。exit≠0 ならペア6ではなく実ファイルのドリフトを疑う
+echo "Test 12: ヘッダ無し Plan のスキップと TODO 不在の SKIP"
+box="$(make_plans_sandbox)"
+printf '# Plan: ヘッダ無し旧式\n\n本文のみ\n' > "$box/docs/plans-add/0001-sample.md"
+output=$(run_lint "$box")
+assert_exit "ヘッダ無しで OK" 0 $?
+rm -rf "$box"
+box="$(make_sandbox)"
+output=$(run_lint "$box")
+assert_contains "TODO 不在で SKIP" "[6] SKIP" "$output"
+rm -rf "$box"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

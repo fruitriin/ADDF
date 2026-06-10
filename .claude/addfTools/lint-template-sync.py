@@ -13,7 +13,15 @@
        ブロック（実行時生成ファイル）でカバーされているかを検査する。
        カバー漏れは外部起動導入したダウンストリームでの参照切れになる。
 
-ペア2〜5 は片方のファイルが存在しない場合 SKIP する（ADDF 本体固有ファイルは
+ペア6: TODO ⇔ Plan 実装状況ヘッダ（状態の矛盾・参照切れ・登録漏れ・WARNING）
+       TODO テーブルの状態列と各 Plan ファイルの `## 実装状況:` ヘッダを突合する。
+       対象は ADDF 本体（docs/plans-add/TODO.addf.md ⇔ docs/plans-add/）と
+       ダウンストリーム（TODO.md ⇔ docs/plans/）の2系統。
+       ヘッダの無い Plan は検査しない（旧 Plan の欠如はドリフトではない）。
+       エージェントが TODO の状態表記を「信用ベース」で扱えるようにする機械検査
+       （docs/knowhow/ADDF/plan-status-drift-check.md 参照）。
+
+ペア2〜6 は対象ファイルが存在しない場合 SKIP する（ADDF 本体固有ファイルは
 ダウンストリームプロジェクトに存在しないため、欠如はドリフトではない）。
 
 不一致の WARNING には git log による最終更新日ヒントを併記する
@@ -22,6 +30,7 @@
 exit code: 0 = 全一致 / 1 = ERROR あり / 2 = WARNING のみ
 """
 import fnmatch
+import glob
 import os
 import re
 import subprocess
@@ -258,6 +267,94 @@ def check_pair5():
         warnings.append('\n'.join(msg))
 
 
+def plan_header_status(path):
+    """Plan ファイルの `## 実装状況:` ヘッダから状態を正規化して返す（無ければ None）
+
+    「完了（2026-06-10、PR #11）」のような注記付き表記は先頭語で判定する。
+    完了/未着手 以外（進行中等の中間状態）は矛盾判定の対象外として None 扱い。
+    """
+    with open(path) as f:
+        for line in f.read().splitlines():
+            m = re.match(r'##\s*実装状況[:：]\s*(\S+)', line)  # コロンは半角・全角とも許容
+            if m:
+                value = m.group(1)
+                for status in ('完了', '未着手'):
+                    if value.startswith(status):
+                        return status
+                return None
+    return None
+
+
+def todo_table_rows(path):
+    """TODO のテーブル行から (Plan パス, 状態, 行テキスト) のリストを返す
+
+    「状態」列の位置はヘッダ行から動的に特定する（バックログとアーカイブで
+    列構成が異なり、将来の列追加にも備えるため）。ヘッダ未検出時は末尾セルに
+    フォールバックする。
+    """
+    with open(path) as f:
+        lines = f.read().splitlines()
+    rows = []
+    status_idx = -1
+    for line in lines:
+        if not line.lstrip().startswith('|'):
+            continue
+        cells = [c.strip() for c in line.strip().strip('|').split('|')]
+        if '状態' in cells:  # ヘッダ行。以降のデータ行にこの列位置を適用する
+            status_idx = cells.index('状態')
+            continue
+        m = re.search(r'`(docs/plans[^`]*?\.md)`', line)
+        if not m:
+            continue
+        status = cells[status_idx] if -1 < status_idx < len(cells) else cells[-1]
+        rows.append((m.group(1), status, line.strip()))
+    return rows
+
+
+def check_pair6():
+    """TODO の状態列 ⇔ Plan の実装状況ヘッダの突合（WARNING）
+
+    完了⇔未着手の明確な矛盾のみ flag する（中間状態は誤検出回避のため対象外）。
+    加えて TODO が指す Plan の不在と、Plan の TODO 登録漏れを検出する。
+    """
+    targets = [
+        ('docs/plans-add/TODO.addf.md', 'docs/plans-add'),
+        ('TODO.md', 'docs/plans'),
+    ]
+    for todo_path, plans_dir in targets:
+        if not os.path.exists(todo_path):
+            skips.append(f'[6] SKIP: {todo_path} が存在しない')
+            continue
+        rows = todo_table_rows(todo_path)
+        listed = set()
+        issues = []
+        for plan_path, todo_status, _ in rows:
+            listed.add(plan_path)
+            if not os.path.exists(plan_path):
+                issues.append(f'    不在: {todo_path} が参照する {plan_path} が存在しない')
+                continue
+            header = plan_header_status(plan_path)
+            if header is None:
+                continue  # ヘッダ無し・中間状態は信用ベースで検査しない
+            # こちらの None は「TODO の状態列が完了/未着手以外（要確認等）」の意。
+            # header 側の None（ヘッダ不在・中間状態）とは起源が異なるが、扱いは同じく検査対象外
+            todo_norm = next((s for s in ('完了', '未着手') if todo_status.startswith(s)), None)
+            if todo_norm and header != todo_norm:
+                issues.append(
+                    f'    矛盾: {plan_path} のヘッダ「{header}」⇔ {todo_path} の状態「{todo_status}」'
+                )
+        if os.path.isdir(plans_dir):
+            for plan_path in sorted(glob.glob(f'{plans_dir}/[0-9]*.md')):
+                if plan_path not in listed:
+                    issues.append(f'    登録漏れ: {plan_path} が {todo_path} のテーブルにない')
+        if issues:
+            warnings.append(
+                f'[6] WARNING: {todo_path} と Plan ファイルの状態がドリフト'
+                f'（完了処理の反映漏れを疑い、実態を確認して同期する）:\n'
+                + '\n'.join(issues)
+            )
+
+
 check_pair1()
 check_pair2()
 check_boot_pair(3, 'CLAUDE.md', '## ブートシーケンス',
@@ -267,6 +364,7 @@ check_boot_pair(4, 'CLAUDE.md', '## ブートシーケンス',
                 'docs/guides/development-process.md', '## ブートシーケンス',
                 'CLAUDE.md ⇔ development-process.md ブートシーケンス概要')
 check_pair5()
+check_pair6()
 
 for msg in errors + warnings + skips:
     print(msg)
@@ -275,4 +373,4 @@ if errors:
     sys.exit(1)
 if warnings:
     sys.exit(2)
-print('OK: 同期チェック通過 (1: Progress.md / 2: ProgressTemplate / 3: AGENTS.md / 4: development-process.md / 5: addf-init コピーリスト)')
+print('OK: 同期チェック通過 (1: Progress.md / 2: ProgressTemplate / 3: AGENTS.md / 4: development-process.md / 5: addf-init コピーリスト / 6: TODO⇔Plan 状態)')
