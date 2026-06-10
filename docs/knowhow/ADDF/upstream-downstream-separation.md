@@ -82,3 +82,7 @@ Q: このファイルはダウンストリームでも使う？
 
 - `CLAUDE.repo.example.md` の哲学セクション
 - `.claude/Feedback.md` の改善アクション（plans-add / INDEX.addf.md 運用）
+
+## 関連ノウハウ
+
+- [同期 lint の設計 — 検出はツール、解釈と修復はエージェント](sync-lint-design.md) — この分離規約を lint で機械的に守らせる設計と、ダウンストリーム配布時の SKIP 設計
