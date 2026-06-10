@@ -99,6 +99,8 @@ ProgressTemplate の運用ルールに組み込み済み。
 
    **[addf-code-review-agent]** — コードレビュー
    - コード品質・可読性・ベストプラクティスの観点からフィードバック
+   - マイルストーン・リリース直前・`mode: critical` 宣言時・unattended 自走時（`/addf-mode unattended`）は、**ペルソナ並列（視点ずらしレビュー）** で起動する（マイルストーンは3体、`mode: critical` は5体）。
+     ペルソナ定義（skeptic / attacker / newcomer / maintainer / domain-skeptic）と集約ルールは `.claude/agents/addf-code-review-agent.md` を参照
 
 6. **Stage 2 の制御フロー**:
    - 全エージェントを **並列** で開始する

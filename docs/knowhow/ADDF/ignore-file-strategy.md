@@ -1,3 +1,11 @@
+---
+title: ignore ファイルの運用戦略
+created: 2026-03-18
+last_verified: 2026-03-18
+depends_on: []
+status: active
+---
+
 # ignore ファイルの運用戦略
 
 ## 発見した知見

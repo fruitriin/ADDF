@@ -14,22 +14,8 @@
 3. サブタスク着手時に `- [x]` でチェックしていく。並列可能なタスクはコンテナオーケストレーションを利用する
    - Plan の曖昧さで確信が持てないときは CLAUDE.md「迷ったときの作法（7割共有原則）」に従う（閾値割れなら `.claude/Questions.md` に質問を置いてタスクを切り替える）
    - 長大なタスクでは、サブタスク完了時点でブランチ `checkpoint/<phase>-<N>` を切ってよい。別方針を試すときは checkpoint から `alt/` を分岐する
-3.5. **日記を書く（代替わり引き継ぎ）**（「3.5」は後続の番号参照を壊さないための意図的な枝番）: resume・compaction・`/loop` の次イテレーションで起きる「小さな代替わり」のたびに、次の代の自分（≒ 同僚）が状況に入れるよう、タスクの「#### 日記」セクションにエントリーを書く
-   - **書くタイミング**: サブタスク完了時 / 重要な判断をした直後 / 計画を変更したとき / コンテキストが長くなり compaction を予感したとき
-   - **書式（4項目）**（時刻 HH:MM は省略可）:
-     ```
-     ##### YYYY-MM-DD HH:MM — <出来事の一行>
-     **やったこと**: <完了した作業と判断の要約>
-     **今の見立て**: <現状認識。確信度があれば記す>
-     **次の自分へ**: <次に着手すべきこと・先に確認すべきこと>
-     **気になっていること**: <未解決の不確実性・前提・違和感。なければ「なし」>
-     ```
-   - 「日記」という語彙の意図（「遺書」を使わない理由）は `docs/guides/development-process.md` 参照
-   - ブランチ checkpoint が「何がコミットされたか（事実）」を残すのに対し、日記は「なぜそうしたか・次に何を考えていたか（文脈）」を残す。両方で前任者の靴に履き替えられる
-   - 日記の自動生成フックは導入しない。書くこと自体が思考の整理であり、次の自分への手紙として人格を持って書く
 4. 実装フェーズの最終サブタスク完了時、以下の知見を `/addf-knowhow` で記録する（既存 knowhow の更新も含む）:
    - **コーディング知見**: 実装中に発見した再利用可能なパターン、落とし穴、技術的判断とその根拠
-   - **分かれ道の目印**: 差し戻し・やり直し・想定外の判断が発生したサブタスクがあれば、使用したスキルの `.exp.md`「🔀 分かれ道の目印」にも追記する（書式: `.claude/templates/ExperienceTemplate.md`。失敗の告白ではなく、意思決定が枝分かれしたポイントと次に同じ分岐に立ったときの選び方を道標として書く）
 
 ### エージェント起動時の共通ルール
 - エージェントチーム（TeamCreate）やサブエージェント（Agent）を作成するとき、各エージェントへのプロンプトに **最初に `/addf-knowhow-index` を実行する** よう指示を含めること
@@ -38,6 +24,7 @@
 ### タスク完了時 — 品質検証
 
 4. プロジェクトのビルド・Lint・テストコマンドを実行する
+   - ADD フレームワークテスト: `bash .claude/tests/run-all.sh`
    - **失敗した場合 → 実装に差し戻す**。原因分析 → 修正 → 再実行
 5. `addf-code-review-agent` でコードレビューを実施する
    - 通常タスクは単体（ペルソナなし）で起動する
@@ -63,18 +50,46 @@
 
 11. `.claude/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
 12. `.claude/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
-13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/templates/ProgressTemplate.md`）の改善案を `.claude/Feedback.md` に記録する
+13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/templates/ProgressTemplate.addf.md`）の改善案を `.claude/Feedback.md` に記録する
 
 #### アーカイブとコミット
 
-14. `.claude/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/templates/ProgressTemplate.md` から新規の Progress.md を作成する
+14. `.claude/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
 15. コミットする
 
 ---
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: Plan 0016 — 迷ったときの作法（7割共有原則）
 
-> 新しいタスク開始時は以下の構造で記録する:
-> `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）
+#### サブタスクチェックリスト
+
+- [x] `CLAUDE.md` に「迷ったときの作法」セクション追加 + ブートシーケンス 1.5/1.6（Questions/Dashboard）追加
+- [x] `AGENTS.md` ブートシーケンス同期（70% rule の言及も追加）
+- [x] `.claude/Questions.example.md` / `.claude/Questions.md` 新規作成
+- [x] `.claude/Dashboard.example.md` 新規作成 + `.gitignore` に `.claude/Dashboard.md` 追加
+- [x] `.claude/commands/addf-mode.md` 新規スキル（モード状態は CLAUDE.local.md に保存）
+- [x] `.claude/commands/addf-dev.md` にスキップフラグ・worktree 閾値の参照追加
+- [x] `.claude/commands/addf-init.md` に Questions.md 生成・check 項目追加
+- [x] ProgressTemplate/Progress.md に判断ルール参照追加・「unattended は将来導入予定」注記を5ファイルから除去
+- [x] `bash .claude/tests/run-all.sh` + @メンション整合確認（全解決）
+- [x] addf-code-review-agent でセルフレビュー（Critical 1 / Warning 4 / Suggestion 4 → S-1 以外対応、S-1 は Plan に先送り記録）
+- [x] Plan 0016 反映・TODO.addf.md 更新・knowhow 統合（実行保証 knowhow に CLAUDE.local.md 応用を追記）
+- [ ] コミット
+
+##### 2026-06-10 完了（ループ2回目）
+
+**やったこと**: doctrine 実装一式 → レビュー → C-1（サブステップ実行順）と W 群を修正 → Plan ステータス反映時に `## Context` 見出しを誤って消し、レビュー前に自分で気づいて復元。
+**今の見立て**: Plan 0016 完了。`/addf-mode` の状態保存先を CLAUDE.local.md にした判断は knowhow 化済み。
+**次の自分へ**: 次は Plan 0017（代替わり日記）。この日記形式自体が 0017 のドッグフーディングなので、実装時は運用実績2タスク分を反映できる。0017 完了時、ProgressTemplate に日記セクションの規約を足し、この日記の書き味（4項目構成）をテンプレ化すること。
+**気になっていること**: Edit ツールで見出し付きブロックを置換するとき、old_string の末尾に見出しを含めると消えやすい。次回は status 挿入を「見出しの直後に追記」する形にする。
+
+#### 日記
+
+##### 2026-06-10 着手（ループ2回目）
+
+**やったこと**: knowhow 取得（@メンション運用・実行保証・分離パターンが該当）。CLAUDE.md/AGENTS.md/addf-dev/addf-init/gitignore を読了。
+**今の見立て**: モード状態の保存先が Plan 未指定だった。CLAUDE.local.md（gitignore 済み・毎セッション自動読込）に「ADDF モード」セクションを書く設計にする — 新規ブートステップ不要で実行保証が高い。確信度 80%。
+**次の自分へ**: ブート手順の番号は 1.5/1.6 の挿入式（CLAUDE.repo.md が「手順 2」を参照しているため繰り下げ禁止）。
+**気になっていること**: CLAUDE.md の肥大化。doctrine はコンパクト版に絞り、詳細は example ファイルに逃がす。

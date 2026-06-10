@@ -1,3 +1,11 @@
+---
+title: 権限要求パターンと settings ファイルの使い分け
+created: 2026-03-19
+last_verified: 2026-03-19
+depends_on: []
+status: active
+---
+
 # 権限要求パターンと settings ファイルの使い分け
 
 ## 発見した知見

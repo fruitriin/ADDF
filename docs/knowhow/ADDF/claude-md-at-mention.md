@@ -1,3 +1,11 @@
+---
+title: CLAUDE.md の @FileName メンション展開
+created: 2026-03-18
+last_verified: 2026-03-18
+depends_on: []
+status: active
+---
+
 # CLAUDE.md の @FileName メンション展開
 
 ## 発見した知見

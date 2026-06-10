@@ -1,3 +1,11 @@
+---
+title: リリーススキルの責務分割パターン
+created: 2026-03-21
+last_verified: 2026-03-21
+depends_on: []
+status: active
+---
+
 # リリーススキルの責務分割パターン
 
 ## 発見した知見

@@ -38,6 +38,7 @@
 ### タスク完了時 — 品質検証
 
 4. プロジェクトのビルド・Lint・テストコマンドを実行する
+   - ADD フレームワークテスト: `bash .claude/tests/run-all.sh`
    - **失敗した場合 → 実装に差し戻す**。原因分析 → 修正 → 再実行
 5. `addf-code-review-agent` でコードレビューを実施する
    - 通常タスクは単体（ペルソナなし）で起動する
@@ -63,18 +64,56 @@
 
 11. `.claude/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
 12. `.claude/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
-13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/templates/ProgressTemplate.md`）の改善案を `.claude/Feedback.md` に記録する
+13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/templates/ProgressTemplate.addf.md`）の改善案を `.claude/Feedback.md` に記録する
 
 #### アーカイブとコミット
 
-14. `.claude/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/templates/ProgressTemplate.md` から新規の Progress.md を作成する
+14. `.claude/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
 15. コミットする
 
 ---
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: Plan 0018 — knowhow ライフサイクル（賞味期限・誤り訂正・wiki 化）
 
-> 新しいタスク開始時は以下の構造で記録する:
-> `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）
+#### サブタスクチェックリスト
+
+サブタスク A（フロントマター + 鮮度）:
+- [x] 既存 knowhow 10ファイルにフロントマター一括付与（created/last_verified は git log 由来、status: active）
+- [x] `INDEX.addf.md` に鮮度マーク列を追加（🟢2件 / 🟡8件）
+- [x] `addf-knowhow-index.md` の reindex にフロントマター解析・鮮度判定・📜棚セクション・鮮度レポートを追加
+- [x] `addf-knowhow.md` に作成時フロントマター生成・更新時 last_verified 更新・deprecated 禁止を追加
+- [x] `addf-knowhow-agent.md` にライフサイクルフィルタ（retired 除外・superseded 後継返し・stale 注記）を追加
+
+##### 2026-06-10 17:00 — サブタスク A 完了（ループ5回目）
+
+**やったこと**: マイグレーションスクリプトで10ファイル一括フロントマター付与。INDEX 鮮度列追加（🟢2/🟡8）。index/knowhow/agent の3定義を更新。
+**今の見立て**: A は計画どおり。B（revise/network スキル新設 + lint）に進む。
+**次の自分へ**: もしここで切れたら、B の2スキルは Plan 0018 の節 6・7 に設計が書いてある。lint は既存の6チェックに7・8として追加する。
+**気になっていること**: なし。
+
+サブタスク B（スキル新設 + lint）:
+- [x] `/addf-knowhow-revise` 新規スキル（再検証・訂正・superseded/retired 遷移・訂正履歴）
+- [x] `/addf-knowhow-network` 新規スキル（GFM 相互リンク・双方向担保・📜 プレフィックス・ハブサマリ・3スキル分業フロー）
+- [x] `addf-lint.md` にチェック 7（鮮度）・8（双方向リンク）を追加
+
+品質ゲート:
+- [x] テスト通過・frontmatter lint 通過・レビュー（Critical 0 / Warning 3 / Suggestion 5 → 全対応）・Plan 反映・TODO 更新
+- [ ] コミット
+
+##### 2026-06-10 17:12 — 完了（ループ5回目）
+
+**やったこと**: サブタスク A/B とも完遂。レビューの本丸は「needs-review の扱いが index/agent/revise で不統一」 — 🔴 扱いに統一し、しきい値定義を index に単一化した。
+**今の見立て**: Plan 0018 完了。これで Fable インタビュー由来の5計画（0016〜0020）が全て実装された。
+**次の自分へ**: 残タスクは Plan 0015（既存プロジェクト導入）と Plan 0021（同期 lint）。0021 は addf-lint に既存のテンプレート同期チェック（#6）があるので、その拡張として実装すると軽い。オーナーに優先度を確認するのが先。
+**気になっていること**: 鮮度マークの「60/180日」はまだ実運用の根拠がない初期値。半年運用して 🔴 が増えすぎる/少なすぎるなら調整する。INDEX の reindex を手動で回した時に鮮度列が保持されるかは次回 reindex 時に要確認。
+
+#### 日記
+
+##### 2026-06-10 16:50 — 着手（ループ5回目）
+
+**やったこと**: knowhow 取得、対象スキル/エージェント定義を読了、git log から全10ファイルの created/last_verified を採取。
+**今の見立て**: 8ファイルが3月作成（🟡 aging）、2ファイルが本日（🟢）。鮮度マークが初日から実データで機能する。マイグレーションはスクリプトで一括、確信度 85%。
+**次の自分へ**: 30分で切れたらサブタスク A 完了時点でコミットし、B を次イテレーションに回す。status 語彙は superseded/retired（deprecated 禁止）、プレフィックスは 📜。
+**気になっていること**: depends_on の初期値はマイグレーションでは空配列にする（依存の精査は revise スキルの初回実行に委ねる。今日のマイグレーションで無理に埋めると不正確な依存が混入する）。

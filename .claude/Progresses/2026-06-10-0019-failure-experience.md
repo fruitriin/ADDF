@@ -29,7 +29,7 @@
    - 日記の自動生成フックは導入しない。書くこと自体が思考の整理であり、次の自分への手紙として人格を持って書く
 4. 実装フェーズの最終サブタスク完了時、以下の知見を `/addf-knowhow` で記録する（既存 knowhow の更新も含む）:
    - **コーディング知見**: 実装中に発見した再利用可能なパターン、落とし穴、技術的判断とその根拠
-   - **分かれ道の目印**: 差し戻し・やり直し・想定外の判断が発生したサブタスクがあれば、使用したスキルの `.exp.md`「🔀 分かれ道の目印」にも追記する（書式: `.claude/templates/ExperienceTemplate.md`。失敗の告白ではなく、意思決定が枝分かれしたポイントと次に同じ分岐に立ったときの選び方を道標として書く）
+   - **失敗経験**: 差し戻し・やり直し・想定外の判断が発生したサブタスクがあれば、使用したスキルの `.exp.md`「❌ 失敗したパターン」にも追記する（書式: `.claude/templates/ExperienceTemplate.md`。同じ落とし穴を2回踏みそうなものだけ、責めずに原因と回避策を書く）
 
 ### エージェント起動時の共通ルール
 - エージェントチーム（TeamCreate）やサブエージェント（Agent）を作成するとき、各エージェントへのプロンプトに **最初に `/addf-knowhow-index` を実行する** よう指示を含めること
@@ -38,6 +38,7 @@
 ### タスク完了時 — 品質検証
 
 4. プロジェクトのビルド・Lint・テストコマンドを実行する
+   - ADD フレームワークテスト: `bash .claude/tests/run-all.sh`
    - **失敗した場合 → 実装に差し戻す**。原因分析 → 修正 → 再実行
 5. `addf-code-review-agent` でコードレビューを実施する
    - 通常タスクは単体（ペルソナなし）で起動する
@@ -63,18 +64,40 @@
 
 11. `.claude/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
 12. `.claude/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
-13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/templates/ProgressTemplate.md`）の改善案を `.claude/Feedback.md` に記録する
+13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/templates/ProgressTemplate.addf.md`）の改善案を `.claude/Feedback.md` に記録する
 
 #### アーカイブとコミット
 
-14. `.claude/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/templates/ProgressTemplate.md` から新規の Progress.md を作成する
+14. `.claude/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
 15. コミットする
 
 ---
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: Plan 0019 — 失敗も .exp.md に書く文化（縮小版）
 
-> 新しいタスク開始時は以下の構造で記録する:
-> `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）
+#### サブタスクチェックリスト
+
+- [x] `ExperienceTemplate.md`（既存）を3セクション構造（✅/❌/🤔）に更新
+- [x] `ProgressTemplate.addf.md` ルール4に失敗記録トリガーを追記（Progress.md にも同期）
+- [x] `addf-knowhow.md` に Phase 4（失敗経験の記録提案）を追加
+- [x] **ドリフト修正**: ダウンストリーム版 `ProgressTemplate.md` に Plan 0020/0016/0017 の変更（ペルソナ並列・迷ったときの作法・checkpoint・日記 3.5・タスク構造ガイド + 本プランの失敗トリガー）を同期
+- [x] テスト・レビュー（Critical 0 / Warning 0 / Suggestion 3 → 全対応）・Plan 反映・TODO 更新・Feedback・Plan 0021 起案
+- [ ] コミット
+
+##### 2026-06-10 16:35 — 完了（ループ4回目）
+
+**やったこと**: ExperienceTemplate を3セクション構造に更新、失敗記録トリガーを ProgressTemplate 2種 + Progress.md に追加、addf-knowhow に Phase 4。ダウンストリーム版テンプレートの3プラン分ドリフトを一括同期。Plan 0021（同期 lint）起案。
+**今の見立て**: Plan 0019 完了。レビューで Critical/Warning ゼロは初。計画段階でオーナーと縮小方針を握れていたことが効いた。
+**次の自分へ**: 残るは Plan 0018（ノウハウライフサイクル・最重量）。フロントマター一括マイグレーション・新スキル2本（revise/network）・INDEX 鮮度マークが主な作業。既存 knowhow は9ファイルなのでマイグレーションは手作業で十分。`superseded`/`retired` の語彙（deprecated 不使用）を守ること。
+**気になっていること**: 0018 は30分イテレーションに収まらない可能性。サブタスクを「フロントマター+index」と「revise/network スキル」に分割し、途中で切れても日記で引き継げるようにする。
+
+#### 日記
+
+##### 2026-06-10 16:20 — 着手（ループ4回目）
+
+**やったこと**: knowhow 取得。templates/ を確認し、ExperienceTemplate.md（無印）が既存、かつダウンストリーム版 ProgressTemplate.md に直近3プランの変更が未同期というドリフトを発見。
+**今の見立て**: Plan の「ExperienceTemplate.addf.md 新設」は実態と不整合 → 既存の無印テンプレート更新に方針変更（3セクション構造は汎用なので .addf 分離は不要）。確信度 85%。
+**次の自分へ**: ProgressTemplate.md（無印）の同期では「ADDF テストランナー行」など ADDF 固有差分を持ち込まないこと（無印版は汎用）。
+**気になっていること**: テンプレート同期が3度目の再発。addf-lint へのチェック追加を独立 Plan として起こす価値が出てきた。
