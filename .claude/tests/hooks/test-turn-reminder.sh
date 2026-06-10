@@ -55,35 +55,43 @@ echo "=== test-turn-reminder.sh ==="
 echo "Test 1: 通常ターン (0→1)"
 echo "0" > "$COUNTER_FILE"
 export CLAUDE_PROJECT_DIR="$PROJECT_DIR"
-stdout=$(bash "$HOOK" 2>/dev/null) || true
+stdout=$(echo '{}' | bash "$HOOK" 2>/dev/null) || true
 assert_exit "exit code" 0 $?
 assert_stdout_empty "no reminder at turn 1" "$stdout"
 
 # テスト 2: 10ターン目（リマインダーあり）
 echo "Test 2: 10ターン目 (9→10)"
 echo "9" > "$COUNTER_FILE"
-stdout=$(bash "$HOOK" 2>/dev/null)
+stdout=$(echo '{}' | bash "$HOOK" 2>/dev/null)
 assert_exit "exit code" 0 $?
 assert_stdout_contains "10 turn reminder" "$stdout" "10ターン経過"
+assert_stdout_contains "安心文（切り上げ指示でない）" "$stdout" "作業を切り上げる指示ではありません"
+if echo "$stdout" | grep -q "コンテキストが大きくなって"; then
+  echo "  FAIL: 根拠のない残量言及が残っている"
+  FAIL=$((FAIL + 1))
+else
+  echo "  PASS: 残量への決め打ち言及なし"
+  PASS=$((PASS + 1))
+fi
 
 # テスト 3: 15ターン目（リマインダーあり）
 echo "Test 3: 15ターン目 (14→15)"
 echo "14" > "$COUNTER_FILE"
-stdout=$(bash "$HOOK" 2>/dev/null)
+stdout=$(echo '{}' | bash "$HOOK" 2>/dev/null)
 assert_exit "exit code" 0 $?
 assert_stdout_contains "15 turn reminder" "$stdout" "15ターン経過"
 
 # テスト 4: 11ターン目（リマインダーなし）
 echo "Test 4: 11ターン目 (10→11)"
 echo "10" > "$COUNTER_FILE"
-stdout=$(bash "$HOOK" 2>/dev/null)
+stdout=$(echo '{}' | bash "$HOOK" 2>/dev/null)
 assert_exit "exit code" 0 $?
 assert_stdout_empty "no reminder at turn 11" "$stdout"
 
 # テスト 5: カウンターファイルが存在しない場合
 echo "Test 5: カウンターファイルなし (→1)"
 rm -f "$COUNTER_FILE"
-stdout=$(bash "$HOOK" 2>/dev/null)
+stdout=$(echo '{}' | bash "$HOOK" 2>/dev/null)
 assert_exit "exit code" 0 $?
 assert_stdout_empty "no reminder at turn 1 (no file)" "$stdout"
 count=$(cat "$COUNTER_FILE")

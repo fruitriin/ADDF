@@ -1,7 +1,7 @@
 ---
 title: Claude Code Hooks の適用方法
 created: 2026-03-18
-last_verified: 2026-03-19
+last_verified: 2026-06-11
 depends_on: []
 status: active
 ---
@@ -114,6 +114,24 @@ hooks:
 - `$CLAUDE_PROJECT_DIR` — プロジェクトルート
 - `${CLAUDE_PLUGIN_ROOT}` — プラグインルート
 - `$CLAUDE_CODE_REMOTE` — リモート環境で `"true"`
+
+## フックからのコンテキスト使用量計測（Plan 0023 で実証）
+
+- UserPromptSubmit フックの stdin JSON に `transcript_path` が含まれる。フック入力
+  そのものにはモデル名・コンテキスト使用量は**含まれない**が、transcript JSONL の
+  `type: "assistant"` エントリの `message.usage` から実測できる:
+  `input_tokens + cache_read_input_tokens + cache_creation_input_tokens` ≈ 現在の使用量
+- 罠1: サブエージェントの応答が `isSidechain: true` で混ざる。メインチェーンのみ採用する
+- 罠2: `message.model` にはウィンドウ variant が載らない（`claude-fable-5[1m]`
+  セッションでも素の `claude-fable-5`）。200k/1M の判別はフックからは不可能なので、
+  「フックは実測値＋設定表の目安を注入し、variant を知っているモデル自身が判断する」分担にする
+- 罠3: 残量に言及する固定文言（「コンテキストが大きくなっています」等）は根拠のない
+  状態断言になり、モデルの早期切り上げを誘発しうる（Fable 5 ガイドの警告）。
+  注入は観測事実のみ＋「切り上げ指示ではない」の安心文を添える
+- 大きい transcript は末尾チャンク（2MB 程度）だけ読み、先頭の不完全な行を捨てる。
+  取得不能（transcript 不在・圧縮直後・パース失敗）は静かに exit 0（誤発火より無発火）
+- 実装: `.claude/addfTools/context-reminder.py`（`turn-reminder.sh` から stdin 中継。
+  stdin の TTY 判定で手動実行・旧テストとの互換を保つ）
 
 ## プロジェクトへの適用
 
