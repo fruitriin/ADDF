@@ -19,6 +19,7 @@
 - `/dev-loop` スキルのブートシーケンスが `TODO.md` を参照するが、ADDF 本体では `docs/plans-add/TODO.addf.md` が正。`/addf-dev` 側は CLAUDE.md のブートシーケンスに従うので問題ないが、汎用 `/dev-loop` 使用時は注意
 - CLAUDE.md のマイグレーション戦略: `CLAUDE.repo.md` にプロジェクト固有設定を寄せる設計方針を維持することで、CLAUDE.md のマイグレーションを単純な上書きに近づける。この方針を崩すとマイグレーション実装が複雑化する（Plan 0011 レビューで発見）
 - AGENTS.md と CLAUDE.md の同期管理: AGENTS.md のブートシーケンスは CLAUDE.md と同期を保つ必要がある。CLAUDE.md 更新時に AGENTS.md も確認すること。将来的には addf-lint にチェックを追加する価値がある（Plan 0012 レビューで発見）
+- ProgressTemplate.addf.md と運用中 Progress.md の同期管理: テンプレートの運用ルールを変更したら、運用中の Progress.md のルールセクションにも同じ変更を手動同期すること。AGENTS.md 同期と同種の再発パターンであり、addf-lint へのチェック追加候補（Plan 0020 レビューで発見）
 
 ## 完了済み
 
