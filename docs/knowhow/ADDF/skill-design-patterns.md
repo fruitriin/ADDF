@@ -110,3 +110,7 @@ status: active
 - 元ツイート: https://x.com/trq212/status/2033949937936085378
 - Claude Code Skills 公式ドキュメント: https://code.claude.com/docs/en/skills
 - Agent Skills コース (Skilljar): https://anthropic.skilljar.com/introduction-to-agent-skills
+
+## 関連ノウハウ
+
+- [同期 lint の設計 — 検出はツール、解釈と修復はエージェント](sync-lint-design.md) — addfTools へのスクリプト同梱構成の実例（lint-template-sync.py）

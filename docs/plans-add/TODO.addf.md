@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: Phase 16〜20 全完了（Fable インタビュー由来の5計画）→ 次は Phase 15 or 21
+## 現在のフェーズ: Phase 21 完了（テンプレート同期 lint）→ 残る未着手は Phase 15 のみ
 
 ## バックログ
 
@@ -29,7 +29,7 @@
 | 18 | 18 | `docs/plans-add/0018-knowhow-expiry.md` | 完了 |
 | 19 | 19 | `docs/plans-add/0019-failure-experience.md` | 完了 |
 | 20 | 20 | `docs/plans-add/0020-adversarial-review.md` | 完了 |
-| 21 | 21 | `docs/plans-add/0021-template-sync-lint.md` | 未着手 |
+| 21 | 21 | `docs/plans-add/0021-template-sync-lint.md` | 完了 |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください

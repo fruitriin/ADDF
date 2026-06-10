@@ -12,7 +12,7 @@
 
 ## 問題の記録
 
-- このリポジトリ自体がADDフレームワーク本体のため、`addf-contribution-agent` の検出結果（アップストリームコントリビューション候補）はそのまま自身に適用済み。フレームワーク本体での `addf-contribution-agent` の有用性は限定的
+- このリポジトリ自体がADDフレームワーク本体のため、`addf-contribution-agent` の検出結果（アップストリームコントリビューション候補）はそのまま自身に適用済み。フレームワーク本体での `addf-contribution-agent` の有用性は限定的。ただし**「ダウンストリーム配布時の安全性」観点の指摘は本体でも有効**（Plan 0021 で lint スクリプトの配布時誤 ERROR を検出し、フェーズ内で SKIP 設計に修正できた）
 
 ## 改善アクション
 
@@ -20,9 +20,7 @@
 - CLAUDE.md はダウンストリームテンプレートとして汎用性を保つこと。ADDF 固有の参照（TODO.addf.md 等）は CLAUDE.repo.md に置く（Plan 0008 で発見・修正済み）
 - `/dev-loop` スキルのブートシーケンスが `TODO.md` を参照するが、ADDF 本体では `docs/plans-add/TODO.addf.md` が正。`/addf-dev` 側は CLAUDE.md のブートシーケンスに従うので問題ないが、汎用 `/dev-loop` 使用時は注意
 - CLAUDE.md のマイグレーション戦略: `CLAUDE.repo.md` にプロジェクト固有設定を寄せる設計方針を維持することで、CLAUDE.md のマイグレーションを単純な上書きに近づける。この方針を崩すとマイグレーション実装が複雑化する（Plan 0011 レビューで発見）
-- AGENTS.md と CLAUDE.md の同期管理: AGENTS.md のブートシーケンスは CLAUDE.md と同期を保つ必要がある。CLAUDE.md 更新時に AGENTS.md も確認すること。将来的には addf-lint にチェックを追加する価値がある（Plan 0012 レビューで発見）
-- ProgressTemplate.addf.md と運用中 Progress.md の同期管理: テンプレートの運用ルールを変更したら、運用中の Progress.md のルールセクションにも同じ変更を手動同期すること。**さらにダウンストリーム版 ProgressTemplate.md（無印）も同期対象**（Plan 0019 で3プラン分の未同期ドリフトを発見・修正）。同期忘れが3度再発したため Plan 0021（addf-lint 同期チェック）を起案済み
-- docs/guides/development-process.md は CLAUDE.md ブートシーケンスの「第三のコピー」: Plan 0016 の変更が未反映というドリフトが Plan 0017 で発覚。ブートシーケンス・品質ゲートを変更したら development-process.md も確認すること。ガイド側は「正は CLAUDE.md/ProgressTemplate、ここは概要のみ」と明記して詳細の重複を避ける方針に変更済み（Plan 0017 で対応）
+- 同期ファイルペア（CLAUDE.md ⇔ AGENTS.md / ProgressTemplate.addf.md ⇔ Progress.md・ProgressTemplate.md / CLAUDE.md ⇔ development-process.md）のドリフトは Plan 0021 で lint 化済み（`lint-template-sync.py`、テストは `run-all.sh` に組み込み）。同期対象を変更したら `/addf-lint` のセクション6を実行して確認する。**新たな同期ペアが生まれたら lint にペアを追加すること**（意思で覚えず機械化する — 詳細は `docs/knowhow/ADDF/sync-lint-design.md`）
 - addf-dev.md がテンプレートのステップ番号を直接参照していた（「ステップ 8〜13」が旧番号のまま残留）。番号参照はセクション名併記にする（Plan 0017 レビューで発見・修正済み）
 
 ## 完了済み
