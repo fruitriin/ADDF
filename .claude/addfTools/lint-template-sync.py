@@ -251,7 +251,8 @@ def check_pair5():
     if uncovered:
         msg = [f'[5] WARNING: {claude_path} が参照する以下のファイルが {init_path} の'
                f'コピーリスト・.gitignore ADDF ブロックのいずれでもカバーされていない'
-               f'（外部起動導入したダウンストリームで参照切れになる）:']
+               f'（外部起動導入したダウンストリームで参照切れになる。'
+               f'オーナー独自の参照であれば、コピー手段を確保した上で意図的に無視してよい）:']
         msg += [f'    UNCOVERED: {r}' for r in uncovered]
         msg.append(git_hint(claude_path, init_path))
         warnings.append('\n'.join(msg))

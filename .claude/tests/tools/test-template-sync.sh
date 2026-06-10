@@ -55,8 +55,9 @@ make_sandbox() {
 echo "=== test-template-sync.sh ==="
 
 # テスト 1: 実リポジトリで全ペア同期済み（意図的差分が誤検出されないことの確認を兼ねる）
-# 前提: リポジトリがクリーンに同期された状態であること。ここが FAIL したら
-# テストではなく実ファイルのドリフトを疑い、lint の出力に従って同期する
+# 前提: ADDF 本体リポジトリでの実行を想定（ダウンストリームでは AGENTS.md 等が SKIP され
+# 結果が環境の状態に依存する）。リポジトリがクリーンに同期された状態であること。
+# ここが FAIL したらテストではなく実ファイルのドリフトを疑い、lint の出力に従って同期する
 echo "Test 1: 実リポジトリで OK"
 output=$(run_lint "$PROJECT_DIR")
 assert_exit "実リポジトリ" 0 $?
@@ -137,6 +138,17 @@ rm -f "$box/.claude/commands/addf-init.md"
 output=$(run_lint "$box")
 assert_exit "addf-init 欠如で OK" 0 $?
 assert_contains "ペア5の SKIP" "[5] SKIP" "$output"
+rm -rf "$box"
+
+# テスト 9: .gitignore 欠如 → 実行時生成ファイル（.claude/Dashboard.md）がカバー不能で WARNING
+# addf-init 実行後の環境では .gitignore ADDF ブロックが必ず存在するため定常運用では発生しない。
+# 発生時は「未整備」を伝える早期警告として妥当 — その仕様をここで固定化する
+echo "Test 9: .gitignore 欠如時のカバー漏れ検出"
+box="$(make_sandbox)"
+rm -f "$box/.gitignore"
+output=$(run_lint "$box")
+assert_exit ".gitignore 欠如で WARNING" 2 $?
+assert_contains "Dashboard.md の UNCOVERED" "UNCOVERED: .claude/Dashboard.md" "$output"
 rm -rf "$box"
 
 echo ""

@@ -1,5 +1,21 @@
 # Plan: addf-init コピーリストの鮮度回復と機械化
 
+## 実装状況: 完了（2026-06-10、PR #11）
+
+全4項目を実装した。機械化は案 (a)（lint へのペア5追加）を採用:
+- カテゴリ1に `Questions.example.md` / `Dashboard.example.md` を追加、Progress.md 生成元を `ProgressTemplate.md` と明記
+- .gitignore マージブロック例は計画外の改善として「クローン元 `<tmp>/addf-source/.gitignore` を正とする」方式に変更（列挙の陳腐化を構造的に排除。本体 .gitignore とのドリフトを実装中に発見したため）
+- `lint-template-sync.py` にペア5（CLAUDE.md 参照 ⇔ addf-init コピーリスト + .gitignore ADDF ブロックのカバレッジ・WARNING・欠如時 SKIP）を追加。テストは9本・23 assertion
+- E2E 手動シナリオ `.claude/tests/skills/test-addf-init-external.md` を新設
+
+品質ゲート結果: code-review は Critical/High なし（W1: コードブロック内誤抽出 / W2: マーカーブロック読み取り堅牢化 → 修正済み）。配布安全性検査も Critical/High なし（.gitignore 欠如時の WARNING はテスト9で仕様として固定化）。
+
+### 記録のみ（Low/Info・未対応）
+
+- gitignore エントリの末尾スラッシュなしディレクトリ指定（例: `.claude/logs`）はペア5のディレクトリマッチで検出漏れしうる（現状の .gitignore は全て `/` 付きのため実害なし）
+- E2E シナリオでローカルパスに読み替えた場合、`https://` スキームチェックの検証がバイパスされる（シナリオに注記済みの運用前提）
+- ペア5の検査対象は CLAUDE.md のみ（テンプレート群の参照はディレクトリ丸ごとコピーでカバーされるため意図的。lint の docstring に明記済み）
+
 ## Context
 
 Plan 0015（既存プロジェクトへの ADDF 組み込み）は 2026-03-21 のコミット `b971d97` で実装済みだが、

@@ -20,7 +20,8 @@
 - CLAUDE.md はダウンストリームテンプレートとして汎用性を保つこと。ADDF 固有の参照（TODO.addf.md 等）は CLAUDE.repo.md に置く（Plan 0008 で発見・修正済み）
 - `/dev-loop` スキルのブートシーケンスが `TODO.md` を参照するが、ADDF 本体では `docs/plans-add/TODO.addf.md` が正。`/addf-dev` 側は CLAUDE.md のブートシーケンスに従うので問題ないが、汎用 `/dev-loop` 使用時は注意
 - CLAUDE.md のマイグレーション戦略: `CLAUDE.repo.md` にプロジェクト固有設定を寄せる設計方針を維持することで、CLAUDE.md のマイグレーションを単純な上書きに近づける。この方針を崩すとマイグレーション実装が複雑化する（Plan 0011 レビューで発見）
-- 同期ファイルペア（CLAUDE.md ⇔ AGENTS.md / ProgressTemplate.addf.md ⇔ Progress.md・ProgressTemplate.md / CLAUDE.md ⇔ development-process.md）のドリフトは Plan 0021 で lint 化済み（`lint-template-sync.py`、テストは `run-all.sh` に組み込み）。同期対象を変更したら `/addf-lint` のセクション6を実行して確認する。**新たな同期ペアが生まれたら lint にペアを追加すること**（意思で覚えず機械化する — 詳細は `docs/knowhow/ADDF/sync-lint-design.md`）
+- 同期ファイルペア（CLAUDE.md ⇔ AGENTS.md / ProgressTemplate.addf.md ⇔ Progress.md・ProgressTemplate.md / CLAUDE.md ⇔ development-process.md / CLAUDE.md ⇔ addf-init コピーリスト）のドリフトは Plan 0021・0022 で lint 化済み（`lint-template-sync.py` ペア1〜5、テストは `run-all.sh` に組み込み）。同期対象を変更したら `/addf-lint` のセクション6を実行して確認する。**新たな同期ペアが生まれたら lint にペアを追加すること**（意思で覚えず機械化する — 詳細は `docs/knowhow/ADDF/sync-lint-design.md`）
+- CLAUDE.md に新しい `.claude/` 配下ファイルへの参照を追加するときは、addf-init のコピーリスト（または .gitignore ADDF ブロック）への追加もセットで行う。漏れは lint ペア5が WARNING で検出する（Plan 0022）
 - addf-dev.md がテンプレートのステップ番号を直接参照していた（「ステップ 8〜13」が旧番号のまま残留）。番号参照はセクション名併記にする（Plan 0017 レビューで発見・修正済み）
 
 ## 完了済み

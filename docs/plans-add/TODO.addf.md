@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: Phase 15 完了確認（実装は 2026-03 の b971d97 で済んでいた）→ 残差分を Phase 22 として起案。残る未着手は Phase 22 のみ
+## 現在のフェーズ: Phase 22 完了（addf-init コピーリスト鮮度回復・同期 lint ペア5、PR #11）。未着手 Plan なし — 次はオーナーリクエスト「品質向上計画の追加」から
 
 ## バックログ
 
@@ -30,7 +30,7 @@
 | 19 | 19 | `docs/plans-add/0019-failure-experience.md` | 完了 |
 | 20 | 20 | `docs/plans-add/0020-adversarial-review.md` | 完了 |
 | 21 | 21 | `docs/plans-add/0021-template-sync-lint.md` | 完了 |
-| 22 | 22 | `docs/plans-add/0022-addf-init-copylist-refresh.md` | 未着手 |
+| 22 | 22 | `docs/plans-add/0022-addf-init-copylist-refresh.md` | 完了 |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
