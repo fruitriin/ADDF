@@ -1,5 +1,11 @@
 # Plan: 代替わり日記 — resume/compaction を前提とした引き継ぎ設計
 
+> **状態: 実装完了（2026-06-10）**
+> - ProgressTemplate 運用ルール 3.5（日記規約: 4項目書式・書くタイミング・checkpoint との分業・自動化しない方針）、CLAUDE.md/AGENTS.md ブート手順 3、addf-dev、development-process.md に実装
+> - 直近2タスク（Plan 0020/0016）で日記形式を先行運用してからテンプレ化した（実績ベース）
+> - レビュー指摘（Critical 2 / Warning 3 / Suggestion 3）全て対応: テンプレートのコメント外テキスト除去、addf-dev の旧ステップ番号修正、日記書式の時刻省略可を明記、ガイドの完了時ステップ補完 + Plan 0016 変更のドリフト同期
+> - 検証 3（セッション切断からの復帰）は次回 compaction/resume 時に実地確認する
+
 ## Context
 
 初稿では「遺書システム」というメタファーを採用したが、オーナーから方針修正を受けた:

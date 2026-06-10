@@ -12,6 +12,7 @@ On session start, read these files in order:
    - 1.6. If `.claude/Dashboard.md` exists, present its contents first (summary of unattended autonomous work). Delete it only after the owner has acknowledged it; re-present next session otherwise
 2. `TODO.md` — Review task backlog and priorities
 3. `.claude/Progress.md` — Continue in-progress tasks or select next
+   - If the in-progress task has a diary (日記) section, read the last 3 entries to pick up the predecessor's situation, judgments, and concerns before starting (see Progress.md operating rules for the diary format)
 4. If no pending tasks:
    - If `docs/plans/` has no plan files (first-time project): scan the project, then ask the owner to choose: (A) guided Q&A (what to build, pain points, target platform, why existing tools don't work) or (B) free-form explanation. Create 2-3 initial plan files, register in TODO.md, and generate project-specific `CLAUDE.repo.md` (as downstream "ADDF利用プロジェクト")
    - Otherwise: ask the owner for the next task
