@@ -72,17 +72,39 @@ threshold_tokens = 180000
 - Fable 系の実効器は未計測のため、オーバーライド例はコメントアウトで出荷する
   （計測・キャリブレーションは本計画のスコープ外。値が定まったら設定だけ変える）
 
-## 調査項目（実装時に確認）
+## 調査結果（2026-06-11 確認済み）
 
-1. UserPromptSubmit フックの stdin JSON に `transcript_path` が含まれるか、
-   および transcript JSONL から usage を読む正確なフィールドパス
-2. 使用モデル名の取得方法（hook input / transcript / 環境変数）。
-   取得できない場合、オーバーライドは諦めてデフォルト閾値のみで動かす
-3. usage が取得できない環境（古い Claude Code 等）でのフォールバック。
-   案: 取得失敗時は関心事Bを静かに SKIP する（誤発火より無発火が安全。
-   関心事Aのターンベースリマインダーは常に生きているため最低限の網は残る）
-4. jq 依存の可否。既存 hooks の流儀（可搬性重視）に従い、
-   依存を増やすなら settings.json / lint との整合を確認する
+1. **`transcript_path` はフック入力に含まれる**（確定・公式ドキュメント）。
+   UserPromptSubmit の stdin JSON: `session_id` / `transcript_path` / `cwd` /
+   `permission_mode` / `hook_event_name` / `prompt`。
+   モデル名・コンテキスト使用量はフック入力には**含まれない**
+   （出典: https://code.claude.com/docs/en/hooks.md）
+2. **transcript JSONL から usage を読める**（確定・実機検証）。
+   `type: "assistant"` エントリの `message.usage` に
+   `input_tokens` / `cache_read_input_tokens` / `cache_creation_input_tokens` があり、
+   3つの合算が現在のコンテキスト使用量の良い近似になる
+   （実測例: 2 + 93627 + 3834 ≈ 97k）。
+   **モデル名も `message.model` から取れる**（実測: `claude-fable-5`）ため、
+   モデル別オーバーライドは transcript 経由で実装可能
+3. **コンテキストウィンドウの公称サイズ（分母）はフックからは取れない**
+   （statusline スクリプトの `context_window.context_window_size` にしかない）。
+   → 閾値は「残量%」ではなく**絶対トークン数**で持つ本計画の設計が正しい。
+   実効器ベースの絶対値はそもそも公称サイズと独立なので、分母は不要
+4. **コンパクション後は自己補正される**。直近 assistant の usage は
+   圧縮後のコンテキストを反映するため、推定値は次の応答で自然に下がる。
+   特別なリセット処理は不要
+
+## 実装上の注意（調査で判明）
+
+- transcript にはサブエージェントの応答（sidechain）が混ざりうる。
+  メインチェーンの最後の assistant エントリを使うこと（`isSidechain` 等で除外）
+- 第1応答前・圧縮直後など usage が未取得のタイミングがある。
+  パース失敗・エントリ不在時は関心事Bを**静かに SKIP** する
+  （誤発火より無発火が安全。関心事Aのターンベースの網は常に生きている）
+- JSONL パースは python3 を使う（既存 addfTools が Python 前提のため依存は増えない。
+  jq は新規依存になるので使わない）。大きい transcript は末尾だけ読む（tail 等）
+- statusline は人間向け表示専用で、モデルへの注入はできない。
+  リマインダー注入はフック経由が唯一の経路（本計画のアプローチで正しい）
 
 ## 変更対象ファイル
 
