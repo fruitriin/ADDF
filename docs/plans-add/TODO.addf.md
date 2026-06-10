@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: Phase 22 完了（addf-init コピーリスト鮮度回復・同期 lint ペア5、PR #11）。未着手 Plan なし — 次はオーナーリクエスト「品質向上計画の追加」から
+## 現在のフェーズ: Phase 23 起案済み（turn-reminder の関心事分離・コンテキスト残量ベース能動コンパクション）— 未着手
 
 ## バックログ
 
@@ -31,6 +31,7 @@
 | 20 | 20 | `docs/plans-add/0020-adversarial-review.md` | 完了 |
 | 21 | 21 | `docs/plans-add/0021-template-sync-lint.md` | 完了 |
 | 22 | 22 | `docs/plans-add/0022-addf-init-copylist-refresh.md` | 完了 |
+| 23 | 23 | `docs/plans-add/0023-turn-reminder-context-split.md` | 未着手 |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
