@@ -75,7 +75,41 @@
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: Plan 0022 — addf-init コピーリストの鮮度回復と機械化
+
+モード: normal × relaxed × balanced（デフォルト）
+
+#### サブタスクチェックリスト
+
+- [x] 1. `addf-init.md` 修正: カテゴリ1へ `Questions.example.md`/`Dashboard.example.md` 追加、Progress.md 生成元を `ProgressTemplate.md` と明記、.gitignore マージブロック例は「クローン元を正とする」方式に変更（列挙の陳腐化を構造的に排除）
+- [x] 2. `lint-template-sync.py` にペア5（CLAUDE.md 参照 ⇔ addf-init コピーリストのカバレッジ検査）を追加
+- [x] 3. `test-template-sync.sh` にペア5のテストを追加（テスト7: カバー漏れ検出 / テスト8: 欠如時 SKIP。21 PASS）
+- [x] 4. E2E 自然言語シナリオ `.claude/tests/skills/test-addf-init-external.md` を作成
+- [x] 5. Plan 0022 の変更対象ファイル表のパス誤り訂正（lint の実体は `.claude/addfTools/`）
+- [x] 6. Stage 1: `bash .claude/tests/run-all.sh` — 全自動テスト通過
+- [x] 7. Stage 2: addf-code-review-agent 完了（Critical/High なし・W2件・S5件・I2件）。addf-contribution-agent（配布安全性）は実行中
+- [x] 8. レビュー指摘対応: W1（コードブロック内の誤抽出を除外）・W2（マーカーブロック読み取りを break→フラグ折り）・S2（テスト8の意図コメント）・S5（クローン元 `<tmp>/addf-source/.gitignore` の明示）・I1（検査対象を CLAUDE.md に限定する意図を docstring 化）対応。S1/S3/S4/I2 は Plan に記録予定 → Stage 1 再実行 21 PASS
+- [ ] 9. 完了処理（knowhow 記録・Plan 反映・Feedback 更新・アーカイブ・コミット）
+
+#### 日記
+
+##### 2026-06-10 — タスク開始: 調査で見えた追加ドリフト
+**やったこと**: Plan 0022 を選択（唯一の未着手）。knowhow エージェントで関連知見4本を取得し、lint-template-sync.py・test-template-sync.sh・既存スキルシナリオ形式を読了
+**今の見立て**: Plan 記載の4項目に加え、addf-init.md 内の .gitignore マージブロック例が本体 .gitignore とドリフトしている（`.claude/Dashboard.md`・`.claude/skills/addf-gui-test.md` 欠落）のを発見。同根の鮮度問題なので本タスクで一緒に直す。ペア5の検査は「CLAUDE.md の `.claude/` 配下参照を抽出 → addf-init.md 本文（グロブ解釈込み）or .gitignore マーカーブロックでカバーされるか」方式。lint を先に書けば現状のドリフトが WARNING で再現でき、TDD で進められる
+**次の自分へ**: ペア5実装時、ダウンストリームでは CLAUDE.md と addf-init.md が両方存在すれば検査可能（片方欠如で SKIP）。exit code 3値と git ヒントの既存規約を守ること
+**気になっていること**: Plan の変更対象表に `.claude/tests/lint-template-sync.py` と書いたが実体は `.claude/addfTools/`。Plan 側を訂正する（サブタスク5）
+
+##### 2026-06-10 — 実装完了、Stage 2 へ
+**やったこと**: サブタスク1〜6完了。TDD で進め、ペア5 lint が現状ドリフト（example 2ファイル）を正しく WARNING 検出 → addf-init.md 修正で GREEN を確認。.gitignore ブロック例はハードコード列挙をやめ「クローン元の同ブロックをコピーする」指示に変更（リスト陳腐化の構造的排除 — Plan 案 b の発想をここに適用）
+**今の見立て**: ペア5の正規表現は「バッククオート内の `.claude/` 始まりパス」抽出。Phase 1 の状態判定にある `.claude/` ルート単体表記が全カバー扱いになる罠を踏んだ（`[^\s`]*` → `[^\s`]+` で解決）。確信度高
+**次の自分へ**: Stage 2（code review + contribution agent 並列）→ 指摘対応 → 完了処理（knowhow 記録は「ペア5の設計」「`.claude/` ルート単体の罠」を sync-lint-design.md への追記が適切か検討）
+**気になっていること**: ペア5は CLAUDE.md のみ検査対象。CLAUDE.repo.example.md や Progress テンプレートが参照するファイル（ExperienceTemplate.md 等）は templates/ 丸ごとコピーでカバーされるため今回は対象外としたが、将来参照元が増えたら検査対象ファイルの追加を検討
+
+##### 2026-06-10 — レビュー指摘対応、PR 作成へ
+**やったこと**: code-review の W1/W2/S2/S5/I1 を修正し Stage 1 再実行（21 PASS）。オーナー指示で PR 作成に着手
+**今の見立て**: 残る Suggestion（S1: gitignore 末尾スラッシュなしディレクトリ指定の検出漏れ可能性 / S3: テスト6がテスト1通過前提 / S4: E2E のスキームチェック検証の注意 / I2: .gitignore なし環境のテスト未整備）は Low/Info 相当。Plan 0022 の完了記録に注記する
+**次の自分へ**: addf-contribution-agent（配布安全性）がまだ実行中。完了通知が来たら指摘を確認し、必要なら本ブランチに追加コミット。その後 knowhow 記録（sync-lint-design.md への追記: ペア5設計・`.claude/` ルート単体の罠・コードブロック除外）→ Plan 反映 → Feedback 更新（同期ペア5の追記）→ アーカイブ
+**気になっていること**: PR マージは配布安全性検査の結果確認後が望ましい
 
 > 新しいタスク開始時は以下の構造で記録する:
 > `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）

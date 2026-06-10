@@ -42,11 +42,12 @@ assert_contains() {
 make_sandbox() {
   local box
   box="$(mktemp -d)"
-  mkdir -p "$box/.claude/templates" "$box/docs/guides"
-  cp "$PROJECT_DIR/CLAUDE.md" "$PROJECT_DIR/AGENTS.md" "$box/"
+  mkdir -p "$box/.claude/templates" "$box/.claude/commands" "$box/docs/guides"
+  cp "$PROJECT_DIR/CLAUDE.md" "$PROJECT_DIR/AGENTS.md" "$PROJECT_DIR/.gitignore" "$box/"
   cp "$PROJECT_DIR/.claude/Progress.md" "$box/.claude/"
   cp "$PROJECT_DIR/.claude/templates/ProgressTemplate.addf.md" \
      "$PROJECT_DIR/.claude/templates/ProgressTemplate.md" "$box/.claude/templates/"
+  cp "$PROJECT_DIR/.claude/commands/addf-init.md" "$box/.claude/commands/"
   cp "$PROJECT_DIR/docs/guides/development-process.md" "$box/docs/guides/"
   echo "$box"
 }
@@ -103,6 +104,7 @@ assert_contains "ペア4の WARNING" "[4] WARNING" "$output"
 rm -rf "$box"
 
 # テスト 6: ダウンストリーム環境（ADDF 本体固有ファイルなし）→ ペア2〜4 SKIP で exit=0
+# addf-init.md と .gitignore は配布対象のため存在する想定（ペア5は SKIP せず実行され OK になる）
 echo "Test 6: ダウンストリーム環境シミュレーション"
 box="$(make_sandbox)"
 rm -f "$box/.claude/templates/ProgressTemplate.addf.md" "$box/AGENTS.md"
@@ -115,6 +117,26 @@ assert_exit "ダウンストリームで OK" 0 $?
 assert_contains "ペア2の SKIP" "[2] SKIP" "$output"
 assert_contains "ペア3の SKIP" "[3] SKIP" "$output"
 assert_contains "ペア4の SKIP" "[4] SKIP" "$output"
+rm -rf "$box"
+
+# テスト 7: CLAUDE.md に未カバーの .claude/ 参照を注入 → ペア5 WARNING (exit=2)
+echo "Test 7: addf-init コピーリストのカバー漏れ検出"
+box="$(make_sandbox)"
+printf '\n通知の書式は `.claude/NewFeature.example.md` を参照\n' >> "$box/CLAUDE.md"
+output=$(run_lint "$box")
+assert_exit "カバー漏れで WARNING" 2 $?
+assert_contains "ペア5の WARNING" "[5] WARNING" "$output"
+assert_contains "漏れファイルの特定" "UNCOVERED: .claude/NewFeature.example.md" "$output"
+rm -rf "$box"
+
+# テスト 8: addf-init.md 欠如 → ペア5 SKIP で exit=0
+# （欠如時はカバー漏れがあっても検査されない。テスト7の検出はaddf-init.md の存在が前提）
+echo "Test 8: addf-init.md 欠如時の SKIP"
+box="$(make_sandbox)"
+rm -f "$box/.claude/commands/addf-init.md"
+output=$(run_lint "$box")
+assert_exit "addf-init 欠如で OK" 0 $?
+assert_contains "ペア5の SKIP" "[5] SKIP" "$output"
 rm -rf "$box"
 
 echo ""

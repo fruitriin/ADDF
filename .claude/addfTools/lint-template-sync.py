@@ -7,7 +7,13 @@
 ペア3: CLAUDE.md ⇔ AGENTS.md（ブートシーケンス手順番号の対応・WARNING）
 ペア4: CLAUDE.md ⇔ docs/guides/development-process.md（ブートシーケンス概要手順番号の対応・WARNING）
 
-ペア2〜4 は片方のファイルが存在しない場合 SKIP する（ADDF 本体固有ファイルは
+ペア5: CLAUDE.md ⇔ addf-init.md コピーリスト（参照ファイルのカバレッジ・WARNING）
+       CLAUDE.md が参照する .claude/ 配下のファイルが、addf-init の Phase 3
+       コピーリスト（グロブ・ディレクトリ含む）または .gitignore の ADDF マーカー
+       ブロック（実行時生成ファイル）でカバーされているかを検査する。
+       カバー漏れは外部起動導入したダウンストリームでの参照切れになる。
+
+ペア2〜5 は片方のファイルが存在しない場合 SKIP する（ADDF 本体固有ファイルは
 ダウンストリームプロジェクトに存在しないため、欠如はドリフトではない）。
 
 不一致の WARNING には git log による最終更新日ヒントを併記する
@@ -15,6 +21,7 @@
 
 exit code: 0 = 全一致 / 1 = ERROR あり / 2 = WARNING のみ
 """
+import fnmatch
 import os
 import re
 import subprocess
@@ -163,6 +170,93 @@ def check_boot_pair(pair_no, base, base_header, other, other_header, label):
         )
 
 
+def claude_md_references(path):
+    """CLAUDE.md が @メンション/バッククオートで参照する .claude/ 配下のファイルパスを返す
+
+    コードブロック内は例示パスの可能性があるため除外する。
+    検査対象を CLAUDE.md に限定するのは意図的: CLAUDE.repo.example.md や
+    テンプレート群が参照するファイルは `.claude/templates/` 等のディレクトリ丸ごと
+    コピーでカバーされるため、参照切れの主リスクは CLAUDE.md 直下参照に集中する。
+    """
+    with open(path) as f:
+        lines = f.read().splitlines()
+    refs = set()
+    in_code = False
+    for line in lines:
+        if line.strip().startswith('```'):
+            in_code = not in_code
+            continue
+        if in_code:
+            continue
+        # @.claude/Feedback.md 形式（@メンション）
+        refs.update(re.findall(r'@(\.claude/[^\s`]+\.\w+)', line))
+        # `.claude/Questions.md` 形式（バッククオート内・拡張子付きファイルのみ）
+        refs.update(re.findall(r'`(\.claude/[^\s`]+\.\w+)`', line))
+    return sorted(refs)
+
+
+def gitignore_addf_block(path):
+    """マーカーブロック `# --- ADDF Framework ---` 〜 `# --- /ADDF Framework ---` 内のエントリを返す"""
+    if not os.path.exists(path):
+        return []
+    with open(path) as f:
+        lines = f.read().splitlines()
+    out, in_block = [], False
+    for line in lines:
+        s = line.strip()
+        if s.startswith('# --- /ADDF Framework'):  # 重複ブロックにも対応するため break しない
+            in_block = False
+            continue
+        if s.startswith('# --- ADDF Framework'):
+            in_block = True
+            continue
+        if in_block and s and not s.startswith('#'):
+            out.append(s)
+    return out
+
+
+def check_pair5():
+    """CLAUDE.md が参照する .claude/ 配下ファイルが addf-init コピーリストでカバーされているか（WARNING）"""
+    claude_path = 'CLAUDE.md'
+    init_path = '.claude/commands/addf-init.md'
+    if not os.path.exists(claude_path) or not os.path.exists(init_path):
+        missing = claude_path if not os.path.exists(claude_path) else init_path
+        skips.append(f'[5] SKIP: {missing} が存在しない')
+        return
+    refs = claude_md_references(claude_path)
+    with open(init_path) as f:
+        init_text = f.read()
+    # addf-init.md 本文中のバッククオートパス（コピーリストのエントリ。グロブ・ディレクトリ含む）
+    # `.claude/` 単体（Phase 1 の状態判定で言及されるルート）はコピーエントリではないため除外
+    init_entries = set(re.findall(r'`(\.claude/[^\s`]+)`', init_text)) - {'.claude/'}
+    # .gitignore の ADDF マーカーブロック（実行時生成ファイルはコピー対象外として正当）
+    ignore_entries = gitignore_addf_block('.gitignore')
+
+    def covered(ref):
+        if ref in init_entries:
+            return True
+        for entry in init_entries:
+            if entry.endswith('/') and ref.startswith(entry):  # ディレクトリ丸ごとコピー
+                return True
+            if '*' in entry and fnmatch.fnmatch(ref, entry):  # グロブ指定
+                return True
+        for entry in ignore_entries:
+            if entry.endswith('/') and ref.startswith(entry):
+                return True
+            if fnmatch.fnmatch(ref, entry):
+                return True
+        return False
+
+    uncovered = [r for r in refs if not covered(r)]
+    if uncovered:
+        msg = [f'[5] WARNING: {claude_path} が参照する以下のファイルが {init_path} の'
+               f'コピーリスト・.gitignore ADDF ブロックのいずれでもカバーされていない'
+               f'（外部起動導入したダウンストリームで参照切れになる）:']
+        msg += [f'    UNCOVERED: {r}' for r in uncovered]
+        msg.append(git_hint(claude_path, init_path))
+        warnings.append('\n'.join(msg))
+
+
 check_pair1()
 check_pair2()
 check_boot_pair(3, 'CLAUDE.md', '## ブートシーケンス',
@@ -171,6 +265,7 @@ check_boot_pair(3, 'CLAUDE.md', '## ブートシーケンス',
 check_boot_pair(4, 'CLAUDE.md', '## ブートシーケンス',
                 'docs/guides/development-process.md', '## ブートシーケンス',
                 'CLAUDE.md ⇔ development-process.md ブートシーケンス概要')
+check_pair5()
 
 for msg in errors + warnings + skips:
     print(msg)
@@ -179,4 +274,4 @@ if errors:
     sys.exit(1)
 if warnings:
     sys.exit(2)
-print('OK: 同期チェック通過 (1: Progress.md / 2: ProgressTemplate / 3: AGENTS.md / 4: development-process.md)')
+print('OK: 同期チェック通過 (1: Progress.md / 2: ProgressTemplate / 3: AGENTS.md / 4: development-process.md / 5: addf-init コピーリスト)')
