@@ -1,3 +1,11 @@
+---
+title: 既存プロジェクトへの ADDF 導入パターン
+created: 2026-03-21
+last_verified: 2026-03-21
+depends_on: []
+status: active
+---
+
 # 既存プロジェクトへの ADDF 導入パターン
 
 ## 発見した知見

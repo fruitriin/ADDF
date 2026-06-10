@@ -1,3 +1,11 @@
+---
+title: PreToolUse ブロックフックの設計パターン — 根拠提示型ガード
+created: 2026-03-19
+last_verified: 2026-03-19
+depends_on: []
+status: active
+---
+
 # PreToolUse ブロックフックの設計パターン — 根拠提示型ガード
 
 ## 発見した知見

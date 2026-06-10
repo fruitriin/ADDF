@@ -27,8 +27,16 @@ user_invocable: true
    - 矛盾する情報がある場合は最新の知見で上書きする
 
 #### Phase 2: 記録
-4. 以下の構造で記録する:
+4. 以下の構造で記録する（フロントマター必須）:
    ```markdown
+   ---
+   title: トピック名
+   created: <今日の日付 YYYY-MM-DD>
+   last_verified: <今日の日付>
+   depends_on: []  # 依存するスキル・ファイル・ライブラリがあれば列挙（例: - file: .claude/commands/addf-dev.md）
+   status: active  # active | superseded | retired | needs-review
+   ---
+
    # トピック名
 
    ## 発見した知見
@@ -43,6 +51,8 @@ user_invocable: true
    ## 参照
    - ソースコードのパス、外部ドキュメントのURL
    ```
+   - **既存ファイルに追記・統合した場合**は、そのファイルの `last_verified` を今日に更新する（内容を再検証したことになるため）
+   - status の語彙: 後継に引き継がれたら `superseded`（`superseded_by:` に後継パスを記載）、後継なしで棚上げなら `retired`。**`deprecated` は使わない**（理由と遷移手順は `addf-knowhow-revise.md` の「語彙の注意」参照）
 
 #### Phase 3: 自己ブラッシュアップ
 5. `addf-knowhow.exp.md` が存在すれば読み、過去の経験を考慮する

@@ -1,3 +1,11 @@
+---
+title: スキル設計パターン（Anthropic 社内知見ベース）
+created: 2026-03-19
+last_verified: 2026-03-21
+depends_on: []
+status: active
+---
+
 # スキル設計パターン（Anthropic 社内知見ベース）
 
 > 出典: Thariq (Anthropic) "Lessons from Building Claude Code: How We Use Skills" (2026-03-18)

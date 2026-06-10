@@ -1,5 +1,13 @@
 # Plan: knowhow の賞味期限 — 最終検証日と依存前提
 
+> **状態: 実装完了（2026-06-10）**
+> - 既存10ファイルにフロントマター一括付与（created/last_verified は git log 由来）。INDEX に鮮度マーク列（初期状態: 🟢2 / 🟡8）
+> - addf-knowhow-index（鮮度判定・📜棚・鮮度レポート）、addf-knowhow（フロントマター生成・last_verified 更新）、addf-knowhow-agent（ライフサイクルフィルタ）を拡張
+> - 新スキル2本: `/addf-knowhow-revise`（意味的再検証・訂正履歴・superseded/retired 遷移）、`/addf-knowhow-network`（GFM 相互リンク wiki 化・双方向担保・ハブサマリ）
+> - addf-lint にチェック 7（鮮度・WARNING 止まり）・8（双方向リンク）追加
+> - レビュー指摘（Critical 0 / Warning 3 / Suggestion 5）対応: needs-review を 🔴 扱いに統一、しきい値定義を index に単一化、retired への片方向リンク例外を明示
+> - 計画との差分: `verified_against` フィールドはマイグレーションでは付与せず（任意フィールド。新規作成時のみ）。depends_on の初期値は空配列（不正確な依存の混入を避け、revise の初回実行で精査）
+
 ## Context
 
 ADDF は `docs/knowhow/` にノウハウを蓄積する設計だが、ノウハウは溜まるほど価値が出る一方で、古い知見は静かに嘘になる。

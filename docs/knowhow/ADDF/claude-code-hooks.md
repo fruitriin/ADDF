@@ -1,3 +1,11 @@
+---
+title: Claude Code Hooks の適用方法
+created: 2026-03-18
+last_verified: 2026-03-19
+depends_on: []
+status: active
+---
+
 # Claude Code Hooks の適用方法
 
 ## 発見した知見
