@@ -4,6 +4,7 @@ node_modules
 # --- ADDF Framework (do not remove) ---
 .claude/commands/*.exp.md
 .claude/.turn-count
+.claude/.context-reminder-state
 .claude/logs/
 CLAUDE.local.md
 CLAUDE.repo.md

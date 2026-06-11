@@ -1,6 +1,19 @@
 # Plan: turn-reminder の関心事分離とコンテキスト残量ベースの能動コンパクション
 
-## 実装状況: 未着手
+## 実装状況: 完了（2026-06-11）
+
+実装サマリ:
+- `turn-reminder.sh` を関心事分離版に書き換え（A: ターンベース棚卸し・残量言及削除・
+  安心文追加 / B: stdin の hook JSON を `context-reminder.py` に中継）
+- `.claude/addfTools/context-reminder.py` 新設: transcript 末尾2MBから
+  メインチェーン直近 assistant の usage 3項目を合算し、閾値超過時のみ
+  「実測値＋モデル別目安＋安心文」を注入。再通知抑制（増分50k）と
+  コンパクション後の状態自動リセット付き。取得不能時は静かに終了
+- `addf-Behavior.toml` に `[context-reminder]`（threshold 180k）と
+  `[context-reminder.effective-context]`（opus=200k、fable はコメントで未計測と明記）
+- 状態ファイル `.claude/.context-reminder-state` を .gitignore ADDF ブロックに追加
+- テスト: test-context-reminder.sh（8テスト19 assertion 新設）、
+  test-turn-reminder.sh（新文言・残量言及の不在を検証）
 
 ## Context
 

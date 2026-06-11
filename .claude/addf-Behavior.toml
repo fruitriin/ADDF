@@ -4,3 +4,18 @@
 [gui-test]
 enable = false # true にすると、 window-info, capture-window が使用可能になります。
 machine = "mac" # "mac" | "linux" | "windows" — プラットフォーム固有ツールの選択に使用
+
+[context-reminder]
+# 能動コンパクション促しの発火閾値（実測トークン数）。0 で無効化。
+# 公称ウィンドウではなく「実効コンテキスト」（文脈の取り違えが増え始める手前）基準
+threshold_tokens = 180000
+# 再通知に必要な増分トークン（通知済み後、これだけ増えるまで黙る）
+renotify_step_tokens = 50000
+
+[context-reminder.effective-context]
+# モデルごとの実効コンテキスト目安（transcript の message.model に単語単位で部分一致）。
+# キー名はモデル名を一意に識別できる長さにすること（例: opus は可、o は不可）。
+# 注入文に目安として添えられ、判断はモデル自身が行う（1M/200k variant は
+# transcript から判別できないため。Plan 0023 調査結果 2.5 参照）
+opus = 200000 # Opus 1M: 250k 前後から劣化が観測されたため手前の 200k
+# fable = 未計測。実効器が広い可能性あり — 計測でき次第追加
