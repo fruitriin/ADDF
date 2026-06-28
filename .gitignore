@@ -7,7 +7,6 @@ node_modules
 .claude/.context-reminder-state
 .claude/logs/
 CLAUDE.local.md
-CLAUDE.repo.md
 .claude/Dashboard.md
 .claude/skills/addf-gui-test.md
 # --- /ADDF Framework ---
