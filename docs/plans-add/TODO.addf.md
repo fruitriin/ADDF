@@ -33,6 +33,7 @@
 | 22 | 22 | `docs/plans-add/0022-addf-init-copylist-refresh.md` | 完了 |
 | 23 | 23 | `docs/plans-add/0023-turn-reminder-context-split.md` | 完了 |
 | 24 | 24 | `docs/plans-add/0024-todo-plan-status-lint.md` | 完了 |
+| 25 | 25 | `docs/plans-add/0025-rename-repo-to-addf.md` | 未着手 |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
