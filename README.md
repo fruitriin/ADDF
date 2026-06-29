@@ -1,3 +1,7 @@
+<p align="center">
+  <img src=".claude/assets/gh-readme-light.png" alt="ADDF — Agentic Driven Development Framework" width="640">
+</p>
+
 # AutomatonDevDrive Framework
 
 > ADDF — Agentic Driven Development Framework
