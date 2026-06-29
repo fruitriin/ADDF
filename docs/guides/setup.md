@@ -1,6 +1,6 @@
 # 詳細セットアップ
 
-> GitHub で **[Use this template](https://github.com/fruitriin/AutomatonDevDriveFramework/generate)** からリポジトリを作成し、`/addf-init` を実行すれば以下の手順の大部分を自動化できます。
+> GitHub で **[Use this template](https://github.com/fruitriin/ADDF/generate)** からリポジトリを作成し、`/addf-init` を実行すれば以下の手順の大部分を自動化できます。
 > 手動でセットアップしたい場合や、`/addf-init` が対応していない設定を行う場合はこのガイドを参照してください。
 
 ## プロジェクト固有ファイルの差し替え（手動セットアップ）

@@ -20,9 +20,9 @@ git add -A && git commit -m "initial"
 
 ### 入力（README 記載のコピペプロンプト）
 ```
-https://raw.githubusercontent.com/fruitriin/AutomatonDevDriveFramework/main/.claude/commands/addf-init.md
+https://raw.githubusercontent.com/fruitriin/ADDF/main/.claude/commands/addf-init.md
 を取得し、このプロジェクトに ADDF フレームワークを導入してください。
-ADDF リポジトリ: https://github.com/fruitriin/AutomatonDevDriveFramework
+ADDF リポジトリ: https://github.com/fruitriin/ADDF
 ```
 
 ローカル検証の場合はクローン元 URL を手元のリポジトリパスに読み替えてよい

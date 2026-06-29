@@ -43,9 +43,9 @@ cd my-project
 **Existing project** — run this in Claude Code:
 
 ```
-Fetch https://raw.githubusercontent.com/fruitriin/AutomatonDevDriveFramework/main/.claude/commands/addf-init.md
+Fetch https://raw.githubusercontent.com/fruitriin/ADDF/main/.claude/commands/addf-init.md
 and install the ADDF framework into this project.
-ADDF repository: https://github.com/fruitriin/AutomatonDevDriveFramework
+ADDF repository: https://github.com/fruitriin/ADDF
 ```
 
 Existing CLAUDE.md, AGENTS.md, and config files are automatically migrated and merged.

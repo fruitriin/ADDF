@@ -47,9 +47,9 @@ cd my-project
 **既存プロジェクト** — Claude Code で以下を実行:
 
 ```
-https://raw.githubusercontent.com/fruitriin/AutomatonDevDriveFramework/main/.claude/commands/addf-init.md
+https://raw.githubusercontent.com/fruitriin/ADDF/main/.claude/commands/addf-init.md
 を取得し、このプロジェクトに ADDF フレームワークを導入してください。
-ADDF リポジトリ: https://github.com/fruitriin/AutomatonDevDriveFramework
+ADDF リポジトリ: https://github.com/fruitriin/ADDF
 ```
 
 既存の CLAUDE.md・AGENTS.md・設定ファイルは自動で退避・マージされます。

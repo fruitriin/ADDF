@@ -14,7 +14,7 @@ user_invocable: true
 このスキルが WebFetch 経由で取得された場合、または tmp ディレクトリ内のクローンから読まれている場合:
 
 1. **URL の検証とクローン**:
-   - ユーザーが提供した URL、またはデフォルト `https://github.com/fruitriin/AutomatonDevDriveFramework.git`
+   - ユーザーが提供した URL、またはデフォルト `https://github.com/fruitriin/ADDF.git`
    - `https://` スキームのみ許可。`file://`, `ssh://`, `git://` は拒否して案内する
    - URL をユーザーに表示して確認: 「以下の URL からクローンします: <url>。続行しますか？」
    ```bash

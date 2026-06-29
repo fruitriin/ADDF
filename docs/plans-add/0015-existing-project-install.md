@@ -30,9 +30,9 @@ README にコピペ用プロンプトを記載。Claude が raw.githubuserconten
 
 Claude Code で以下のプロンプトを実行してください:
 
-https://raw.githubusercontent.com/fruitriin/AutomatonDevDriveFramework/main/.claude/commands/addf-init.md を取得し、
+https://raw.githubusercontent.com/fruitriin/ADDF/main/.claude/commands/addf-init.md を取得し、
 このプロジェクトに ADDF フレームワークを導入してください。
-ADDF リポジトリ: https://github.com/fruitriin/AutomatonDevDriveFramework
+ADDF リポジトリ: https://github.com/fruitriin/ADDF
 ```
 
 ### フロー

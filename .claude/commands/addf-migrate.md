@@ -30,7 +30,7 @@ ADDF フレームワークを最新版（またはターゲットバージョン
    - クリーンでなければ: 「未コミットの変更があります。コミットまたはスタッシュしてから再実行してください」と案内して終了
 3. ロックファイルの `repository` フィールドから ADDF リポジトリの URL を取得し検証する:
    - `https://` スキームであることを確認（`file://`, `ssh://`, `git://` は拒否）
-   - デフォルト URL（`https://github.com/fruitriin/AutomatonDevDriveFramework.git`）と異なる場合は警告を表示
+   - デフォルト URL（`https://github.com/fruitriin/ADDF.git`）と異なる場合は警告を表示
    - URL をユーザーに表示して確認
 
 ### Phase 2: 最新版の取得
