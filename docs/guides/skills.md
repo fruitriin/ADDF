@@ -38,7 +38,10 @@ ADDF が提供するスキル（`/コマンド名` で呼び出し）:
 
 ## GUI テスト（オプション）
 
-有効化するには `.claude/addf-Behavior.toml` で `enable = true` に設定してください。macOS のみ対応。
+GUI 関連スキルはオプトイン式です（原本は `.claude/optional/`、有効化するまで発見パスに存在しません）。
+`.claude/addf-Behavior.toml` で `enable = true` に設定し、
+`python3 .claude/addfTools/sync-optional-skills.py apply` で有効化コピーを配置してください
+（手順の詳細は `docs/guides/gui-test-setup.md`）。macOS のみ対応。
 
 | スキル | 呼び出し | 説明 |
 |---|---|---|

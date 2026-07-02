@@ -2,7 +2,11 @@
 #
 
 [gui-test]
-enable = false # true にすると、 window-info, capture-window が使用可能になります。
+# true にすると window-info, capture-window が使用可能になり、GUI スキル一式
+# （addf-gui-test / addf-annotate-grid / addf-clip-image / addf-ui-test-agent）の
+# 有効化コピーが配置対象になる。切り替え後に
+# `python3 .claude/addfTools/sync-optional-skills.py apply` を実行すること
+enable = false
 machine = "mac" # "mac" | "linux" | "windows" — プラットフォーム固有ツールの選択に使用
 
 [context-reminder]

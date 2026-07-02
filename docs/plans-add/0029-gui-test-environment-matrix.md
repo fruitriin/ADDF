@@ -1,6 +1,27 @@
 # Plan 0029: GUI テストの環境マトリクス化（環境別オプトイン・差し替え・組み合わせ）
 
-## 実装状況: 未着手
+## 実装状況: 一部完了（2026-07-02。フェーズ1 = スキル本体のオプトイン配置が完了。環境マトリクス・ドライバ抽象はフェーズ2以降）
+
+### フェーズ1 実装記録（2026-07-02）
+
+「設計の骨子 5.」を、既存 `gui-test.enable` をマスタースイッチとして環境スキーマと独立に実装:
+
+- GUI スキル3本＋`addf-ui-test-agent` を `.claude/optional/{commands,agents}/` へ git mv（原本化）
+- `sync-optional-skills.py` 新設（check = /addf-lint セクション10 / apply = 配置・撤去）。3原則
+  「原本が真実源・コピーは使い捨て・改変コピーは削除も上書きもしない」を実装。
+  gitignore 列挙漏れ・原本を失った孤児コピーの検出付き（列挙の陳腐化対策）。
+  enable の型検証（`"false"` 文字列の誤 True を ERROR）、TOML 構文エラーは lint-toml へ責務分離して SKIP
+- `.gitignore` ADDF ブロックに有効化コピー4パス追加（残骸エントリ問題の正統な再来版）
+- addf-init コピーリスト・addf-migrate（Phase 5 に手順 14.5「オプショナルスキルの同期」を実行ステップとして追加、
+  完了レポートに /addf-lint 案内）・lint-frontmatter・addf-experience のスキャン範囲・
+  docs/guides（gui-test-setup / agents / skills）を追随
+- テスト25件（`test-optional-skills.sh`: 配置・撤去・改変保護・設定不正・gitignore 整合）
+- レビュー High 2件（ガイドの旧前提 / migrate 手順の未具現化 — 「参照では実行されない」の同型穴）・
+  Medium 5件をフェーズ内修正
+
+**フェーズ1の残課題（Low/Info、記録のみ）**:
+- L1: `docs/project-overview/*` が GUI スキル常設前提のまま（生成物。次回 /addf-overview 再生成で解消）
+- L3: `.claude/tests/skills/test-addf-{clip-image,annotate-grid}.md` に enable+apply 前提の一言がない
 
 > **粗々の起票**: 設計の方向性と未決事項を出す段階。実装詳細は着手時に詰める。
 

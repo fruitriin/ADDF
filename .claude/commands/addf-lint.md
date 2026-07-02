@@ -110,6 +110,21 @@ WARNING はエージェントの確認漏れではなく**手順書側の点検*
 チェックの実装そのもの・解説文のセクションは `<!-- checklist-lint: skip-section -->` で除外できる。
 対象ファイルが無い場合（ダウンストリーム）は SKIP される。
 
+## 10. オプショナルスキル同期チェック
+
+`.claude/optional/`（オプトイン式スキル・エージェントの原本）と発見パスの有効化コピーが
+`addf-Behavior.toml` の `[gui-test] enable` と整合しているかを検査する:
+
+```bash
+uv run --python 3.11 .claude/addfTools/sync-optional-skills.py
+```
+
+exit code: 0 = 整合 / 1 = ERROR（`enable` が真偽値でない等の設定不正） /
+2 = WARNING（未配置・撤去漏れ・原本との差分・gitignore 列挙漏れ・原本を失った孤児コピー）。
+解消は `sync-optional-skills.py apply`（原本と異なる有効化コピーは apply でも削除・上書きされない —
+直接編集は原本に対して行う）。`.claude/optional/` または Behavior.toml が無い場合、
+Behavior.toml が構文エラーの場合（セクション4の責務）は SKIP される。
+
 ## 結果報告
 
 全チェックの結果を以下の形式でまとめる:
@@ -128,4 +143,5 @@ WARNING はエージェントの確認漏れではなく**手順書側の点検*
 7. Knowhow 鮮度       ✓ / ⚠
 8. Knowhow リンク     ✓ / ⚠
 9. チェックリスト裏付け ✓ / ⚠
+10. オプショナルスキル同期 ✓ / ⚠
 ```

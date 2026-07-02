@@ -141,6 +141,7 @@ ADDF ファイルの配置元を決定する:
 衝突リスクなし（`addf-` プレフィックスで識別可能）:
 - `.claude/commands/addf-*.md` — スキル定義
 - `.claude/agents/addf-*.md` — エージェント定義
+- `.claude/optional/` — オプトイン式スキル・エージェントの原本（GUI テスト等。有効化は `.claude/addfTools/sync-optional-skills.py apply`）
 - `.claude/hooks/*.sh` — フック
 - `.claude/templates/` — テンプレート
 - `.claude/addfTools/` — ツール群

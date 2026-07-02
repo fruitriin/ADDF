@@ -61,6 +61,7 @@ ADDF フレームワークを最新版（またはターゲットバージョン
 **マイグレーション対象ファイル:**
 - `.claude/commands/addf-*.md` — スキル定義
 - `.claude/agents/addf-*.md` — エージェント定義
+- `.claude/optional/` — オプトイン式スキル・エージェントの原本（適用後に `sync-optional-skills.py` の再実行を案内）
 - `.claude/hooks/` — フック
 - `.claude/templates/` — テンプレート
 - `.claude/addfTools/` — ツール群
@@ -160,6 +161,14 @@ ADDF フレームワークを最新版（またはターゲットバージョン
     - hooks、addfTools、tests は上書き
     - docs/knowhow/ADDF/ は上書き（ADDF 由来のノウハウのみ）
 
+14.5. **オプショナルスキルの同期**（「14.5」は後続の番号参照を壊さないための枝番）:
+    `.claude/optional/` に変更（追加・更新・リネーム）が含まれる場合、有効化コピーを追従させる:
+    ```bash
+    python3 .claude/addfTools/sync-optional-skills.py apply
+    ```
+    `addf-Behavior.toml` の `[gui-test] enable` に従って配置/撤去される。改変された有効化コピーは
+    削除・上書きされず WARNING になるため、表示に従って原本へ取り込んでから再実行する
+
 ### Phase 6: 完了
 
 15. `.claude/addf-lock.json` を更新する（旧形式の `commit` フィールドがあれば `ref` に置き換える）:
@@ -189,6 +198,7 @@ ADDF フレームワークを最新版（またはターゲットバージョン
     1. 変更内容を確認してください (git diff)
     2. 問題なければコミットしてください
     3. 手動マージが必要なファイルを確認してください
+    4. /addf-lint で整合を確認してください（オプショナルスキル同期はセクション10）
     ```
 
 ## Gotchas
