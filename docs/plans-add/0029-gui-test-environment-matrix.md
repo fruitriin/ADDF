@@ -94,7 +94,47 @@ Plan 0004 で定義した抽象操作（window-info / capture-window / annotate-
   windows / linux / ios / android は「インターフェース準拠のスタブ＋SKIP 報告」まで
   （ダウンストリームや後続 Plan が差し込める形を先に作る）
 
-### 5. スキル・エージェント・ドキュメントの追随
+### 5. スキル本体のオプトイン配置 — 退避 ＋ 有効化コピー
+
+設定レベル（Behavior.toml）のオプトインに加えて、**GUI を扱うスキル定義そのものを能力レベルでオプトイン**にする。
+GUI 関連スキルを発見パス外に退避しておき、オプトイン時にスキルディレクトリへ実体化する。
+
+**対象**（GUI を扱う一式）:
+- `.claude/commands/addf-gui-test.md` / `addf-annotate-grid.md` / `addf-clip-image.md`
+- `.claude/agents/addf-ui-test-agent.md`（エージェントも自動発見されるため同じ機構に乗せる）
+
+**配置（案）**:
+```
+.claude/optional/commands/addf-gui-test.md      ← 原本（コミット対象。発見パス外）
+.claude/optional/agents/addf-ui-test-agent.md   ← 同上
+.claude/commands/addf-gui-test.md               ← 有効化コピー（gitignore。オプトイン時に生成）
+```
+- 退避先は `.claude/commands/` / `.claude/agents/` の**外**に置く（`.claude/commands/` のサブディレクトリは
+  名前空間付きコマンドとして発見されてしまうため不可）
+
+**方式はシンボリックリンクではなくコピーを推奨**:
+- ダウンストリームは Windows も対象。Windows のシンボリックリンクは権限（Developer Mode）と
+  git 設定（`core.symlinks`）依存が強く、「clone したら壊れたリンクだった」が起きうる
+- コピーの弱点（原本とのドリフト）は次の3点で殺す:
+  1. 有効化コピーは **gitignore**（`.gitignore` ADDF ブロックには残骸エントリ
+     `.claude/skills/addf-gui-test.md` が現存する — Plan 0026 Low 指摘。本 Plan で正しいパスに直して再利用し、指摘を解消する）
+  2. 原本からいつでも再生成可能（コピーは使い捨て）
+  3. **同期 lint に新ペアを追加**: 「オプトイン中は原本と有効化コピーが一致すること」＋
+     「Behavior.toml の enable 状態とスキル実体の有無が一致すること」（enable なのにスキル不在 / disable なのに残存 → WARNING）。
+     Feedback.md のルールに従い、ペア追加時に addf-lint.md セクション6の表も同時更新する
+
+**Behavior.toml を単一の真実源とする**:
+- オーナーが直接コピーを操作するのではなく、`[gui-test]` の enable 状態を宣言 →
+  同期ステップ（`/addf-gui-test setup`（新設サブコマンド）または `/addf-init` / `/addf-migrate` の一部）が
+  スキル実体を配置・撤去する。手で剥がしても lint が不整合を検出する
+- 有効化の粒度は「いずれかの環境が enable ならスキル一式を配置」（環境タグはシナリオフィルタ側の関心事で、
+  スキルの有無は「GUI を扱ってよいか」のマスタースイッチ）
+
+**経験ファイル（.exp.md）の扱い**:
+- `addf-gui-test.exp.md` 等は gitignore 済みの実行時生成物。無効化時も**削除しない**
+  （再オプトイン時に過去の経験が戻るように。スキル不在時に exp だけ残っていても無害）
+
+### 6. スキル・エージェント・ドキュメントの追随
 
 - `.claude/commands/addf-gui-test.md`: 手順2のプラットフォーム判定を「環境タグ解決 → シナリオフィルタ →
   ドライバ選択」に書き換える
@@ -106,10 +146,14 @@ Plan 0004 で定義した抽象操作（window-info / capture-window / annotate-
 ## 影響範囲
 
 - `.claude/addf-Behavior.toml`（スキーマ拡張・後方互換）
-- `.claude/commands/addf-gui-test.md` / `.claude/agents/addf-ui-test-agent.md`
+- `.claude/commands/addf-gui-test.md` / `addf-annotate-grid.md` / `addf-clip-image.md` /
+  `.claude/agents/addf-ui-test-agent.md`（`.claude/optional/` への退避＋有効化コピー機構）
+- `.gitignore` ADDF ブロック（有効化コピーのエントリ追加。残骸エントリ `.claude/skills/addf-gui-test.md` の修正 — Plan 0026 Low 指摘の解消）
 - `.claude/addfTools/`（drivers/ ディレクトリ導入、web ドライバ新規）
+- `.claude/addfTools/lint-template-sync.py`（原本⇔有効化コピー・Behavior.toml⇔スキル実体の同期ペア追加。addf-lint.md セクション6の表も同時更新）
+- `/addf-init`（コピーリスト変更: GUI スキルを無条件コピーから optional 配置に変更。lint ペア5への影響確認）
 - `docs/guides/gui-test-setup.md` / `docs/test-scenarios/` の書式
-- `/addf-migrate`（`machine` → `environments` 移行）
+- `/addf-migrate`（`machine` → `environments` 移行、既存プロジェクトの GUI スキルの optional 退避移行）
 - `/addf-lint`（lint-toml.py の対象キー拡張。新スキーマの検証を足すか要検討）
 
 ## 未決事項（粗々ゆえ）
@@ -123,10 +167,17 @@ Plan 0004 で定義した抽象操作（window-info / capture-window / annotate-
   入力まで広げるとインターフェースが倍化するため、本 Plan は撮影系に限定する案が有力）
 - ダウンストリーム配布時の安全性: `enable = false` デフォルトの維持と、
   未オプトイン環境での挙動（SKIP 報告）が addf-init 配布物でも成立するかの確認（Feedback.md の観点）
+- スキル実体化の同期トリガーの主体: `/addf-gui-test setup` サブコマンド新設か、`/addf-init` / `/addf-migrate` に
+  同梱か、SessionStart フックで Behavior.toml と突き合わせて自動整合か（フック自動はオーナーの意図しない
+  配置変更が起きうるため lint WARNING 留めが無難か）
+- Unix 環境限定でシンボリックリンクを許すか: コピー一本に統一するほうが lint・ドキュメントが単純。
+  リンクの利点（原本編集が即反映）は開発時のみで、ダウンストリームでは原本を編集しないため薄い
 
 ## 完了条件（暫定）
 
 - 環境ごとに GUI テストをオプトインでき、未オプトイン環境ではシナリオが FAIL せず SKIP 報告される
+- GUI 関連スキル・エージェント定義が `.claude/optional/` に退避され、オプトイン時のみ発見パスに実体化される。
+  無効時はスキルがコンテキストに載らず、Behavior.toml とスキル実体の不整合は lint が検出する
 - シナリオが要求環境を宣言でき、実行側が現環境で満たせるものだけを実行する
 - ドライバが差し替え可能で、mac（既存）と web（Playwright）の2実装が動作する。
   windows / linux / ios / android はスタブとして差し込み口が存在する
@@ -136,5 +187,8 @@ Plan 0004 で定義した抽象操作（window-info / capture-window / annotate-
 ## 関連
 
 - Plan 0004（GUI テストのクロスプラットフォーム抽象化）— 本 Plan はその抽象を環境マトリクスへ拡張する
+- Plan 0026（レビュー残課題バックログ）— `.gitignore` 残骸エントリの Low 指摘を本 Plan で解消する
+- Plan 0021 / 0022 / 0024（同期 lint 機構）— 原本⇔有効化コピーの同期ペアはこの機構に追加する
+- `docs/knowhow/ADDF/sync-lint-design.md` — 同期ペア追加時の作法
 - `docs/guides/gui-test-setup.md` — セットアップガイド（要更新）
 - Feedback.md「ダウンストリーム配布時の安全性」観点 — デフォルト無効・SKIP 設計の根拠
