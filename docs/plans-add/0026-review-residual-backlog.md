@@ -1,6 +1,6 @@
 # Plan 0026: プロジェクトレビュー残課題バックログ
 
-## 実装状況: 未着手
+## 実装状況: 一部完了（2026-07-02。コード品質・ドキュメントの Medium/Low/Info 6件対応済み。セキュリティ Critical/High と experience 方式はオーナー指示待ち）
 
 ## 目的
 
@@ -55,25 +55,22 @@
   - マイグレーション耐性は案Bが高い（手動 Read は読み忘れが起きる。注入行はスキル側で上書きされても
     upstream と同一、実体 exp は migrate 対象外で保護される）が、全17スキルへの一括変更が必要。
 
-### コード品質（軽微・単独修正可）
+### コード品質（軽微・単独修正可）→ 対応済み（2026-07-02）
 
-- **[Medium] addf-dev.md の Plan 命名規則が実態と不一致** — 「`phaseX.Y-*.md`」形式前提の記述だが
-  実際は4桁連番（`0001-`）。プロジェクト非依存の表現にするか、両形式あり得ることを明記する。
-- **[Low] hooks に set -e 非使用の設計判断が未明記** — 4フックとも意図的に `set -e` を使わない
-  （フォールバック優先）が、コメントがないため次の編集者が安易に追加して壊すリスク。冒頭コメントで一言添える。
-- **[Low] .gitignore に実在しないパス `.claude/skills/addf-gui-test.md`** — Plan 0014 のリネーム残骸。
-  実体は `.claude/commands/addf-gui-test.md`。削除する。
-- **[Low] addf-lint の未スクリプト化項目** — 8項目中 2（hooks 実行権限）・5（INDEX 整合）・7（鮮度）・
-  8（双方向リンク）はエージェント手作業。特に2は `os.access(path, os.X_OK)` で数行。手検査依存は見落としの温床
-  （pair6 表記ゆれ穴と同じパターン）なのでスクリプト化候補。
-- **[Info] addf-code-review-agent が全体監査モードを想定していない** — 手順が「git diff」前提。
-  addf-overview のような定期棚卸し用途向けに whole-repo audit モードを明記すると指示のブレを防げる。
+- ~~**[Medium] addf-dev.md の Plan 命名規則が実態と不一致**~~ → プロジェクト非依存の表現に修正、両形式を例示
+- ~~**[Low] hooks に set -e 非使用の設計判断が未明記**~~ → post-compact-recovery / skill-usage-log に追加
+  （reset-turn-count / turn-reminder は既存）。4フック全てが同一文言で統一された
+- ~~**[Low] .gitignore に実在しないパス `.claude/skills/addf-gui-test.md`**~~ → 削除。
+  Plan 0029（GUI スキル退避）は実装時に正しいパスでエントリを追加し直す
+- **[Low] addf-lint の未スクリプト化項目** — **項目2（hooks 実行権限）はスクリプト化済み**（2026-07-02、
+  `lint-hooks-exec.py` + テスト8件）。残る 5（INDEX 整合）・7（鮮度）・8（双方向リンク）は
+  エージェント手作業のまま（規模が大きく、必要になったら別途スクリプト化する）
+- ~~**[Info] addf-code-review-agent が全体監査モードを想定していない**~~ → 全体監査モードを明記
 
-### ドキュメント（軽微）
+### ドキュメント（軽微）→ 対応済み（2026-07-02）
 
-- **[Low] CONTRIBUTING.md（日本語版）に英語版への相互リンクがない** — en → ja はあるが逆がない。
-- **[Info] knowhow の残る陳腐化** — バッチ1で ignore-file-strategy.md は訂正済み。他の 🟡 aging ファイルは
-  `/addf-knowhow-revise` の定期棚卸し対象。
+- ~~**[Low] CONTRIBUTING.md（日本語版）に英語版への相互リンクがない**~~ → 追加（README と文言統一）
+- **[Info] knowhow の残る陳腐化** — `/addf-knowhow-revise` の定期棚卸し対象（継続運用。本 Plan では対応しない）
 
 ## 完了条件
 

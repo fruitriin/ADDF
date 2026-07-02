@@ -2,6 +2,7 @@
 # post-compact-recovery.sh — コンパクション後の復帰フック
 # SessionStart(compact) で発火する
 # stdout の内容がコンテキストに追加される
+# 意図的に set -e を使わない（フックは失敗してもセッションを妨げず exit 0 で抜ける設計）
 
 echo "pwd: $(pwd)"
 echo ""

@@ -22,8 +22,14 @@ uv run --python 3.11 .claude/addfTools/lint-json.py
 
 ## 2. Hooks 実行権限チェック
 
-`.claude/hooks/` 内の `*.sh` ファイルが実行権限を持っているか確認する。
-実行権限がないファイルがあれば警告する。
+`.claude/hooks/` 内の `*.sh` ファイルが実行権限を持っているか確認する:
+
+```bash
+uv run --python 3.11 .claude/addfTools/lint-hooks-exec.py
+```
+
+exit code: 0 = 全て実行可能 / 2 = WARNING（実行権限なし。`chmod +x` で付与する）。
+`.claude/hooks/` が無い場合は SKIP される。
 
 ## 3. スキル Frontmatter チェック
 

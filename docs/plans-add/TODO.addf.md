@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: Phase 27 完了（チェックリスト裏付け lint）。残る未着手は 0026（Critical/High はオーナー指示待ち: deny ルール・addf-init 実物レビュー・experience 方式）・0028・0029
+## 現在のフェーズ: Phase 26 一部完了（オーナー非依存の Medium/Low/Info 6件）・Phase 27 完了。0026 の残り（deny ルール・addf-init 実物レビュー・experience 方式）はオーナー指示待ち。未着手は 0028・0029
 
 ## バックログ
 
@@ -34,7 +34,7 @@
 | 23 | 23 | `docs/plans-add/0023-turn-reminder-context-split.md` | 完了 |
 | 24 | 24 | `docs/plans-add/0024-todo-plan-status-lint.md` | 完了 |
 | 25 | 25 | `docs/plans-add/0025-rename-repo-to-addf.md` | 完了 |
-| 1 | 26 | `docs/plans-add/0026-review-residual-backlog.md` | 未着手 |
+| 1 | 26 | `docs/plans-add/0026-review-residual-backlog.md` | 一部完了（残りはオーナー指示待ち） |
 | 2 | 27 | `docs/plans-add/0027-executable-checklist-doctrine.md` | 完了 |
 | 3 | 28 | `docs/plans-add/0028-worktree-speculative-dev.md` | 未着手 |
 | 4 | 29 | `docs/plans-add/0029-gui-test-environment-matrix.md` | 未着手 |
