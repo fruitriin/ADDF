@@ -37,6 +37,7 @@
 | 1 | 26 | `docs/plans-add/0026-review-residual-backlog.md` | 未着手 |
 | 2 | 27 | `docs/plans-add/0027-executable-checklist-doctrine.md` | 未着手 |
 | 3 | 28 | `docs/plans-add/0028-worktree-speculative-dev.md` | 未着手 |
+| 4 | 29 | `docs/plans-add/0029-gui-test-environment-matrix.md` | 未着手 |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
