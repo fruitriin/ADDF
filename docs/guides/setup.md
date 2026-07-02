@@ -8,7 +8,7 @@
 | ファイル | 操作 | 説明 |
 |---|---|---|
 | `README.md` | 差し替え | プロジェクト独自の説明に書き換え |
-| `CLAUDE.repo.md` | 作成 | `CLAUDE.repo.example.md` を参考に作成（`.gitignore` 対象、ローカルのみ） |
+| `CLAUDE.repo.md` | 作成 | `CLAUDE.repo.example.md` を参考に作成し、コミットする（チーム共有のプロジェクト固有設定） |
 | `CLAUDE.local.md` | 作成（任意） | `CLAUDE.local.example.md` を参考に、開発者個人の設定を記載 |
 | `CONTRIBUTING.md` | 差し替え（任意） | 必要に応じてプロジェクトに合わせる |
 
@@ -16,7 +16,7 @@
 
 | ファイル | 読み込み方式 | コミット |
 |---|---|---|
-| `CLAUDE.repo.md` | CLAUDE.md から `@` メンションで展開 | しない（`.gitignore`対象） |
+| `CLAUDE.repo.md` | CLAUDE.md から `@` メンションで展開 | する |
 | `CLAUDE.local.md` | Claude Code が自動読み込み | しない（`.gitignore`対象） |
 | `.gitignore` | git 標準 | する |
 | `.claudeignore` | Claude Code 標準 | する |

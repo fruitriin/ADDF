@@ -179,7 +179,8 @@ ADDF ファイルの配置元を決定する:
 - **`CLAUDE.repo.md`** — `CLAUDE.repo.example.md` をベースに「ADDF 利用プロジェクト」として生成
   - プロジェクト名、ビルド・Lint・テストコマンド、コミットログ規約を反映
 - **`CLAUDE.local.md`** — テンプレートからコピー
-- **`.claude/addf-lock.json`** — ADDF クローン元のコミットハッシュで生成
+- **`.claude/addf-lock.json`** — ADDF クローン元の `ref` で生成
+  - `ref` にはクローン元の lock の `ref`（`vX.Y.Z` タグ名）をそのまま記録する。クローン元の lock が旧形式（`commit` フィールド）の場合は `v<version>` タグ名に読み替える
   - `git remote get-url origin` でリポジトリ URL を取得（取得できない場合はユーザーに入力を求める）
   - このファイルは `/addf-migrate` がバージョン差分を算出する際のアンカーとして使用される
 - **`TODO.md`** — 初期テンプレート
@@ -243,8 +244,9 @@ ADDF ファイルの配置元を決定する:
 
 4. **`.claude/addf-lock.json` の妥当性**:
    - JSON として valid か
-   - `version`, `commit`, `repository` フィールドが存在するか
-   - `commit` が 40 文字の hex 文字列形式か（形式チェックのみ、リモート確認は行わない）
+   - `version`, `ref`, `repository` フィールドが存在するか
+   - `ref` が `v<version>` 形式のタグ名か（形式チェックのみ、リモート確認は行わない）
+   - 旧形式（`ref` の代わりに `commit`）は WARNING とし、`/addf-migrate` 実行時に新形式へ移行される旨を案内する
 
 5. **AGENTS.md の存在**（情報レベル）:
    - 存在すれば OK、なければ INFO（Codex 非対応として通知）

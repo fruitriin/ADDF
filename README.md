@@ -87,6 +87,7 @@ ADDF が提供するスキル（`/コマンド名` で呼び出し）:
 | **addf-knowhow-index** | `/addf-knowhow-index [reindex]` | ノウハウインデックスの参照・再構築 |
 | **addf-lint** | `/addf-lint` | フレームワーク整合性チェック |
 | **addf-permission-audit** | `/addf-permission-audit` | 権限要求の分析・分類・settings への追加提案 |
+| **addf-mode** | `/addf-mode [unattended]` | 「迷ったときの作法」3軸モードの表示・切り替え |
 
 <details>
 <summary>その他のスキル</summary>
@@ -94,6 +95,9 @@ ADDF が提供するスキル（`/コマンド名` で呼び出し）:
 | スキル | 説明 |
 |---|---|
 | **addf-knowhow-filter** | Plan に関連するノウハウをフィルタリング |
+| **addf-knowhow-revise** | 鮮度低下したノウハウの再検証・訂正 |
+| **addf-knowhow-network** | ノウハウ同士を相互リンクして wiki として育てる |
+| **addf-overview** | エコシステム概要ドキュメントを `docs/project-overview/` に生成 |
 | **addf-experience** | 経験ファイル（`.exp.md`）のメンション書式を検証 |
 | **addf-gui-test** | GUI テスト実行（macOS オプション） |
 | **addf-annotate-grid** | PNG 画像にグリッド線を描画 |

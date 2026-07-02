@@ -1,3 +1,7 @@
+<p align="center">
+  <img src=".claude/assets/gh-readme-light.png" alt="ADDF — Agentic Driven Development Framework" width="640">
+</p>
+
 # AutomatonDevDrive Framework
 
 > ADDF — Agentic Driven Development Framework
@@ -83,6 +87,7 @@ Skills provided by ADDF (invoked via `/command-name`):
 | **addf-knowhow-index** | `/addf-knowhow-index [reindex]` | View or rebuild the knowhow index |
 | **addf-lint** | `/addf-lint` | Framework integrity check |
 | **addf-permission-audit** | `/addf-permission-audit` | Analyze and classify permission requests |
+| **addf-mode** | `/addf-mode [unattended]` | View or switch the 3-axis "when in doubt" doctrine modes |
 
 <details>
 <summary>Other skills</summary>
@@ -90,6 +95,9 @@ Skills provided by ADDF (invoked via `/command-name`):
 | Skill | Description |
 |---|---|
 | **addf-knowhow-filter** | Filter knowhow relevant to a Plan |
+| **addf-knowhow-revise** | Re-verify and correct stale knowhow |
+| **addf-knowhow-network** | Cross-link knowhow articles into a wiki |
+| **addf-overview** | Generate ecosystem overview docs in `docs/project-overview/` |
 | **addf-experience** | Validate experience file (`.exp.md`) mention syntax |
 | **addf-gui-test** | Run GUI tests (macOS optional) |
 | **addf-annotate-grid** | Draw grid lines on PNG images |

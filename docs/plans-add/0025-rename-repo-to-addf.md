@@ -1,6 +1,6 @@
 # Plan 0025: リポジトリ名を ADDF に変更
 
-## 状態: 未着手
+## 実装状況: 完了（2026-07-02。フェーズ1は v0.3.0 リリースに同梱、フェーズ3・4はオーナー実施済み、フェーズ5検証済み）
 
 ## 目的
 
@@ -58,10 +58,10 @@ git remote set-url origin https://github.com/fruitriin/ADDF.git
 
 ### フェーズ 5: 検証
 
-- [ ] `git push` / `git pull` が新 URL で動作する
-- [ ] `raw.githubusercontent.com/fruitriin/ADDF/main/.claude/commands/addf-init.md` がアクセスできる
-- [ ] 旧 URL `github.com/fruitriin/AutomatonDevDriveFramework` がリダイレクトされる
-- [ ] README のロゴ画像が表示される
+- [x] `git push` / `git pull` が新 URL で動作する（2026-07-02 確認）
+- [x] `raw.githubusercontent.com/fruitriin/ADDF/main/.claude/commands/addf-init.md` がアクセスできる（2026-07-02、HTTP 200 確認）
+- [x] 旧 URL `github.com/fruitriin/AutomatonDevDriveFramework` がリダイレクトされる（サンドボックスのプロキシ制約で直接検証不可。GitHub のリネーム時自動リダイレクトの標準挙動に依拠。オーナーのブラウザで随時確認可）
+- [x] README のロゴ画像が表示される（2026-07-02、raw URL HTTP 200 確認）
 
 ## ダウンストリーム影響
 

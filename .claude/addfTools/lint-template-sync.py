@@ -18,6 +18,8 @@
        対象は ADDF 本体（docs/plans-add/TODO.addf.md ⇔ docs/plans-add/）と
        ダウンストリーム（TODO.md ⇔ docs/plans/）の2系統。
        ヘッダの無い Plan は検査しない（旧 Plan の欠如はドリフトではない）。
+       ただし `## 状態:` 等の表記ゆれヘッダは「状態を書いているのに検査から漏れる」
+       信頼モデルの穴になるため WARNING で形式統一を促す（Plan 0025 で顕在化）。
        エージェントが TODO の状態表記を「信用ベース」で扱えるようにする機械検査
        （docs/knowhow/ADDF/plan-status-drift-check.md 参照）。
 
@@ -285,6 +287,20 @@ def plan_header_status(path):
     return None
 
 
+def plan_nonstandard_header(path):
+    """`## 実装状況:` ではない状態系ヘッダ（`## 状態:` 等の表記ゆれ）を返す（無ければ None）
+
+    表記ゆれヘッダは plan_header_status() が「ヘッダ無し」として黙ってスキップするため、
+    状態を書いているつもりの Plan が機械検査から漏れる。検出して形式統一を促す。
+    """
+    pattern = re.compile(r'##\s*(状態|ステータス|進捗|status)\s*[:：]', re.IGNORECASE)
+    with open(path) as f:
+        for line in f.read().splitlines():
+            if pattern.match(line):
+                return line.strip()
+    return None
+
+
 def todo_table_rows(path):
     """TODO のテーブル行から (Plan パス, 状態, 行テキスト) のリストを返す
 
@@ -335,6 +351,12 @@ def check_pair6():
                 continue
             header = plan_header_status(plan_path)
             if header is None:
+                variant = plan_nonstandard_header(plan_path)
+                if variant:
+                    issues.append(
+                        f'    表記ゆれ: {plan_path} のヘッダ「{variant}」は'
+                        f' `## 実装状況:` 形式でないため状態検査から漏れる（形式を統一する）'
+                    )
                 continue  # ヘッダ無し・中間状態は信用ベースで検査しない
             # こちらの None は「TODO の状態列が完了/未着手以外（要確認等）」の意。
             # header 側の None（ヘッダ不在・中間状態）とは起源が異なるが、扱いは同じく検査対象外

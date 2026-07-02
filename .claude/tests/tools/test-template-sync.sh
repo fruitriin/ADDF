@@ -213,6 +213,16 @@ output=$(run_lint "$box")
 assert_contains "TODO 不在で SKIP" "[6] SKIP" "$output"
 rm -rf "$box"
 
+# テスト 13: `## 状態:` 等の表記ゆれヘッダ → WARNING (exit=2)
+# 実装状況ヘッダの表記ゆれは「状態を書いているのに検査から漏れる」穴になる（Plan 0025 で顕在化）
+echo "Test 13: 表記ゆれヘッダの検出"
+box="$(make_plans_sandbox)"
+printf '# Plan: 表記ゆれ\n\n## 状態: 未着手\n\n本文\n' > "$box/docs/plans-add/0001-sample.md"
+output=$(run_lint "$box")
+assert_exit "表記ゆれで WARNING" 2 $?
+assert_contains "表記ゆれの特定" "表記ゆれ: docs/plans-add/0001-sample.md" "$output"
+rm -rf "$box"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1
