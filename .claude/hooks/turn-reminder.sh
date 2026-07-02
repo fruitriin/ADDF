@@ -6,7 +6,10 @@
 #   B. 能動コンパクション促し — 実測トークン数ベース。stdin の hook JSON を
 #      context-reminder.py に中継し、閾値超過時のみ観測事実を注入する
 
-COUNTER_FILE="$CLAUDE_PROJECT_DIR/.claude/.turn-count"
+# 意図的に set -e を使わない（フックは失敗してもセッションを妨げず exit 0 で抜ける設計）
+# CLAUDE_PROJECT_DIR 未設定時はカレントディレクトリにフォールバック（reset-turn-count.sh と同じ方針)
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
+COUNTER_FILE="$PROJECT_DIR/.claude/.turn-count"
 
 # 関心事A: ターンカウンターによる棚卸しリマインダー
 COUNT=$(cat "$COUNTER_FILE" 2>/dev/null || echo 0)
@@ -25,7 +28,7 @@ fi
 # 関心事B: stdin（hook JSON）を context-reminder.py に中継する。
 # stdin が TTY の場合（手動実行・旧テスト）は中継しない。python3 不在なら静かにスキップ
 if [ ! -t 0 ] && command -v python3 >/dev/null 2>&1; then
-  python3 "$CLAUDE_PROJECT_DIR/.claude/addfTools/context-reminder.py" 2>/dev/null
+  python3 "$PROJECT_DIR/.claude/addfTools/context-reminder.py" 2>/dev/null
 fi
 
 exit 0

@@ -1,18 +1,24 @@
 #!/bin/bash
 # test-turn-reminder.sh
 # turn-reminder.sh のテスト。カウンターをシミュレートして exit コード・stdout を検証。
+# 本番の .claude/.turn-count に触れないよう mktemp サンドボックスで実行する
+# （実運用セッションと並行実行しても状態が競合しない。test-context-reminder.sh と同じ方式）
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 HOOK="$PROJECT_DIR/.claude/hooks/turn-reminder.sh"
-COUNTER_FILE="$PROJECT_DIR/.claude/.turn-count"
+SANDBOX="$(mktemp -d)"
+mkdir -p "$SANDBOX/.claude/addfTools"
+# 関心事B の中継先も sandbox に置く（本番の状態ファイルに触れさせない）
+cp "$PROJECT_DIR/.claude/addfTools/context-reminder.py" "$SANDBOX/.claude/addfTools/"
+COUNTER_FILE="$SANDBOX/.claude/.turn-count"
 PASS=0
 FAIL=0
 
 cleanup() {
-  rm -f "$COUNTER_FILE"
+  rm -rf "$SANDBOX"
 }
 trap cleanup EXIT
 
@@ -54,7 +60,7 @@ echo "=== test-turn-reminder.sh ==="
 # テスト 1: 通常ターン（リマインダーなし）
 echo "Test 1: 通常ターン (0→1)"
 echo "0" > "$COUNTER_FILE"
-export CLAUDE_PROJECT_DIR="$PROJECT_DIR"
+export CLAUDE_PROJECT_DIR="$SANDBOX"
 stdout=$(echo '{}' | bash "$HOOK" 2>/dev/null) || true
 assert_exit "exit code" 0 $?
 assert_stdout_empty "no reminder at turn 1" "$stdout"
@@ -100,6 +106,20 @@ if [ "$count" -eq 1 ]; then
   PASS=$((PASS + 1))
 else
   echo "  FAIL: expected counter=1, got=$count"
+  FAIL=$((FAIL + 1))
+fi
+
+# テスト 6: CLAUDE_PROJECT_DIR 未設定時のカレントディレクトリフォールバック
+echo "Test 6: CLAUDE_PROJECT_DIR 未設定 (cwd フォールバック)"
+echo "3" > "$COUNTER_FILE"
+stdout=$(cd "$SANDBOX" && echo '{}' | env -u CLAUDE_PROJECT_DIR bash "$HOOK" 2>/dev/null)
+assert_exit "exit code" 0 $?
+count=$(cat "$COUNTER_FILE")
+if [ "$count" -eq 4 ]; then
+  echo "  PASS: counter incremented via cwd fallback (3→4)"
+  PASS=$((PASS + 1))
+else
+  echo "  FAIL: expected counter=4 via cwd fallback, got=$count"
   FAIL=$((FAIL + 1))
 fi
 

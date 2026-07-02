@@ -9,12 +9,15 @@ ADDF が提供するスキル（`/コマンド名` で呼び出し）:
 | **addf-knowhow** | `/addf-knowhow <トピック>` | 実装知見を `docs/knowhow/` に記録。既存ノウハウとの重複チェック・統合を自動で行う |
 | **addf-knowhow-index** | `/addf-knowhow-index [reindex]` | knowhow インデックスを参照、または `reindex` で再構築 |
 | **addf-knowhow-filter** | `/addf-knowhow-filter <plan-path>` | Plan に関連するノウハウだけをフィルタリングして返す |
+| **addf-knowhow-revise** | `/addf-knowhow-revise` | 鮮度低下（🔴 stale / needs-review）したノウハウを再検証し、訂正・superseded 遷移を記録 |
+| **addf-knowhow-network** | `/addf-knowhow-network` | ノウハウ同士を相互リンクで接続し、知見ベースを wiki として育てる |
 
 ## 開発ループ
 
 | スキル | 呼び出し | 説明 |
 |---|---|---|
 | **addf-dev** | `/addf-dev` | TODO.md から未実施タスクを自律選択し、実装・品質検証・コミットまで完遂。繰り返すには `/loop 1h /addf-dev` |
+| **addf-mode** | `/addf-mode [nervous\|unattended 等]` | 「迷ったときの作法（7割共有原則）」の3軸モードと unattended 情報伝達フラグを表示・切り替え |
 
 ## プロジェクト管理
 
@@ -25,6 +28,7 @@ ADDF が提供するスキル（`/コマンド名` で呼び出し）:
 | **addf-lint** | `/addf-lint` | フレームワーク整合性チェック（JSON構文・権限・frontmatter・INDEX等） |
 | **addf-release** | `/addf-release [minor]` | リリース（チェンジログ・バージョン採番・publish） |
 | **addf-permission-audit** | `/addf-permission-audit` | 権限要求の分析・分類・settings ファイルへの追加提案 |
+| **addf-overview** | `/addf-overview` | CLAUDE.md・スキル・フック・エージェントのエコシステム概要を `docs/project-overview/` に生成 |
 
 ## 経験管理
 

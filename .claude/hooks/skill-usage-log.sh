@@ -18,4 +18,7 @@ TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 # jq でエントリ全体を生成（文字列エスケープを jq に委ねる）
 echo "$INPUT" | jq -c --arg ts "$TIMESTAMP" --arg sid "$SESSION_ID" \
   '{timestamp: $ts, skill: (.tool_input.skill // "unknown"), session_id: $sid}' >> "$LOG_FILE" 2>/dev/null \
-  || echo "{\"timestamp\":\"${TIMESTAMP}\",\"skill\":\"unknown\",\"session_id\":\"${SESSION_ID}\"}" >> "$LOG_FILE"
+  || echo "{\"timestamp\":\"${TIMESTAMP}\",\"skill\":\"unknown\",\"session_id\":\"${SESSION_ID}\"}" >> "$LOG_FILE" 2>/dev/null
+
+# ログ書き込みの成否がスキル呼び出しフローに影響しないよう、常に成功で抜ける
+exit 0

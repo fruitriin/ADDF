@@ -14,8 +14,13 @@
 
 | ファイル | 更新内容 |
 |---|---|
-| `.claude/addf-lock.json` | `version`, `commit`, `updated_at` を更新 |
+| `.claude/addf-lock.json` | `version`, `ref`（`vX.Y.Z` タグ名）, `updated_at` を更新 |
 | `.claude/ADDF-CHANGELOG.md` | 新バージョンのエントリを先頭に追加 |
+
+> **`ref` はタグ名であってコミットハッシュではない**: lock ファイルはリリースコミット自身に
+> 含まれるため、そのコミットのハッシュを lock に書くことは自己参照で原理的に不可能
+> （v0.2.0 / v0.3.0 で実在しないハッシュが記録される事故が実際に起きた）。
+> タグ名なら「lock 更新 → コミット → タグ付け」の順で矛盾なく一致させられる。
 
 ## チェンジログの書式
 
@@ -39,12 +44,14 @@ Keep a Changelog 形式（https://keepachangelog.com/）に準拠。日本語で
 
 ## Publish 手順
 
-1. リリースコミットを作成: `[リリース] vX.Y.Z`
-2. タグを作成: `git tag vX.Y.Z`
-3. push: `git push && git push --tags`
-4. GitHub Release を作成: `gh release create vX.Y.Z --generate-notes` を提案
+1. `addf-lock.json` を更新: `version` を `X.Y.Z`、`ref` を `vX.Y.Z`、`updated_at` を今日の日付にする
+2. リリースコミットを作成: `[リリース] vX.Y.Z`（lock 更新を含める）
+3. タグを作成: `git tag vX.Y.Z`（`ref` に書いたタグ名と完全一致させる）
+4. push: `git push && git push --tags`
+5. GitHub Release を作成: `gh release create vX.Y.Z --generate-notes` を提案
 
 ## リリース後
 
-- `addf-lock.json` の `commit` がリリースコミットを指していることを確認
+- `git tag -l vX.Y.Z` でタグが存在し、`addf-lock.json` の `ref` と一致していることを確認
+- `git ls-remote --tags origin vX.Y.Z` でタグが push されていることを確認
 - ダウンストリームプロジェクトが `/addf-migrate` で新バージョンを取得できることを検証（任意）

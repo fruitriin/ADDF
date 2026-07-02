@@ -1,7 +1,7 @@
 ---
 title: ignore ファイルの運用戦略
 created: 2026-03-18
-last_verified: 2026-03-18
+last_verified: 2026-07-02
 depends_on: []
 status: active
 ---
@@ -39,9 +39,10 @@ status: active
 
 ### .gitignore に書くもの（git 除外、Claude はアクセス可能）
 - `CLAUDE.local.md` — ローカル環境固有の CLAUDE 設定
-- `CLAUDE.repo.md` — コミットしないが @展開で読まれる設定
-- `.claude/skills/*.exp.md` — スキルの経験蓄積ファイル
+- `.claude/commands/*.exp.md` — スキルの経験蓄積ファイル
 - ビルド成果物、`node_modules/` 等
+
+※ `CLAUDE.repo.md` は当初 gitignore 対象だったが、チーム共有のプロジェクト固有設定として**コミットする**方針に変更された（下記訂正履歴参照）。@展開で読まれる点は変わらない
 
 ### .claudeignore に書くもの（Claude に見せない）
 - 巨大なデータファイル、ログ
@@ -57,6 +58,9 @@ status: active
 - `.claudeignore` は `.gitignore` と同じ書式
 - `.git/info/exclude` は clone 時に他の人には見えない
 - `respectGitignore: false` にすると**全ての** gitignore 対象が Glob/Grep に出るため、`node_modules/` 等も検索対象になる
+
+## 訂正履歴
+- 2026-07-02: `CLAUDE.repo.md` を「コミットしない」から「コミットする」に訂正（コミット 59478ae でオーナーが方針変更。.gitignore からも除外済み）。あわせて経験ファイルのパスを `.claude/skills/*.exp.md` → `.claude/commands/*.exp.md` に訂正（実際の配置に合わせた）
 
 ## 参照
 - Claude Code 設定ドキュメント
