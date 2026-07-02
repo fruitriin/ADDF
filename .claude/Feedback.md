@@ -23,6 +23,8 @@
 - 同期ファイルペア（CLAUDE.md ⇔ AGENTS.md / ProgressTemplate.addf.md ⇔ Progress.md・ProgressTemplate.md / CLAUDE.md ⇔ development-process.md / CLAUDE.md ⇔ addf-init コピーリスト / TODO ⇔ Plan 実装状況ヘッダ）のドリフトは Plan 0021・0022・0024 で lint 化済み（`lint-template-sync.py` ペア1〜6、テストは `run-all.sh` に組み込み）。同期対象を変更したら `/addf-lint` のセクション6を実行して確認する。**新たな同期ペアが生まれたら lint にペアを追加し、addf-lint.md セクション6の表も同時に更新すること**（ペア5追加時に表の更新が漏れた実績あり。意思で覚えず機械化する — 詳細は `docs/knowhow/ADDF/sync-lint-design.md`）
 - CLAUDE.md に新しい `.claude/` 配下ファイルへの参照を追加するときは、addf-init のコピーリスト（または .gitignore ADDF ブロック）への追加もセットで行う。漏れは lint ペア5が WARNING で検出する（Plan 0022）
 - addf-dev.md がテンプレートのステップ番号を直接参照していた（「ステップ 8〜13」が旧番号のまま残留）。番号参照はセクション名併記にする（Plan 0017 レビューで発見・修正済み）
+- 手順書（ADDF-Release / addf-init / addf-migrate / ProgressTemplate 系）に「確認/検証」ステップを追加するときは、実行チェック（コードブロック・コマンド）か `<!-- human-judgment -->` マーカーの裏付けを添える。裏付け漏れは `/addf-lint` セクション9（lint-checklist.py・WARNING のみ）が検出する。新しい手順書を検査対象にする場合は lint の TARGETS に追加する（Plan 0027）
+- lint スクリプトを新設したら、**その lint が生まれるきっかけになった当のケースを、裏付けを剥がした状態で再現テストする**（Plan 0027 レビューで「メタ lint 自身が flagship 項目の裏付け喪失を検出できない」High 2件を検出。ドリフト注入 TDD — 詳細は `docs/knowhow/ADDF/checklist-backing-lint.md`）
 
 ## 完了済み
 
