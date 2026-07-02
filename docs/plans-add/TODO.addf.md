@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: Phase 25 完了（リポジトリ名 ADDF 化）。未着手 Plan なし — 次はオーナーリクエスト「品質向上計画の追加」から
+## 現在のフェーズ: Phase 26 起案（レビュー残課題バックログ）。2026-07-02 の全体レビューで検出した未対応指摘を Plan 0026 に集約。Critical/High はオーナー指示待ち（deny ルール・addf-init 実物レビュー・experience 方式）
 
 ## バックログ
 
@@ -34,6 +34,7 @@
 | 23 | 23 | `docs/plans-add/0023-turn-reminder-context-split.md` | 完了 |
 | 24 | 24 | `docs/plans-add/0024-todo-plan-status-lint.md` | 完了 |
 | 25 | 25 | `docs/plans-add/0025-rename-repo-to-addf.md` | 完了 |
+| 1 | 26 | `docs/plans-add/0026-review-residual-backlog.md` | 未着手 |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
