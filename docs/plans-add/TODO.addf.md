@@ -36,6 +36,7 @@
 | 25 | 25 | `docs/plans-add/0025-rename-repo-to-addf.md` | 完了 |
 | 1 | 26 | `docs/plans-add/0026-review-residual-backlog.md` | 未着手 |
 | 2 | 27 | `docs/plans-add/0027-executable-checklist-doctrine.md` | 未着手 |
+| 3 | 28 | `docs/plans-add/0028-worktree-speculative-dev.md` | 未着手 |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
