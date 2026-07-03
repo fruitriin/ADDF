@@ -91,7 +91,63 @@ cp -r .claude/. ../<repo名>-spec-<concept>/.claude/
 
 状態: `開発中` / `テスト通過` / `テスト失敗` / `衝突` / `統合済み` / `放棄` / `昇格済み` / `上限で待機` / `要再検証`
 
-### 6. ブランチの退避（エフェメラル環境対策）
+### 6. integration 統合（テスト通過の feature が1件以上あるとき）
+
+テスト通過の feature（今サイクルの新規と、前サイクルから採否判断待ちで繰り越したものの両方）を
+1本の integration ブランチに squash 統合し、動作確認を一括する:
+
+```bash
+python3 .claude/addfTools/speculate-integrate.py speculative/<concept1> speculative/<concept2> ...
+```
+
+スクリプトは `integration/loop-<日付>` ブランチを base（main）から**作り直し**（使い捨て・再生成可能）、
+専用 worktree（`../<リポジトリ名>-integration`）の中だけで統合する。メインの作業ツリーには触れない。
+なお integration worktree への `.claude` 複製は**不要**（feature worktree と違い実装作業の場ではなく、
+Stage 2 の実行主体はメインツリー側のエージェントで、テスト一式も git 管理下にあるため）。
+
+- exit 1（ERROR: base 不在・worktree の置き先が塞がっている・commit フック拒否等）→ 統合を中断し、
+  エラー内容をオーナーに報告する（`commit_failed=` は差分の握り潰しを防ぐための ERROR — empty と混同しない）
+- exit 0 / 2 → 以下の出力（key=value）を解釈して Worktrees.md へ反映する:
+
+- `integrated=` — 統合成功。状態「統合済み」にして Stage 2 へ
+- `conflicted=` — squash 時に衝突した feature（スクリプトが巻き戻し済み）。直交性の基準で判断する:
+  - **悩まず解決できる衝突**（独立セクションへの追記同士など）→ `speculative/<concept>` ブランチ側で
+    base を取り込んで解消し（昇格対象のブランチが常に自己完結するように、解消は必ず feature 側に置く）、
+    スクリプトを再実行する
+  - **解決に悩むレベルの衝突** → 状態「衝突」で integration から外し、残りでスクリプトを再実行する
+    （integration は作り直しが正道）。silent に捨てず、Dashboard の「気になった点」で報告する
+- `missing=` — ブランチが存在しない（Worktrees.md の記載と git 実体のずれ）。記録を突き合わせて訂正する
+- `empty=` — base との差分が無い（既に本流へ取り込み済み等）。状態を確認して「昇格済み」等に訂正する
+
+### 7. Stage 2 — integration 一括ゲート
+
+integration worktree の中で一括の動作確認とレビューを行う（コストの大きい Stage 2 を N 回→1回に償却する）:
+
+1. **相互作用テスト**: integration worktree 内でプロジェクトのテスト一式（Stage 1 と同じコマンド）を実行する。
+   単体では通過した feature も、組み合わせて壊れることがある
+   - 失敗したら原因 feature を特定し（feature を外して再統合すると二分探索できる）、
+     該当 feature を状態「衝突」で外して integration を作り直す
+2. **一括レビュー**: `addf-code-review-agent` を**ペルソナ並列（視点ずらしレビュー）**で起動する。
+   起動前に `.claude/agents/addf-code-review-agent.md` を読み、ペルソナ定義と集約ルールに従うこと。
+   レビュー対象は `git diff main...integration/loop-<日付>` の全差分
+3. 指摘は **feature 単位に帰属**させて Worktrees.md に記録する。Critical/High は該当 feature の
+   worktree で修正して Stage 1 からやり直す（ただし投機は使い捨て — 深追いするより
+   状態「テスト失敗」で打ち切ってよい）
+
+レビューまで終えたら integration worktree は削除してよい（`git worktree remove ../<リポジトリ名>-integration`）。
+integration **ブランチ**は使い捨てのため origin へ push しない（次サイクルで作り直す）。
+
+### 8. Dashboard への書き分け
+
+unattended 自走（`dashboard_report: true`）では `.claude/Dashboard.md`（書式: `.claude/Dashboard.example.md`）に
+結果を書き分ける。基準は「オーナーの採否判断の対象かどうか」:
+
+- **「投機ブランチ（採否判断待ち）」**: integration の動作確認（手順7「Stage 2」）まで通過した feature のみ。
+  前サイクルからの判断待ちも繰り越し再掲する
+- **「気になった点」**: テスト失敗・衝突・上限待機。採否判断の対象ではないが、知らせる価値のある観察
+  （silent に捨てない）
+
+### 9. ブランチの退避（エフェメラル環境対策）
 
 サイクル末に、各 `speculative/<concept>` ブランチを origin へ push する:
 
@@ -108,7 +164,7 @@ fi
 - コンテナ実行（Claude Code on the Web 等）ではセッション終了で worktree もローカルブランチも
   失われるため、**push が投機を残す唯一の手段**。省略しないこと
 
-### 7. 完了処理
+### 10. 完了処理
 
 呼び出し元（/addf-dev）の完了処理に合流し、**Progress.md の日記に「投機サイクルを実行した
 （対象概念・結果の一行）」を記録してコミットする**。Worktrees.md は gitignore だが、
@@ -119,9 +175,11 @@ fi
 
 ## 現バージョンの範囲
 
-このスキルは現在「単発投機」（選定→worktree→Stage 1→記録→push）までを提供する。
-複数投機の統合ブランチでの一括動作確認・採否判断待ちの繰り越し・worktree の掃除
-（`clean` サブコマンド）は将来バージョンで追加予定。
+このスキルは現在「投機と一括ゲート」（選定→worktree→Stage 1→integration 統合→Stage 2→
+Dashboard 書き分け→push）までを提供する。クラッシュ後の git 実体からの再構築・worktree の掃除
+（`clean` サブコマンド）・main への昇格手順は将来バージョンで追加予定。
+なお昇格（`speculative/<concept>` → main の squash マージ）は**常にオーナー承認必須**であり、
+手順が未提供の現在も、エージェントが本流へ自動マージする経路は存在しない。
 
 ## 経験の活用
 
