@@ -9,6 +9,14 @@
 enable = false
 machine = "mac" # "mac" | "linux" | "windows" — プラットフォーム固有ツールの選択に使用
 
+[speculation]
+# true にするとアイドル時（着手可能なタスクがないとき）に /addf-speculate による
+# worktree 投機開発が有効になる（デフォルト無効＝オプトイン）。
+# 投機は speculative/ ブランチに隔離され、本流には自動マージされない
+enable = false
+# 同時に「開発中」にできる speculative worktree の上限（採否判断待ちのブランチは数えない）
+max_worktrees = 3
+
 [context-reminder]
 # 能動コンパクション促しの発火閾値（実測トークン数）。0 で無効化。
 # 公称ウィンドウではなく「実効コンテキスト」（文脈の取り違えが増え始める手前）基準
