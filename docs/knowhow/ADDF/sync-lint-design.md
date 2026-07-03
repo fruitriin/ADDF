@@ -47,6 +47,8 @@ status: active
 - 両環境に存在するファイルはフォールバックで対応する（例: テンプレートは `.addf.md` 版がなければ無印版を正とする）
 - exit code は 3値: `0 = OK / 1 = ERROR / 2 = WARNING のみ`。テストとエージェントが重要度を区別できる
 
+**SKIP の乱用は silent 無効化になる**。SKIP は「環境起因で検査できなかった」の可視化であり、成功の別名ではない。ダウンストリーム実例（Issue #19）: run-all.sh 拡張でランタイム（bun）不在を SKIP=成功扱いにした結果、cron の PATH 落ちで 74 テストが 0 件実行のまま `✓ All automated tests passed` を返す構造になった（レビューで Critical 指摘）。テストが依存する必須ランタイムの不在は SKIP にしない — 実行できなかったことと通ったことを区別する。環境的に実行不能なテスト（macOS 専用バイナリ等）を飛ばす場合も、SKIP を必ず明示出力し件数に計上する（`Results: N passed, N failed, N skipped` — test-tools.sh の非 macOS SKIP が実例。run-all.sh 冒頭の設計ガイドラインにも明文化済み）。
+
 ### 「存在≠所有」— ファイルの存在で upstream/downstream を判定しない
 
 「欠如 = SKIP」原則の**逆ケース**。ダウンストリーム実運用初日に3件同時に顕在化した（Plan 0033）:
