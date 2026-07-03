@@ -26,7 +26,7 @@
 - 手順書（ADDF-Release / addf-init / addf-migrate / ProgressTemplate 系）に「確認/検証」ステップを追加するときは、実行チェック（コードブロック・コマンド）か `<!-- human-judgment -->` マーカーの裏付けを添える。裏付け漏れは `/addf-lint` セクション9（lint-checklist.py・WARNING のみ）が検出する。新しい手順書を検査対象にする場合は lint の TARGETS に追加する（Plan 0027）
 - lint スクリプトを新設したら、**その lint が生まれるきっかけになった当のケースを、裏付けを剥がした状態で再現テストする**（Plan 0027 レビューで「メタ lint 自身が flagship 項目の裏付け喪失を検出できない」High 2件を検出。ドリフト注入 TDD — 詳細は `docs/knowhow/ADDF/checklist-backing-lint.md`）
 - 変更が `docs/plans-add/` 配下のみ（＝ダウンストリーム配布対象外のドキュメントのみ）のタスクでは、`addf-contribution-agent` は検出対象がないためスキップしてよい（2026-07-03 の品質向上プラン起案タスクで適用。コード・配布ファイルに触れる場合は従来どおり実行する）
-- Python 3.11+ の stdlib（`tomllib` 等）を使う addfTools スクリプトを新設したら、(1) import ガード（責務別の3類型: lint=SKIP / 実行前ゲート=フェイルセーフ ERROR / 変更系=ERROR。`docs/knowhow/ADDF/sync-lint-design.md` 参照）、(2) テストの uv フォールバック、(3) 手順書の「uv が無ければ python3 直接実行」注記、の3点をセットで入れる。テストだけに uv フォールバックを入れると手順書経由の実行者が罠に落ちる（2026-07-03、macOS システム python3=3.9.6 で speculate-guard が Traceback する罠を修正した際の教訓）
+- Python 3.11+ の stdlib（`tomllib` 等）**または PEP 723 サードパーティ依存（pyyaml 等）**を使う addfTools スクリプトを新設したら、(1) import ガード（責務別の3類型: lint=SKIP / 実行前ゲート=フェイルセーフ ERROR / 変更系=ERROR。`docs/knowhow/ADDF/sync-lint-design.md` 参照）、(2) テストの uv フォールバック、(3) 手順書の「uv が無ければ python3 直接実行」注記（サードパーティ依存は入手方法 `pip install ...` まで）、の3点をセットで入れる。テストだけに uv フォールバックを入れると手順書経由の実行者が罠に落ちる（2026-07-03 tomllib 修正の教訓。同日の投機サイクルレビューで lint-frontmatter.py の pyyaml が同型の穴と判明し類型を拡張）
 
 ## 完了済み
 

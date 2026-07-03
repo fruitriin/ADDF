@@ -14,7 +14,7 @@ machine = "mac" # "mac" | "linux" | "windows" — プラットフォーム固有
 # true にするとアイドル時（着手可能なタスクがないとき）に /addf-speculate による
 # worktree 投機開発が有効になる（デフォルト無効＝オプトイン）。
 # 投機は speculative/ ブランチに隔離され、本流には自動マージされない
-enable = false
+enable = true
 # 同時に「開発中」にできる speculative worktree の上限（採否判断待ちのブランチは数えない）
 max_worktrees = 3
 
