@@ -1,6 +1,18 @@
 # Plan 0030: CI 品質ゲート（GitHub Actions で run-all.sh + lint 一式を自動実行）
 
-## 実装状況: 未着手
+## 実装状況: 完了（2026-07-03）
+
+### 実装記録
+
+- `.github/workflows/test.yml`: ubuntu-latest / pull_request・push(main)・workflow_dispatch /
+  `permissions: contents: read` / setup-python 3.11 固定（tomllib 要件）/
+  run-all.sh + lint 7種を個別ステップ（`if: always()` で1回の実行が全 lint を見せる）
+- `.github/scripts/run-lint.sh`: exit 3値を CI にマッピング（1=fail / 2=通す+`::warning::` annotation 行単位）
+- 未決事項の決定: WARNING は一律「通す + annotation」で開始 / Python は 3.11 明示固定 /
+  トリガーは PR + main push + 手動 / ダウンストリーム配布は見送り（.github は upstream 固有・押し付けない）
+- ProgressTemplate（.addf / 無印）と Progress.md に「CI は網、ローカルは即時フィードバック」を同期追記
+- actions のタグ固定は @v4/@v5（SHA 固定はサプライチェーン硬化の Low として見送り。
+  必要になれば Plan 0031 の関心事と合流）
 
 > **粗々の起票**: 設計の方向性と未決事項を出す段階。実装詳細は着手時に詰める。
 

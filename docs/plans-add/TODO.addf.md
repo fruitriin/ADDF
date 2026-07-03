@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: 0028 フェーズ2 完了（integration 統合と一括ゲート。復帰・掃除・昇格はフェーズ3）。0026 の残り（deny ルール・addf-init 実物レビュー・experience 方式）はオーナー指示待ち。未着手は 0030〜0032、0029 はフェーズ2（環境マトリクス）以降が残り
+## 現在のフェーズ: 0030 完了（CI 品質ゲート稼働開始）。0028 はフェーズ2まで完了（復帰・掃除・昇格はフェーズ3）。0026 の残り（deny ルール・addf-init 実物レビュー・experience 方式）はオーナー指示待ち。未着手は 0031〜0033、0029 はフェーズ2（環境マトリクス）以降が残り
 
 ## バックログ
 
@@ -38,7 +38,7 @@
 | 2 | 27 | `docs/plans-add/0027-executable-checklist-doctrine.md` | 完了 |
 | 3 | 28 | `docs/plans-add/0028-worktree-speculative-dev.md` | 一部完了（フェーズ1・2 完了。復帰・掃除・昇格はフェーズ3） |
 | 4 | 29 | `docs/plans-add/0029-gui-test-environment-matrix.md` | 一部完了（フェーズ1 完了。環境マトリクスはフェーズ2以降） |
-| 5 | 30 | `docs/plans-add/0030-ci-quality-gate.md` | 未着手 |
+| 5 | 30 | `docs/plans-add/0030-ci-quality-gate.md` | 完了 |
 | 6 | 31 | `docs/plans-add/0031-binary-verification.md` | 未着手 |
 | 7 | 32 | `docs/plans-add/0032-knowhow-freshness-audit.md` | 未着手 |
 | 4 | 33 | `docs/plans-add/0033-downstream-reported-fixes.md` | 未着手 |

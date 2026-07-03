@@ -8,6 +8,8 @@
 
 [English README](README.en.md)
 
+[![test](https://github.com/fruitriin/ADDF/actions/workflows/test.yml/badge.svg)](https://github.com/fruitriin/ADDF/actions/workflows/test.yml)
+
 AI コーディングエージェントのためのリポジトリ構成フレームワークです。
 プロジェクトに ADDF を導入すると、計画駆動の開発プロセス・ノウハウ蓄積・品質ゲートが自動的に機能し、AI エージェントが自律的にタスクを選び、実装し、品質検証まで完遂します。
 

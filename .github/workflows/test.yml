@@ -1,0 +1,56 @@
+# ADDF 品質ゲート CI
+# run-all.sh（フック・ツールテスト）と lint スクリプト一式を PR / main push ごとに実行する。
+# lint の exit code 規約: 0 = OK / 1 = ERROR（ジョブ失敗）/ 2 = WARNING のみ（通すが annotation で可視化）
+# 各 lint ステップは if: always() で「前段が落ちても全 lint を実行」し、1回の実行で全ての欠陥を見せる。
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          # lint-toml.py が tomllib（3.11+ 標準）を使うため明示固定（ubuntu-latest の既定に依存しない）
+          python-version: "3.11"
+
+      - name: フレームワークテスト（run-all.sh）
+        run: bash .claude/tests/run-all.sh
+
+      - name: lint-json（settings.json 構文）
+        if: always()
+        run: bash .github/scripts/run-lint.sh lint-json
+
+      - name: lint-toml（addf-Behavior.toml 構文）
+        if: always()
+        run: bash .github/scripts/run-lint.sh lint-toml
+
+      - name: lint-frontmatter（スキル frontmatter）
+        if: always()
+        run: bash .github/scripts/run-lint.sh lint-frontmatter
+
+      - name: lint-hooks-exec（hooks 実行権限）
+        if: always()
+        run: bash .github/scripts/run-lint.sh lint-hooks-exec
+
+      - name: lint-template-sync（同期ペア1〜6）
+        if: always()
+        run: bash .github/scripts/run-lint.sh lint-template-sync
+
+      - name: lint-checklist（手順書の裏付け）
+        if: always()
+        run: bash .github/scripts/run-lint.sh lint-checklist
+
+      - name: sync-optional-skills（オプトインスキル整合）
+        if: always()
+        run: bash .github/scripts/run-lint.sh sync-optional-skills check
