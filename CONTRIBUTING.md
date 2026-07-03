@@ -1,5 +1,7 @@
 # コントリビューションガイド
 
+[English CONTRIBUTING](CONTRIBUTING.en.md)
+
 ## 基本方針
 
 このプロジェクトは **計画駆動（Plan-driven）** のコントリビューションモデルを採用しています。

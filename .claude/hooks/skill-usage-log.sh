@@ -1,6 +1,7 @@
 #!/bin/bash
 # スキル使用計測フック
 # PreToolUse の Skill マッチャーで発火し、使用をログする
+# 意図的に set -e を使わない（フックは失敗してもセッションを妨げず exit 0 で抜ける設計）
 
 LOG_DIR="${CLAUDE_PROJECT_DIR:-.}/.claude/logs"
 LOG_FILE="${LOG_DIR}/skill-usage.jsonl"

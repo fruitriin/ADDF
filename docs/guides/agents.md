@@ -28,9 +28,15 @@
 
 ### 定義の書き換え方
 
-1. `.claude/agents/addf-ui-test-agent.md` を開く
+`addf-ui-test-agent` はオプトイン式で、**原本は `.claude/optional/agents/addf-ui-test-agent.md`** にあります
+（`gui-test.enable = true` + `sync-optional-skills.py apply` で `.claude/agents/` に有効化コピーが
+配置されます。詳細は `docs/guides/gui-test-setup.md`）。
+
+1. 原本 `.claude/optional/agents/addf-ui-test-agent.md` を開く（有効化コピーを直接編集しない —
+   コピーは使い捨てで、原本との差分は同期時に WARNING になる）
 2. プロジェクト固有のテスト基準・ドメイン知識を追記する
 3. `addf-` プレフィックスはそのまま保持する（ADDF マイグレーション対象として管理されるため）
+4. `python3 .claude/addfTools/sync-optional-skills.py apply` で有効化コピーに反映する
 
 ### 新しいエージェントの追加
 
@@ -39,7 +45,7 @@
 ```
 .claude/agents/
 ├── addf-code-review-agent.md     # ADDF 組み込み（マイグレーション対象）
-├── addf-ui-test-agent.md         # ADDF 組み込み（カスタマイズ推奨）
+├── addf-ui-test-agent.md         # GUI テスト有効時のみ存在（原本: .claude/optional/agents/）
 ├── my-api-test-agent.md          # プロジェクト固有（マイグレーション対象外）
 └── my-e2e-test-agent.md          # プロジェクト固有（マイグレーション対象外）
 ```

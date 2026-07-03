@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: Phase 26 起案（レビュー残課題バックログ）。2026-07-02 の全体レビューで検出した未対応指摘を Plan 0026 に集約。Critical/High はオーナー指示待ち（deny ルール・addf-init 実物レビュー・experience 方式）
+## 現在のフェーズ: Phase 29 フェーズ1 完了（GUI スキルのオプトイン配置）。0026 の残り（deny ルール・addf-init 実物レビュー・experience 方式）はオーナー指示待ち。未着手は 0028、0029 はフェーズ2（環境マトリクス）以降が残り
 
 ## バックログ
 
@@ -34,9 +34,10 @@
 | 23 | 23 | `docs/plans-add/0023-turn-reminder-context-split.md` | 完了 |
 | 24 | 24 | `docs/plans-add/0024-todo-plan-status-lint.md` | 完了 |
 | 25 | 25 | `docs/plans-add/0025-rename-repo-to-addf.md` | 完了 |
-| 1 | 26 | `docs/plans-add/0026-review-residual-backlog.md` | 未着手 |
-| 2 | 27 | `docs/plans-add/0027-executable-checklist-doctrine.md` | 未着手 |
+| 1 | 26 | `docs/plans-add/0026-review-residual-backlog.md` | 一部完了（残りはオーナー指示待ち） |
+| 2 | 27 | `docs/plans-add/0027-executable-checklist-doctrine.md` | 完了 |
 | 3 | 28 | `docs/plans-add/0028-worktree-speculative-dev.md` | 未着手 |
+| 4 | 29 | `docs/plans-add/0029-gui-test-environment-matrix.md` | 一部完了（フェーズ1 完了。環境マトリクスはフェーズ2以降） |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
