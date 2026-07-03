@@ -75,7 +75,37 @@
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: 投機サイクル通し試験（enable=true で /addf-speculate 1サイクル）
+
+オーナー指示: enable = true にして speculate を1サイクル通す。フィードバックを拾いきったら一度リリースを挟む想定（v0.3.0 の次）。
+
+#### サブタスクチェックリスト
+
+- [x] addf-Behavior.toml の [speculation].enable を true に変更
+- [x] ガード実行（slots=3）→ 投機対象2件選定（0029 L3 注記 / addf-lint uv 注記）
+- [x] feature worktree ×2 起動・実装（サブエージェント委譲）・Stage 1 両方全パス
+- [x] Worktrees.md 記録（開発中→テスト通過→統合済み→採否判断待ちと遷移）
+- [x] integration 統合（2 feature とも integrated、衝突なし）
+- [x] Stage 2: 相互作用テスト全パス＋ペルソナ並列3体レビュー → Critical 1件（3者独立指摘: lint-frontmatter.py の pyyaml 依存で注記が不成立）を feature 側で修正 → 再統合・再テスト全パス
+- [x] Dashboard.md 書き分け・speculative 2ブランチを origin へ push
+- [x] フィードバック記録（addf-speculate.exp.md 新設 / sync-lint-design.md に PEP 723 類型追記 / Feedback.md の3点セット拡張）
+- [x] 完了処理コミット（e547ec2）
+- [x] オーナー採否確認 → **両方採用**。squash マージで昇格（12cc5d0 / 5e42691）、昇格後テスト全パス、worktree・ローカル/origin の speculative ブランチ・integration ブランチを掃除、Worktrees.md「昇格済み」・Dashboard 削除（オーナー確認済みのため）
+- [x] /addf-release でリリース（v0.4.0。プレリリースチェック全通過・未着手0030〜0032はブロックしないと判断）
+
+#### 日記
+
+##### 2026-07-03 — 通し試験開始（コンテキスト 213k 時点）
+**やったこと**: enable=true に変更。投機候補の洗い出し: (1) Plan 0029 フェーズ1残課題 L3 = GUI スキルテストシナリオ2ファイルに enable+apply 前提の注記（小・独立）、(2) addf-lint.md の uv 呼び出しに「uv 不在時は python3 直接実行」注記の水平展開（今日の tomllib 修正の教訓を addf-lint.md にも適用。独立ファイル）。両者はファイル集合が重ならず直交。
+**今の見立て**: 2 feature 構成なら integration の一括確認まで意味のある通し試験になる。L1（project-overview 再生成）は生成物の手修正になるため投機に不向きと判断して外した。
+**次の自分へ**: コンパクション後に再開する場合: /addf-speculate の手順（ガード→選定→worktree→Stage 1→統合→Stage 2→Dashboard→push→完了処理）のどこまで進んだかは Worktrees.md とこのチェックリストで判断する。実装はサブエージェント委譲（プロンプト冒頭に /addf-knowhow-index 実行指示を忘れない）。サイクル後にリリース（/addf-release）をオーナー確認付きで。
+**気になっていること**: 通し試験自体が「スキル手順の実地検証」なので、手順の穴（順序・記述の曖昧さ）を見つけたらフィードバックとして拾うこと。Dashboard は dashboard_report フラグ未設定だが通し試験のため生成する。
+
+##### 2026-07-03 — 投機サイクル完走（選定→統合→Stage 2→修正→再統合→push）
+**やったこと**: 投機サイクルを実行した（GUI テストシナリオ注記＋addf-lint uv 注記の2 feature。Stage 2 のペルソナ並列3体が「注記の過剰一般化」Critical を実測で検出、feature 側修正→再統合→全パス→push 済み）。スキル手順は 1→10 まで破綻なく機能した。
+**今の見立て**: 通し試験は成功。ペルソナ並列とコンセンサス補正が設計どおり働いたのが最大の収穫。
+**次の自分へ**: 残りは (1) メイン側の完了コミット、(2) オーナーへの投機2ブランチ採否確認、(3) 採否反映後に /addf-release（v0.4.0 想定。ADDF-Release.addf.md の手順に従う）。昇格する場合は squash マージ＋ Worktrees.md を「昇格済み」に＋ origin の speculative ブランチ削除＋ worktree 掃除。
+**気になっていること**: 手順書のフォールバック注記が feature ブランチ側（addf-lint.md 内）とメイン側（sync-lint-design.md / Feedback.md）に分かれて更新された。feature が不採用になった場合、knowhow だけが先行して実装（pyyaml ガード）が main に無い状態になる — 採否確認時にこの依存を伝えること。
 
 > 新しいタスク開始時は以下の構造で記録する:
 > `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）

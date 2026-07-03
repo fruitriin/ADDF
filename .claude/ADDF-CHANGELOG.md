@@ -2,6 +2,27 @@
 
 ADDF フレームワークの変更履歴。`/addf-migrate` 実行時に該当バージョン間のエントリを表示する。
 
+## [0.4.0] - 2026-07-03
+
+### 追加
+- worktree 投機開発（`/addf-speculate`）— アイドル時に直交概念を `speculative/` ブランチで投機し、integration ブランチで一括動作確認する2層モデル（Plan 0028 フェーズ1・2）
+  - `speculate-guard.py` — `[speculation]` enable・上限の発動ガード（オプトイン式・デフォルト無効）
+  - `speculate-integrate.py` — integration ブランチへの squash 統合。衝突 feature のスキップ報告・commit フック拒否の検出（`commit_failed`）・メイン作業ツリー不可侵
+  - Stage 2 一括ゲート（integration 上の相互作用テスト＋ペルソナ並列レビュー）と Dashboard 書き分け
+- オプショナルスキルのオプトイン機構 — GUI スキル一式を `.claude/optional/` に退避し、`[gui-test] enable` + `sync-optional-skills.py apply` で有効化コピーを配置（Plan 0029 フェーズ1）
+- チェックリスト裏付け lint（`lint-checklist.py`）— 手順書の「確認」項目に実行チェックか human-judgment マーカーの裏付けを要求（Plan 0027）
+- 旧 Python 環境ガード — tomllib（Python 3.11+）・PEP 723 依存（pyyaml）を使うスクリプトに責務別 import ガード（lint = SKIP / 実行前ゲート = フェイルセーフ ERROR / 変更系 = ERROR）
+- 再現テスト群 — `test-lint-toml` / `test-lint-frontmatter` / `test-speculate-guard` / `test-speculate-integrate` / `test-optional-skills`（PYTHONPATH シム・commit フック注入によるドリフト注入 TDD）
+
+### 変更
+- Python スクリプトの呼び出しを `uv run --python 3.11` に統一し、uv 不在環境向けの `python3` 直接実行フォールバック注記を手順書（addf-lint / addf-migrate / addf-speculate / docs/guides）に併記
+- GUI テストシナリオ（test-addf-clip-image / test-addf-annotate-grid）にオプトイン前提の注記を追加
+- 非 macOS 環境ではバイナリ実行テストを SKIP（Plan 0029）
+
+### 修正
+- macOS システム python3（3.9）で tomllib 依存スクリプトが未捕捉の Traceback で落ちる罠を修正
+- `lint-frontmatter.py` の pyyaml 欠如時の未捕捉クラッシュを SKIP ガード化（ペルソナ並列レビューの3者独立指摘による検出）
+
 ## [0.3.0] - 2026-06-29
 
 ### 追加
