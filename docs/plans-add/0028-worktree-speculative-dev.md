@@ -1,6 +1,19 @@
 # Plan 0028: addf-dev の worktree ベース投機開発
 
-## 実装状況: 一部完了（2026-07-03 フェーズ1・フェーズ2 完了。復帰・掃除・昇格運用はフェーズ3）
+## 実装状況: 一部完了（2026-07-03 フェーズ1〜3-3 完了。残りはフェーズ3-4=guides 追記・/addf-overview 再生成のみ）
+
+### フェーズ3（1〜3）実装記録（2026-07-03）
+
+- `speculate-reconcile.py` 新設: check（`worktree prune`＋speculative/integration 走査・`merged_hint`
+  ヒント出力・detached worktree 報告）/ clean（`--delete` 明示指定制・Worktrees.md の
+  「昇格済み/放棄」記載との突合を削除前に一括強制・過去日付 integration の自動掃除
+  ＋`--keep-integrations`・dirty worktree 既定拒否）
+- addf-speculate.md: 手順1.7（再構築と掃除。キー→アクション対応表つき）・clean サブコマンド節・
+  昇格手順節（squash マージ・オーナーの明示応答必須・無応答を承認とみなすこと禁止の明文）
+- ペルソナ並列レビュー3体が削除系の Critical 3件（origin 削除の独立実行・日付判定の脆さ・
+  --promote の意味論）を全て実測再現付きで検出 → フェーズ内修正。「警告は出すが止めない」
+  パターンの全廃（詳細: `docs/knowhow/ADDF/speculative-integration-design.md`）。
+  テスト 17本・72アサーション全パス
 
 ### フェーズ2 実装記録（2026-07-03）
 

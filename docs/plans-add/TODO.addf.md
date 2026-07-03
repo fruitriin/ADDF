@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: 0033 項目1〜3 完了（upstream/downstream 判定の明示シグナル化・*.addf.md 配布停止。項目4=PlanTemplate 残り）。0026 の残り（deny ルール・addf-init 実物レビュー・experience 方式）はオーナー指示待ち。未着手は 0030〜0032、0029 はフェーズ2（環境マトリクス）以降が残り
+## 現在のフェーズ: 0028 フェーズ3-3 まで完了（投機の再構築・clean・昇格手順。残りは 3-4=guides/overview）。0033 は項目4=PlanTemplate 残り。0026 の残りはオーナー指示待ち。未着手は 0030〜0032、0029 はフェーズ2以降が残り
 
 ## バックログ
 
@@ -36,7 +36,7 @@
 | 25 | 25 | `docs/plans-add/0025-rename-repo-to-addf.md` | 完了 |
 | 1 | 26 | `docs/plans-add/0026-review-residual-backlog.md` | 一部完了（残りはオーナー指示待ち） |
 | 2 | 27 | `docs/plans-add/0027-executable-checklist-doctrine.md` | 完了 |
-| 3 | 28 | `docs/plans-add/0028-worktree-speculative-dev.md` | 一部完了（フェーズ1・2 完了。復帰・掃除・昇格はフェーズ3） |
+| 3 | 28 | `docs/plans-add/0028-worktree-speculative-dev.md` | 一部完了（フェーズ1〜3-3 完了。残りは 3-4=guides/overview のみ） |
 | 4 | 29 | `docs/plans-add/0029-gui-test-environment-matrix.md` | 一部完了（フェーズ1 完了。環境マトリクスはフェーズ2以降） |
 | 5 | 30 | `docs/plans-add/0030-ci-quality-gate.md` | 未着手 |
 | 6 | 31 | `docs/plans-add/0031-binary-verification.md` | 未着手 |
