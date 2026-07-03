@@ -81,7 +81,7 @@ uv run --python 3.11 .claude/addfTools/lint-template-sync.py
 ```
 
 exit code: 0 = 全一致 / 1 = ERROR / 2 = WARNING のみ。
-ダウンストリームプロジェクトでは ADDF 本体固有ファイル（`.addf.md` 版・`AGENTS.md` 等）が存在しないペアは SKIP され、ペア1は `ProgressTemplate.md` を正として比較する。
+upstream/downstream の判定は明示シグナルで行う（一次根拠: `CLAUDE.repo.md` の種別宣言 / フォールバック: `.claude/addf-lock.json` の存在。ファイルの存在では判定しない — 存在≠所有）。ダウンストリームではペア1は `ProgressTemplate.md` を正として比較し（`.addf.md` 版が物理存在しても比較しない）、ペア2・ペア3は SKIP される（独自 `AGENTS.md` の誤報防止）。その他のペアも対象ファイルが存在しなければ SKIP される。
 WARNING には git log による最終更新日ヒントが併記される。**どちらを正として同期するかはエージェントが文脈で判断する**（通常は新しい側が正だが、誤編集の巻き戻しもありうる）。修正後は再実行して確認する。
 
 ## 7. Knowhow 鮮度チェック

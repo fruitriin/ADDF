@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: 0028 フェーズ2 完了（integration 統合と一括ゲート。復帰・掃除・昇格はフェーズ3）。0026 の残り（deny ルール・addf-init 実物レビュー・experience 方式）はオーナー指示待ち。未着手は 0030〜0032、0029 はフェーズ2（環境マトリクス）以降が残り
+## 現在のフェーズ: 0033 項目1〜3 完了（upstream/downstream 判定の明示シグナル化・*.addf.md 配布停止。項目4=PlanTemplate 残り）。0026 の残り（deny ルール・addf-init 実物レビュー・experience 方式）はオーナー指示待ち。未着手は 0030〜0032、0029 はフェーズ2（環境マトリクス）以降が残り
 
 ## バックログ
 
@@ -41,7 +41,7 @@
 | 5 | 30 | `docs/plans-add/0030-ci-quality-gate.md` | 未着手 |
 | 6 | 31 | `docs/plans-add/0031-binary-verification.md` | 未着手 |
 | 7 | 32 | `docs/plans-add/0032-knowhow-freshness-audit.md` | 未着手 |
-| 4 | 33 | `docs/plans-add/0033-downstream-reported-fixes.md` | 未着手 |
+| 4 | 33 | `docs/plans-add/0033-downstream-reported-fixes.md` | 一部完了（項目1〜3 完了。項目4=PlanTemplate 残り） |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください

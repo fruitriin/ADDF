@@ -6,6 +6,8 @@ depends_on:
   - .claude/addfTools/lint-template-sync.py
   - .claude/tests/tools/test-template-sync.sh
   - .claude/commands/addf-init.md
+  - .claude/commands/addf-migrate.md
+  - .claude/commands/addf-knowhow-index.md
   - .claude/addfTools/sync-optional-skills.py
   - .claude/addfTools/speculate-guard.py
   - .claude/addfTools/lint-toml.py
@@ -45,7 +47,20 @@ status: active
 - 両環境に存在するファイルはフォールバックで対応する（例: テンプレートは `.addf.md` 版がなければ無印版を正とする）
 - exit code は 3値: `0 = OK / 1 = ERROR / 2 = WARNING のみ`。テストとエージェントが重要度を区別できる
 
-### 「欠如 = SKIP」は実行環境にも適用する — tomllib（3.11+）ガードの3類型
+### 「存在≠所有」— ファイルの存在で upstream/downstream を判定しない
+
+「欠如 = SKIP」原則の**逆ケース**。ダウンストリーム実運用初日に3件同時に顕在化した（Plan 0033）:
+
+1. **`.addf.md` は配布によりダウンストリームにも物理存在しうる**。addf-init が `.claude/templates/` を丸ごとコピーしていたため、`ProgressTemplate.addf.md` の存在を「ADDF 本体」のシグナルに使っていたペア1は**全ダウンストリームで誤検知**した。同型の欠陥が addf-knowhow-index の「`INDEX.addf.md` が存在すればそちらを優先」にもあった。存在は所有の証明にならない
+2. **配布ファイル名はダウンストリームの同名無関係ファイルと衝突しうる**。実例: Misskey 由来の独自 `AGENTS.md` を持つプロジェクトで、ペア3が「ブートシーケンス見出しなし」を誤報した。ファイル名が一致しても中身が ADDF 由来とは限らない
+3. **所有判定は明示シグナルで行う**: 一次根拠 = `CLAUDE.repo.md` のプロジェクト種別宣言（「ADDF 開発プロジェクト」/「ADDF 利用プロジェクト」。@メンション1段を解決し、コードブロック内の書き換え例は除外）、フォールバック = `.claude/addf-lock.json` の存在（addf-init / addf-migrate と同じアンカー）。ADDF 本体自身も lock を持つため、**lock 単独では本体をダウンストリームと誤判定する** — 宣言を先に見る順序が重要
+
+根治策はシグナル判定と併せて**発生源を断つ**こと: addf-init / addf-migrate の配布対象から `*.addf.md` を除外し、ダウンストリームに `.addf.md` を物理的に置かない（分離規約）。判定ロジックの防御と配布規約の根治はセットで行う — 片方だけでは旧バージョン配布済みの環境や持ち込みファイルで再発する。
+
+補足2点（Plan 0033 ペルソナ並列レビューで追加）:
+
+- **ペア4（development-process.md）は同型リスクを持つが据え置き**。配布された `docs/guides/development-process.md` をダウンストリームが独自にリライトすれば、ペア3 と同じ「同名無関係ファイル」誤報になりうる。ただし実運用でのリライト報告がないため分岐を先回りしない — 報告が出たら pair3 と同じ repo_kind 分岐に入れる
+- **種別宣言の判定仕様**: 宣言マッチは太字マーカー込みの厳密一致（`**ADDF 開発プロジェクト**` / `**ADDF 利用プロジェクト**`）で、地の文の言及（否定文・沿革の記述）に誤爆しない。upstream/downstream の**両方**がヒットしたら判定不能（安全側）として lock フォールバックへ委ねる — 無条件の upstream 優先はしない。コードフェンス（``` / ~~~）内は除外されるが、**インラインコードスパン（単一バッククオート）内の言及は除外されない** — 宣言文言を CLAUDE.repo.md 内で引用説明する際はフェンスを使う運用。判定不能（宣言なし・lock なし = 旧配布ダウンストリームの可能性）は upstream と同一視せず、ペア1/ペア3 の ERROR を WARNING に格下げして種別宣言/lock の整備を促す。downstream / 判定不能で検査を切り替えたら `[N] SKIP: <理由（repo_kind）>` を必ず出力する（本体が誤って downstream 判定に裏返ったとき SKIP 表示で気づけるフェイルセーフ。実リポジトリテストで「SKIP が無いこと」を固定）
 
 macOS システム python3 は 3.9.6 で `tomllib`（Python 3.11+ stdlib）が無く、素の `import tomllib` は Traceback で落ちる（2026-07-03、pull 後の整合確認で発見）。import ガードで受け、**スクリプトの責務ごとに exit code を選ぶ**:
 

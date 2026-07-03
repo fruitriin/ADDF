@@ -58,7 +58,8 @@ ADDF フレームワークを最新版（またはターゲットバージョン
 
 7. 現在のロックファイルの `ref`（タグ）と最新版の間で、ADDF 管理ファイルの差分をリストアップする
 
-**マイグレーション対象ファイル:**
+**マイグレーション対象ファイル**（除外規則: `*.addf.md` に該当するファイルは対象外 — ADDF 本体専用。
+旧バージョンの配布で残っている `*.addf.md`（例: `ProgressTemplate.addf.md`、`INDEX.addf.md`）があれば削除を提案する）:
 - `.claude/commands/addf-*.md` — スキル定義
 - `.claude/agents/addf-*.md` — エージェント定義
 - `.claude/optional/` — オプトイン式スキル・エージェントの原本（適用後に `sync-optional-skills.py` の再実行を案内）
@@ -71,8 +72,7 @@ ADDF フレームワークを最新版（またはターゲットバージョン
 - `AGENTS.md` — Codex 向けブートシーケンス（上書き）
 - `CONTRIBUTING.md` — コントリビューションガイド
 - `.claudeignore` — Claude 除外設定
-- `.claude/ADDF-CHANGELOG.md` — 変更履歴
-- `.claude/ADDF-Release.addf.md` — ADDF リリース手順
+- `.claude/ADDF-CHANGELOG.md` — 変更履歴（`ADDF-Release.addf.md` は除外規則により対象外）
 - `docs/guides/` — ADDF ガイドドキュメント
 - `docs/knowhow/ADDF/` — ADDF ノウハウ
 
@@ -88,6 +88,15 @@ ADDF フレームワークを最新版（またはターゲットバージョン
 - `docs/knowhow/*.md`（ADDF/ 以外） — プロジェクトのノウハウ
 - `README.md`, `README.en.md` — プロジェクトの説明
 - `.gitignore` — プロジェクトの除外設定（変更がある場合は手動マージを案内）
+
+7.5. **旧配布 `*.addf.md` の残留検出**（「7.5」は後続の番号参照を壊さないための枝番）:
+旧バージョンの配布でダウンストリームに残っている `*.addf.md` を検出する:
+```bash
+find . -name '*.addf.md' -not -path './.git/*'
+```
+検出されたファイルは ADDF 本体専用の残留物のため、Phase 4 の「削除推奨」カテゴリで削除を提案する
+（ADDF 本体で実行された場合は `*.addf.md` が正当に存在するが、そもそも本体では
+`/addf-migrate` の前提となる `addf-lock.json` の向き先が自身であり通常実行しない）
 
 ### Phase 4: 変更の確認
 
@@ -114,6 +123,10 @@ ADDF フレームワークを最新版（またはターゲットバージョン
 
 ■ 削除 (1)
   - .claude/commands/addf-deprecated.md
+
+■ 削除推奨（旧配布残留ファイル） (2)
+  - .claude/templates/ProgressTemplate.addf.md
+  - docs/knowhow/INDEX.addf.md
 
 ■ 要手動マージ (1)
   ! .gitignore (変更あり — 手動確認推奨)

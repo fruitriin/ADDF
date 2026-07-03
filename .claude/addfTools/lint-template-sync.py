@@ -2,9 +2,13 @@
 """テンプレート同期チェック — 同期が必要なファイルペアのドリフトを検出する
 
 ペア1: ProgressTemplate.addf.md ⇔ 運用中 Progress.md（運用ルールのテキスト包含・ERROR）
-       ダウンストリーム（.addf.md 版がない場合）は ProgressTemplate.md を正として比較する
+       ダウンストリームでは ProgressTemplate.md を正として比較する（`.addf.md` 版が
+       配布・持ち込みで物理存在しても比較対象にしない — 存在≠所有）
 ペア2: ProgressTemplate.addf.md ⇔ ProgressTemplate.md（正規化した運用ルールの相互比較・WARNING）
+       ダウンストリームでは SKIP（同上の理由で `.addf.md` は所有物ではない）
 ペア3: CLAUDE.md ⇔ AGENTS.md（ブートシーケンス手順番号の対応・WARNING）
+       ダウンストリームでは SKIP（独自の AGENTS.md を持つプロジェクトで
+       「ブートシーケンス見出しなし」を誤報するため）
 ペア4: CLAUDE.md ⇔ docs/guides/development-process.md（ブートシーケンス概要手順番号の対応・WARNING）
 
 ペア5: CLAUDE.md ⇔ addf-init.md コピーリスト（参照ファイルのカバレッジ・WARNING）
@@ -25,6 +29,24 @@
 
 ペア2〜6 は対象ファイルが存在しない場合 SKIP する（ADDF 本体固有ファイルは
 ダウンストリームプロジェクトに存在しないため、欠如はドリフトではない）。
+
+upstream/downstream の判定はファイルの存在ではなく明示シグナルで行う（存在≠所有 —
+配布によって `.addf.md` はダウンストリームにも物理存在しうる）:
+1. 一次根拠: CLAUDE.repo.md の種別宣言。テンプレート書式（太字マーカー込みの
+   `**ADDF 開発プロジェクト**` / `**ADDF 利用プロジェクト**`）に厳密一致させる。
+   @メンション1段を解決し、コードフェンス（``` / ~~~）内の記述は除外する。
+   両方の宣言がヒットした場合は判定不能として安全側に倒し、フォールバックへ委ねる
+   （無条件の upstream 優先はしない）
+2. フォールバック: .claude/addf-lock.json が存在すればダウンストリーム
+3. どちらも判定不能（None）な場合のみ、従来のファイル存在フォールバックに委ねる
+   （テストサンドボックス等、シグナルの無い環境の互換動作）。ただし判定不能を
+   upstream と同一視しない — 旧配布のダウンストリーム（宣言なし・lock なし）で
+   誤検知しうるペア1/ペア3 の ERROR は WARNING に格下げし、種別宣言または
+   lock の整備を促すメッセージを併記する
+
+downstream / 判定不能によりペアの検査対象を切り替え・SKIP するときは、silent にせず
+`[N] SKIP: <理由（repo_kind）>` を stdout に出す（本体が誤って downstream 判定に
+なった場合に SKIP 表示で気づけるフェイルセーフ）。
 
 不一致の WARNING には git log による最終更新日ヒントを併記する
 （どちらが新しいか＝どちらを正として同期すべきかの判断材料）。
@@ -80,11 +102,99 @@ def git_hint(path_a, path_b):
             f'{path_b} = {last_commit_date(path_b)}')
 
 
-def check_pair1():
-    """テンプレートの運用ルールが Progress.md に全て含まれているか（ERROR）"""
-    tmpl_path = '.claude/templates/ProgressTemplate.addf.md'
-    if not os.path.exists(tmpl_path):  # ダウンストリームでは無印版が正
+def _repo_declaration_lines(path, depth=0):
+    """CLAUDE.repo.md のコードフェンス外の本文行を、@メンション1段まで解決して返す
+
+    CLAUDE.repo.example.md は「ADDF 利用プロジェクト」への書き換え例をコードブロック内に
+    持つため、コードフェンス（``` / ~~~ の両方）内は宣言として扱わない。
+    ADDF 本体の CLAUDE.repo.md は `@CLAUDE.repo.example.md` 経由で種別宣言するため、
+    @メンションを1段だけ解決する。
+
+    解決仕様の注意:
+    - @メンションは行全体が `@xxx.md` の形の場合のみ解決する（行中の @ 言及は対象外）
+    - インラインコードスパン（単一バッククオート）内の言及は**除外されない**。
+      宣言文言をドキュメント内で引用説明するときはコードフェンスで囲う運用とする
+    """
+    if depth > 1 or not os.path.exists(path):
+        return []
+    with open(path) as f:
+        lines = f.read().splitlines()
+    out, fence = [], None
+    for line in lines:
+        s = line.strip()
+        if fence is None and (s.startswith('```') or s.startswith('~~~')):
+            fence = s[:3]
+            continue
+        if fence is not None:
+            if s.startswith(fence):
+                fence = None
+            continue
+        m = re.match(r'@(\S+\.md)$', s)
+        if m:
+            out.extend(_repo_declaration_lines(m.group(1), depth + 1))
+            continue
+        out.append(line)
+    return out
+
+
+# 判定不能（repo_kind=None）時に ERROR を格下げした WARNING に添える促しメッセージ
+KIND_UNKNOWN_HINT = (
+    'upstream/downstream を判定できないため WARNING に格下げ。'
+    'ダウンストリームなら CLAUDE.repo.md に種別宣言'
+    '（このリポジトリは **ADDF 利用プロジェクト** です。）を書くか、'
+    '.claude/addf-lock.json を配置する'
+)
+
+
+def detect_repo_kind():
+    """'upstream' / 'downstream' / None（判定不能）を返す
+
+    ファイルの存在（ProgressTemplate.addf.md 等）で判定しない — 存在≠所有。
+    一次根拠: CLAUDE.repo.md の種別宣言。テンプレートが実際に生成する書式
+    （太字マーカー込みの `**ADDF 開発プロジェクト**` / `**ADDF 利用プロジェクト**`）に
+    正規表現で厳密一致させ、地の文の言及（「ADDF 開発プロジェクトではありません」
+    「かつて ADDF 開発プロジェクトとして始まり…」等）では判定しない。
+    upstream/downstream の**両方**がヒットした場合は判定不能（安全側）として
+    フォールバックに委ねる — 無条件の upstream 優先はしない。
+    フォールバック: addf-lock.json が存在すればダウンストリーム。
+
+    この優先順位・書式マッチは以下に依存する:
+    1. addf-init（カテゴリ3）が CLAUDE.repo.md に種別宣言を**太字マーカー込みで直書き**
+       すること（@メンションで CLAUDE.repo.example.md に継承させない）
+    2. @メンションは行全体が `@xxx.md` の形のみ解決される（_repo_declaration_lines 参照）
+    3. インラインコードスパン（単一バッククオート）内の言及は除外されない —
+       宣言文言を引用説明する際はコードフェンス（``` / ~~~）を使う運用
+    """
+    text = '\n'.join(_repo_declaration_lines('CLAUDE.repo.md'))
+    kinds = set(re.findall(r'\*\*ADDF (開発|利用)プロジェクト\*\*', text))
+    if len(kinds) == 1:
+        return 'upstream' if '開発' in kinds else 'downstream'
+    # len(kinds) == 2 は宣言の混在（判定不能・安全側）。0 は宣言なし。いずれも lock に委ねる
+    if os.path.exists('.claude/addf-lock.json'):
+        return 'downstream'
+    return None
+
+
+def check_pair1(repo_kind):
+    """テンプレートの運用ルールが Progress.md に全て含まれているか（ERROR）
+
+    repo_kind=None（宣言なし・lock なし = 旧配布ダウンストリームの可能性）で
+    `.addf.md` を比較対象にした場合の乖離は、誤検知の可能性があるため
+    WARNING に格下げして種別宣言/lock の整備を促す（判定不能を upstream と同一視しない）。
+    """
+    addf_tmpl = '.claude/templates/ProgressTemplate.addf.md'
+    tmpl_path = addf_tmpl
+    kind_unknown = False
+    if repo_kind == 'downstream' or not os.path.exists(addf_tmpl):
+        if repo_kind == 'downstream' and os.path.exists(addf_tmpl):
+            skips.append(
+                f'[1] SKIP: repo_kind=downstream のため {addf_tmpl} を比較対象にしない'
+                f'（物理存在しても配布物 — ProgressTemplate.md を正として検査する）'
+            )
+        # ダウンストリームでは無印版が正（.addf.md が物理存在しても配布物のため比較しない）
         tmpl_path = '.claude/templates/ProgressTemplate.md'
+    elif repo_kind is None:
+        kind_unknown = True
     prog_path = '.claude/Progress.md'
     if not os.path.exists(tmpl_path) or not os.path.exists(prog_path):
         skips.append(f'[1] SKIP: {tmpl_path} または {prog_path} が存在しない')
@@ -97,15 +207,24 @@ def check_pair1():
     prog_text = '\n'.join(prog)
     missing = [s for s in (line.strip() for line in tmpl) if s and s not in prog_text]
     if missing:
+        if kind_unknown:
+            msg = [f'[1] WARNING: {prog_path} の運用ルールがテンプレート（{tmpl_path}）と乖離'
+                   f'（{KIND_UNKNOWN_HINT}）:']
+            msg += [f'    MISSING: {m}' for m in missing]
+            warnings.append('\n'.join(msg))
+            return
         msg = [f'[1] ERROR: {prog_path} の運用ルールがテンプレート（{tmpl_path}）と乖離（テンプレートを正として同期する）:']
         msg += [f'    MISSING: {m}' for m in missing]
         errors.append('\n'.join(msg))
 
 
-def check_pair2():
+def check_pair2(repo_kind):
     """ProgressTemplate.addf.md ⇔ ProgressTemplate.md の運用ルールを正規化して相互比較（WARNING）"""
     addf_path = '.claude/templates/ProgressTemplate.addf.md'
     down_path = '.claude/templates/ProgressTemplate.md'
+    if repo_kind == 'downstream':
+        skips.append(f'[2] SKIP: repo_kind=downstream のため対象外（{addf_path} が物理存在しても配布物のため比較しない）')
+        return
     if not os.path.exists(addf_path) or not os.path.exists(down_path):
         skips.append(f'[2] SKIP: {addf_path} がない（ダウンストリームでは対象外）')
         return
@@ -161,7 +280,12 @@ def boot_steps(path, header_prefix):
     return steps
 
 
-def check_boot_pair(pair_no, base, base_header, other, other_header, label):
+def check_boot_pair(pair_no, base, base_header, other, other_header, label,
+                    downgrade_missing_header=False):
+    """downgrade_missing_header: repo_kind=None（判定不能）のとき True。
+    見出し不在の ERROR を WARNING に格下げする（旧配布ダウンストリームの
+    独自 AGENTS.md で誤検知しうるため — 判定不能を upstream と同一視しない）。
+    """
     if not os.path.exists(base) or not os.path.exists(other):
         missing = base if not os.path.exists(base) else other
         skips.append(f'[{pair_no}] SKIP: {missing} が存在しない')
@@ -170,7 +294,13 @@ def check_boot_pair(pair_no, base, base_header, other, other_header, label):
     other_steps = boot_steps(other, other_header)
     if base_steps is None or other_steps is None:
         missing = base if base_steps is None else other
-        errors.append(f'[{pair_no}] ERROR: {missing} にブートシーケンス見出しが見つからない')
+        if downgrade_missing_header:
+            warnings.append(
+                f'[{pair_no}] WARNING: {missing} にブートシーケンス見出しが見つからない'
+                f'（{KIND_UNKNOWN_HINT}）'
+            )
+        else:
+            errors.append(f'[{pair_no}] ERROR: {missing} にブートシーケンス見出しが見つからない')
         return
     if base_steps != other_steps:
         warnings.append(
@@ -377,11 +507,18 @@ def check_pair6():
             )
 
 
-check_pair1()
-check_pair2()
-check_boot_pair(3, 'CLAUDE.md', '## ブートシーケンス',
-                'AGENTS.md', '## Boot Sequence',
-                'CLAUDE.md ⇔ AGENTS.md ブートシーケンス')
+repo_kind = detect_repo_kind()
+check_pair1(repo_kind)
+check_pair2(repo_kind)
+if repo_kind == 'downstream':
+    # 独自 AGENTS.md（ADDF ブートシーケンス見出しなし）を持つプロジェクトでの誤報を防ぐ
+    skips.append('[3] SKIP: repo_kind=downstream のため対象外（AGENTS.md は独自ファイルの可能性がある）')
+else:
+    # repo_kind=None（判定不能）は upstream と同一視せず、見出し不在の ERROR を WARNING に格下げ
+    check_boot_pair(3, 'CLAUDE.md', '## ブートシーケンス',
+                    'AGENTS.md', '## Boot Sequence',
+                    'CLAUDE.md ⇔ AGENTS.md ブートシーケンス',
+                    downgrade_missing_header=(repo_kind is None))
 check_boot_pair(4, 'CLAUDE.md', '## ブートシーケンス',
                 'docs/guides/development-process.md', '## ブートシーケンス',
                 'CLAUDE.md ⇔ development-process.md ブートシーケンス概要')

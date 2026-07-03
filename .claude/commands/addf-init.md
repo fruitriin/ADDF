@@ -138,21 +138,25 @@ ADDF ファイルの配置元を決定する:
 
 #### カテゴリ1: 無条件コピー（外部起動の場合のみ）
 
+**除外規則: `*.addf.md` に該当するファイルはコピーしない**（ADDF 本体専用。
+`.addf.md` をダウンストリームに物理的に置くと、存在ベースの判定ロジックが
+「ADDF 本体」と誤認する根源になる — 分離規約 / 存在≠所有）。
+
 衝突リスクなし（`addf-` プレフィックスで識別可能）:
 - `.claude/commands/addf-*.md` — スキル定義
 - `.claude/agents/addf-*.md` — エージェント定義
 - `.claude/optional/` — オプトイン式スキル・エージェントの原本（GUI テスト等。有効化は `.claude/addfTools/sync-optional-skills.py apply`）
 - `.claude/hooks/*.sh` — フック
-- `.claude/templates/` — テンプレート
+- `.claude/templates/` — テンプレート（除外規則により `ProgressTemplate.addf.md` 等の `*.addf.md` はコピーしない）
 - `.claude/addfTools/` — ツール群
 - `.claude/tests/` — テストスイート
 - `.claude/addf-Behavior.toml`
-- `.claude/ADDF-CHANGELOG.md`, `.claude/ADDF-Release.addf.md`
+- `.claude/ADDF-CHANGELOG.md`（`ADDF-Release.addf.md` は除外規則によりコピーしない）
 - `.claude/Questions.example.md`, `.claude/Dashboard.example.md` — CLAUDE.md が書式参照するため必須
 - `CLAUDE.repo.example.md`, `CLAUDE.local.example.md`
 - `AGENTS.md`
 - `.claudeignore`
-- `docs/knowhow/ADDF/`, `docs/knowhow/INDEX.addf.md`
+- `docs/knowhow/ADDF/`（`INDEX.addf.md` は除外規則によりコピーしない。ダウンストリームの knowhow インデックスは `docs/knowhow/INDEX.md` に一本化する）
 - `docs/guides/`
 
 #### カテゴリ2: インテリジェントマージ
@@ -178,6 +182,9 @@ ADDF ファイルの配置元を決定する:
 #### カテゴリ3: プロジェクト固有ファイル（ダウンストリーム体裁で生成）
 
 - **`CLAUDE.repo.md`** — `CLAUDE.repo.example.md` をベースに「ADDF 利用プロジェクト」として生成
+  - 種別宣言行は `CLAUDE.repo.example.md` の該当行を**一字一句そのままコピーする**
+    （`このリポジトリは **ADDF 利用プロジェクト** です。` — 太字マーカー含む。
+    パラフレーズしない — lint-template-sync の種別判定がこの書式（太字込みの厳密一致）に依存する）
   - プロジェクト名、ビルド・Lint・テストコマンド、コミットログ規約を反映
 - **`CLAUDE.local.md`** — テンプレートからコピー
 - **`.claude/addf-lock.json`** — ADDF クローン元の `ref` で生成
