@@ -1,0 +1,72 @@
+# Plan 0033: ダウンストリーム実測バグの修正（upstream/downstream 判定の統一ほか）
+
+## 実装状況: 未着手
+
+> 出典: ダウンストリームプロジェクト（イヴの時間シリーズ）の ADDF 運用初日に実測・検証された
+> バグ報告3件＋機能提案1件。元は持ち込みファイル「19-ADDF上流コントリビューション.md」
+> （v0.4.0 リリース時に受領。オーナー方針「Issue 起票相当として ADDF 側で実装」に従い本計画に正規化）。
+> ダウンストリーム側に再現記録（lint 出力・`addf-knowhow-index.exp.md`）あり。
+
+## 目的
+
+ADDF 配布を受けたダウンストリームで**構造的に誤検知・誤誘導する**判定ロジックを修正する。
+共通根因は「ファイルの**存在**で upstream/downstream を判定している」こと — 配布によって
+`.addf.md` や `INDEX.addf.md` はダウンストリームにも物理存在するため、存在は所有の証明にならない。
+所有判定は明示シグナル（`addf-lock.json` / `CLAUDE.repo.md` の種別宣言）で行う。
+
+## 項目
+
+### 項目1: lint-template-sync の upstream/downstream 判定を addf-lock.json ベースに統一（バグ・最優先）
+
+- **対象**: `.claude/addfTools/lint-template-sync.py`（ペア1 / ペア3）、`.claude/commands/addf-init.md`
+- **問題**: ペア1 が `ProgressTemplate.addf.md` の存在で「ADDF 本体」と判定するが、addf-init は
+  `.claude/templates/` を丸ごと（`.addf.md` 含む）コピーするため、**全ダウンストリームで誤検知**する。
+  ペア3 も、ダウンストリームが独自の `AGENTS.md` を持つケース（実例: Misskey 由来）で
+  「ブートシーケンス見出しなし」ERROR を誤報する
+- **修正**: `.claude/addf-lock.json` の存在を一次シグナルにする（addf-init / addf-migrate と同じ判定に統一）。
+  lock あり → ダウンストリーム確定 → ペア1 は `ProgressTemplate.md` を正、ペア3 は SKIP
+- **根治策（併せて実施）**: addf-init のカテゴリ1コピーから `*.addf.md` を除外し、
+  ダウンストリームに `.addf.md` を物理的に置かない（分離規約に合わせる）
+- **回帰テスト**: `test-template-sync.sh` に「addf-lock.json ありダウンストリームで `.addf.md` /
+  独自 `AGENTS.md` が存在するケース」を追加（mktemp サンドボックス＋ドリフト注入）
+
+### 項目2: addf-knowhow-index の INDEX 選択を種別宣言ベースに（バグ）
+
+- **対象**: `.claude/commands/addf-knowhow-index.md`（「インデックスファイルの選択」節）
+- **問題**: 「`INDEX.addf.md` が存在すればそちらを優先」は、配布を受けた全ダウンストリームが
+  両 INDEX を持つため**恒常的に誤誘導**する（エッジケースではなく設計欠陥）
+- **修正**: `CLAUDE.repo.md` のプロジェクト種別宣言（「ADDF 開発プロジェクト」/「ADDF 利用プロジェクト」）を
+  一次根拠、`addf-lock.json` の存在をフォールバックにする
+
+### 項目3: sync-lint-design.md へ「存在≠所有」の教訓を追記（知見）
+
+- **対象**: `docs/knowhow/ADDF/sync-lint-design.md`
+- **内容**: 「欠如 = SKIP」原則の逆ケースを明文化 — ① `.addf.md` はダウンストリームに物理存在しうる
+  （存在≠所有）② ADDF 配布ファイル名はダウンストリームの同名無関係ファイルと衝突しうる。
+  所有判定は明示シグナル（addf-lock.json 等）で行う
+
+### 項目4: PlanTemplate.md の新規追加（機能提案・優先度低）
+
+- **対象**: `.claude/templates/PlanTemplate.md`（新規）、CLAUDE.md 骨格プランニング手順・addf-init からの参照
+- **背景**: ダウンストリームで独立起草された計画8本が同一構造に収束した実績
+  （実装状況 / 目的 / 現状の挙動 / 変更内容 / 影響範囲 / テスト方針 / 破壊的変更の許容範囲 / 要オーナー確認）。
+  ProgressTemplate はあるのに Plan のテンプレートが無い
+- **提案**: 上記構造の標準テンプレート＋検討スタブ用の簡略 variant（分かっていること / 未解決の問い /
+  着手のトリガー）。「AI 実装の見積もり」欄はオーナー個人設定由来のため任意セクション
+- 実装時は項目1〜3 と切り離してよい（バグ修正を先行させる）
+
+## 影響範囲
+
+- `.claude/addfTools/lint-template-sync.py` / `.claude/commands/addf-init.md` /
+  `.claude/commands/addf-knowhow-index.md` / `docs/knowhow/ADDF/sync-lint-design.md` /
+  `.claude/templates/`（項目4）
+- addf-init コピーリスト変更（項目1 根治策）は lint ペア5 への影響を確認する
+- ダウンストリームは次回 `/addf-migrate` で追従する
+
+## 完了条件
+
+- ダウンストリーム構成（addf-lock.json あり・`.addf.md` あり・独自 AGENTS.md あり）で
+  lint-template-sync が誤検知しない — `test-template-sync.sh` の新規回帰ケースが PASS
+- addf-knowhow-index が種別宣言に従って INDEX を選択する — スキル本文の記述更新
+  <!-- human-judgment: ダウンストリーム実環境での再現解消はダウンストリーム側の /addf-migrate 後に確認 -->
+- 項目3 の knowhow 追記が INDEX.addf.md に反映されている（`/addf-knowhow-index reindex` 相当の整合）

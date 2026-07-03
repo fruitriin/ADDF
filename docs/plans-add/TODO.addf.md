@@ -41,6 +41,7 @@
 | 5 | 30 | `docs/plans-add/0030-ci-quality-gate.md` | 未着手 |
 | 6 | 31 | `docs/plans-add/0031-binary-verification.md` | 未着手 |
 | 7 | 32 | `docs/plans-add/0032-knowhow-freshness-audit.md` | 未着手 |
+| 4 | 33 | `docs/plans-add/0033-downstream-reported-fixes.md` | 未着手 |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
