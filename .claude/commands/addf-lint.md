@@ -14,6 +14,13 @@ user_invocable: true
 全チェック通過時は `✓ All checks passed` を表示する。
 問題がある場合は項目ごとに `✗` と詳細を表示する。
 
+> **注**: 本スキルの lint コマンドは `uv run --python 3.11` を前提とする
+> （PEP 723 のサードパーティ依存も自動解決される）。
+> uv が無い環境では `python3` で直接実行できるが、tomllib を使う lint（セクション4・10）は
+> Python 3.11+ が必要（旧い Python では SKIP 案内を出す）、Frontmatter チェック（セクション3）は
+> `pip install pyyaml` が必要（無ければ SKIP 案内を出す）。
+> SKIP は環境起因で検査できなかったことを示す（✗ = 問題検出ではない）。
+
 ## 1. JSON 構文チェック
 
 ```bash

@@ -4,7 +4,15 @@
 # dependencies = ["pyyaml"]
 # ///
 """スキル frontmatter チェック — name, description フィールドの存在確認"""
-import sys, yaml, glob
+import sys, glob
+
+try:
+    import yaml
+except ModuleNotFoundError:
+    # pyyaml は PEP 723 依存。受動的 lint のため欠如は SKIP（配布先で誤 ERROR を出さない）
+    print('SKIP: pyyaml がありません。`uv run --python 3.11` で実行する'
+          '（PEP 723 依存を自動解決）か、`pip install pyyaml` してください')
+    sys.exit(0)
 
 errors = []
 # .claude/optional/ はオプトイン式スキルの原本置き場（有効化コピーの検査は commands 側で兼ねる）
