@@ -94,6 +94,10 @@ python3 .claude/addfTools/speculate-reconcile.py
 ```bash
 git worktree add ../<repo名>-spec-<concept> -b speculative/<concept>
 cp -r .claude/. ../<repo名>-spec-<concept>/.claude/
+# .venv / node_modules / __pycache__ 等は relocatable でないため除外する（コピー先で再構築）
+find ../<repo名>-spec-<concept>/.claude \( -name .venv -o -name venv -o -name node_modules -o -name __pycache__ \) \( -type d -o -type l \) -prune -exec rm -rf {} +
+# git 追跡下のファイルまで消えた場合（依存をあえてコミットしている構成）は復元する
+git -C ../<repo名>-spec-<concept> checkout -- .claude 2>/dev/null || true
 ```
 
 - **`.claude` の複製は必須**。`.exp.md`（経験ファイル）等の .gitignore 対象ファイルは worktree に
@@ -101,9 +105,20 @@ cp -r .claude/. ../<repo名>-spec-<concept>/.claude/
 - **コピー元は必ず `.claude/.`（末尾 `/.`）と書くこと**。worktree 側には git 管理下の `.claude/` が
   既に存在するため、`cp -r .claude <dst>/.claude` と書くと既存ディレクトリの**中に**入れ子
   （`<dst>/.claude/.claude/`）を作るだけでマージされず、複製が成功したように見えて失敗する
+- **`.venv` / `venv` / `node_modules` / `__pycache__` は複製後に必ず除去すること**（上記の `find`。
+  シンボリックリンクの場合も対象）。venv は作成時の絶対パスを埋め込むため relocatable でなく、
+  **コピーしても壊れている**（MCP サーバー等の依存を `.claude` 配下に持つ構成では毎サイクル必発 —
+  Issue #18）。壊れたコピーを残すより、除外して worktree 側で再構築する方が安全
+- **`find` の後の `git checkout -- .claude` を省略しないこと**。除去は名前ベースのため、依存を
+  あえて git 追跡下にコミットしている構成では追跡ファイルまで消える — checkout が worktree の
+  ブランチから復元する（該当ファイルが無ければ何もしない）
 - worktree 隔離下は判断閾値を1段下げてよい（失敗を捨てられるため。CLAUDE.md「迷ったときの作法」）
 
 ### 4. 実装と Stage 1
+
+`.claude` 配下に MCP サーバー等の依存を持つ構成では、**Stage 1 の前に必ず再構築**
+（`uv sync` / `bun install` 等）を実行する（手順3の複製は venv 等を除外している。
+マニフェストは git 管理下または複製対象のため worktree 側に届いている）。
 
 各 worktree 内で対象概念を実装し、**Stage 1（ビルド・Lint・テスト）を worktree 内で実行**する。
 
@@ -137,7 +152,11 @@ cp -r .claude/. ../<repo名>-spec-<concept>/.claude/
 python3 .claude/addfTools/speculate-integrate.py speculative/<concept1> speculative/<concept2> ...
 ```
 
-スクリプトは `integration/loop-<日付>` ブランチを base（main）から**作り直し**（使い捨て・再生成可能）、
+（tomllib 不要のためシステム python3（3.6+）でそのまま動く。uv 不要）
+
+`--base` は省略時、origin の default branch を自動検出する（remote なし・未設定なら NOTE を出して
+`main` フォールバック。検出名のローカルブランチが無ければ `origin/<name>` を起点にする）。
+スクリプトは `integration/loop-<日付>` ブランチを base から**作り直し**（使い捨て・再生成可能）、
 専用 worktree（`../<リポジトリ名>-integration`）の中だけで統合する。メインの作業ツリーには触れない。
 なお integration worktree への `.claude` 複製は**不要**（feature worktree と違い実装作業の場ではなく、
 Stage 2 の実行主体はメインツリー側のエージェントで、テスト一式も git 管理下にあるため）。
@@ -206,6 +225,11 @@ fi
 呼び出し元（/addf-dev）の完了処理に合流し、**Progress.md の日記に「投機サイクルを実行した
 （対象概念・結果の一行）」を記録してコミットする**。Worktrees.md は gitignore だが、
 サイクルが回った事実はこの日記経由でコミット履歴に残る。
+
+cron / `/loop` 等から /addf-dev を**経由せず単独実行**された場合は、Progress.md の日記への記録と
+コミットのみ行えばよい（品質検証〜アーカイブを含むフルの完了処理は /addf-dev 経由時に呼び出し元が担う）。
+**呼び出し文脈が不明な場合も、日記への記録とコミットは最低限実施する**（サイクルが回った事実を
+コミット履歴に残すことが投機の追跡可能性の下限）。
 
 投機の採否はオーナーの判断（Dashboard / PR レビュー等）。**エージェントが speculative/ ブランチを
 本流へ自動マージする経路は存在しない**。

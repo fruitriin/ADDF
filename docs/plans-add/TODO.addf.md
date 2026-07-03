@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: 0028 フェーズ3-3 まで完了（投機の再構築・clean・昇格手順。残りは 3-4=guides/overview）。0033 は項目4=PlanTemplate 残り。0026 の残りはオーナー指示待ち。未着手は 0030〜0032、0029 はフェーズ2以降が残り
+## 現在のフェーズ: 0034 フェーズ1 完了（Issue #18/#20 対応）。0028 は 3-4=guides/overview、0033 は項目4、0034 はフェーズ2 が残り。0026 はオーナー指示待ち。未着手 0030〜0032、0029 フェーズ2以降
 
 ## バックログ
 
@@ -42,6 +42,7 @@
 | 6 | 31 | `docs/plans-add/0031-binary-verification.md` | 未着手 |
 | 7 | 32 | `docs/plans-add/0032-knowhow-freshness-audit.md` | 未着手 |
 | 4 | 33 | `docs/plans-add/0033-downstream-reported-fixes.md` | 一部完了（項目1〜3 完了。項目4=PlanTemplate 残り） |
+| 5 | 34 | `docs/plans-add/0034-downstream-feedback-fixes.md` | 一部完了（フェーズ1 完了。フェーズ2=#19 設計系要望 残り） |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください

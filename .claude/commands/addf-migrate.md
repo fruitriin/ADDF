@@ -87,7 +87,7 @@ ADDF フレームワークを最新版（またはターゲットバージョン
 - `TODO.md`, `docs/plans/` — プロジェクトのタスク管理
 - `docs/knowhow/*.md`（ADDF/ 以外） — プロジェクトのノウハウ
 - `README.md`, `README.en.md` — プロジェクトの説明
-- `.gitignore` — プロジェクトの除外設定（変更がある場合は手動マージを案内）
+- `.gitignore` — プロジェクトの除外設定。ただし ADDF マーカーブロック（`# --- ADDF Framework` 〜 `# --- /ADDF Framework`）**のみ**はステップ 14.6 でクローン元の同ブロックによる置換を提案する。ブロック外に変更がある場合は従来どおり手動マージを案内
 
 7.5. **旧配布 `*.addf.md` の残留検出**（「7.5」は後続の番号参照を壊さないための枝番）:
 旧バージョンの配布でダウンストリームに残っている `*.addf.md` を検出する:
@@ -182,6 +182,36 @@ find . -name '*.addf.md' -not -path './.git/*'
     uv が無い環境では `python3` で直接実行する（Python 3.11+ が必要。旧い Python では ERROR 案内が出る）。
     `addf-Behavior.toml` の `[gui-test] enable` に従って配置/撤去される。改変された有効化コピーは
     削除・上書きされず WARNING になるため、表示に従って原本へ取り込んでから再実行する
+
+14.6. **`.gitignore` の ADDF マーカーブロックの更新**（「14.6」は後続の番号参照を壊さないための枝番）:
+    `.gitignore` のうち ADDF マーカーブロック（`# --- ADDF Framework (do not remove) ---` 行〜
+    `# --- /ADDF Framework ---` 行）**のみ**、クローン元の同ブロックで置換を提案する。
+    **ブロック外のプロジェクト固有記述には触れない** — ブロック外に差分がある場合は従来どおり
+    手動マージを案内する。
+
+    **置換前の必須検査**: 終了マーカーが欠落・重複していると範囲指定が EOF まで飲み込み、
+    ブロック外のプロジェクト固有記述（秘密情報の除外設定を含みうる）を破壊する。以下を
+    **すべて**満たすことを確認し、1つでも満たさなければ**置換せず手動マージへフォールバックする**:
+    ```bash
+    # (1) 開始マーカーがちょうど1つ（出力が 1 でなければ中止）
+    grep -c '^# --- ADDF Framework (do not remove) ---$' .gitignore
+    # (2) 終了マーカーがちょうど1つ（出力が 1 でなければ中止）
+    grep -c '^# --- /ADDF Framework ---$' .gitignore
+    # (3) 開始マーカーの行番号 < 終了マーカーの行番号（逆順なら中止）
+    grep -n -e '^# --- ADDF Framework (do not remove) ---$' -e '^# --- /ADDF Framework ---$' .gitignore
+    ```
+    検査を通過したら、双方のブロックを抽出して差分を確認する（差分がなければこのステップはスキップ。
+    範囲指定はマーカー行の**全文一致**で行う — 前方一致では類似行を誤って拾いうる）:
+    ```bash
+    sed -n '/^# --- ADDF Framework (do not remove) ---$/,/^# --- \/ADDF Framework ---$/p' .gitignore > <tmp-dir>/gitignore-block-current
+    sed -n '/^# --- ADDF Framework (do not remove) ---$/,/^# --- \/ADDF Framework ---$/p' <tmp-dir>/addf-latest/.gitignore > <tmp-dir>/gitignore-block-latest
+    diff -u <tmp-dir>/gitignore-block-current <tmp-dir>/gitignore-block-latest
+    ```
+    差分があればユーザーに提示し、承認を得てから現在の `.gitignore` のブロック部分を最新版の
+    ブロックで置換する。**ブロック内にダウンストリーム独自の追記があった場合、その行は diff に
+    「消える行」として現れる — 消える行が本当に ADDF 由来か必ず目視確認し、独自追記が含まれる
+    場合はブロック外への退避を案内する**（`.gitignore` にマーカーブロック自体が無い場合は
+    追記を提案する） <!-- human-judgment -->
 
 ### Phase 6: 完了
 
