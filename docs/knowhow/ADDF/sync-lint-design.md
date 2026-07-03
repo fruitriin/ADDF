@@ -1,11 +1,14 @@
 ---
 title: 同期 lint の設計 — 検出はツール、解釈と修復はエージェント
 created: 2026-06-10
-last_verified: 2026-06-10
+last_verified: 2026-07-03
 depends_on:
   - .claude/addfTools/lint-template-sync.py
   - .claude/tests/tools/test-template-sync.sh
   - .claude/commands/addf-init.md
+  - .claude/addfTools/sync-optional-skills.py
+  - .claude/addfTools/speculate-guard.py
+  - .claude/addfTools/lint-toml.py
 status: active
 ---
 
@@ -41,6 +44,20 @@ status: active
 - ADDF 本体固有ファイルの欠如は **SKIP（exit 0 相当）** として扱う。欠如はドリフトではない
 - 両環境に存在するファイルはフォールバックで対応する（例: テンプレートは `.addf.md` 版がなければ無印版を正とする）
 - exit code は 3値: `0 = OK / 1 = ERROR / 2 = WARNING のみ`。テストとエージェントが重要度を区別できる
+
+### 「欠如 = SKIP」は実行環境にも適用する — tomllib（3.11+）ガードの3類型
+
+macOS システム python3 は 3.9.6 で `tomllib`（Python 3.11+ stdlib）が無く、素の `import tomllib` は Traceback で落ちる（2026-07-03、pull 後の整合確認で発見）。import ガードで受け、**スクリプトの責務ごとに exit code を選ぶ**:
+
+| 責務 | 例 | tomllib 欠如時 |
+|---|---|---|
+| 受動的 lint / check | `lint-toml.py`・`sync-optional-skills.py`（check） | SKIP / exit 0（配布先で誤 ERROR を出さない） |
+| 実行前ゲート | `speculate-guard.py` | ERROR / exit 1（検証できなければ許可しない — フェイルセーフ） |
+| 変更系コマンド | `sync-optional-skills.py apply` | ERROR / exit 1（実行できていないのに成功を装わない） |
+
+- 呼び出し側フォールバック（uv があれば `uv run --python 3.11`、なければ `python3` 直接実行）は**テストと手順書の両方に対称に**置く。テストだけに入れると、手順書を読む人間・エージェントが罠に落ちる非対称が生まれる（`test-optional-skills.sh` には有ったが後発の `test-speculate-guard.sh` に無かったドリフトが実例。パターンをコピーする側のファイルにこそドリフトが宿る）
+- 手順書を `uv run --python 3.11` に統一するだけでは不十分 — **uv 自体が無い環境**では案内がシェルレベルの `command not found` になりガードに到達しない。手順書側に「uv が無ければ python3 直接実行」の注記をセットで置く（レビュー指摘で発見）
+- 再現テストは PYTHONPATH シム（`raise ModuleNotFoundError("No module named 'tomllib'")` する偽 `tomllib.py`）で環境非依存に注入できる。sys.path で PYTHONPATH が stdlib より優先されることを利用した、ドリフト注入 TDD の変種
 
 ### 「ファイル⇔ファイル」だけでなく「参照⇔カバレッジ」もペア化できる（ペア5）
 

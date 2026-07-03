@@ -164,8 +164,9 @@ ADDF フレームワークを最新版（またはターゲットバージョン
 14.5. **オプショナルスキルの同期**（「14.5」は後続の番号参照を壊さないための枝番）:
     `.claude/optional/` に変更（追加・更新・リネーム）が含まれる場合、有効化コピーを追従させる:
     ```bash
-    python3 .claude/addfTools/sync-optional-skills.py apply
+    uv run --python 3.11 .claude/addfTools/sync-optional-skills.py apply
     ```
+    uv が無い環境では `python3` で直接実行する（Python 3.11+ が必要。旧い Python では ERROR 案内が出る）。
     `addf-Behavior.toml` の `[gui-test] enable` に従って配置/撤去される。改変された有効化コピーは
     削除・上書きされず WARNING になるため、表示に従って原本へ取り込んでから再実行する
 

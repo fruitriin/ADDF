@@ -18,8 +18,10 @@ TODO に着手可能なタスクがないとき、黙って止まる代わりに
 ### 1. 発動ガード
 
 ```bash
-python3 .claude/addfTools/speculate-guard.py
+uv run --python 3.11 .claude/addfTools/speculate-guard.py
 ```
+
+uv が無い環境では `python3` で直接実行する（Python 3.11+ が必要。旧い Python では tomllib 欠如の ERROR となり投機は開始できない — フェイルセーフ）。
 
 - `enable=false`（exit 0）→ **何もせず終了**し、「投機は無効（オプトインは addf-Behavior.toml の
   `[speculation].enable`）」と報告する

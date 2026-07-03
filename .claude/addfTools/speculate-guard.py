@@ -18,7 +18,14 @@ exit code（3値 + 無効）:
 """
 import subprocess
 import sys
-import tomllib
+
+try:
+    import tomllib
+except ModuleNotFoundError:
+    # tomllib は Python 3.11+。設定を検証できない場合は投機を許可しない（フェイルセーフ）
+    print(f'ERROR: tomllib がありません（Python {sys.version.split()[0]}）。'
+          '`uv run --python 3.11` または Python 3.11+ で実行してください。投機は開始できません')
+    sys.exit(1)
 
 BEHAVIOR_PATH = '.claude/addf-Behavior.toml'
 DEFAULT_MAX_WORKTREES = 3

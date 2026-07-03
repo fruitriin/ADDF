@@ -144,6 +144,20 @@ assert_contains "列挙漏れの特定" "gitignore 列挙漏れ: .claude/agents/
 assert_contains "孤児の特定" "孤立: .claude/commands/addf-renamed-away.md" "$output"
 rm -rf "$box"
 
+# テスト 8: tomllib が無い環境（旧 Python） → check は SKIP (exit=0)、apply は ERROR (exit=1)
+echo "Test 8: tomllib 欠如時のガード"
+box="$(make_sandbox true)"
+# PYTHONPATH シムで ModuleNotFoundError を注入し、旧 Python（3.9 等）を再現する
+shim="$(mktemp -d)"
+printf 'raise ModuleNotFoundError("No module named '"'"'tomllib'"'"'")\n' > "$shim/tomllib.py"
+output=$( (cd "$box" && PYTHONPATH="$shim" python3 "$SYNC" 2>&1) )
+assert_exit "check は SKIP" 0 $?
+assert_contains "SKIP 案内" "SKIP: tomllib がありません" "$output"
+output=$( (cd "$box" && PYTHONPATH="$shim" python3 "$SYNC" apply 2>&1) )
+assert_exit "apply は ERROR（成功を装わない）" 1 $?
+assert_contains "ERROR 案内" "ERROR: tomllib がありません" "$output"
+rm -rf "$shim" "$box"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

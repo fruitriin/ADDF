@@ -36,7 +36,8 @@
    コピーは使い捨てで、原本との差分は同期時に WARNING になる）
 2. プロジェクト固有のテスト基準・ドメイン知識を追記する
 3. `addf-` プレフィックスはそのまま保持する（ADDF マイグレーション対象として管理されるため）
-4. `python3 .claude/addfTools/sync-optional-skills.py apply` で有効化コピーに反映する
+4. `uv run --python 3.11 .claude/addfTools/sync-optional-skills.py apply` で有効化コピーに反映する
+   （uv が無い場合は `python3` で直接実行。Python 3.11+ が必要）
 
 ### 新しいエージェントの追加
 

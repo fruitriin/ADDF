@@ -38,9 +38,12 @@ trap 'rm -rf "$box" "$box-spec-x" "$box-other"' EXIT
   mkdir -p .claude
 )
 
-run_guard() {
-  (cd "$box" && python3 "$GUARD" 2>&1)
-}
+# tomllib（Python 3.11+）前提のため uv があれば 3.11 を明示する（test-optional-skills.sh と同パターン）
+if command -v uv >/dev/null 2>&1; then
+  run_guard() { (cd "$box" && uv run --python 3.11 "$GUARD" 2>&1); }
+else
+  run_guard() { (cd "$box" && python3 "$GUARD" 2>&1); }
+fi
 
 echo "Test 1: 設定ファイルなし → enable=false・exit 0（欠如 = 無効）"
 rm -f "$box/.claude/addf-Behavior.toml"
@@ -95,6 +98,14 @@ printf '[speculation]\nenable = true\nmax_worktrees = 1\n' > "$box/.claude/addf-
 out="$(run_guard)"; code=$?
 check "非 speculative は数えない" 0 "$code" "$out" "active=0"
 rm -rf "$box-other"
+
+echo "Test 11: tomllib が無い環境 → exit 1（フェイルセーフ ERROR。投機を開始しない）"
+# PYTHONPATH シムで ModuleNotFoundError を注入し、旧 Python（3.9 等）を再現する
+shim="$(mktemp -d)"
+printf 'raise ModuleNotFoundError("No module named '"'"'tomllib'"'"'")\n' > "$shim/tomllib.py"
+out="$( (cd "$box" && PYTHONPATH="$shim" python3 "$GUARD" 2>&1) )"; code=$?
+check "tomllib 欠如でフェイルセーフ ERROR" 1 "$code" "$out" "ERROR"
+rm -rf "$shim"
 
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
