@@ -55,6 +55,21 @@
   - squash マージ時のローカル追随（履歴が繋がらないため reconcile check では確定できない — 既知の制約）
 - integration は現行どおり使い捨て（push しない・2日超自動削除）— **変更なし**
 
+### 昇格の定義を明文化する（2026-07-05 オーナー指摘）
+
+「昇格」が**何から何への遷移か**を guides に図解で明記する。現行ドキュメントはスキル本文の
+手順に埋まっており、「integration → main」と誤読する余地がある。
+
+- 正確な定義: **昇格 = `speculative/<concept>` → `main`**。integration は検証の場であって
+  昇格の経路に入らない（履歴の源にしない — 衝突解消も feature 側に反映する現行原則の帰結）
+- ライフサイクル全体を1枚で示す:
+  `選定 → speculative/<concept>＋worktree（開発中）→ Stage 1（テスト通過）→
+  integration で相互作用検証（統合済み・使い捨て）→ origin push＋Dashboard（採否判断待ち）→
+  オーナー承認（PR マージ or squash マージ）→ main（昇格済み）→ clean（後始末）`
+  ※ Pending / 要再検証 / 放棄 への分岐も同じ図に載せる
+- 置き場所: **Plan 0028 フェーズ3-4 の guides 追記（投機運用ガイド）と統合して単一ソース化**する。
+  addf-speculate.md からは参照のみ（同期ペアを増やさない）
+
 ### 部分昇格と持ち越し（2026-07-05 オーナー判断）
 
 N 本の投機のうち通った分だけ先に本流へ入れ、残りは次サイクルで直す運用を明文化する
@@ -78,6 +93,9 @@ N 本の投機のうち通った分だけ先に本流へ入れ、残りは次サ
 
 - [ ] PR 本文フォーマット規約を単一ソースに記述し、addf-dev / addf-speculate から参照
 - [ ] addf-speculate 昇格手順に PR 経路を追記（自動昇格禁止の文言は維持）
+- [ ] 昇格の定義（speculative/<concept> → main。integration は経路外）とライフサイクル図を
+      guides に明記（Plan 0028 フェーズ3-4 の投機運用ガイドと統合。実装順の依存:
+      0028 3-4 を先に実施するか、本 Plan で guides 追記ごと引き取るかを着手時に決める）
 - [ ] 部分昇格＋持ち越し運用を addf-speculate に追記（要再検証→rebase＋force-with-lease、
       Pending 状態の新設・スロット非占有・在庫上限5・6本以上でオーナーへ整理提案）
 - [ ] PR マージ後の後始末（Worktrees.md 更新・clean 突合）の整合を確認
