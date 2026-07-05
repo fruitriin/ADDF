@@ -20,7 +20,9 @@
   Medium 5件をフェーズ内修正
 
 **フェーズ1の残課題（Low/Info、記録のみ）**:
-- L1: `docs/project-overview/*` が GUI スキル常設前提のまま（生成物。次回 /addf-overview 再生成で解消）
+- ~~L1: `docs/project-overview/*` が GUI スキル常設前提のまま（生成物。次回 /addf-overview 再生成で解消）~~
+  → **解消済み（2026-07-05）**: Plan 0028 フェーズ3-4 の /addf-overview full 再生成で
+  オプトイン前提の記述に統一。常設前提表現の残存ゼロを grep 確認済み
 - L3: `.claude/tests/skills/test-addf-{clip-image,annotate-grid}.md` に enable+apply 前提の一言がない
 
 > **粗々の起票**: 設計の方向性と未決事項を出す段階。実装詳細は着手時に詰める。

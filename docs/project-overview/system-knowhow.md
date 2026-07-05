@@ -14,7 +14,7 @@
 | スキル | addf-knowhow-network | 記事間を GFM リンクで相互接続し wiki 化。双方向リンク担保・📜 プレフィックス・INDEX ハブサマリ |
 | スキル | addf-experience | .exp.md ファイルの @メンション書式検証・修正 |
 | エージェント | addf-knowhow-agent | ブートシーケンス Step 5 で Plan に関連する knowhow を抽出（Haiku）。ライフサイクルフィルタ内蔵 |
-| ディレクトリ | docs/knowhow/ADDF/ | ADDF 由来ノウハウ（現在12件） |
+| ディレクトリ | docs/knowhow/ADDF/ | ADDF 由来ノウハウ（現在17件。投機開発・オプトインスキル・チェックリスト裏付け・計画詰めの知見が近況で追加） |
 | ファイル | docs/knowhow/INDEX.addf.md | ADDF 用ノウハウインデックス（鮮度タグ付き） |
 | ファイル | docs/knowhow/INDEX.md | ダウンストリーム用ノウハウインデックス |
 | ファイル | docs/knowhow/CLAUDE.md | 読み方の作法（タイトルで推測せず本文で判断する） |
@@ -82,3 +82,4 @@ INDEX は候補発見の地図であり中身の代わりではない（docs/kno
 - **計画駆動**: ブートシーケンス Step 5 で knowhow-agent が起動。タスク完了時に3観点で knowhow 記録。日記アーカイブは後日 knowhow 化の原資料
 - **品質ゲート**: レビューで得た知見が knowhow に蓄積される。addf-lint の項目5・7・8（INDEX 整合・鮮度・双方向リンク）が knowhow の健全性を機械検査する
 - **セッション管理**: turn-reminder.sh（関心事A）が定期棚卸しを、context-reminder.py がコンパクション前の知見記録を促す
+- **投機開発**: worktree 複製・squash 統合の設計知見（worktree-dotdir-copy / speculative-integration-design）が knowhow に蓄積され、addf-speculate の .exp.md と往復する

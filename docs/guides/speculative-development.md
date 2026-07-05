@@ -10,8 +10,8 @@
 
 ```toml
 [speculation]
-enable = true      # デフォルト false（オプトイン）
-max_worktrees = 7  # 同時に「開発中」にできる speculative worktree の上限
+enable = true      # デフォルトは false。有効化する場合はこのように true を書く（オプトイン）
+max_worktrees = 7  # 同時に「開発中」にできる speculative worktree の上限（採否判断待ちのブランチは数えない）
 ```
 
 `/addf-dev` がアイドルを検出したときに `/addf-speculate` が呼ばれるほか、手動で1サイクル実行してもよい。

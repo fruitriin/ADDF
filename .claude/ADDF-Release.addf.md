@@ -13,6 +13,16 @@
    grep -n '未着手' docs/plans-add/TODO.addf.md || echo '(未着手タスクなし)'
    ```
    抽出された未着手タスクがリリースをブロックするかはオーナー・エージェントの判断 <!-- human-judgment -->
+4. README.md / README.en.md に新バージョンの主要機能が反映されていること — CHANGELOG の「追加」
+   項目とスキル表・ガイド表を突き合わせる（和英両方。v0.4.0 で addf-speculate の掲載漏れが
+   1バージョン越しに発覚した実績）。反映の要否は内容による <!-- human-judgment -->
+5. `docs/project-overview/` が最新化されていること — `.lock` のコミットが古い場合は
+   `/addf-overview`（full または patch）を実行してから進む:
+   ```bash
+   cut -d'|' -f1 docs/project-overview/.lock
+   git log -1 --pretty=format:'%H'
+   ```
+   2つのハッシュの差分にスキル・エージェント・フック・ガイドの変更が含まれるなら再生成する
 
 > 旧記述「未完了の Critical タスクがないこと」は、TODO テーブルに Critical という
 > 属性が存在せず（優先度は数値、状態は 完了/未着手）、判定基準が定義できない

@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: 0034 完了（Issue #18/#19/#20 対応。返信のみオーナー承認待ち）。0028 は 3-4=guides/overview、0033 は項目4 が残り。0026 はオーナー指示待ち。未着手 0030〜0032、0029 フェーズ2以降
+## 現在のフェーズ: v0.5.0 リリース準備完了（0028 全完了・0029 L1 解消。リリース実行はオーナー確認待ち）。次は 0035→0036→0038→0037 の順で実装。0033 は項目4、0026 はオーナー指示待ち。未着手 0030〜0032、0029 フェーズ2以降
 
 ## バックログ
 
@@ -36,7 +36,7 @@
 | 25 | 25 | `docs/plans-add/0025-rename-repo-to-addf.md` | 完了 |
 | 1 | 26 | `docs/plans-add/0026-review-residual-backlog.md` | 一部完了（残りはオーナー指示待ち） |
 | 2 | 27 | `docs/plans-add/0027-executable-checklist-doctrine.md` | 完了 |
-| 3 | 28 | `docs/plans-add/0028-worktree-speculative-dev.md` | 一部完了（フェーズ1〜3-3 完了。残りは 3-4=guides/overview のみ） |
+| 3 | 28 | `docs/plans-add/0028-worktree-speculative-dev.md` | 完了 |
 | 4 | 29 | `docs/plans-add/0029-gui-test-environment-matrix.md` | 一部完了（フェーズ1 完了。環境マトリクスはフェーズ2以降） |
 | 5 | 30 | `docs/plans-add/0030-ci-quality-gate.md` | 未着手 |
 | 6 | 31 | `docs/plans-add/0031-binary-verification.md` | 未着手 |
