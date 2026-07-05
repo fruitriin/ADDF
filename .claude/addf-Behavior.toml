@@ -16,7 +16,7 @@ machine = "mac" # "mac" | "linux" | "windows" — プラットフォーム固有
 # 投機は speculative/ ブランチに隔離され、本流には自動マージされない
 enable = true
 # 同時に「開発中」にできる speculative worktree の上限（採否判断待ちのブランチは数えない）
-max_worktrees = 3
+max_worktrees = 7
 
 [context-reminder]
 # 能動コンパクション促しの発火閾値（実測トークン数）。0 で無効化。
