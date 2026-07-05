@@ -50,7 +50,13 @@ check モード（デフォルト）の出力（stdout、key=value 形式）:
   integration_today=integration/loop-...    # 猶予内（当日・前日・未来日）の integration
   integration_past=integration/loop-...     # 2日以上前の integration（clean の削除対象）
   integration_undated=...                   # 日付が読めない integration（保護）
+  pending_count=0                           # Worktrees.md の状態「Pending」行数（投機在庫の機械シグナル）
+  active_count=0                            # Worktrees.md の進行中状態（ACTIVE_STATES）の行数
   branch=speculative/a worktree=yes|no origin=yes|no|unknown merged_hint=yes|no|unknown
+
+  pending_count / active_count は Worktrees.md の**投機管理表**（ヘッダに「ブランチ」
+  「状態」列を持つ表）だけを列位置ベースで数える。ヘッダの無い表・無関係テーブルは
+  対象外（概念名など他列のセルが状態語で始まっていても誤計上しない）。
 
   「過去」の判定には1日の猶予がある: branch 日付 < today - 1日 のみ past とする
   （前日以前ではなく**2日以上前**。当日深夜に作った integration が日付またぎ一発で
@@ -93,10 +99,15 @@ import sys
 
 INTEGRATION_RE = re.compile(r'^integration/loop-(\d{4}-\d{2}-\d{2})$')
 
-# Worktrees.md の状態列の語彙（addf-speculate.md 手順5の列挙と同期）
+# Worktrees.md の状態列の語彙（addf-speculate.md 手順5の列挙と同期。
+# ACTIVE_STATES（active_count= の進行中状態リスト）は同手順 1.8 の在庫ゼロ判定の
+# 列挙とも同期する — どちらかを変えたら両方を更新すること）
 KNOWN_STATES = ['昇格済み', '放棄', '開発中', 'テスト通過', 'テスト失敗', '衝突',
                 '統合済み', '上限で待機', '要再検証', 'Pending', '掃除済み']
 DELETABLE_STATES = ('昇格済み', '放棄')
+# 進行中状態（active_count= の計上対象。Pending 以外の「在庫が残っている」状態）
+ACTIVE_STATES = ('開発中', 'テスト通過', 'テスト失敗', '衝突',
+                 '統合済み', '要再検証', '上限で待機')
 
 
 def run(args, cwd=None):
@@ -199,6 +210,63 @@ def worktrees_md_state(branch):
     return 'no-row', None
 
 
+def _worktrees_table_states():
+    """.claude/Worktrees.md の**投機管理表**の状態セルを列位置ベースで列挙する。
+
+    ヘッダ行（「ブランチ」と「状態」の両列を持つ行 — 手順5の書式
+    「| worktree パス | ブランチ | 対象概念（出典） | 状態 | 最終更新 |」）を検出して
+    「状態」列のインデックスを特定し、後続行の**そのセルだけ**を状態として返す。
+    ヘッダの無い表・無関係テーブルは対象外（概念名など他列のセルが状態語で
+    始まっていても拾わない — worktrees_md_state() の緩い方式との違い。
+    あちらは削除系の突合に使われており、挙動変更のリスクを避けるため触らない）。
+    セル値は前後空白と `**` 強調を剥がしてから返す。ファイルが無ければ空リスト。
+    """
+    top = run(['rev-parse', '--show-toplevel']).stdout.strip()
+    path = os.path.join(top, '.claude', 'Worktrees.md')
+    if not os.path.isfile(path):
+        return []
+    states = []
+    state_idx = None
+    with open(path, encoding='utf-8') as f:
+        for line in f:
+            stripped = line.strip()
+            if not stripped.startswith('|'):
+                state_idx = None  # 表が途切れた（次の表は改めてヘッダを要求する）
+                continue
+            cells = [c.strip() for c in stripped.strip('|').split('|')]
+            if 'ブランチ' in cells and '状態' in cells:
+                state_idx = cells.index('状態')  # 投機管理表のヘッダを検出
+                continue
+            if state_idx is None or state_idx >= len(cells):
+                continue
+            cell = cells[state_idx]
+            if not cell or set(cell) <= set('-: '):
+                continue  # 区切り行（|---|）・空セル
+            states.append(cell.strip('*').strip())
+    return states
+
+
+def count_state_rows():
+    """(pending_count, active_count) を返す — 投機在庫の機械シグナル。
+
+    大改造の窓検出（addf-speculate.md 手順 1.8）の在庫ゼロ判定と、Pending 在庫上限の
+    整理提案が参照する（Plan 0038 / 0035 申し送りの採用分）。Pending はスロット非占有・
+    worktree 削除可のため、ブランチ走査だけでは在庫として見えないことがある —
+    表の記録が唯一の網羅的シグナル。判定は完全一致寄り: 装飾を剥がしたセルが
+    状態語そのもの、または状態語＋注記（「Pending（PR #9）」「放棄（実体なし）」等）の
+    ときだけ数える（「開発中止」のような別語は数えない）。
+    """
+    pending = active = 0
+    for cell in _worktrees_table_states():
+        state = next((s for s in KNOWN_STATES
+                      if cell == s or cell.startswith((s + '（', s + '(', s + ' '))), None)
+        if state == 'Pending':
+            pending += 1
+        elif state in ACTIVE_STATES:
+            active += 1
+    return pending, active
+
+
 def verify_delete_targets(branches):
     """不可逆な削除だけは記録との突合をスクリプトが強制する（docstring「原則の例外」）。
     Worktrees.md の状態が「昇格済み」「放棄」でない対象が1つでもあれば、何も消さずに ERROR"""
@@ -265,6 +333,9 @@ def do_check(opts, today):
     print(f"integration_past={','.join(past)}")
     if undated:
         print(f"integration_undated={','.join(undated)}")
+    pending_count, active_count = count_state_rows()
+    print(f'pending_count={pending_count}')
+    print(f'active_count={active_count}')
 
     base_ok = run(['rev-parse', '--verify', '--quiet', opts.base]).returncode == 0
     for branch in sorted(local_spec):
