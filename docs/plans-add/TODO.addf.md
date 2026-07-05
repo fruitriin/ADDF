@@ -38,7 +38,7 @@
 | 2 | 27 | `docs/plans-add/0027-executable-checklist-doctrine.md` | 完了 |
 | 3 | 28 | `docs/plans-add/0028-worktree-speculative-dev.md` | 完了 |
 | 4 | 29 | `docs/plans-add/0029-gui-test-environment-matrix.md` | 一部完了（フェーズ1 完了。環境マトリクスはフェーズ2以降） |
-| 5 | 30 | `docs/plans-add/0030-ci-quality-gate.md` | 一部完了（実装済み。初回 CI 実行の確認待ち） |
+| 5 | 30 | `docs/plans-add/0030-ci-quality-gate.md` | 一部完了（実装・CI 実地検証済み。branch protection の要否のみオーナー判断待ち） |
 | 6 | 31 | `docs/plans-add/0031-binary-verification.md` | 未着手 |
 | 7 | 32 | `docs/plans-add/0032-knowhow-freshness-audit.md` | 未着手 |
 | 4 | 33 | `docs/plans-add/0033-downstream-reported-fixes.md` | 完了（項目4=PlanTemplate は Plan 0035 フェーズA で実施） |

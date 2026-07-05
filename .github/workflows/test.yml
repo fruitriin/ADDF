@@ -36,6 +36,8 @@ jobs:
       # Python バージョン・PEP 723 依存解決（pyyaml 等）を一致させる。
       # setup-uv はメジャー浮動タグ（v8）を提供しないため完全バージョンで pin する
       - uses: astral-sh/setup-uv@v8.3.0
+        with:
+          enable-cache: false  # 依存は pyyaml のみで薄く、cache-dependency-glob 不一致の警告を避ける
 
       # フック・ツールの自動テスト。ubuntu では macOS 専用バイナリのテストが
       # SKIP としてログに現れる（Results 行に skipped として計上 — silent truncation にしない）
