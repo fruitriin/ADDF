@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: 0035 全フェーズ完了（誤完了 lint 含む。2026-07-05）。次は 0036→0038→0037 の順で実装。0026 はオーナー指示待ち。未着手 0030〜0032、0029 フェーズ2以降
+## 現在のフェーズ: 0036 完了（/addf-plan-audit 新設。2026-07-05。ドッグフーディング検出10件はオーナー判断待ち）。次は 0038→0037 の順で実装。0026 はオーナー指示待ち。未着手 0030〜0032、0029 フェーズ2以降
 
 ## バックログ
 
@@ -44,7 +44,7 @@
 | 4 | 33 | `docs/plans-add/0033-downstream-reported-fixes.md` | 完了（項目4=PlanTemplate は Plan 0035 フェーズA で実施） |
 | 5 | 34 | `docs/plans-add/0034-downstream-feedback-fixes.md` | 完了 |
 | 3 | 35 | `docs/plans-add/0035-pr-standard-format.md` | 完了（フェーズA・B・C。2026-07-05） |
-| 3 | 36 | `docs/plans-add/0036-plan-audit-skill.md` | 未着手（オーナー起案 2026-07-05。/addf-plan-audit スキル・migrate ワンショット統合） |
+| 3 | 36 | `docs/plans-add/0036-plan-audit-skill.md` | 完了（2026-07-05。/addf-plan-audit 新設・migrate ワンショット統合。ドッグフーディング検出10件は処置提案としてオーナー判断待ち） |
 | 4 | 37 | `docs/plans-add/0037-addf-directory-consolidation.md` | 未着手（オーナー起案 2026-07-05。docs 明け渡し・.claude/addf/ 集約。0035/0036/0038 消化後に着手推奨・メジャーリリース級・one-shot 実施） |
 | 3 | 38 | `docs/plans-add/0038-speculation-fitness.md` | 未着手（オーナー起案 2026-07-05。投機適性3区分・Plan 化フォールバック・大改造の窓検出。0037 着手前に完了が望ましい） |
 
