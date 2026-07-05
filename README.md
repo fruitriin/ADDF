@@ -6,6 +6,8 @@
 
 > ADDF — Agentic Driven Development Framework
 
+[![test](https://github.com/fruitriin/ADDF/actions/workflows/test.yml/badge.svg)](https://github.com/fruitriin/ADDF/actions/workflows/test.yml)
+
 [English README](README.en.md)
 
 AI コーディングエージェントのためのリポジトリ構成フレームワークです。

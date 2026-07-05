@@ -72,5 +72,6 @@
 - **`docs/plans-add/`** — ADDF 自身の開発計画。Plan の書き方・粒度の実例
 - **`docs/knowhow/ADDF/`** — 開発で蓄積されたノウハウ
 - **`.claude/settings.json`** — ダウンストリームテンプレートの実例
+- **`.github/workflows/test.yml`** — CI 品質ゲート（run-all.sh + lint 一式）の実例。ダウンストリームには配布されないが、同じゲートを組みたい場合は雛形として参照できる。CI が落ちたらローカルで `/addf-lint`（lint 一式）または `bash .github/scripts/run-lint.sh <lintスクリプト>` で再現できる
 - **`.claude/Progresses/`** — 完了タスクのアーカイブ
 - **`git log`** — コミットログ規約・品質ゲートの適用結果

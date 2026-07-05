@@ -1,0 +1,73 @@
+# CI 品質ゲート（Plan 0030）
+#
+# - run-all.sh（フック・ツールテスト）と lint 一式を PR / main push ごとに自動実行する
+# - lint の exit code 3値（0=OK / 1=ERROR / 2=WARNING）は .github/scripts/run-lint.sh が
+#   マッピングする: 1 はジョブ失敗、2 は通過 + `::warning::` annotation
+# - スキルテスト（自然言語シナリオ・手動実行）は CI 対象外。run-all.sh のログに
+#   「▶ Skill Tests (manual)」として一覧だけ表示される
+# - このワークフローは ADDF 本体固有（addf-init のコピーリスト対象外）。
+#   ダウンストリームが同じゲートを組む場合の雛形として参照できる
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# checkout と annotation 出力に書き込み権限は不要（最小権限）
+permissions:
+  contents: read
+
+# 同一ブランチの連続 push で古い実行をキャンセルする（ランナー時間の節約）
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # lint-template-sync の WARNING に最終更新日ヒント（git log）を併記するため全履歴を取得する
+          fetch-depth: 0
+
+      # lint は `uv run --python 3.11` で実行し、ローカルの /addf-lint と
+      # Python バージョン・PEP 723 依存解決（pyyaml 等）を一致させる。
+      # setup-uv はメジャー浮動タグ（v8）を提供しないため完全バージョンで pin する
+      - uses: astral-sh/setup-uv@v8.3.0
+
+      # フック・ツールの自動テスト。ubuntu では macOS 専用バイナリのテストが
+      # SKIP としてログに現れる（Results 行に skipped として計上 — silent truncation にしない）
+      - name: Framework tests (run-all.sh)
+        run: bash .claude/tests/run-all.sh
+
+      # lint 一式は個別ステップで実行する（どれが落ちたか Actions UI で判別できるように）。
+      # `if: ${{ !cancelled() }}` により、先行 lint が ERROR でも残りの lint を実行して全件報告する
+      - name: lint-json
+        if: ${{ !cancelled() }}
+        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-json.py
+      - name: lint-toml
+        if: ${{ !cancelled() }}
+        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-toml.py
+      - name: lint-frontmatter
+        if: ${{ !cancelled() }}
+        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-frontmatter.py
+      - name: lint-template-sync
+        if: ${{ !cancelled() }}
+        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-template-sync.py
+      - name: lint-hooks-exec
+        if: ${{ !cancelled() }}
+        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-hooks-exec.py
+      - name: lint-hooks-wiring
+        if: ${{ !cancelled() }}
+        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-hooks-wiring.py
+      - name: lint-checklist
+        if: ${{ !cancelled() }}
+        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-checklist.py
+      - name: lint-plan-status
+        if: ${{ !cancelled() }}
+        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-plan-status.py
+      - name: sync-optional-skills (check)
+        if: ${{ !cancelled() }}
+        run: bash .github/scripts/run-lint.sh .claude/addfTools/sync-optional-skills.py

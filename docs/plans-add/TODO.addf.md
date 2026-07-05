@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: 0038 完了（投機適性3区分・Plan 化フォールバック・大改造の窓検出・pending_count。2026-07-05）。次は 0037（一発通し切り・オーナー同席推奨）。0026 はオーナー指示待ち。未着手 0030〜0032、0029 フェーズ2以降
+## 現在のフェーズ: 0038 完了（投機適性3区分・Plan 化フォールバック・大改造の窓検出・pending_count。2026-07-05）。次は 0037（一発通し切り・オーナー同席推奨）。0026 はオーナー指示待ち。0030 は実装済み（初回 CI 実行の確認待ち）。未着手 0031〜0032、0029 フェーズ2以降
 
 ## バックログ
 
@@ -38,7 +38,7 @@
 | 2 | 27 | `docs/plans-add/0027-executable-checklist-doctrine.md` | 完了 |
 | 3 | 28 | `docs/plans-add/0028-worktree-speculative-dev.md` | 完了 |
 | 4 | 29 | `docs/plans-add/0029-gui-test-environment-matrix.md` | 一部完了（フェーズ1 完了。環境マトリクスはフェーズ2以降） |
-| 5 | 30 | `docs/plans-add/0030-ci-quality-gate.md` | 未着手 |
+| 5 | 30 | `docs/plans-add/0030-ci-quality-gate.md` | 一部完了（実装済み。初回 CI 実行の確認待ち） |
 | 6 | 31 | `docs/plans-add/0031-binary-verification.md` | 未着手 |
 | 7 | 32 | `docs/plans-add/0032-knowhow-freshness-audit.md` | 未着手 |
 | 4 | 33 | `docs/plans-add/0033-downstream-reported-fixes.md` | 完了（項目4=PlanTemplate は Plan 0035 フェーズA で実施） |
