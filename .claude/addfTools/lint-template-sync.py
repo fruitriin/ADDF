@@ -17,6 +17,15 @@
        ブロック（実行時生成ファイル）でカバーされているかを検査する。
        カバー漏れは外部起動導入したダウンストリームでの参照切れになる。
 
+ペア7: verify-checksums.sh detect_repo_kind() ⇔ lint-template-sync.py detect_repo_kind()
+       （Python⇔Bash 実装の同期契約・WARNING）
+       両ファイルの docstring/コメントに「同期契約」を示す固定文言（`lint-template-sync.py`
+       側は「verify-checksums.sh の detect_repo_kind()」への参照、bash 側は
+       「lint-template-sync.py の detect_repo_kind() と挙動を同期する契約」）があるかを
+       存在チェックする。挙動そのものの比較は困難なため、契約が明示されていることを
+       機械保証することでドリフト時のリファクタ意識を促す（Plan 0031 レビュー H3(a)(b)）。
+       verify-checksums.sh が不在なダウンストリームでは SKIP。
+
 ペア6: TODO ⇔ Plan 実装状況ヘッダ（状態の矛盾・参照切れ・登録漏れ・WARNING）
        TODO テーブルの状態列と各 Plan ファイルの `## 実装状況:` ヘッダを突合する。
        対象は ADDF 本体（docs/plans-add/TODO.addf.md ⇔ docs/plans-add/）と
@@ -148,6 +157,11 @@ KIND_UNKNOWN_HINT = (
 
 def detect_repo_kind():
     """'upstream' / 'downstream' / None（判定不能）を返す
+
+    同期契約: verify-checksums.sh の detect_repo_kind()（bash 実装）と挙動を同期する契約。
+    判定仕様（一次: CLAUDE.repo.md の種別宣言＋@メンション1段解決／フォールバック:
+    addf-lock.json）を変えるときは bash 側も同時に更新する。契約文言の存在は
+    check_pair7 で機械保証している（Plan 0031 レビュー H3）。
 
     ファイルの存在（ProgressTemplate.addf.md 等）で判定しない — 存在≠所有。
     一次根拠: CLAUDE.repo.md の種別宣言。テンプレートが実際に生成する書式
@@ -457,6 +471,48 @@ def todo_table_rows(path):
     return rows
 
 
+def check_pair7():
+    """verify-checksums.sh の detect_repo_kind() と本ファイルの detect_repo_kind() の
+    同期契約が両ファイルの docstring/コメントに明示されているかを検査する（WARNING）
+
+    挙動そのものの比較は困難（言語が異なる）なため、契約文言の存在を機械保証することで
+    実装差分を発見しやすくする。ダウンストリームで verify-checksums.sh が無ければ SKIP。
+    """
+    verify_path = '.claude/addfTools/verify-checksums.sh'
+    self_path = '.claude/addfTools/lint-template-sync.py'
+    if not os.path.exists(verify_path):
+        skips.append(f'[7] SKIP: {verify_path} が存在しない（ダウンストリームでは対象外）')
+        return
+    if not os.path.exists(self_path):
+        skips.append(f'[7] SKIP: {self_path} が存在しない')
+        return
+    with open(verify_path) as f:
+        vtext = f.read()
+    with open(self_path) as f:
+        stext = f.read()
+    # bash 側の契約文言（verify-checksums.sh 内に必ず1回以上出現すること）
+    bash_contract = 'lint-template-sync.py の detect_repo_kind() と挙動を同期する契約'
+    # Python 側の契約文言（lint-template-sync.py 内に必ず1回以上出現すること）
+    py_contract = 'verify-checksums.sh の detect_repo_kind()'
+    issues = []
+    if bash_contract not in vtext:
+        issues.append(
+            f'    {verify_path} に同期契約の明示が無い（追加すべき文言: '
+            f'「{bash_contract}」）'
+        )
+    if py_contract not in stext:
+        issues.append(
+            f'    {self_path} に同期契約の明示が無い（追加すべき文言: '
+            f'「{py_contract}」）'
+        )
+    if issues:
+        msg = [f'[7] WARNING: verify-checksums.sh / lint-template-sync.py の '
+               f'detect_repo_kind() 同期契約が明示されていない '
+               f'（片方の実装を変更したときにもう片方の更新が漏れる）:']
+        msg += issues
+        warnings.append('\n'.join(msg))
+
+
 def check_pair6():
     """TODO の状態列 ⇔ Plan の実装状況ヘッダの突合（WARNING）
 
@@ -524,6 +580,7 @@ check_boot_pair(4, 'CLAUDE.md', '## ブートシーケンス',
                 'CLAUDE.md ⇔ development-process.md ブートシーケンス概要')
 check_pair5()
 check_pair6()
+check_pair7()
 
 for msg in errors + warnings + skips:
     print(msg)
@@ -532,4 +589,4 @@ if errors:
     sys.exit(1)
 if warnings:
     sys.exit(2)
-print('OK: 同期チェック通過 (1: Progress.md / 2: ProgressTemplate / 3: AGENTS.md / 4: development-process.md / 5: addf-init コピーリスト / 6: TODO⇔Plan 状態)')
+print('OK: 同期チェック通過 (1: Progress.md / 2: ProgressTemplate / 3: AGENTS.md / 4: development-process.md / 5: addf-init コピーリスト / 6: TODO⇔Plan 状態 / 7: verify-checksums.sh detect_repo_kind 同期契約)')

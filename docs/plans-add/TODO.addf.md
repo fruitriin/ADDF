@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: 0038 完了（投機適性3区分・Plan 化フォールバック・大改造の窓検出・pending_count。2026-07-05）。次は 0037（一発通し切り・オーナー同席推奨）。0026 はオーナー指示待ち。0030 は実装済み（初回 CI 実行の確認待ち）。未着手 0031〜0032・0039〜0040（0039/0040 はオーナー起案 2026-07-06）、0029 フェーズ2以降
+## 現在のフェーズ: 0031 実装完了（バイナリ checksums 照合。2026-07-06。CI での通過確認のみ残）。次は 0037（一発通し切り・オーナー同席推奨）。0026 はオーナー指示待ち。0030 は実装済み（CI 実地検証済・branch protection の要否オーナー判断待ち）。未着手 0032・0039・0040（0039/0040 はオーナー起案 2026-07-06）、0029 フェーズ2以降
 
 ## バックログ
 
@@ -39,7 +39,7 @@
 | 3 | 28 | `docs/plans-add/0028-worktree-speculative-dev.md` | 完了 |
 | 4 | 29 | `docs/plans-add/0029-gui-test-environment-matrix.md` | 一部完了（フェーズ1 完了。環境マトリクスはフェーズ2以降） |
 | 5 | 30 | `docs/plans-add/0030-ci-quality-gate.md` | 一部完了（実装・CI 実地検証済み。branch protection の要否のみオーナー判断待ち） |
-| 6 | 31 | `docs/plans-add/0031-binary-verification.md` | 未着手 |
+| 6 | 31 | `docs/plans-add/0031-binary-verification.md` | 一部完了（実装・ローカル検証済み 2026-07-06。CI（Linux）での照合テスト通過確認のみ残） |
 | 7 | 32 | `docs/plans-add/0032-knowhow-freshness-audit.md` | 未着手 |
 | 4 | 33 | `docs/plans-add/0033-downstream-reported-fixes.md` | 完了（項目4=PlanTemplate は Plan 0035 フェーズA で実施） |
 | 5 | 34 | `docs/plans-add/0034-downstream-feedback-fixes.md` | 完了 |
