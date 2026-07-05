@@ -55,11 +55,33 @@
   - squash マージ時のローカル追随（履歴が繋がらないため reconcile check では確定できない — 既知の制約）
 - integration は現行どおり使い捨て（push しない・2日超自動削除）— **変更なし**
 
+### 部分昇格と持ち越し（2026-07-05 オーナー判断）
+
+N 本の投機のうち通った分だけ先に本流へ入れ、残りは次サイクルで直す運用を明文化する
+（例: 3本中2本を昇格、1本は次回 integration までに修正）。integration ごと all-or-nothing に
+マージしない — 1本の不備が他を人質に取らない。
+
+- **持ち越し feature の再検証**: 本流に昇格があったら、持ち越し中の feature は状態「要再検証」に
+  落とす。次サイクルで新しい main に **rebase → `git push --force-with-lease`** で
+  speculative ブランチを更新し、Stage 1 から再検証する（open PR がある場合は同じ PR が
+  そのまま更新され、持ち越しの文脈が保たれる）
+- **滞留の出口 — Pending 状態（新設）**: 数サイクル経っても直らない持ち越し feature は
+  「放棄」ではなく **「Pending」**（いつかやる）に落とす:
+  - Pending はアクティブな投機スロットを**占有しない**（スロットは開け、新しい投機を妨げない）
+  - Pending の worktree は削除してよい（ブランチと PR は残す。再開時に worktree を作り直す）
+  - Pending 在庫は **5本まで**許容。6本以上になったら Dashboard / Questions でオーナーに
+    整理（再開 or 放棄）を提案する
+  - Worktrees.md の状態一覧に「Pending」を追加する（既存の「上限で待機」は開始前キュー、
+    「Pending」は持ち越し保留 — 意味の違いをスキル本文に明記して混同を防ぐ）
+
 ## 完了条件
 
 - [ ] PR 本文フォーマット規約を単一ソースに記述し、addf-dev / addf-speculate から参照
 - [ ] addf-speculate 昇格手順に PR 経路を追記（自動昇格禁止の文言は維持）
+- [ ] 部分昇格＋持ち越し運用を addf-speculate に追記（要再検証→rebase＋force-with-lease、
+      Pending 状態の新設・スロット非占有・在庫上限5・6本以上でオーナーへ整理提案）
 - [ ] PR マージ後の後始末（Worktrees.md 更新・clean 突合）の整合を確認
+      （Pending の worktree 削除と clean の突合も含む）
 - [ ] lint（テンプレート同期・チェックリスト裏付け）全パス
 
 ## AI 実装時間見積もり
