@@ -1,6 +1,33 @@
 # Plan 0032: knowhow 鮮度の棚卸し（🟡 記事の一括再検証）
 
-## 実装状況: 未着手
+## 実装状況: 完了（2026-07-06）
+
+### 実装記録
+
+初回の鮮度棚卸しを実施。INDEX 上の 🟡 は7件だったが、うち `ignore-file-strategy.md` は
+frontmatter が既に最新（2026-07-02）で INDEX の日付だけ古かった（reindex 未実行）。実質の
+再検証は6件。判定と根拠は以下:
+
+| 記事 | 判定 | 根拠 |
+|---|---|---|
+| `claude-md-at-mention.md` | 妥当（🟢 復帰） | @展開・クオート除外・ネスト展開の主張が現行 CLAUDE.md → CLAUDE.repo.md → CLAUDE.repo.example.md のネスト展開で機能している |
+| `ignore-file-strategy.md` | 妥当（🟢 復帰） | frontmatter が 2026-07-02 で既に更新済み。INDEX のみ再構築で 🟢 に |
+| `permission-settings-pattern.md` | **一部誤り** → 訂正 | 「破壊的操作の除外基準」が cp（allow）と mv/rm/chmod（除外）で不統一だった（Plan 0026 レビュー指摘）。「破壊が主目的か副作用か」の分類に書き換え。例示 settings.json も現状追従（`mktemp` / `git clone` / `git -C` / `* --help` 等） |
+| `pretooluse-block-with-rationale.md` | 妥当（🟢 復帰） | 根拠提示型ブロック・CLAUDE_CODE_TMPDIR・横展開パターンいずれも現行と整合。実装例の check-tmp.py は SDIT 側の話で本リポジトリに実物なしなのは記事の記述どおり |
+| `skill-design-patterns.md` | **一部誤り** → 訂正 | 「改善の余地: 計測フックの導入」を未実装扱いしていたが `skill-usage-log.sh` が既に配線済み → 取消線で歴史保管。ADDF 独自パターン節（検出＝スクリプト・解釈＝エージェント／exit3値／同期契約 lint 化／オプトイン式）を追記 |
+| `existing-project-install-pattern.md` | **一部誤り** → 訂正 | 「外部起動の判定」に「部分導入プロジェクト」ケースが欠けていた。カテゴリ1 に「`*.addf.md` 除外原則」も未反映。両方を追記 |
+| `release-skill-separation.md` | 妥当（🟢 復帰） | スキル=ルーター、設定/exp=手順定義の3層構造が現行 `addf-release.md` と整合 |
+
+副次成果:
+- 新 knowhow `ADDF/knowhow-obsolescence-patterns.md` を1本作成（Plan 0032 の骨子 4「陳腐化しやすい記述パターン」）。
+  未実装リスト・現物埋め込み例示・閉じた分岐図の3パターンと逃がし方を記録
+- INDEX.addf.md 再構築（全 18 記事 🟢、`.knowhow-obsolescence-patterns.md` 追加）
+- `sync-lint-design.md` に新 knowhow への双方向リンクを追加
+
+Plan 化提案（深追いせず本 Plan ではやらない）:
+- `permission-settings-pattern.md` の「cp の上書き副作用まで禁止したい場合の deny ルール設計」は
+  独立 Plan にする価値がある。運用ノイズ増と実害率のトレードオフが論点。TODO への追加はしない
+  （オーナー判断で起案可否を決めるためここに提案として残すのみ）
 
 > **粗々の起票**: 設計の方向性と未決事項を出す段階。実装詳細は着手時に詰める。
 

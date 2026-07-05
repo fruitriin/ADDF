@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: 0031 完了（バイナリ checksums 照合・CI 通過。2026-07-06）。次は 0037（一発通し切り・オーナー同席推奨）。0026 はオーナー指示待ち。0030 は実装済み（CI 実地検証済・branch protection の要否オーナー判断待ち）。未着手 0032・0039・0040（0039/0040 はオーナー起案 2026-07-06）、0029 フェーズ2以降
+## 現在のフェーズ: 0032 完了（knowhow 鮮度棚卸し・新 knowhow 1本追加。2026-07-06）。次は 0037（一発通し切り・オーナー同席推奨）。0026 はオーナー指示待ち。0030 は実装済み（CI 実地検証済・branch protection の要否オーナー判断待ち）。未着手 0039・0040（0039/0040 はオーナー起案 2026-07-06）、0029 フェーズ2以降
 
 ## バックログ
 
@@ -40,7 +40,7 @@
 | 4 | 29 | `docs/plans-add/0029-gui-test-environment-matrix.md` | 一部完了（フェーズ1 完了。環境マトリクスはフェーズ2以降） |
 | 5 | 30 | `docs/plans-add/0030-ci-quality-gate.md` | 一部完了（実装・CI 実地検証済み。branch protection の要否のみオーナー判断待ち） |
 | 6 | 31 | `docs/plans-add/0031-binary-verification.md` | 完了 |
-| 7 | 32 | `docs/plans-add/0032-knowhow-freshness-audit.md` | 未着手 |
+| 7 | 32 | `docs/plans-add/0032-knowhow-freshness-audit.md` | 完了 |
 | 4 | 33 | `docs/plans-add/0033-downstream-reported-fixes.md` | 完了（項目4=PlanTemplate は Plan 0035 フェーズA で実施） |
 | 5 | 34 | `docs/plans-add/0034-downstream-feedback-fixes.md` | 完了 |
 | 3 | 35 | `docs/plans-add/0035-pr-standard-format.md` | 完了（フェーズA・B・C。2026-07-05） |

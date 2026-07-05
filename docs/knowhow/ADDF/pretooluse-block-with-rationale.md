@@ -1,7 +1,7 @@
 ---
 title: PreToolUse ブロックフックの設計パターン — 根拠提示型ガード
 created: 2026-03-19
-last_verified: 2026-03-19
+last_verified: 2026-07-06
 depends_on: []
 status: active
 ---

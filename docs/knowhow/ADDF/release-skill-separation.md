@@ -1,7 +1,7 @@
 ---
 title: リリーススキルの責務分割パターン
 created: 2026-03-21
-last_verified: 2026-03-21
+last_verified: 2026-07-06
 depends_on: []
 status: active
 ---
