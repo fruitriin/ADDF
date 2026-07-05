@@ -19,6 +19,8 @@
 - [Plan 0037: ADDF ディレクトリ大集約](0037-addf-directory-consolidation.md) — 本 Plan の
   guides 追記・lint は 0037 の移動対象パスに置かれる。実装順は本 Plan が先（0037 側の
   マップ駆動書き換えで自動追従）
+- [Plan 0038: 投機適性の概念化と大改造の窓](0038-speculation-fitness.md) — 本 Plan 項目2で
+  定義する投機在庫の状態モデル（採否判断待ち・持ち越し・Pending）を 0038 の窓検出が参照する
 
 ## 目的
 

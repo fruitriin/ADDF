@@ -16,6 +16,9 @@
 - [Plan 0025: リポジトリ ADDF リネーム](0025-rename-repo-to-addf.md) — 一括参照書き換えの先行事例
 - [Plan 0022: addf-init コピーリスト刷新](0022-addf-init-copylist-refresh.md) — コピーリスト
   ドリフト問題。本 Plan のパスマップ単一ソース化はこの根治を兼ねる
+- [Plan 0038: 投機適性の概念化と大改造の窓](0038-speculation-fitness.md) — 本 Plan の
+  実施様式「一発通し切り」を `execution_style: one-shot` として一般化。本 Plan はその第1号
+  実例であり、0038 の窓検出（投機在庫ゼロの検出と選択提示）の最初の受益者になる
 
 ## 目的
 
