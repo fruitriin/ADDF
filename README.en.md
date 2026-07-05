@@ -88,6 +88,7 @@ Skills provided by ADDF (invoked via `/command-name`):
 | **addf-lint** | `/addf-lint` | Framework integrity check |
 | **addf-permission-audit** | `/addf-permission-audit` | Analyze and classify permission requests |
 | **addf-mode** | `/addf-mode [unattended]` | View or switch the 3-axis "when in doubt" doctrine modes |
+| **addf-speculate** | `/addf-speculate [clean]` | Idle-time speculative development in worktrees (opt-in; never auto-merged to mainline) |
 
 <details>
 <summary>Other skills</summary>
@@ -129,6 +130,7 @@ Sub-agents auto-launched during quality gates. Customize or add agents to fit yo
 | [Built-in Agents](docs/guides/agents.md) | Sub-agents for quality gates and how to customize them |
 | [Development Process](docs/guides/development-process.md) | Boot sequence, quality gates, task lifecycle |
 | [Migration](docs/guides/migration.md) | Upgrading ADDF with `/addf-migrate` |
+| [Speculative Development](docs/guides/speculative-development.md) | Overview of idle-time worktree speculation (two-layer model, promotion, cleanup) |
 | [Codex Setup](docs/guides/codex-setup.md) | Using ADDF with OpenAI Codex CLI |
 | [GUI Testing](docs/guides/gui-test-setup.md) | macOS GUI test setup |
 

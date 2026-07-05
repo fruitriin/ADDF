@@ -88,6 +88,7 @@ ADDF が提供するスキル（`/コマンド名` で呼び出し）:
 | **addf-lint** | `/addf-lint` | フレームワーク整合性チェック |
 | **addf-permission-audit** | `/addf-permission-audit` | 権限要求の分析・分類・settings への追加提案 |
 | **addf-mode** | `/addf-mode [unattended]` | 「迷ったときの作法」3軸モードの表示・切り替え |
+| **addf-speculate** | `/addf-speculate [clean]` | アイドル時の worktree 投機開発（オプトイン。本流には自動マージしない） |
 
 <details>
 <summary>その他のスキル</summary>
@@ -129,6 +130,7 @@ ADDF が提供するスキル（`/コマンド名` で呼び出し）:
 | [組み込みエージェント](docs/guides/agents.md) | 品質ゲートで自動起動されるサブエージェントの詳細とカスタマイズ |
 | [開発プロセス](docs/guides/development-process.md) | ブートシーケンス、品質ゲート、タスクのライフサイクル |
 | [バージョンアップ](docs/guides/migration.md) | `/addf-migrate` による ADDF のアップグレード手順 |
+| [投機開発](docs/guides/speculative-development.md) | アイドル時の worktree 投機開発の全体像（2層モデル・昇格・掃除） |
 | [Codex で使う](docs/guides/codex-setup.md) | OpenAI Codex CLI での ADDF 利用ガイド |
 | [GUI テスト](docs/guides/gui-test-setup.md) | macOS 向け GUI テストのセットアップ |
 
