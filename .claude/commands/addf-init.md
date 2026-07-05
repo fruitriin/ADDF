@@ -188,7 +188,7 @@ ADDF ファイルの配置元を決定する:
 - `.claude/agents/addf-*.md` — エージェント定義
 - `.claude/optional/` — オプトイン式スキル・エージェントの原本（GUI テスト等。有効化は `.claude/addfTools/sync-optional-skills.py apply`）
 - `.claude/hooks/*.sh` — フック
-- `.claude/templates/` — テンプレート（`ProgressTemplate.md`・`PlanTemplate.md`・`ExperienceTemplate.md` 等。除外規則により `ProgressTemplate.addf.md` 等の `*.addf.md` はコピーしない）
+- `.claude/templates/` — テンプレート（ディレクトリ丸ごと。個別ファイル名は列挙しない — 列挙は本体側のテンプレート追加に追従できず腐るため。除外規則により `ProgressTemplate.addf.md` 等の `*.addf.md` はコピーしない）
 - `.claude/addfTools/` — ツール群
 - `.claude/tests/` — テストスイート
 - `.claude/addf-Behavior.toml`

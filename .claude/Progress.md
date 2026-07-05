@@ -75,7 +75,19 @@
 
 ## タスク
 
-### 現在のタスク: Plan 0035 フェーズB — 投機運用拡張（昇格 PR 経路・部分昇格・Pending・深化）
+### 現在のタスク: Plan 0035 フェーズC — 誤完了防止 lint（最終フェーズ）
+
+- [ ] lint 新設（完了条件チェックボックス未完 × 実装状況ヘッダ「完了」→ ERROR。ドリフト注入 TDD 込み）
+- [ ] addf-lint.md セクション表・run-all 組み込み・Python ガード3点セット
+- [ ] 申し送り検討3件（関連 Plan 風化検出・init 列挙・Pending/深化機械化）の採否判断
+- [ ] Stage 1 → 3体レビュー → 修正 → マージ → Plan 0035 完了化 → Progress アーカイブ → コミット
+
+##### 2026-07-05 — サイクル3: フェーズC 実装済み・レビュー3体中1体受領
+**やったこと**: worktree agent-a86918fff3520f434 でフェーズC 実装完了（lint-plan-status.py 新設・TDD 9テスト・自己適用第1号成立・addf-init 列挙廃止採用・風化検出→0036 / Pending 機械化→0038 送り）。newcomer 受領: Warning 2（表記ゆれヘッダ `## 状態: 完了` のすり抜け — ペア6 の alt_status_header 相当が未踏襲 / SKIP 29件のファイル名が出力にない）。
+**次の自分へ**: skeptic・attacker の通知待ち → 集約 → 修正委譲（worktree 同上）→ squash マージ → Plan 0035 完了化確認 → **Progress アーカイブ（.claude/Progresses/2026-07-05-plan0035-pr-standardization.md）→ 新 Progress.md 作成 → コミット・push**。次サイクルは Plan 0036。
+**気になっていること**: コンテキスト 371k。compaction されたらこの日記が正。worktree パスとレビュー通知の対応: skeptic=af8558974c839ad7e / attacker=ad83102e1059368ed（完了通知の result に全文が入る）。
+
+### （完了）フェーズB — 投機運用拡張（昇格 PR 経路・部分昇格・Pending・深化）
 
 フェーズA は完了（ed707e8。下の旧チェックリストと日記参照）。フェーズB のサブタスク:
 
