@@ -85,7 +85,13 @@
 - [ ] speculative-development.md にライフサイクル図（昇格定義・Pending/要再検証/放棄/深化の分岐込み）
 - [ ] PR マージ後の後始末（Worktrees.md 更新トリガー・origin ブランチ消滅時 clean 突合・squash ローカル追随）
 - [x] Stage 1 → 3体レビュー（済み）
-- [ ] 修正（委譲中）→ マージ・コミット・Plan 記録
+- [x] 修正（16件全反映）→ マージ・コミット・Plan 記録（40cea10・push 済み）
+
+##### 2026-07-05 — サイクル2完了: フェーズB を main にマージ・push（40cea10）
+**やったこと**: 修正16件（Critical 2 実測込み）を確認し squash マージ → lint・run-all（新テスト込み77本）通過 → コミット・push・worktree 掃除。Plan 0035 はフェーズC（誤完了 lint）のみ残り。
+**今の見立て**: フェーズC はコード中心（lint-plan-status.py 的な新スクリプト＋ドリフト注入 TDD＋addf-lint セクション表更新）。申し送り済みの検討事項: 関連 Plan 風化検出・init 列挙の lint 非保護・Pending/深化の手動運用の機械化余地。
+**次の自分へ**: 次サイクルはフェーズC。Plan 0035 項目3-3 と「フェーズC への申し送り」セクションを委譲プロンプトに含めること。lint 新設の Feedback 教訓「きっかけになった当のケースをドリフト注入で再現テストする」（0028 型の一部完了ケース）を必ず適用。完了後は Plan 0035 全完了 → Progress アーカイブ → 0036 へ。
+**気になっていること**: なし。
 
 ##### 2026-07-05 — サイクル2: フェーズB 実装済み・レビュー3体集約・修正委譲中
 **やったこと**: worktree agent-a49384b657871f31a でフェーズB 実装完了（Stage 1 全パス）。3体レビュー集約: **Critical 2（attacker 実測: 深化繰り上げの素 rebase がコンフリクト→--onto 明記が必要 / clean --delete が子の rebase 起点を先に消す順序罠）**・High 1（KNOWN_STATES に Pending 未反映 — skeptic+attacker のコンセンサス補正。コード修正＋テスト追加）・Warning 8・Suggestion 5。全16件を修正エージェント（a4488f707a811bd27）に委譲済み。
