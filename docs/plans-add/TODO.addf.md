@@ -43,7 +43,8 @@
 | 7 | 32 | `docs/plans-add/0032-knowhow-freshness-audit.md` | 未着手 |
 | 4 | 33 | `docs/plans-add/0033-downstream-reported-fixes.md` | 一部完了（項目1〜3 完了。項目4=PlanTemplate 残り） |
 | 5 | 34 | `docs/plans-add/0034-downstream-feedback-fixes.md` | 完了（Issue 返信のみオーナー承認待ち） |
-| 3 | 35 | `docs/plans-add/0035-pr-standard-format.md` | 未着手（オーナー起案 2026-07-05。PR 本文 Plan リンク標準・昇格の PR 経路） |
+| 3 | 35 | `docs/plans-add/0035-pr-standard-format.md` | 未着手（オーナー起案 2026-07-05。PR 本文 Plan リンク標準・昇格の PR 経路・誤完了防止） |
+| 3 | 36 | `docs/plans-add/0036-plan-audit-skill.md` | 未着手（オーナー起案 2026-07-05。/addf-plan-audit スキル・migrate ワンショット統合） |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
