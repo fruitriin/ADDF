@@ -149,7 +149,8 @@ git -C ../<repo名>-spec-<concept> checkout -- .claude 2>/dev/null || true
 1本の integration ブランチに squash 統合し、動作確認を一括する:
 
 ```bash
-python3 .claude/addfTools/speculate-integrate.py speculative/<concept1> speculative/<concept2> ...
+uv run --python 3.11 .claude/addfTools/speculate-integrate.py speculative/<concept1> speculative/<concept2> ...
+# uv が無ければ python3 で直接実行（Python 3.11+ が必要）
 ```
 
 （tomllib 不要のためシステム python3（3.6+）でそのまま動く。uv 不要）
