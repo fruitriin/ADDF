@@ -2,6 +2,35 @@
 
 ADDF フレームワークの変更履歴。`/addf-migrate` 実行時に該当バージョン間のエントリを表示する。
 
+## [0.5.0] - 2026-07-05
+
+### 追加
+- 投機開発の再構築・掃除・昇格運用（Plan 0028 フェーズ3完結）
+  - `speculate-reconcile.py` — check（worktree prune＋走査＋merged_hint）/ clean（`--delete` 明示指定制。Worktrees.md の「昇格済み/放棄」記載との突合を削除前に強制、過去日付 integration の自動掃除、dirty worktree 既定拒否）
+  - 昇格手順（`speculative/<concept>` → main の squash マージ。オーナーの明示応答必須・無応答を承認とみなすこと禁止）
+  - テスト `test-speculate-reconcile.sh` 17本・72アサーション
+- 投機運用ガイド `docs/guides/speculative-development.md` — 2層モデル・オプトイン・ライフサイクル・昇格の定義・clean 原則の概観
+- `lint-hooks-wiring.py` — settings.json のフック配線と実ファイルの突合（境界チェック付き。addf-lint セクション11・addf-init check 項目6）
+- addf-migrate の部分導入正規化モード — lock 不在＋ADDF ファイル有りの構成で「安全一括上書き / 個別確認必須」の2分割手順を提案
+- プレリリースチェックに項目4（README 和英の新機能反映確認）・項目5（project-overview の鮮度確認）を追加
+- project-overview に「投機開発」を独立の概念システムとして追加（6→7 システム）
+
+### 変更
+- upstream/downstream 判定を暗黙推定から明示シグナルに統一（Plan 0033）
+- worktree への `.claude` 複製を3行構成に — venv/node_modules/__pycache__ の除外（symlink 含む）と追跡ファイル復元（Issue #18）
+- `speculate-integrate.py` の `--base` を origin default branch 自動検出に（検出不能時は main フォールバック＋NOTE 可視化）（Issue #20）
+- addf-migrate 14.6 の .gitignore ADDF ブロック置換をマーカー数検査付きに（不成立は手動マージへフォールバック）（Issue #20）
+- run-all.sh に「必須ランタイム不在を SKIP=成功にしない」ガイドラインを追加
+- addf-dev に Stage 構成の読み替え指針（独自フェーズ構成・単線構成プロジェクト対応）
+- README（和・英）に addf-speculate と投機開発ガイドを掲載
+- project-overview の GUI テスト記述をオプトイン前提に統一（Plan 0029 残課題 L1 解消）
+- 投機の同時 worktree 上限（`max_worktrees`）の推奨値を 3→7 に変更
+
+### 修正
+- 投機 worktree の venv 破損バグ — `.claude` 複製時に venv/シンボリックリンクを持ち込まない（Issue #18・ダウンストリーム実測報告）
+- default branch が main でないダウンストリームでの integration 誤 base — 自動検出化により解消（Issue #20）
+- lint-template-sync のダウンストリーム構成（addf-lock.json あり・独自 AGENTS.md あり）での誤検知（Plan 0033）
+
 ## [0.4.0] - 2026-07-03
 
 ### 追加
