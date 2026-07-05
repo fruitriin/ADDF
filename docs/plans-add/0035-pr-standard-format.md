@@ -1,6 +1,23 @@
 # Plan 0035: PR 運用の標準化（Plan リンク本文・feature 昇格の PR 経路）
 
-## 実装状況: 未着手
+## 実装状況: 一部完了（2026-07-05 フェーズA=PR 作法ドキュメント一式 完了。B=投機運用拡張・C=誤完了 lint 残り）
+
+### フェーズA 実装記録（2026-07-05）
+
+- `.claude/templates/PlanTemplate.md` 新設 — Plan 0033 項目4 を本 Plan で引き取り実施。
+  標準テンプレート（実装状況ヘッダ・関連 Plan（双方向原則コメント付き）・目的・現状の挙動・
+  変更内容（項目/フェーズ）・影響範囲・テスト方針・破壊的変更の許容範囲・要オーナー確認・
+  完了条件チェックボックス・AI 見積もり任意）＋検討スタブ variant（分かっていること /
+  未解決の問い / 着手のトリガー）
+- `docs/guides/pr-format.md` 新設 — 項目1（対象 Plan リンク・blob URL・バッククォート禁止）と
+  項目3-1（計画の進捗位置欄）・項目3-2（Plan 相互リンク規約）の単一ソース。記載例（PR #21）込み
+- addf-dev（完了処理）・addf-speculate（手順9 push）に pr-format.md への参照を1行追加
+  （規約本文はコピーしない — 単一ソース維持）
+- CLAUDE.md 骨格プランニング手順（手順4-4）に PlanTemplate 参照を追加。同期対象の
+  AGENTS.md・development-process.md・addf-init コピーリスト（`.claude/templates/` エントリの
+  例示に PlanTemplate.md を明記）も同時更新
+- **残り**: フェーズB=項目2（投機 feature 昇格の PR 経路・深化ブランチ・部分昇格と持ち越し・
+  Pending・昇格定義の guides 明文化）、フェーズC=項目3-3（誤完了 lint 新設＋ドリフト注入 TDD）
 
 > 出典: 2026-07-05 オーナーフィードバック（PR #21 のレビュー体験から）。
 > 「PR 本文に紐づく計画ファイルをリンクする作法を addf-dev / addf-speculate の標準にする。
@@ -11,9 +28,8 @@
 - [Plan 0028: worktree 投機開発](0028-worktree-speculative-dev.md) — 項目2の昇格 PR 経路は
   フェーズ3の昇格運用の拡張。昇格定義の guides 明文化はフェーズ3-4 の投機運用ガイドと統合する
 - [Plan 0033: ダウンストリーム実測バグの修正](0033-downstream-reported-fixes.md) — 項目3の
-  相互リンク規約は 0033 項目4（PlanTemplate.md 新規追加・未着手）に依存する。
-  実装順は 0033 項目4 が先（テンプレートが存在してから規約を載せる）。または本 Plan で
-  項目4ごと引き取る
+  相互リンク規約が依存する 0033 項目4（PlanTemplate.md 新規追加）は、
+  本 Plan フェーズA で引き取り実施済み（2026-07-05）
 - [Plan 0036: 未完了埋没タスクの掘り起こしスキル](0036-plan-audit-skill.md) — 本 Plan 項目3の
   新運用が「これからの嘘」を止めるのに対し、0036 は「過去の埋没」を一回で回収する対の仕組み
 - [Plan 0037: ADDF ディレクトリ大集約](0037-addf-directory-consolidation.md) — 本 Plan の
@@ -162,7 +178,7 @@ N 本の投機のうち通った分だけ先に本流へ入れ、残りは次サ
 
 ## 完了条件
 
-- [ ] PR 本文フォーマット規約を単一ソースに記述し、addf-dev / addf-speculate から参照
+- [x] PR 本文フォーマット規約を単一ソースに記述し、addf-dev / addf-speculate から参照
 - [ ] addf-speculate 昇格手順に PR 経路を追記（自動昇格禁止の文言は維持）
 - [ ] 昇格の定義（speculative/<concept> → main。integration は経路外）とライフサイクル図を
       guides に明記（Plan 0028 フェーズ3-4 の投機運用ガイドと統合。実装順の依存:
@@ -174,8 +190,8 @@ N 本の投機のうち通った分だけ先に本流へ入れ、残りは次サ
       親 PR への注記）を addf-speculate と guides に追記
 - [ ] PR マージ後の後始末（Worktrees.md 更新・clean 突合）の整合を確認
       （Pending の worktree 削除と clean の突合も含む）
-- [ ] PR 本文フォーマットに「計画の進捗位置」欄（担当フェーズ＋残フェーズ）を必須項目として組み込む
-- [ ] Plan 相互リンク規約（「関連 Plan」セクション・双方向原則）を PlanTemplate と guides に明記
+- [x] PR 本文フォーマットに「計画の進捗位置」欄（担当フェーズ＋残フェーズ）を必須項目として組み込む
+- [x] Plan 相互リンク規約（「関連 Plan」セクション・双方向原則）を PlanTemplate と guides に明記
 - [ ] 完了条件チェックボックス未完 × 実装状況ヘッダ「完了」の矛盾を検出する lint を新設
       （ドリフト注入 TDD 込み。addf-lint セクション表の更新も同時に行う）
 - [ ] lint（テンプレート同期・チェックリスト裏付け）全パス

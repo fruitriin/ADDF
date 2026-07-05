@@ -131,6 +131,7 @@ ADDF が提供するスキル（`/コマンド名` で呼び出し）:
 | [開発プロセス](docs/guides/development-process.md) | ブートシーケンス、品質ゲート、タスクのライフサイクル |
 | [バージョンアップ](docs/guides/migration.md) | `/addf-migrate` による ADDF のアップグレード手順 |
 | [投機開発](docs/guides/speculative-development.md) | アイドル時の worktree 投機開発の全体像（2層モデル・昇格・掃除） |
+| [PR 作成の作法](docs/guides/pr-format.md) | PR 本文の標準フォーマット（対象 Plan リンク・進捗位置欄） |
 | [Codex で使う](docs/guides/codex-setup.md) | OpenAI Codex CLI での ADDF 利用ガイド |
 | [GUI テスト](docs/guides/gui-test-setup.md) | macOS 向け GUI テストのセットアップ |
 

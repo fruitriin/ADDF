@@ -220,6 +220,7 @@ fi
   （認証・reject・ネットワーク断）は SKIP 扱いにせず、失敗として報告する
 - コンテナ実行（Claude Code on the Web 等）ではセッション終了で worktree もローカルブランチも
   失われるため、**push が投機を残す唯一の手段**。省略しないこと
+- push したブランチから PR を作成する場合は、本文を `docs/guides/pr-format.md` の規約に従って書く
 
 ### 10. 完了処理
 
