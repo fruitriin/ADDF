@@ -52,6 +52,9 @@ g() { git -C "$repo" -c user.name=t -c user.email=t@t "$@"; }
 (
   cd "$repo"
   git init -q -b main .
+  # CI 等グローバル gitconfig の無い環境向け: スクリプト（speculate-integrate.py）が
+  # この repo 内で行う commit にも効くよう、repo ローカル設定として永続化する
+  git config user.name t && git config user.email t@t
   printf 'line1\n' > shared.txt
   git -c user.name=t -c user.email=t@t add shared.txt
   git -c user.name=t -c user.email=t@t commit -qm init
@@ -153,6 +156,7 @@ g2() { git -C "$repo2" -c user.name=t -c user.email=t@t "$@"; }
 (
   cd "$repo2"
   git init -q -b trunk .
+  git config user.name t && git config user.email t@t
   printf 'base\n' > base.txt
   git -c user.name=t -c user.email=t@t add base.txt
   git -c user.name=t -c user.email=t@t commit -qm init
