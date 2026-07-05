@@ -95,7 +95,7 @@ INTEGRATION_RE = re.compile(r'^integration/loop-(\d{4}-\d{2}-\d{2})$')
 
 # Worktrees.md の状態列の語彙（addf-speculate.md 手順5の列挙と同期）
 KNOWN_STATES = ['昇格済み', '放棄', '開発中', 'テスト通過', 'テスト失敗', '衝突',
-                '統合済み', '上限で待機', '要再検証', '掃除済み']
+                '統合済み', '上限で待機', '要再検証', 'Pending', '掃除済み']
 DELETABLE_STATES = ('昇格済み', '放棄')
 
 
@@ -211,7 +211,8 @@ def verify_delete_targets(branches):
             problems.append(f'{branch}: Worktrees.md に記録なし')
         elif state is None or not state.startswith(DELETABLE_STATES):
             problems.append(f'{branch}: 状態「{state or "不明"}」'
-                            '（削除できるのは「昇格済み」「放棄」のみ）')
+                            '（削除できるのは「昇格済み」「放棄」のみ。'
+                            'Pending 等の持ち越し・進行中の状態は削除対象外）')
     if problems:
         for p in problems:
             print(f'ERROR: --delete の突合に失敗: {p}')

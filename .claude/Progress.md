@@ -75,7 +75,25 @@
 
 ## タスク
 
-### 現在のタスク: Plan 0035 フェーズA — PR 作法ドキュメント一式（PlanTemplate 引き取り込み）
+### 現在のタスク: Plan 0035 フェーズB — 投機運用拡張（昇格 PR 経路・部分昇格・Pending・深化）
+
+フェーズA は完了（ed707e8。下の旧チェックリストと日記参照）。フェーズB のサブタスク:
+
+- [ ] addf-speculate 昇格手順に PR 経路（GitHub マージ or プロンプト指示・モード連動・自動昇格禁止維持）
+- [ ] 部分昇格＋持ち越し（要再検証→rebase+force-with-lease・Pending 新設・在庫上限5・「上限で待機」との違い明記）
+- [ ] 深化ブランチ（命名確定・判断ガイド・運命連帯・2世代目安・Worktrees.md 親子記録・親 PR 注記）
+- [ ] speculative-development.md にライフサイクル図（昇格定義・Pending/要再検証/放棄/深化の分岐込み）
+- [ ] PR マージ後の後始末（Worktrees.md 更新トリガー・origin ブランチ消滅時 clean 突合・squash ローカル追随）
+- [x] Stage 1 → 3体レビュー（済み）
+- [ ] 修正（委譲中）→ マージ・コミット・Plan 記録
+
+##### 2026-07-05 — サイクル2: フェーズB 実装済み・レビュー3体集約・修正委譲中
+**やったこと**: worktree agent-a49384b657871f31a でフェーズB 実装完了（Stage 1 全パス）。3体レビュー集約: **Critical 2（attacker 実測: 深化繰り上げの素 rebase がコンフリクト→--onto 明記が必要 / clean --delete が子の rebase 起点を先に消す順序罠）**・High 1（KNOWN_STATES に Pending 未反映 — skeptic+attacker のコンセンサス補正。コード修正＋テスト追加）・Warning 8・Suggestion 5。全16件を修正エージェント（a4488f707a811bd27）に委譲済み。
+**今の見立て**: 7サイクル連続で初版の穴が実測検出。今回は「ドキュメントが記述する運用」を「未変更の既存スクリプト」に対して実測する attacker の型が Critical を2つ掘り当てた — ドキュメント変更でも破壊試験が成立する。
+**次の自分へ**: 修正完了通知 → run-all（新テスト含む）/lint 確認 → worktree でコミット → main へ squash マージ → worktree/ブランチ掃除 → push → Plan 0035 はフェーズC（誤完了 lint）のみ残り。次サイクルはフェーズC が自然（コード中心なので同じ型で）。
+**気になっていること**: Pending 在庫上限・深化カスケードの機械化はフェーズC/0038 申し送りにした（W11）。0038 実装時に「投機在庫ゼロの窓検出」と一緒に設計すると綺麗。
+
+### （完了）フェーズA — PR 作法ドキュメント一式（PlanTemplate 引き取り込み）
 
 出典: `docs/plans-add/0035-pr-standard-format.md`。フェーズ分割（今サイクルで宣言）:
 - **フェーズA（今回）**: PR 本文フォーマット規約の guides 単一ソース化＋PlanTemplate.md 新設（0033 項目4 引き取り）＋相互リンク規約＋進捗位置欄

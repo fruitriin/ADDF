@@ -1,6 +1,6 @@
 # Plan 0035: PR 運用の標準化（Plan リンク本文・feature 昇格の PR 経路）
 
-## 実装状況: 一部完了（2026-07-05 フェーズA=PR 作法ドキュメント一式 完了。B=投機運用拡張・C=誤完了 lint 残り）
+## 実装状況: 一部完了（2026-07-05 フェーズA・B 完了。C=誤完了 lint のみ残り）
 
 ### フェーズA 実装記録（2026-07-05）
 
@@ -16,8 +16,41 @@
 - CLAUDE.md 骨格プランニング手順（手順4-4）に PlanTemplate 参照を追加。同期対象の
   AGENTS.md・development-process.md・addf-init コピーリスト（`.claude/templates/` エントリの
   例示に PlanTemplate.md を明記）も同時更新
-- **残り**: フェーズB=項目2（投機 feature 昇格の PR 経路・深化ブランチ・部分昇格と持ち越し・
-  Pending・昇格定義の guides 明文化）、フェーズC=項目3-3（誤完了 lint 新設＋ドリフト注入 TDD）
+- **残り**: フェーズB=項目2（同日実施済み — 下記実装記録参照）、
+  フェーズC=項目3-3（誤完了 lint 新設＋ドリフト注入 TDD）
+
+### フェーズB 実装記録（2026-07-05）
+
+- `.claude/commands/addf-speculate.md` — 昇格手順を2経路構成に拡張:
+  - **経路A（プロンプト指示・ローカル squash マージ）**: 現行手順を維持し、持ち越しの
+    「要再検証」落としをステップ7として追加
+  - **経路B（PR 経路）**: エージェントは PR 作成・提示まで（本文は pr-format.md 準拠＋
+    投機の出典・integration 検証結果・深化注記）。マージはオーナーの GitHub 操作か
+    プロンプト指示。「エージェントが自動昇格する経路は作らない」「無応答を承認と
+    みなすこと禁止」の安全文言は維持（明示応答の列挙に「GitHub 上での PR マージ」を追加）
+  - **承認チャネルのモード連動**: interactive=プロンプト指示 / relaxed・unattended=PR を作って待つ
+  - **PR マージ後の後始末**: 確定トリガー（ブートシーケンス or reconcile check で PR 番号
+    注記行を見たら `gh pr view` で MERGED 確認）、squash 由来の `merged_hint=no` 恒常の
+    既知制約明記、origin ブランチが GitHub 側で削除済みでも clean --delete は Worktrees.md
+    「昇格済み」突合でローカル残骸を消せること（実装確認済み: origin 不在は削除対象外に
+    なるだけで、どこにも実体が無ければ NOTE 報告）
+  - **部分昇格と持ち越し**: 通った分だけ昇格・残りは持ち越し。本流昇格で「要再検証」→
+    次サイクルで新 main に rebase → `push --force-with-lease` → Stage 1 再検証
+    （open PR は同じ PR が更新される）
+  - **Pending 状態の新設**: スロット非占有（スロット実体= speculative worktree 数、
+    speculate-guard の計上を実装確認）・worktree 削除可（ブランチと PR は残す）・
+    在庫上限5本・6本以上で Dashboard / Questions から整理提案。状態一覧に追加し、
+    「上限で待機」（開始前キュー）との意味の違いを明記
+  - **深化ブランチ**: 命名 `speculative/<concept>--deep-<sub>`・親起点の worktree 起動・
+    判断ガイド3点・運命連帯（親放棄→共倒れ・親昇格→rebase 繰り上がり）・制約
+    （通常スロット1消費・2世代まで・Worktrees.md 親子記録・親 PR に深化注記）。
+    手順2（選定）と手順5（記録）にも参照を追加
+- `docs/guides/speculative-development.md` — ライフサイクル図を分岐付きに更新
+  （オーナー承認3形態・要再検証・Pending・放棄・深化の分岐と繰り上がりを1枚に）。
+  「発展的な運用（上流で設計中）」を「実装済みの概観」に置き換え（詳細はスキル本文参照の
+  構成を維持。投機適性=Plan 0038 のみ設計中として残置）。昇格定義に PR 経路でも
+  head は speculative であり integration から PR を作らない旨を追記
+- **残り**: フェーズC=項目3-3（誤完了 lint 新設＋ドリフト注入 TDD）
 
 > 出典: 2026-07-05 オーナーフィードバック（PR #21 のレビュー体験から）。
 > 「PR 本文に紐づく計画ファイルをリンクする作法を addf-dev / addf-speculate の標準にする。
@@ -184,21 +217,28 @@ N 本の投機のうち通った分だけ先に本流へ入れ、残りは次サ
 - **addf-init のテンプレート個別列挙は lint 保護なし**: lint ペア5 はディレクトリ単位マッチのため、
   例示列挙（PlanTemplate.md 等）の更新漏れは検出されない（attacker 実測）。飾りである旨を
   認識した上で、列挙を廃してディレクトリ表記のみにするか、lint を列挙単位に強化するか検討する
+- **投機運用の手動箇所は機械化未対応**（フェーズB レビューからの申し送り。2026-07-05）:
+  Pending 在庫上限5のカウント・深化の運命連帯カスケード（親放棄→子の行も放棄に更新）・
+  `--deep-` 命名による親子判別は、**現状すべてエージェントの手動運用**であり、
+  speculate-reconcile.py 等のスクリプトは Worktrees.md のこれらの意味論を parse しない。
+  機械化（reconcile check への親子関係出力・Pending 集計の追加等）はフェーズC または
+  Plan 0038（投機適性）で検討する
 
 ## 完了条件
 
 - [x] PR 本文フォーマット規約を単一ソースに記述し、addf-dev / addf-speculate から参照
-- [ ] addf-speculate 昇格手順に PR 経路を追記（自動昇格禁止の文言は維持）
-- [ ] 昇格の定義（speculative/<concept> → main。integration は経路外）とライフサイクル図を
-      guides に明記（Plan 0028 フェーズ3-4 の投機運用ガイドと統合。実装順の依存:
-      0028 3-4 を先に実施するか、本 Plan で guides 追記ごと引き取るかを着手時に決める）
-- [ ] 部分昇格＋持ち越し運用を addf-speculate に追記（要再検証→rebase＋force-with-lease、
+- [x] addf-speculate 昇格手順に PR 経路を追記（自動昇格禁止の文言は維持）
+- [x] 昇格の定義（speculative/<concept> → main。integration は経路外）とライフサイクル図を
+      guides に明記（Plan 0028 フェーズ3-4 で追記済みの投機運用ガイドに統合）
+- [x] 部分昇格＋持ち越し運用を addf-speculate に追記（要再検証→rebase＋force-with-lease、
       Pending 状態の新設・スロット非占有・在庫上限5・6本以上でオーナーへ整理提案）
-- [ ] 昇格承認チャネルのモード連動（GitHub マージ / プロンプト指示マージ）を明記
-- [ ] 深化ブランチ（親子命名・判断ガイド・運命連帯・2世代目安・Worktrees.md 親子記録・
+- [x] 昇格承認チャネルのモード連動（GitHub マージ / プロンプト指示マージ）を明記
+- [x] 深化ブランチ（親子命名・判断ガイド・運命連帯・2世代目安・Worktrees.md 親子記録・
       親 PR への注記）を addf-speculate と guides に追記
-- [ ] PR マージ後の後始末（Worktrees.md 更新・clean 突合）の整合を確認
-      （Pending の worktree 削除と clean の突合も含む）
+- [x] PR マージ後の後始末（Worktrees.md 更新・clean 突合）の整合を確認
+      （Pending の worktree 削除と clean の突合も含む — speculate-reconcile.py の実装と突合済み:
+      origin 不在時は削除対象外になるだけでローカル残骸は消える・--prune-worktrees は
+      dirty 保護つき・スロット計上は speculative worktree 数）
 - [x] PR 本文フォーマットに「計画の進捗位置」欄（担当フェーズ＋残フェーズ）を必須項目として組み込む
 - [x] Plan 相互リンク規約（「関連 Plan」セクション・双方向原則）を PlanTemplate と guides に明記
 - [ ] 完了条件チェックボックス未完 × 実装状況ヘッダ「完了」の矛盾を検出する lint を新設

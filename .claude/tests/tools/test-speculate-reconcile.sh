@@ -294,6 +294,16 @@ out="$(run_reconcile clean --today $FUTURE)"; code=$?
 check "未来日付の --today は exit 1" 1 "$code" "$out" "未来日付は指定できない"
 assert "未来日付注入で当日 integration が消えていない" test -n "$(g branch --list integration/loop-$TODAY)"
 
+echo "Test 18: clean --delete — 「Pending」は状態として認識され、削除対象外の ERROR になる"
+make_feature p p.txt
+write_worktrees_md "speculative/p Pending"
+out="$(run_reconcile clean --today $TODAY --delete speculative/p)"; code=$?
+check "Pending は削除不可の ERROR（exit 1）" 1 "$code" "$out" "状態「Pending」"
+check "削除できる状態の案内が出る" 1 "$code" "$out" "削除できるのは「昇格済み」「放棄」のみ"
+check_absent "状態「不明」ではない（Pending が語彙として認識される）" "$out" "状態「不明」"
+check_absent "削除が実行されていない" "$out" "removed=branch:speculative/p"
+assert "Pending の p はローカルに残っている" test -n "$(g branch --list speculative/p)"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]
