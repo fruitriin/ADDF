@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: v0.5.0 リリース準備完了（0028 全完了・0029 L1 解消。リリース実行はオーナー確認待ち）。次は 0035→0036→0038→0037 の順で実装。0033 は項目4、0026 はオーナー指示待ち。未着手 0030〜0032、0029 フェーズ2以降
+## 現在のフェーズ: v0.5.0 リリース済み・Issue #18/#19/#20 返信済み（2026-07-05）。次は 0035→0036→0038→0037 の順で実装。0033 は項目4、0026 はオーナー指示待ち。未着手 0030〜0032、0029 フェーズ2以降
 
 ## バックログ
 
@@ -42,7 +42,7 @@
 | 6 | 31 | `docs/plans-add/0031-binary-verification.md` | 未着手 |
 | 7 | 32 | `docs/plans-add/0032-knowhow-freshness-audit.md` | 未着手 |
 | 4 | 33 | `docs/plans-add/0033-downstream-reported-fixes.md` | 一部完了（項目1〜3 完了。項目4=PlanTemplate 残り） |
-| 5 | 34 | `docs/plans-add/0034-downstream-feedback-fixes.md` | 完了（Issue 返信のみオーナー承認待ち） |
+| 5 | 34 | `docs/plans-add/0034-downstream-feedback-fixes.md` | 完了 |
 | 3 | 35 | `docs/plans-add/0035-pr-standard-format.md` | 未着手（オーナー起案 2026-07-05。PR 本文 Plan リンク標準・昇格の PR 経路・誤完了防止） |
 | 3 | 36 | `docs/plans-add/0036-plan-audit-skill.md` | 未着手（オーナー起案 2026-07-05。/addf-plan-audit スキル・migrate ワンショット統合） |
 | 4 | 37 | `docs/plans-add/0037-addf-directory-consolidation.md` | 未着手（オーナー起案 2026-07-05。docs 明け渡し・.claude/addf/ 集約。0035/0036/0038 消化後に着手推奨・メジャーリリース級・one-shot 実施） |
