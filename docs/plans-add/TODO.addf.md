@@ -45,6 +45,7 @@
 | 5 | 34 | `docs/plans-add/0034-downstream-feedback-fixes.md` | 完了（Issue 返信のみオーナー承認待ち） |
 | 3 | 35 | `docs/plans-add/0035-pr-standard-format.md` | 未着手（オーナー起案 2026-07-05。PR 本文 Plan リンク標準・昇格の PR 経路・誤完了防止） |
 | 3 | 36 | `docs/plans-add/0036-plan-audit-skill.md` | 未着手（オーナー起案 2026-07-05。/addf-plan-audit スキル・migrate ワンショット統合） |
+| 4 | 37 | `docs/plans-add/0037-addf-directory-consolidation.md` | 未着手（オーナー起案 2026-07-05。docs 明け渡し・.claude/addf/ 集約。0035/0036 消化後に着手推奨・メジャーリリース級） |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
