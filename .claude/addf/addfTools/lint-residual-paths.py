@@ -18,7 +18,10 @@ WARNING で検出する（マップの old が docs/ で始まるディレクト
 git 追跡ファイルが再出現したケース）。
 
 検査から除外するファイルは paths.toml の [rewrite_exclusions].files（マップ定義・
-移行ロジック・テストの合成フィクスチャとして旧パス文字列を正当に含むもの）。
+移行ロジック・テストの合成フィクスチャとして旧パス文字列が本質的に大量にある
+道具・テストのみ）。移行手順書・移行ガイド等のドキュメントはファイル除外しない —
+正当な旧パス言及行に行内マーカー `residual-path: allow` を付けて行単位で除外する
+（ファイル丸ごと除外はそのファイル全体が本 lint の永久盲点になるため）。
 
 走査対象は migrate-paths.py の check / rewrite と一致させる（check「0箇所」なのに
 lint で初めて ERROR になる不一致を作らない）: 全 git 追跡ファイルのうちテキストの
@@ -51,6 +54,10 @@ MAP_CANDIDATES = [
     '.claude/addf/addfTools/paths.toml',
     '.claude/addfTools/paths.toml',
 ]
+
+# 行単位の除外マーカー（コメント形式は問わない — 行内一致で判定。
+# 同期契約: migrate-paths.py の EXCLUSION_MARKER と同一に保つ）
+EXCLUSION_MARKER = 'residual-path: allow'
 
 
 def compile_pattern(old):
@@ -128,6 +135,8 @@ for path in files:
     if text is None:
         continue  # symlink・バイナリ等は対象外
     for lineno, line in enumerate(text.splitlines(), 1):
+        if EXCLUSION_MARKER in line:
+            continue  # 行単位マーカー（正当な旧パス言及行）は検査しない
         remaining = line
         for pattern, old in patterns:
             if pattern.search(remaining):

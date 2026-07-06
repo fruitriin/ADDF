@@ -193,10 +193,17 @@ paths = [
 
 # ------------------------------------------------------------
 # 自己参照の除外（rewrite が書き換えず、lint-residual-paths が検査から除外する
-# ファイル。マップ定義・移行ロジック・テストの合成フィクスチャ・移行手順書
-# （addf-migrate Phase 2.5 / addf-init の旧位置フォールバック記述）・移行ガイド
-# （CHANGELOG [0.6.0]）として旧パス文字列を正当に含む — rewrite で書き換えると
-# 移行案内そのものが壊れる）。移行前後の両方の位置を列挙する
+# ファイル）。**道具・テストのみ**に限定する — マップ定義・MAP_CANDIDATES・
+# テストの合成フィクスチャとして旧パス文字列が本質的に大量にあり、行単位
+# マーカーでは本文が成立しないため。移行前後の両方の位置を列挙する。
+#
+# ドキュメント（addf-migrate.md / addf-init.md / CHANGELOG.md）はここに
+# 入れない: ファイル丸ごとの除外はそのファイル全体が lint-residual-paths の
+# 永久盲点になる（旧パスのドリフトを注入しても OK が返る — Plan 0037
+# フェーズ3 attacker 指摘で実証）。ドキュメントの正当な旧パス言及行
+# （移行手順・移行ガイド・対応表）には行内マーカー `residual-path: allow` を
+# 付ける（コメント形式は問わない — 行内一致。migrate-paths.py /
+# lint-residual-paths.py の EXCLUSION_MARKER 参照）
 # ------------------------------------------------------------
 
 [rewrite_exclusions]
@@ -209,8 +216,4 @@ files = [
   ".claude/addf/addfTools/lint-residual-paths.py",
   ".claude/tests/tools/test-migrate-paths.sh",
   ".claude/addf/tests/tools/test-migrate-paths.sh",
-  ".claude/ADDF-CHANGELOG.md",
-  ".claude/addf/CHANGELOG.md",
-  ".claude/commands/addf-migrate.md",
-  ".claude/commands/addf-init.md",
 ]

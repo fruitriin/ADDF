@@ -10,6 +10,8 @@
 # - 存在≠所有（Pages コンテンツ・マップ外パスに触れない）
 # - 境界チェック（docs/plans-add / docs/plans-addendum への誤マッチ防止）
 # - ドリフト注入 TDD（旧パス書き戻しの ERROR 検出）
+# - 行単位マーカー residual-path: allow（マーカー行は check/rewrite/lint がスキップし、
+#   マーカーなし行はドキュメント内でも検出する — ファイル丸ごと除外の盲点防止）
 # - dirty 拒否・実行位置（リポジトリルート）検証・apply 前 rewrite の拒否
 # - backup ref の上書き拒否・空ディレクトリ衝突の許容・非空衝突の回復案内
 # - symlink 越しのリポジトリ外書き込み防止（悪意ある symlink を注入して検証）
@@ -265,6 +267,32 @@ out="$(runpy "$box" "$LINT")"; code=$?
 check "残存を ERROR 検出（exit 1）" 1 "$code" "$out" 'drift.md:1: 旧パス `docs/plans` が残存'
 check "部分適用の可能性の注記を出す" 1 "$code" "$out" "apply/rewrite が未完了の可能性"
 git_box rm -qf drift.md
+
+echo "Test 12.5: 行単位マーカー（residual-path: allow）— マーカー行は check/rewrite/lint がスキップし、マーカーなし行は（ドキュメント内でも）検出する"
+cat > "$box/migration-doc.md" <<'EOF'
+移行手順の説明: 道具を旧位置 docs/plans に置く例 <!-- residual-path: allow -->
+uv run .claude/addfTools/migrate-paths.py check  # residual-path: allow
+マーカーなしの旧パス言及: docs/plans/0001-sample.md
+EOF
+git_box add migration-doc.md
+git_box commit -q -m "add migration-doc"
+out="$(runpy "$box" "$LINT")"; code=$?
+check "マーカーなし行（3行目）を ERROR 検出" 1 "$code" "$out" 'migration-doc.md:3'
+if grep -qE 'migration-doc\.md:(1|2):' <<<"$out"; then
+  echo "  FAIL: マーカー付き行（1〜2行目）を検出しない"
+  FAIL=$((FAIL + 1))
+else
+  echo "  PASS: マーカー付き行（1〜2行目）を検出しない"
+  PASS=$((PASS + 1))
+fi
+out="$(runpy "$box" ".claude/addf/addfTools/migrate-paths.py" rewrite)"; code=$?
+check "マーカー混在ファイルの rewrite が exit 0" 0 "$code" "$out" "書き換えました"
+expect "マーカー行は書き換えない（旧パスのまま）" grep -q '旧位置 docs/plans に置く例' "$box/migration-doc.md"
+expect "マーカーなし行は書き換わる" grep -q '.claude/addf/plans/0001-sample.md' "$box/migration-doc.md"
+git_box add -A
+git_box commit -q -m "rewrite migration-doc"
+git_box rm -qf migration-doc.md
+git_box commit -q -m "cleanup migration-doc"
 
 echo "Test 13: 境界: docs/plans-addendum への言及は残存として誤検出しない"
 printf 'ユーザーパス: docs/plans-addendum/readme.md\n' > "$box/user-note.md"

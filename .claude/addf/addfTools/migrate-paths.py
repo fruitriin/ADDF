@@ -35,6 +35,8 @@
   拡張子なしスクリプトも対象に入る）。**symlink は除外する** — git は symlink を
   blob として追跡するため、open() で辿るとリンク先（リポジトリ外でもよい）を
   読み書きしてしまう（リポジトリ外書き込みの攻撃経路になる）。
+  行内に EXCLUSION_MARKER（residual-path: allow）を含む行は集計・書き換え・
+  検査の全てでスキップする（移行手順書等の正当な旧パス言及行の行単位除外）。
 
 境界チェック:
   `docs/plans` の置換が `docs/plans-add` に誤マッチしない等のため、長いキーから
@@ -68,6 +70,16 @@ MAP_CANDIDATES = [
     '.claude/addf/addfTools/paths.toml',
     '.claude/addfTools/paths.toml',
 ]
+
+# 行単位の除外マーカー。この文字列を行内に含む行は check の参照集計・rewrite の
+# 書き換え・射程外候補スキャン・lint-residual-paths.py の検査の全てでスキップされる
+# （コメント形式は問わない — `<!-- residual-path: allow -->` でも
+# `# residual-path: allow` でも行内一致で判定する）。
+# 移行手順書・移行ガイド（addf-migrate.md / addf-init.md / CHANGELOG.md）が正当に
+# 含む旧パス言及行に付ける。ファイル丸ごとの除外（rewrite_exclusions）は
+# そのファイル全体が lint の永久盲点になるため、ドキュメントには使わない
+# （同期契約: lint-residual-paths.py の EXCLUSION_MARKER と同一に保つ）
+EXCLUSION_MARKER = 'residual-path: allow'
 
 # check のマッチ例表示の上限（旧パスごと）と1行の最大表示幅
 SAMPLE_LIMIT = 3
@@ -238,6 +250,8 @@ def scan_references(cfg):
     stats = {old: {'files': set(), 'count': 0, 'samples': []} for _, old, _ in reps}
     for path, text in scan_targets(cfg):
         for lineno, line in enumerate(text.splitlines(), 1):
+            if EXCLUSION_MARKER in line:
+                continue  # 行単位マーカー（正当な旧パス言及行）はスキップ
             remaining = line
             for pattern, old, _ in reps:
                 n = len(pattern.findall(remaining))
@@ -317,6 +331,8 @@ def oos_scan_relative_hierarchy(move_files):
         if text is None:
             continue
         for lineno, line in enumerate(text.splitlines(), 1):
+            if EXCLUSION_MARKER in line:
+                continue
             if any(p.search(line) for p in OOS_REL_HIERARCHY_PATTERNS):
                 hits.append((path, lineno, line.strip()))
     return hits
@@ -334,6 +350,8 @@ def oos_scan_split_fragments(cfg):
     hits = []
     for path, text in scan_targets(cfg):
         for lineno, line in enumerate(text.splitlines(), 1):
+            if EXCLUSION_MARKER in line:
+                continue
             if (joiner.search(line) and quoted.search(line)) or concat.search(line):
                 hits.append((path, lineno, line.strip()))
     return hits
@@ -354,6 +372,8 @@ def oos_scan_md_relative_links(move_files):
         if text is None:
             continue
         for lineno, line in enumerate(text.splitlines(), 1):
+            if EXCLUSION_MARKER in line:
+                continue
             if pat.search(line):
                 hits.append((path, lineno, line.strip()))
     return hits
@@ -510,14 +530,20 @@ def mode_rewrite(cfg, map_path):
     changed_files = 0
     total = 0
     for path, text in scan_targets(cfg):
-        new_text = text
+        # 行単位マーカー（EXCLUSION_MARKER）行を書き換えから外すため行ごとに処理する
+        # （keepends=True の join は原文を完全復元する — 改行コードを壊さない）
+        lines = text.splitlines(keepends=True)
         n_file = 0
-        for pattern, old, new in reps:
-            new_text, n = pattern.subn(new, new_text)
-            n_file += n
+        for i, line in enumerate(lines):
+            if EXCLUSION_MARKER in line:
+                continue
+            for pattern, old, new in reps:
+                line, n = pattern.subn(new, line)
+                n_file += n
+            lines[i] = line
         if n_file:
             with open(path, 'w', encoding='utf-8') as f:
-                f.write(new_text)
+                f.write(''.join(lines))
             changed_files += 1
             total += n_file
     tools_dir = migrated_tool_dir(cfg)
