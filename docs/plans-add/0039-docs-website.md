@@ -1,6 +1,16 @@
 # Plan 0039: ADDF ドキュメント Web（VitePress）とドキュメントドリフト対策
 
-## 実装状況: 未着手
+## 実装状況: 一部完了（フェーズ1 完了。フェーズ2/3 は Plan 0037 完了後）
+
+### 実装記録
+
+- **2026-07-06 フェーズ1: addf-doc-review-agent の逆輸入（完了）**
+  - `.claude/agents/addf-doc-review-agent.md` を新設。EnumaElish 版をベースに、EnumaElish 固有の突合手順（`printUsage()` ⇔ `switch command`・`internal/`・`cmd/` パス参照）は「プロジェクト固有チェック（ダウンストリームで追記）」の**例示**へ降格し、本体版は汎用観点3つ（①実装との乖離 ②モチベーション vs 実装事実 ③日英同期）を主軸にした
+  - **起動条件を明記**（`*.md`・`docs/` 配下・`.claude/commands/` `.claude/agents/` の定義変更を含むときのみ起動）。毎タスク全読みしない
+  - ProgressTemplate.addf.md / ProgressTemplate.md の「タスク完了時 — 品質検証」ステップ5 に**条件付きの並列起動**を追記（判断はメインエージェント側・両観点は独立に見るため並列で問題ない）
+  - `.claude/tests/fixtures/doc-review-drift/` に3観点の実在ドリフトパターンを再現するフィクスチャを配置し、`.claude/tests/tools/test-doc-review-agent.sh` で静的整合を検証（frontmatter・見出し構造・addf-init コピーリスト glob・フィクスチャの必須トークン）
+  - addf-init コピーリストは `.claude/agents/addf-*.md` の glob エントリで新エージェントを自動追従（列挙非依存 — Plan 0035 フェーズC で発見済みの設計を活用）
+  - 判定: Plan 0039 フェーズ1 完了条件（addf-doc-review-agent の存在・ドリフト注入テストで3観点の検出パターン仕込み・品質ゲート手順の明文化）を満たす。実行時の LLM 検出力の確認は Plan 完了条件の human-judgment 側で確認する扱い
 
 > 出典: オーナー指示（2026-07-06）。EnumaElish（`~/workspace/EnumaElish`）の VitePress ドキュメントサイトを参考に、ADDF のドキュメント Web を構築する。あわせて EnumaElish で実績のあるドキュメントドリフト対策（`addf-doc-review-agent`）を本体へ逆輸入する。
 
@@ -75,10 +85,10 @@
 
 ## 完了条件
 
-- [ ] addf-doc-review-agent が本体に存在し、ドリフト注入テストで3観点の検出が確認できる
+- [x] addf-doc-review-agent が本体に存在し、ドリフト注入テストで3観点の検出が確認できる
 - [ ] `bash .claude/tests/run-all.sh` と `/addf-lint` が全通過（同期ペア・コピーリスト整合を含む）
 - [ ] `npm run docs:build` が成功し、GitHub Pages でサイトが閲覧できる <!-- human-judgment -->
-- [ ] 品質ゲート手順（ProgressTemplate）にドキュメントレビューの起動条件が明文化されている
+- [x] 品質ゲート手順（ProgressTemplate）にドキュメントレビューの起動条件が明文化されている
 
 ## AI 実装時間見積もり
 

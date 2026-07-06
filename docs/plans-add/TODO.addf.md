@@ -47,7 +47,7 @@
 | 3 | 36 | `docs/plans-add/0036-plan-audit-skill.md` | 完了（2026-07-05。/addf-plan-audit 新設・migrate ワンショット統合。ドッグフーディング検出10件は処置提案としてオーナー判断待ち） |
 | 4 | 37 | `docs/plans-add/0037-addf-directory-consolidation.md` | 未着手（オーナー起案 2026-07-05。docs 明け渡し・.claude/addf/ 集約。0035/0036/0038 消化後に着手推奨・メジャーリリース級・one-shot 実施） |
 | 3 | 38 | `docs/plans-add/0038-speculation-fitness.md` | 完了（2026-07-05。投機適性3区分・Plan 化フォールバック・one-shot 定義の guides 単一ソース化・窓検出（手順 1.8）・reconcile check に pending_count 追加） |
-| 5 | 39 | `docs/plans-add/0039-docs-website.md` | 未着手（オーナー起案 2026-07-06。VitePress ドキュメント Web ＋ addf-doc-review-agent 逆輸入。フェーズ1は独立先行可、フェーズ2以降は 0037 完了後） |
+| 5 | 39 | `docs/plans-add/0039-docs-website.md` | 一部完了（フェーズ1=addf-doc-review-agent 逆輸入 完了 2026-07-06。フェーズ2/3 は Plan 0037 完了後） |
 | 5 | 40 | `docs/plans-add/0040-ccchain-optin.md` | 未着手（オーナー起案 2026-07-06。EnumaElish/ccchain のオプトイン統合・本体ドッグフーディング） |
 | 4 | 41 | `docs/plans-add/0041-context-exhaustion-loop-wall.md` | 未着手（オーナー起案 2026-07-06。コンテキスト枯渇によるループ自主停止の壁の突破。フェーズ1〜2は独立先行可、フェーズ3=世代交代は要オーナー確認） |
 
