@@ -41,9 +41,13 @@ CLAUDE.md（汎用テンプレート）
 かつて turn-reminder.sh は「ターン数からコンテキスト残量を推測して断言する」問題を抱えていた。Plan 0023 で2つの関心事に分離:
 
 - **関心事A（ターン数ベース・turn-reminder.sh）**: 10/15ターンで知見の定期棚卸し（/addf-knowhow・日記）を促す。コンテキスト残量には言及しない（根拠なく状態を断言しない）
-- **関心事B（実測トークンベース・context-reminder.py）**: hook JSON の transcript_path から直近 assistant メッセージの usage（input + cache_read + cache_creation、isSidechain 除外）を実測し、閾値超過時のみ「観測事実 + モデル別の実効コンテキスト目安」を注入する。判断はモデル自身に委ねる（200k/1M variant は transcript から判別不可のため）
+- **関心事B（実測トークンベース・context-reminder.py）**: hook JSON の transcript_path から直近 assistant メッセージの usage（input + cache_read + cache_creation、isSidechain 除外）を実測し、閾値超過時のみ「観測事実 + モデル別の実効コンテキスト目安」を注入する。判断はモデル自身に委ねる（200k/1M variant は transcript から判別不可のため）。注入文言は Plan 0041 の**止まらない教義**で締める — 知見記録・日記が済んでいるならそのまま作業を続行してよい。compaction を起こすのは harness の仕事であり、復帰フックと日記が受け止める。エージェントの仕事は止まらないこと
 
 context-reminder.py の設計原則: フックの仕事は事実の注入のみ / usage が取得できない状況は静かに終了（誤発火より無発火が安全）/ 前回通知値を `.context-reminder-state` に保持し、`renotify_step_tokens` 増えるまで再通知しない / 実測値が下がったら（コンパクション後）状態リセット。設定は addf-Behavior.toml の `[context-reminder]`（threshold_tokens = 180000、0 で無効化）と `[context-reminder.effective-context]`（モデル名の単語単位部分一致 → 実効コンテキスト目安）。
+
+### 止まらない教義（コンテキスト枯渇の壁）— Plan 0041
+
+/loop 自走がコンテキスト残量を理由に自主停止する壁への対処。auto-compact の発動点はフェーズ2で実測され（知見: .claude/addf/knowhow/ADDF/context-and-transcript.md — トランスクリプト汚染・自己強化劣化の知見も同記事）、「compaction は harness が受け止める前提で止まらない」ことと「残量少時は復帰容易性の高いタスクを選び、one-shot 級には着手しない」タスク運びが Progress 運用ルール 3.5（→ system-planning）と context-reminder の注入文言に配線された。post-compact-recovery.sh（compaction 後のブートシーケンス再実行注入）と代替わり日記が受け皿になる。
 
 ### フックの堅牢性
 
@@ -78,7 +82,8 @@ CLAUDE.md ブートシーケンス
   │  ├─ 関心事A: ターン10/15 → 知見棚卸しリマインダー
   │  └─ 関心事B: context-reminder.py へ中継
   │     └─ 実測 180k トークン超過 → 「コンパクション前に知見記録と
-  │        日記更新を済ませよ」と注入（作業縮小の指示ではない）
+  │        日記更新を済ませよ。済んでいるなら止まらず続行してよい」と注入
+  │        （作業縮小・停止の指示ではない — 止まらない教義）
   │
   └─ skill-usage-log.sh → スキル使用ログ（PreToolUse: Skill）
 ```

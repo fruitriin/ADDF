@@ -10,13 +10,18 @@
 | エージェント | addf-code-review-agent | コード品質・可読性・ベストプラクティスのレビュー（Sonnet）。5ペルソナの視点ずらしレビュー・全体監査モード対応 |
 | エージェント | addf-security-review-agent | ペネトレーションテスター人格で脆弱性検出・修正案提示（Sonnet。実装はしない） |
 | エージェント | addf-contribution-agent | ADDF / プロジェクト固有コードの識別、分離パターン違反検出、アップストリーム貢献候補検出（Sonnet） |
-| スキル | addf-lint | フレームワーク整合性チェック（11項目: JSON構文・hooks実行権限・frontmatter・Behavior.toml・INDEX整合・テンプレート同期・knowhow鮮度・knowhow双方向リンク・チェックリスト裏付け・オプショナルスキル同期・hooks配線） |
-| テスト | .claude/addf/tests/run-all.sh | フレームワーク自動テスト（フック3本・ツール11本。スキルシナリオ8本は手動）。非 macOS ではバイナリ実行テストを SKIP。ランタイム不在を SKIP=成功として扱わない（silent 無効化の禁止） |
+| エージェント | addf-doc-review-agent | ドキュメントドリフト（実装との乖離）とモチベーション/実装事実の混同を検出（Sonnet。Plan 0039 フェーズ1で EnumaElish から逆輸入・汎用化）。**ドキュメントに触れた変更のときのみ起動**（起動判定はメインエージェント側） |
+| スキル | addf-lint | フレームワーク整合性チェック（12項目: JSON構文・hooks実行権限・frontmatter・Behavior.toml・INDEX整合・テンプレート同期・knowhow鮮度・knowhow双方向リンク・チェックリスト裏付け・オプショナルスキル同期・hooks配線・Plan状態整合） |
+| テスト | .claude/addf/tests/run-all.sh | フレームワーク自動テスト（フック3本・ツール16本。スキルシナリオ8本は手動）。非 macOS ではバイナリ実行テストを SKIP。ランタイム不在を SKIP=成功として扱わない（silent 無効化の禁止） |
+| CI | .github/workflows/test.yml + .github/scripts/run-lint.sh | GitHub Actions 品質ゲート（Plan 0030）。PR / main push ごとに run-all.sh と lint 一式を自動実行。lint の3値 exit を run-lint.sh がマッピング（1=ジョブ失敗 / 2=通過+warning annotation）。ADDF 本体固有（配布対象外・ダウンストリームの雛形） |
 | ツール | .claude/addf/addfTools/lint-json.py / lint-frontmatter.py / lint-toml.py | 構文 Lint スクリプト（uv run --python 3.11 で実行。uv が無ければ python3 直接実行） |
 | ツール | .claude/addf/addfTools/lint-hooks-exec.py | hooks の実行権限検査（実行権限のないフックは settings 登録済みでも静かに失敗する問題の防止） |
 | ツール | .claude/addf/addfTools/lint-hooks-wiring.py | hooks ファイル名と settings.json / settings.local.json の配線突合（`# hooks-wiring: indirect` エスケープハッチあり） |
 | ツール | .claude/addf/addfTools/lint-template-sync.py | テンプレート同期チェック（6ペア）。exit 0=全一致 / 1=ERROR / 2=WARNING のみ |
 | ツール | .claude/addf/addfTools/lint-checklist.py | 手順書の「確認/検証」ステップの裏付け検査（実行チェック or human-judgment マーカー。WARNING のみ） |
+| ツール | .claude/addf/addfTools/lint-plan-status.py | Plan の `## 実装状況:` ヘッダ「完了」×完了条件の未チェック `- [ ]` 残存の矛盾検出（誤完了防止・Plan 0035 フェーズC。addf-lint セクション12） |
+| ツール | .claude/addf/addfTools/lint-residual-paths.py | 旧パス残存の検査（Plan 0037 移行完了ゲート＋docs/ 逆流 WARNING。→ system-distribution と共有） |
+| ツール | .claude/addf/addfTools/verify-checksums.sh | 配布バイナリの SHA-256 照合＋allowlist ガード（Plan 0031。→ system-visual-testing と共有。repo_kind 判定は lint-template-sync の detect_repo_kind() と同期契約 — ペア7が契約文言を機械検査） |
 | ツール | .claude/addf/addfTools/sync-optional-skills.py（check モード） | オプトインスキルの同期検査（孤児コピー・enable の型。→ system-distribution / system-visual-testing と共有） |
 
 ## 設計思想
@@ -45,9 +50,13 @@ ADDF の第三の柱。「人間がレビューするのは計画の方向性、
 | maintainer | 半年後の変更容易性・依存の罠・テストの抜け |
 | domain-skeptic | Plan と実装の乖離・要件の読み違え |
 
-発動条件: 通常タスクは単体（ペルソナなし）。マイルストーン・リリース直前・unattended 自走時は3体並列、`mode: critical` 宣言時は5体並列。**投機サイクルの Stage 2（integration 一括レビュー）も3体並列**（→ system-speculation）。集約ルール: 同一箇所・同一原因は1件にまとめてペルソナを列挙し、**2ペルソナ以上が独立に指摘した項目は重要度を1段上げる**（コンセンサス補正）。
+発動条件: 通常タスクは単体（ペルソナなし）。マイルストーン・リリース直前・unattended 自走時は3体並列、`mode: critical` 宣言時は5体並列。**投機サイクルの Stage 2（integration 一括レビュー）も3体並列**（→ system-speculation）。集約ルール: 同一箇所・同一原因は1件にまとめてペルソナを列挙し、**2ペルソナ以上が独立に指摘した項目は重要度を1段上げる**（コンセンサス補正）。one-shot 級の大改造（Plan 0037 実績）では、巻き戻し困難な適用**前**にレビューを打ち、attacker には手順書どおりの実地リハーサルをさせる「実地リハーサル型レビュー」が有効（.claude/addf/knowhow/ADDF/persona-review-oneshot.md）。
 
-### テンプレート同期 lint — Plan 0021/0022/0024
+### ドキュメントレビュー（addf-doc-review-agent）— Plan 0039 フェーズ1
+
+コードレビューが見ないもの — README・ガイド・スキル定義と実装の乖離 — を専任で見る。観点は (1) ドキュメントドリフト（「未実装」注記の実装済み化・廃止機能の残存・新機能の記載漏れ）、(2) モチベーション（なぜ）と実装事実（何ができるか）の混同。毎タスク起動はコスト過剰なため、`git diff` に `*.md`・docs/ 配下・スキル/エージェント定義の変更が含まれるときのみ起動する。コードレビューとは変更差分の別観点を見るため**並列起動でよい**（集約は起動側）。テストフィクスチャ（.claude/addf/tests/fixtures/doc-review-drift/）でドリフト検出能力自体も検証される。
+
+### テンプレート同期 lint — Plan 0021/0022/0024（＋ペア7 = Plan 0031）
 
 「意思で覚えず機械化する」。同期ファイルペアのドリフトを決定的スクリプトで検出し、解釈と修復はエージェントが行う:
 
@@ -59,12 +68,21 @@ ADDF の第三の柱。「人間がレビューするのは計画の方向性、
 | 4. CLAUDE.md ⇔ .claude/addf/guides/development-process.md | ブートシーケンス概要の手順番号 | WARNING |
 | 5. CLAUDE.md ⇔ addf-init.md コピーリスト | 参照ファイルのカバレッジ（.gitignore ADDF ブロック含む） | WARNING |
 | 6. TODO ⇔ Plan の `## 実装状況:` ヘッダ | 状態の矛盾・参照切れ・登録漏れ・表記ゆれヘッダ検出 | WARNING |
+| 7. verify-checksums.sh ⇔ lint-template-sync.py | `detect_repo_kind()` Python⇔Bash 実装の同期契約文言の存在チェック | WARNING |
 
 ペア2〜6はダウンストリームで対象ファイルが無ければ SKIP（欠如はドリフトではない — 配布時誤 ERROR の防止。ただし SKIP は明示出力して件数計上する — silent 無効化の禁止）。WARNING には git log の最終更新日ヒントが併記され、どちらを正とするかはエージェントが文脈で判断する。upstream/downstream の判定は**存在ではなく明示シグナル**（CLAUDE.repo.md の種別宣言＋addf-lock.json）で行う（Plan 0033。「存在≠所有」— 配布で *.addf.md が物理存在しうるため）。新たな同期ペアが生まれたら lint と addf-lint.md セクション6の表を同時更新する（Feedback.md 記録済み）。
 
 ### チェックリスト裏付け lint — Plan 0027
 
 手順書（ADDF-Release / addf-init / addf-migrate / ProgressTemplate 系）の「確認/検証」ステップに、実行チェック（コードブロック・コマンド）か `<!-- human-judgment -->` マーカーの裏付けを要求するメタ lint（lint-checklist.py・WARNING のみ）。チェックリストの theater 化（確認と書いてあるが確認する手段がない）を防ぐ。理由付きホワイトリスト（skip-section マーカー）を持ち、責めないトーンで報告する（.claude/addf/knowhow/ADDF/checklist-backing-lint.md）。
+
+### Plan 状態整合 lint（誤完了防止）— Plan 0035 フェーズC
+
+Plan の `## 実装状況:` ヘッダが「完了」なのに完了条件に未チェック `- [ ]` が残る矛盾（フェーズ分割 Plan の途中マージで「済み」に見える誤完了）を lint-plan-status.py が常時ブロックする。過去に埋没した意味的な取りこぼしの掘り起こしは /addf-plan-audit（一回きり＋任意の棚卸し）が補完する（→ system-planning）。
+
+### CI 品質ゲート — Plan 0030
+
+GitHub Actions（test.yml）が PR / main push ごとに run-all.sh と lint 一式を実行する。lint の3値 exit（0=OK / 1=ERROR / 2=WARNING）を run-lint.sh が CI セマンティクスへマッピングし、WARNING は落とさず `::warning::` annotation で可視化する。最小権限（contents: read）・concurrency で連続 push の旧実行をキャンセル。branch protection の要否はオーナー判断待ち。
 
 ### 実行環境ガードの3類型
 
@@ -90,7 +108,9 @@ Stage 2: 品質検証チーム（並列起動）
   │   （条件により3〜5ペルソナ並列） │  集約: コンセンサス補正
   ├─ addf-security-review-agent ─┤─ フィードバック集約
   ├─ addf-contribution-agent ───┤
+  ├─ addf-doc-review-agent ─────┤（ドキュメントに触れた変更のときのみ）
   └─ addf-ui-test-agent（GUI オプトイン有効時） ┘
+  ※ ADDF 本体では push/PR 時に CI（test.yml）が Stage 1 相当＋lint を再実行
   │
   ▼
 指摘対応
@@ -110,8 +130,8 @@ Stage 2: 品質検証チーム（並列起動）
 
 ## 関連するシステム
 
-- **計画駆動**: Progress.md の品質検証フローが品質ゲートを起動する。unattended モード（/addf-mode）がペルソナ並列の発動条件になる
+- **計画駆動**: Progress.md の品質検証フローが品質ゲートを起動する（doc-review の起動判定もここ）。unattended モード（/addf-mode）がペルソナ並列の発動条件になる。lint セクション12（誤完了防止）は /addf-plan-audit と役割分担する
 - **投機開発**: 投機の Stage 1 は feature worktree 単位で、Stage 2（ペルソナ並列）は integration ブランチで一括実行される。speculate ツールのテスト3本も run-all.sh に組み込み
 - **ノウハウ蓄積**: レビューで得た知見が knowhow に、差し戻しは .exp.md「分かれ道の目印」に蓄積される。addf-lint の項目5・7・8が knowhow の整合・鮮度・リンクを検査
 - **視覚テスト**: addf-ui-test-agent が Stage 2 に参加可能（オプトイン有効時）。addf-lint 項目10がオプトイン同期を検査
-- **配布・導入**: addf-lint と run-all.sh は配布物の品質保証でもある（SKIP 設計・明示シグナルによる種別判定はダウンストリーム配布前提の機構）
+- **配布・導入**: addf-lint と run-all.sh は配布物の品質保証でもある（SKIP 設計・明示シグナルによる種別判定はダウンストリーム配布前提の機構）。lint-residual-paths はディレクトリ大移行（Plan 0037）の完了ゲート、verify-checksums は配布バイナリの検証

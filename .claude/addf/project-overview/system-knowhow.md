@@ -14,7 +14,7 @@
 | スキル | addf-knowhow-network | 記事間を GFM リンクで相互接続し wiki 化。双方向リンク担保・📜 プレフィックス・INDEX ハブサマリ |
 | スキル | addf-experience | .exp.md ファイルの @メンション書式検証・修正 |
 | エージェント | addf-knowhow-agent | ブートシーケンス Step 5 で Plan に関連する knowhow を抽出（Haiku）。ライフサイクルフィルタ内蔵 |
-| ディレクトリ | .claude/addf/knowhow/ADDF/ | ADDF 由来ノウハウ（現在17件。投機開発・オプトインスキル・チェックリスト裏付け・計画詰めの知見が近況で追加） |
+| ディレクトリ | .claude/addf/knowhow/ADDF/ | ADDF 由来ノウハウ（現在21件。近況の追加: マップ駆動移行ツール設計 map-driven-migration-tool / one-shot 向け実地リハーサル型レビュー persona-review-oneshot / コンテキストとトランスクリプトの実測知見 context-and-transcript / ノウハウ陳腐化パターン knowhow-obsolescence-patterns） |
 | ファイル | .claude/addf/knowhow/INDEX.addf.md | ADDF 用ノウハウインデックス（鮮度タグ付き） |
 | ファイル | .claude/addf/knowhow/INDEX.md | ダウンストリーム用ノウハウインデックス |
 | ファイル | .claude/addf/knowhow/CLAUDE.md | 読み方の作法（タイトルで推測せず本文で判断する） |
@@ -36,7 +36,7 @@ ADDF の第二の柱。「同じ失敗を繰り返さない、同じ発見を再
 - 🟢 fresh: last_verified が60日以内 / 🟡 aging: 60〜180日 / 🔴 stale: 180日超・依存切れ・needs-review
 - status の語彙は `active` / `superseded`（後継に引き継がれた。`superseded_by:` 併記）/ `retired`（棚上げ。削除はしない）/ `needs-review`。**`deprecated` は使わない**（過去のエージェントの仕事への敬意）
 
-3スキルの分業: `reindex`（機械的な鮮度マーク）→ `revise`（意味的な再検証・訂正履歴）→ `network`（構造的な相互リンク wiki 化）。addf-knowhow-agent は superseded を後継に差し替え、stale には「📜 鮮度低下」を併記して返す。
+3スキルの分業: `reindex`（機械的な鮮度マーク）→ `revise`（意味的な再検証・訂正履歴）→ `network`（構造的な相互リンク wiki 化）。addf-knowhow-agent は superseded を後継に差し替え、stale には「📜 鮮度低下」を併記して返す。実運用実績: Plan 0032 の鮮度棚卸しで 🟡 7件を再検証し全件 🟢 復帰。陳腐化の典型パターンは knowhow-obsolescence-patterns.md に類型化されている。
 
 ### 分かれ道の目印 — Plan 0019
 
