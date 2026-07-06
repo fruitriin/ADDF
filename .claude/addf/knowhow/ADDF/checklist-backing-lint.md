@@ -3,7 +3,7 @@ title: チェックリスト裏付け lint — 手順書に「通り得ない確
 created: 2026-07-02
 last_verified: 2026-07-02
 depends_on:
-  - .claude/addf/tools/lint-checklist.py
+  - .claude/addf/addfTools/lint-checklist.py
   - .claude/addf/tests/tools/test-checklist-lint.sh
   - .claude/addf/Release.addf.md
 status: active

@@ -12,12 +12,12 @@
 | エージェント | addf-contribution-agent | ADDF / プロジェクト固有コードの識別、分離パターン違反検出、アップストリーム貢献候補検出（Sonnet） |
 | スキル | addf-lint | フレームワーク整合性チェック（11項目: JSON構文・hooks実行権限・frontmatter・Behavior.toml・INDEX整合・テンプレート同期・knowhow鮮度・knowhow双方向リンク・チェックリスト裏付け・オプショナルスキル同期・hooks配線） |
 | テスト | .claude/addf/tests/run-all.sh | フレームワーク自動テスト（フック3本・ツール11本。スキルシナリオ8本は手動）。非 macOS ではバイナリ実行テストを SKIP。ランタイム不在を SKIP=成功として扱わない（silent 無効化の禁止） |
-| ツール | .claude/addf/tools/lint-json.py / lint-frontmatter.py / lint-toml.py | 構文 Lint スクリプト（uv run --python 3.11 で実行。uv が無ければ python3 直接実行） |
-| ツール | .claude/addf/tools/lint-hooks-exec.py | hooks の実行権限検査（実行権限のないフックは settings 登録済みでも静かに失敗する問題の防止） |
-| ツール | .claude/addf/tools/lint-hooks-wiring.py | hooks ファイル名と settings.json / settings.local.json の配線突合（`# hooks-wiring: indirect` エスケープハッチあり） |
-| ツール | .claude/addf/tools/lint-template-sync.py | テンプレート同期チェック（6ペア）。exit 0=全一致 / 1=ERROR / 2=WARNING のみ |
-| ツール | .claude/addf/tools/lint-checklist.py | 手順書の「確認/検証」ステップの裏付け検査（実行チェック or human-judgment マーカー。WARNING のみ） |
-| ツール | .claude/addf/tools/sync-optional-skills.py（check モード） | オプトインスキルの同期検査（孤児コピー・enable の型。→ system-distribution / system-visual-testing と共有） |
+| ツール | .claude/addf/addfTools/lint-json.py / lint-frontmatter.py / lint-toml.py | 構文 Lint スクリプト（uv run --python 3.11 で実行。uv が無ければ python3 直接実行） |
+| ツール | .claude/addf/addfTools/lint-hooks-exec.py | hooks の実行権限検査（実行権限のないフックは settings 登録済みでも静かに失敗する問題の防止） |
+| ツール | .claude/addf/addfTools/lint-hooks-wiring.py | hooks ファイル名と settings.json / settings.local.json の配線突合（`# hooks-wiring: indirect` エスケープハッチあり） |
+| ツール | .claude/addf/addfTools/lint-template-sync.py | テンプレート同期チェック（6ペア）。exit 0=全一致 / 1=ERROR / 2=WARNING のみ |
+| ツール | .claude/addf/addfTools/lint-checklist.py | 手順書の「確認/検証」ステップの裏付け検査（実行チェック or human-judgment マーカー。WARNING のみ） |
+| ツール | .claude/addf/addfTools/sync-optional-skills.py（check モード） | オプトインスキルの同期検査（孤児コピー・enable の型。→ system-distribution / system-visual-testing と共有） |
 
 ## 設計思想
 

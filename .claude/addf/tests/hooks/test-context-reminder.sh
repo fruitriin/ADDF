@@ -7,7 +7,7 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
-TOOL="$PROJECT_DIR/.claude/addf/tools/context-reminder.py"
+TOOL="$PROJECT_DIR/.claude/addf/addfTools/context-reminder.py"
 PASS=0
 FAIL=0
 
@@ -167,9 +167,9 @@ rm -rf "$box"
 # テスト 8: フック経由の統合 — turn-reminder.sh が stdin を中継する
 echo "Test 8: turn-reminder.sh 経由の統合"
 box="$(make_sandbox)"
-mkdir -p "$box/.claude/hooks" "$box/.claude/addf/tools"
+mkdir -p "$box/.claude/hooks" "$box/.claude/addf/addfTools"
 cp "$PROJECT_DIR/.claude/hooks/turn-reminder.sh" "$box/.claude/hooks/"
-cp "$TOOL" "$box/.claude/addf/tools/"
+cp "$TOOL" "$box/.claude/addf/addfTools/"
 write_transcript 150000 "$box/t.jsonl"
 echo "0" > "$box/.claude/.turn-count"
 out=$(printf '{"transcript_path":"%s"}' "$box/t.jsonl" | CLAUDE_PROJECT_DIR="$box" bash "$box/.claude/hooks/turn-reminder.sh" 2>/dev/null)

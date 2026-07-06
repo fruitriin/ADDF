@@ -54,7 +54,7 @@
 
 ### フェーズC 実装記録（2026-07-05）
 
-- `.claude/addf/tools/lint-plan-status.py` 新設 — 実装状況ヘッダ「完了」×完了条件の
+- `.claude/addf/addfTools/lint-plan-status.py` 新設 — 実装状況ヘッダ「完了」×完了条件の
   未チェック `- [ ]` 残存を ERROR 検出（項目3-3）。**独立スクリプトにした判断根拠**:
   lint-template-sync.py は「2ファイル間の同期ペア」の意味論で統一されており、本 lint は
   単一 Plan ファイル内のヘッダ ⇔ 自身のチェックボックスの内部整合検査（lint-checklist.py と

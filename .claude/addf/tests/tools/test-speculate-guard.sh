@@ -7,7 +7,7 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-GUARD="$(cd "$SCRIPT_DIR/../.." && pwd)/tools/speculate-guard.py"
+GUARD="$(cd "$SCRIPT_DIR/../.." && pwd)/addfTools/speculate-guard.py"
 PASS=0
 FAIL=0
 

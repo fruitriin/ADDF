@@ -148,7 +148,7 @@ ADDF リポジトリ（tmp）から対象プロジェクトへファイルをコ
 - `.claude/agents/addf-*.md` — エージェント定義
 - `.claude/hooks/*.sh` — フック
 - `.claude/addf/templates/` — テンプレート
-- `.claude/addf/tools/` — ツール群
+- `.claude/addf/addfTools/` — ツール群
 - `.claude/addf/tests/` — テストスイート
 - `.claude/addf/Behavior.toml`
 - `.claude/addf/CHANGELOG.md`, `.claude/addf/Release.addf.md`

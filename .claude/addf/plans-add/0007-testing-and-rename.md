@@ -9,7 +9,7 @@
 ## 設計
 
 ### 1. `addToolsSrc` → `addfTools` リネーム（実施済み）
-- `.claude/addToolsSrc/` → `.claude/addf/tools/`
+- `.claude/addToolsSrc/` → `.claude/addf/addfTools/`
 - build.sh 内のパス更新
 - .claudeignore のバイナリパス更新
 - settings.json の build.sh パス更新
@@ -55,7 +55,7 @@
 - clip-image（同上）
 
 ## 影響範囲
-- `.claude/addToolsSrc/` → `.claude/addf/tools/`（リネーム済み）
+- `.claude/addToolsSrc/` → `.claude/addf/addfTools/`（リネーム済み）
 - `.claude/addf/tests/`（新規作成）
 - settings.json, .claudeignore, docs/, README 等の参照更新
 

@@ -68,7 +68,7 @@ optional = true
 # 本スクリプト群の親ディレクトリ。これが旧・新どちらにも無いなら
 # ADDF プロジェクトではない可能性が高いため apply を拒否する
 old = ".claude/addfTools"
-new = ".claude/addf/tools"
+new = ".claude/addf/addfTools"
 optional = false
 
 [[dirs]]
@@ -200,11 +200,11 @@ paths = [
 [rewrite_exclusions]
 files = [
   ".claude/addfTools/paths.toml",
-  ".claude/addf/tools/paths.toml",
+  ".claude/addf/addfTools/paths.toml",
   ".claude/addfTools/migrate-paths.py",
-  ".claude/addf/tools/migrate-paths.py",
+  ".claude/addf/addfTools/migrate-paths.py",
   ".claude/addfTools/lint-residual-paths.py",
-  ".claude/addf/tools/lint-residual-paths.py",
+  ".claude/addf/addfTools/lint-residual-paths.py",
   ".claude/tests/tools/test-migrate-paths.sh",
   ".claude/addf/tests/tools/test-migrate-paths.sh",
 ]

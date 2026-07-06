@@ -48,7 +48,7 @@ user_invocable: true
   （ファイル名の一致は ADDF 由来の証明にならない）のため、2群に分けて扱う:
   - **安全一括上書き** — `addf-` プレフィックスや専用ディレクトリで ADDF 所有と識別できるもの:
     `.claude/commands/addf-*.md`・`.claude/agents/addf-*.md`・`.claude/addf/knowhow/ADDF/`・
-    `.claude/addf/tools/`・`.claude/addf/tests/`・`.claude/addf/templates/`。
+    `.claude/addf/addfTools/`・`.claude/addf/tests/`・`.claude/addf/templates/`。
     一覧を提示してまとめて承認を得る <!-- human-judgment -->
   - **個別確認必須** — プレフィックス識別が効かない、または設定値・プロジェクト独自ファイルの可能性があるもの:
     - `.claude/hooks/*.sh` — 既存との diff を提示し、1ファイルずつ承認を得る <!-- human-judgment -->
@@ -188,10 +188,10 @@ ADDF ファイルの配置元を決定する:
 衝突リスクなし（`addf-` プレフィックスで識別可能）:
 - `.claude/commands/addf-*.md` — スキル定義
 - `.claude/agents/addf-*.md` — エージェント定義
-- `.claude/addf/optional/` — オプトイン式スキル・エージェントの原本（GUI テスト等。有効化は `.claude/addf/tools/sync-optional-skills.py apply`）
+- `.claude/addf/optional/` — オプトイン式スキル・エージェントの原本（GUI テスト等。有効化は `.claude/addf/addfTools/sync-optional-skills.py apply`）
 - `.claude/hooks/*.sh` — フック
 - `.claude/addf/templates/` — テンプレート（ディレクトリ丸ごと。個別ファイル名は列挙しない — 列挙は本体側のテンプレート追加に追従できず腐るため。除外規則により `ProgressTemplate.addf.md` 等の `*.addf.md` はコピーしない）
-- `.claude/addf/tools/` — ツール群
+- `.claude/addf/addfTools/` — ツール群
 - `.claude/addf/tests/` — テストスイート
 - `.claude/addf/Behavior.toml`
 - `.claude/addf/CHANGELOG.md`（`ADDF-Release.addf.md` は除外規則によりコピーしない）
@@ -308,7 +308,7 @@ ADDF ファイルの配置元を決定する:
    - `.claude/hooks/*.sh` が `settings.json` の hooks セクションに配線されているかを検査する
      （ファイルが存在しても配線がなければ実行されない — 手縫い導入で漏れやすい）:
      ```bash
-     uv run --python 3.11 .claude/addf/tools/lint-hooks-wiring.py
+     uv run --python 3.11 .claude/addf/addfTools/lint-hooks-wiring.py
      ```
      tomllib 不要のため uv が無ければ `python3` 直接実行でよい。
    - 未配線フックは WARNING（意図的に外している可能性があるため）。詳細は `/addf-lint` セクション11（Hooks 配線チェック）を参照

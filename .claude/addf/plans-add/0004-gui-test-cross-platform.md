@@ -33,7 +33,7 @@ machine = "mac"  # "mac" | "linux" | "windows"
 - `.claude/addf/Behavior.toml`（旧 `add-Behavier.toml` からリネーム）
 - `.claude/skills/addf-gui-test.md`（プラットフォーム判定ロジック追加）
 - `.claude/skills/optional/addf-gui-test.md`（同上）
-- `.claude/addf/tools/window-info.swift`, `capture-window.swift`（参照更新）
+- `.claude/addf/addfTools/window-info.swift`, `capture-window.swift`（参照更新）
 - `README.md`, `README.en.md`（ファイル名参照更新）
 - `.claude/addf/guides/gui-test-setup.md`（新規作成）
 

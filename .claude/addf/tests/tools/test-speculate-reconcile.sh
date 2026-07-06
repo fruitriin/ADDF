@@ -10,7 +10,7 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RECONCILE="$(cd "$SCRIPT_DIR/../.." && pwd)/tools/speculate-reconcile.py"
+RECONCILE="$(cd "$SCRIPT_DIR/../.." && pwd)/addfTools/speculate-reconcile.py"
 PASS=0
 FAIL=0
 

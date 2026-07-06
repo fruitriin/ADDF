@@ -121,7 +121,7 @@ git diff --name-only "$LOCK_HASH"..HEAD
 - `.claude/addf/knowhow/` — ls（INDEX.md の有無、knowhow ファイル数）
 - `.claude/addf/guides/` — ls（ガイド一覧）
 - `.claude/addf/templates/` — ls（テンプレート一覧）
-- `.claude/addf/tools/` — 存在確認
+- `.claude/addf/addfTools/` — 存在確認
 
 **F. コミット情報**
 - `git log -1 --pretty=format:"%H|%s|%ad" --date=short`

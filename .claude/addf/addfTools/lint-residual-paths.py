@@ -48,7 +48,7 @@ except ModuleNotFoundError:
 
 # paths.toml の探索先（移行後の新位置を優先し、移行前の旧位置にフォールバック）
 MAP_CANDIDATES = [
-    '.claude/addf/tools/paths.toml',
+    '.claude/addf/addfTools/paths.toml',
     '.claude/addfTools/paths.toml',
 ]
 

@@ -77,7 +77,7 @@
 
 ### フェーズ2: 「満杯時の出口」教義 — 止まらないこと ＋ compaction 耐性のタスク運び
 
-- **対象**: `.claude/addf/tools/context-reminder.py` / `.claude/commands/addf-dev.md` / `.claude/addf/templates/ProgressTemplate.md`・`ProgressTemplate.addf.md`（同期ペア lint 対象）
+- **対象**: `.claude/addf/addfTools/context-reminder.py` / `.claude/commands/addf-dev.md` / `.claude/addf/templates/ProgressTemplate.md`・`ProgressTemplate.addf.md`（同期ペア lint 対象）
 - context-reminder の注入文言に「記録が尽きたあと」の行動指針を追加する:
   - 「記録が済んでいるなら、そのまま作業を続行してよい。compaction を起こすのは harness の仕事であり、復帰フックと日記が受け止める準備は整っている。エージェントの仕事は**止まらないこと**である」
 - addf-dev.md のステップ5（ループ継続）に「コンテキスト満杯時の出口」を追記する:

@@ -46,7 +46,7 @@
 
 - `.claude/addf/templates/DelegationRules.md`（新設）
 - 委譲プロンプトを持つスキル: `.claude/commands/addf-dev.md`・`addf-speculate.md`（参照方法の明示）
-- `.claude/addf/tools/lint-template-sync.py`（ペア1 の検査範囲コメント）
+- `.claude/addf/addfTools/lint-template-sync.py`（ペア1 の検査範囲コメント）
 - addf-init コピーリスト（新テンプレート配布）
 
 ## テスト方針

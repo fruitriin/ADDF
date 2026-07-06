@@ -85,7 +85,7 @@
 - [x] 2. `lint-template-sync.py` にペア5（CLAUDE.md 参照 ⇔ addf-init コピーリストのカバレッジ検査）を追加
 - [x] 3. `test-template-sync.sh` にペア5のテストを追加（テスト7: カバー漏れ検出 / テスト8: 欠如時 SKIP。21 PASS）
 - [x] 4. E2E 自然言語シナリオ `.claude/addf/tests/skills/test-addf-init-external.md` を作成
-- [x] 5. Plan 0022 の変更対象ファイル表のパス誤り訂正（lint の実体は `.claude/addf/tools/`）
+- [x] 5. Plan 0022 の変更対象ファイル表のパス誤り訂正（lint の実体は `.claude/addf/addfTools/`）
 - [x] 6. Stage 1: `bash .claude/addf/tests/run-all.sh` — 全自動テスト通過
 - [x] 7. Stage 2: addf-code-review-agent 完了（Critical/High なし・W2件・S5件・I2件）。addf-contribution-agent（配布安全性）完了（Critical/High なし・Medium 2件・Low 2件）
 - [x] 8. レビュー指摘対応: W1（コードブロック内の誤抽出を除外）・W2（マーカーブロック読み取りを break→フラグ折り）・S2（テスト8の意図コメント）・S5（クローン元 `<tmp>/addf-source/.gitignore` の明示）・I1（検査対象を CLAUDE.md に限定する意図を docstring 化）対応。S1/S3/S4/I2 は Plan に記録予定 → Stage 1 再実行 21 PASS
@@ -97,7 +97,7 @@
 **やったこと**: Plan 0022 を選択（唯一の未着手）。knowhow エージェントで関連知見4本を取得し、lint-template-sync.py・test-template-sync.sh・既存スキルシナリオ形式を読了
 **今の見立て**: Plan 記載の4項目に加え、addf-init.md 内の .gitignore マージブロック例が本体 .gitignore とドリフトしている（`.claude/addf/Dashboard.md`・`.claude/skills/addf-gui-test.md` 欠落）のを発見。同根の鮮度問題なので本タスクで一緒に直す。ペア5の検査は「CLAUDE.md の `.claude/` 配下参照を抽出 → addf-init.md 本文（グロブ解釈込み）or .gitignore マーカーブロックでカバーされるか」方式。lint を先に書けば現状のドリフトが WARNING で再現でき、TDD で進められる
 **次の自分へ**: ペア5実装時、ダウンストリームでは CLAUDE.md と addf-init.md が両方存在すれば検査可能（片方欠如で SKIP）。exit code 3値と git ヒントの既存規約を守ること
-**気になっていること**: Plan の変更対象表に `.claude/addf/tests/lint-template-sync.py` と書いたが実体は `.claude/addf/tools/`。Plan 側を訂正する（サブタスク5）
+**気になっていること**: Plan の変更対象表に `.claude/addf/tests/lint-template-sync.py` と書いたが実体は `.claude/addf/addfTools/`。Plan 側を訂正する（サブタスク5）
 
 ##### 2026-06-10 — 実装完了、Stage 2 へ
 **やったこと**: サブタスク1〜6完了。TDD で進め、ペア5 lint が現状ドリフト（example 2ファイル）を正しく WARNING 検出 → addf-init.md 修正で GREEN を確認。.gitignore ブロック例はハードコード列挙をやめ「クローン元の同ブロックをコピーする」指示に変更（リスト陳腐化の構造的排除 — Plan 案 b の発想をここに適用）

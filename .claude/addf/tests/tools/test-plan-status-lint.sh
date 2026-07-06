@@ -8,7 +8,7 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
-LINT="$PROJECT_DIR/.claude/addf/tools/lint-plan-status.py"
+LINT="$PROJECT_DIR/.claude/addf/addfTools/lint-plan-status.py"
 PASS=0
 FAIL=0
 

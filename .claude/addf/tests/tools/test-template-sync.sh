@@ -7,7 +7,7 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
-LINT="$PROJECT_DIR/.claude/addf/tools/lint-template-sync.py"
+LINT="$PROJECT_DIR/.claude/addf/addfTools/lint-template-sync.py"
 PASS=0
 FAIL=0
 

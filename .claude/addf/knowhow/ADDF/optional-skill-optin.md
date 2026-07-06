@@ -3,7 +3,7 @@ title: オプトイン式スキルの退避＋有効化コピー設計
 created: 2026-07-02
 last_verified: 2026-07-02
 depends_on:
-  - .claude/addf/tools/sync-optional-skills.py
+  - .claude/addf/addfTools/sync-optional-skills.py
   - .claude/addf/tests/tools/test-optional-skills.sh
   - .claude/addf/guides/gui-test-setup.md
 status: active

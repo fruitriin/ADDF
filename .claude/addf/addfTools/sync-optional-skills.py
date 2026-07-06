@@ -161,7 +161,7 @@ for src, dst in pair_list:
             else:
                 warnings.append(
                     f'未配置: {dst} が無い（gui-test.enable=true）。'
-                    f' `uv run --python 3.11 .claude/addf/tools/sync-optional-skills.py apply` で配置する')
+                    f' `uv run --python 3.11 .claude/addf/addfTools/sync-optional-skills.py apply` で配置する')
         elif not same_content(src, dst):
             # 有効化コピー側の直接編集か原本の更新か区別できないため自動では触らない
             warnings.append(

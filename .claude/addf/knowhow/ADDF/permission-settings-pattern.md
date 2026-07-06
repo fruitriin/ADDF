@@ -61,7 +61,7 @@ status: active
       "Bash(git ls-files *)", "Bash(git branch *)", "Bash(git worktree *)",
       "Bash(git checkout *)", "Bash(git show *)", "Bash(git merge *)", "Bash(git stash *)",
       "Bash(bash .claude/addf/tests/run-all.sh *)",
-      "Bash(uv run --python 3.11 .claude/addf/tools/lint *)"
+      "Bash(uv run --python 3.11 .claude/addf/addfTools/lint *)"
     ],
     "ask": [
       "Bash(git push *)",
@@ -80,7 +80,7 @@ status: active
       "Bash(sed *)",
       "Bash(find *)",
       "Bash(git rev-parse *)",
-      "Bash(bash .claude/addf/tools/build.sh *)",
+      "Bash(bash .claude/addf/addfTools/build.sh *)",
       "Bash(swiftc *)"
     ]
   }
@@ -158,7 +158,7 @@ status: active
 
 `python3` を全面許可すると権限が強すぎる場合、実行スクリプトをディレクトリに集約して限定:
 ```json
-"Bash(uv run --python 3.11 .claude/addf/tools/lint *)"
+"Bash(uv run --python 3.11 .claude/addf/addfTools/lint *)"
 ```
 
 ### PreToolUse フックによる権限拡張
@@ -210,7 +210,7 @@ status: active
 - ファイル操作（作成主目的）: `cp`, `mkdir`, `mktemp`, `ls`, `tail`, `cd`, `which`（mv/rm/chmod は除外）
 - git 参照系 + commit/add + `git clone`, `git -C *`（push は ask）
 - gh 参照系: `view`, `list`, `status`, `diff`, `checks`, `checkout`, `clone`
-- フレームワークツール: `bash .claude/addf/tests/run-all.sh *`, `uv run --python 3.11 .claude/addf/tools/lint *`
+- フレームワークツール: `bash .claude/addf/tests/run-all.sh *`, `uv run --python 3.11 .claude/addf/addfTools/lint *`
 
 > 実際の一覧はドリフトするため、正は `.claude/settings.json` を参照する。上記は「テンプレートに何を入れる／入れないか」の**基準**の例示。
 

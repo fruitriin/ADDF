@@ -11,7 +11,7 @@
 | スキル | addf-migrate | addf-lock.json の ref（タグ）基準でフレームワークを最新版にアップグレード（6フェーズ）。lock 不在＋ADDF ファイル検出時は部分導入正規化へ誘導 |
 | スキル | addf-release | リリースワークフロー（upstream/downstream 自動切替） |
 | スキル | addf-overview | エコシステム概要ドキュメントの生成（本ドキュメント。full/patch モード + .lock） |
-| ツール | .claude/addf/tools/sync-optional-skills.py | オプトインスキル機構の同期（check / apply）。.claude/addf/optional/ の原本と有効化コピーを [gui-test] enable と整合させる |
+| ツール | .claude/addf/addfTools/sync-optional-skills.py | オプトインスキル機構の同期（check / apply）。.claude/addf/optional/ の原本と有効化コピーを [gui-test] enable と整合させる |
 | ディレクトリ | .claude/addf/optional/ | オプトインスキル・エージェントの原本置き場（現在は GUI テスト一式: 3スキル+1エージェント） |
 | ファイル | .claude/addf/lock.json | バージョン追跡（現在 v0.4.0）。`version` / `ref` / `updated_at` / `repository`。プロジェクト種別の明示シグナルの一部 |
 | ファイル | .claude/addf/CHANGELOG.md | フレームワーク変更履歴。migrate 時に該当バージョン間のエントリを表示 |

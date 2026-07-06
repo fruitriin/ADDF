@@ -478,8 +478,8 @@ def check_pair7():
     挙動そのものの比較は困難（言語が異なる）なため、契約文言の存在を機械保証することで
     実装差分を発見しやすくする。ダウンストリームで verify-checksums.sh が無ければ SKIP。
     """
-    verify_path = '.claude/addf/tools/verify-checksums.sh'
-    self_path = '.claude/addf/tools/lint-template-sync.py'
+    verify_path = '.claude/addf/addfTools/verify-checksums.sh'
+    self_path = '.claude/addf/addfTools/lint-template-sync.py'
     if not os.path.exists(verify_path):
         skips.append(f'[7] SKIP: {verify_path} が存在しない（ダウンストリームでは対象外）')
         return

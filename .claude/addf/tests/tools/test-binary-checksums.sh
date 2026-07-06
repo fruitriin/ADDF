@@ -8,7 +8,7 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
-TOOLS_DIR="$PROJECT_DIR/.claude/addf/tools"
+TOOLS_DIR="$PROJECT_DIR/.claude/addf/addfTools"
 VERIFY="$TOOLS_DIR/verify-checksums.sh"
 PASS=0
 FAIL=0
@@ -47,10 +47,10 @@ assert_not_contains() {
 }
 
 # サンドボックス: 偽バイナリ4つ + build.sh / verify-checksums.sh のコピーで
-# .claude/addf/tools/ の相対レイアウトを再現する（照合はハッシュのみなので偽物で十分）
+# .claude/addf/addfTools/ の相対レイアウトを再現する（照合はハッシュのみなので偽物で十分）
 BOX="$(mktemp -d)"
 trap 'rm -rf "$BOX"' EXIT
-BOX_TOOLS="$BOX/.claude/addf/tools"
+BOX_TOOLS="$BOX/.claude/addf/addfTools"
 mkdir -p "$BOX_TOOLS"
 for f in window-info capture-window annotate-grid clip-image; do
   printf 'fake-binary-%s\n' "$f" > "$BOX_TOOLS/$f"
@@ -190,17 +190,17 @@ bash "$BOX_TOOLS/build.sh" --checksums-only >/dev/null 2>&1
 # 「@メンション経由の upstream 判定」の疎通を確認する（Plan 0031 H3(d)）
 echo "Test 15: 実プロジェクト構成の CLAUDE.repo.md をコピー → upstream 判定"
 BOX2="$(mktemp -d)"
-mkdir -p "$BOX2/.claude/addf/tools"
+mkdir -p "$BOX2/.claude/addf/addfTools"
 for f in window-info capture-window annotate-grid clip-image; do
-  printf 'fake-binary-%s\n' "$f" > "$BOX2/.claude/addf/tools/$f"
+  printf 'fake-binary-%s\n' "$f" > "$BOX2/.claude/addf/addfTools/$f"
 done
-cp "$TOOLS_DIR/build.sh" "$TOOLS_DIR/verify-checksums.sh" "$BOX2/.claude/addf/tools/"
+cp "$TOOLS_DIR/build.sh" "$TOOLS_DIR/verify-checksums.sh" "$BOX2/.claude/addf/addfTools/"
 # @メンション構造をそのまま再現するため、実プロジェクトの CLAUDE.repo.md と
 # 参照先 CLAUDE.repo.example.md を両方コピー
 cp "$PROJECT_DIR/CLAUDE.repo.md" "$BOX2/CLAUDE.repo.md"
 cp "$PROJECT_DIR/CLAUDE.repo.example.md" "$BOX2/CLAUDE.repo.example.md"
 # checksums 不在 + upstream 判定成立 → ERROR + repo_kind=upstream を出す
-out="$(bash "$BOX2/.claude/addf/tools/verify-checksums.sh" 2>&1)"
+out="$(bash "$BOX2/.claude/addf/addfTools/verify-checksums.sh" 2>&1)"
 exit_code=$?
 assert_exit "実プロジェクト CLAUDE.repo.md コピーで upstream 判定 → ERROR" 1 "$exit_code"
 assert_contains "@メンション解決で upstream 判定" "repo_kind=upstream" "$out"

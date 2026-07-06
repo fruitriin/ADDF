@@ -5,7 +5,7 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LINT="$(cd "$SCRIPT_DIR/../.." && pwd)/tools/lint-toml.py"
+LINT="$(cd "$SCRIPT_DIR/../.." && pwd)/addfTools/lint-toml.py"
 PASS=0
 FAIL=0
 

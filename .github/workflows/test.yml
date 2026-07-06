@@ -48,28 +48,28 @@ jobs:
       # `if: ${{ !cancelled() }}` により、先行 lint が ERROR でも残りの lint を実行して全件報告する
       - name: lint-json
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-json.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/addfTools/lint-json.py
       - name: lint-toml
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-toml.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/addfTools/lint-toml.py
       - name: lint-frontmatter
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-frontmatter.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/addfTools/lint-frontmatter.py
       - name: lint-template-sync
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-template-sync.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/addfTools/lint-template-sync.py
       - name: lint-hooks-exec
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-hooks-exec.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/addfTools/lint-hooks-exec.py
       - name: lint-hooks-wiring
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-hooks-wiring.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/addfTools/lint-hooks-wiring.py
       - name: lint-checklist
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-checklist.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/addfTools/lint-checklist.py
       - name: lint-plan-status
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-plan-status.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/addfTools/lint-plan-status.py
       - name: sync-optional-skills (check)
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addf/tools/sync-optional-skills.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/addfTools/sync-optional-skills.py

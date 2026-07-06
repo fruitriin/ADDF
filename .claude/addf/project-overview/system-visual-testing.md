@@ -16,13 +16,13 @@ ADDF 本体リポジトリでは現在 `enable = false`（無効）。
 | スキル（オプトイン） | addf-annotate-grid | PNG 画像にグリッド線・座標ラベルを描画（--divide / --every）。原本: .claude/addf/optional/commands/ |
 | スキル（オプトイン） | addf-clip-image | PNG 画像の指定領域を切り出し（--rect / --grid-cell / --grid-range）。原本: .claude/addf/optional/commands/ |
 | エージェント（オプトイン） | addf-ui-test-agent | GUI テスト専門エージェント（Sonnet、skills: gui-test/annotate-grid/clip-image。品質ゲート Stage 2 に参加可能）。原本: .claude/addf/optional/agents/ |
-| ツール | .claude/addf/tools/sync-optional-skills.py | [gui-test] enable と有効化コピーの同期（check / apply。→ system-distribution と共有） |
-| ツール | .claude/addf/tools/capture-window(.swift) | ウィンドウスクリーンショット撮影（macOS 15+、ScreenCaptureKit） |
-| ツール | .claude/addf/tools/window-info(.swift) | ウィンドウ一覧・位置・サイズ取得（macOS、AXUIElement） |
-| ツール | .claude/addf/tools/annotate-grid(.swift) | グリッド描画（macOS） |
-| ツール | .claude/addf/tools/clip-image(.swift) | 画像切り出し（macOS） |
-| ツール | .claude/addf/tools/check-screen-recording.sh | Screen Recording 権限チェック（--request で設定を開く） |
-| ツール | .claude/addf/tools/build.sh | Swift ツール群のビルドスクリプト |
+| ツール | .claude/addf/addfTools/sync-optional-skills.py | [gui-test] enable と有効化コピーの同期（check / apply。→ system-distribution と共有） |
+| ツール | .claude/addf/addfTools/capture-window(.swift) | ウィンドウスクリーンショット撮影（macOS 15+、ScreenCaptureKit） |
+| ツール | .claude/addf/addfTools/window-info(.swift) | ウィンドウ一覧・位置・サイズ取得（macOS、AXUIElement） |
+| ツール | .claude/addf/addfTools/annotate-grid(.swift) | グリッド描画（macOS） |
+| ツール | .claude/addf/addfTools/clip-image(.swift) | 画像切り出し（macOS） |
+| ツール | .claude/addf/addfTools/check-screen-recording.sh | Screen Recording 権限チェック（--request で設定を開く） |
+| ツール | .claude/addf/addfTools/build.sh | Swift ツール群のビルドスクリプト |
 | 設定 | .claude/addf/Behavior.toml [gui-test] | enable（オプトインの真実源。デフォルト false）・machine（"mac" / "linux" / "windows"） |
 | ガイド | .claude/addf/guides/gui-test-setup.md | セットアップ手順（オプトイン有効化を含む） |
 | テスト | .claude/addf/tests/tools/test-tools.sh / test-optional-skills.sh | ツール疎通テスト（非 macOS はバイナリ実行を SKIP）とオプトイン同期のテスト |
@@ -55,7 +55,7 @@ Swift ネイティブツールで macOS に最適化。`gui-test.machine` でプ
   addf-Behavior.toml [gui-test] enable = true に編集
     │
     ▼
-  uv run --python 3.11 .claude/addf/tools/sync-optional-skills.py apply
+  uv run --python 3.11 .claude/addf/addfTools/sync-optional-skills.py apply
   （uv が無ければ python3 で直接実行。Python 3.11+ が必要）
     │
     ▼

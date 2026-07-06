@@ -65,7 +65,7 @@ status: active
 | ADDF コンポーネント | カテゴリ | 備考 |
 |---|---|---|
 | `.claude/addf/knowhow/` + `addf-knowhow` | 1. Library & API Reference | **ライブラリ知識がそのままノウハウとして実装されている**。Anthropic の「Library & API Reference」スキルが SDK の使い方を教えるのと同じ役割を、ADDF はプロジェクト固有の知見ファイル群で果たす |
-| `addf-gui-test` + `addf-ui-test-agent` | 2. Product Verification | `.claude/addf/tools/` にスクリプト群を同梱する構成は記事の推奨パターンそのもの |
+| `addf-gui-test` + `addf-ui-test-agent` | 2. Product Verification | `.claude/addf/addfTools/` にスクリプト群を同梱する構成は記事の推奨パターンそのもの |
 | `addf-knowhow-filter` | 3. Data Fetching & Analysis | knowhow を Plan に応じてフィルタリングして返す — データフェッチの内部版 |
 | `addf-dev` | 4. Business Process | TODO.md → Plan 選択 → 実装の反復ワークフロー自動化 |
 | `.claude/addf/templates/` + Progress.md | 5. Code Scaffolding & Templates | ProgressTemplate からタスク進捗ファイルを生成するパターン |
@@ -79,7 +79,7 @@ status: active
 |---|---|
 | **Gotchas セクションを育てる** | **経験ファイル (.exp.md)** が同じ役割。スキル実行ごとに失敗パターンを蓄積し次回に活かす |
 | **ファイルシステムで段階的開示** | `addf-knowhow-filter` がコンテキスト制御を担う。全 knowhow を読み込まず、Plan に関連するものだけをメインコンテキストに返す |
-| **スクリプトを同梱する** | `.claude/addf/tools/` に Swift/Shell スクリプトを配置し、スキルから呼び出す（annotate-grid, clip-image, capture-window 等） |
+| **スクリプトを同梱する** | `.claude/addf/addfTools/` に Swift/Shell スクリプトを配置し、スキルから呼び出す（annotate-grid, clip-image, capture-window 等） |
 | **オンデマンドフック** | `.claude/hooks/` の turn-reminder.sh / reset-turn-count.sh。セッション中に常駐するフック |
 | **データを保存する** | `.claude/addf/Progress.md` がセッション横断の作業状態を保持。`.claude/addf/Feedback.md` がプロセス改善の蓄積 |
 | **description はトリガー条件** | ADDF スキルの frontmatter で実装済み（例: `addf-knowhow-index` の「reindex 引数でインデックスを再構築」） |

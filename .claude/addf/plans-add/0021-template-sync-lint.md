@@ -36,7 +36,7 @@
 
 ## 実装結果（2026-06-10 完了）
 
-- `.claude/addf/tools/lint-template-sync.py` を4ペア対応に拡張。exit code 3値（0=OK / 1=ERROR / 2=WARNING のみ）。WARNING に git log 最終更新日ヒントを併記
+- `.claude/addf/addfTools/lint-template-sync.py` を4ペア対応に拡張。exit code 3値（0=OK / 1=ERROR / 2=WARNING のみ）。WARNING に git log 最終更新日ヒントを併記
 - `.claude/addf/tests/tools/test-template-sync.sh` 新規作成（6テスト16アサーション、mktemp サンドボックスにドリフトを注入して検証）。`run-all.sh` に自動組み込み
 - `.claude/commands/addf-lint.md` セクション6を4ペア表に更新、結果報告を ✓/⚠/✗ の3値化
 

@@ -20,7 +20,7 @@
 | フック | turn-reminder.sh | UserPromptSubmit: 関心事A（ターン10/15の棚卸しリマインダー）+ 関心事B（context-reminder.py への中継） |
 | フック | post-compact-recovery.sh | SessionStart(compact): コンパクション後の復帰手順（ブートシーケンス再実行）を注入 |
 | フック | skill-usage-log.sh | PreToolUse(Skill): スキル呼び出しを .claude/logs/skill-usage.jsonl にロギング |
-| ツール | .claude/addf/tools/context-reminder.py | transcript の usage を実測し、閾値超過時に能動コンパクション促しを注入 |
+| ツール | .claude/addf/addfTools/context-reminder.py | transcript の usage を実測し、閾値超過時に能動コンパクション促しを注入 |
 | 状態 | .claude/.turn-count / .claude/.context-reminder-state | ターン数・前回通知時の実測値（.gitignore 対象） |
 
 ## 設計思想

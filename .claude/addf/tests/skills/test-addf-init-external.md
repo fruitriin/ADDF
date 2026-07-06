@@ -53,7 +53,7 @@ ADDF リポジトリ: https://github.com/fruitriin/ADDF
 および:
 
 ```bash
-python3 .claude/addf/tools/lint-template-sync.py
+python3 .claude/addf/addfTools/lint-template-sync.py
 ```
 
 ### 期待結果

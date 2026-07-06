@@ -58,7 +58,7 @@ TODO の転記ではなく、アーカイブ済み Progress・完了コミット
 
 | ファイル | 変更 |
 |---|---|
-| `.claude/addf/tools/lint-template-sync.py` | ペア6追加 |
+| `.claude/addf/addfTools/lint-template-sync.py` | ペア6追加 |
 | `.claude/addf/tests/tools/test-template-sync.sh` | ペア6のテスト追加 |
 | `.claude/commands/addf-lint.md` | セクション6の表を更新（ペア5欠落の既存ドリフト修正含む） |
 | `.claude/addf/knowhow/ADDF/plan-status-drift-check.md` | 信用ベースへ改訂 |

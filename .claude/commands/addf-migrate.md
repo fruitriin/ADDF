@@ -67,7 +67,7 @@ ADDF フレームワークを最新版（またはターゲットバージョン
 - `.claude/addf/optional/` — オプトイン式スキル・エージェントの原本（適用後に `sync-optional-skills.py` の再実行を案内）
 - `.claude/hooks/` — フック
 - `.claude/addf/templates/` — テンプレート
-- `.claude/addf/tools/` — ツール群
+- `.claude/addf/addfTools/` — ツール群
 - `.claude/addf/tests/` — テストスイート
 - `.claude/settings.json` — 共有権限設定（マージ — Phase 5 参照）
 - `CLAUDE.md` — ブートシーケンス（マージ注意）
@@ -179,7 +179,7 @@ find . -name '*.addf.md' -not -path './.git/*'
 14.5. **オプショナルスキルの同期**（「14.5」は後続の番号参照を壊さないための枝番）:
     `.claude/addf/optional/` に変更（追加・更新・リネーム）が含まれる場合、有効化コピーを追従させる:
     ```bash
-    uv run --python 3.11 .claude/addf/tools/sync-optional-skills.py apply
+    uv run --python 3.11 .claude/addf/addfTools/sync-optional-skills.py apply
     ```
     uv が無い環境では `python3` で直接実行する（Python 3.11+ が必要。旧い Python では ERROR 案内が出る）。
     `addf-Behavior.toml` の `[gui-test] enable` に従って配置/撤去される。改変された有効化コピーは

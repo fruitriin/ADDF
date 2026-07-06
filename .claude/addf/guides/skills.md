@@ -40,7 +40,7 @@ ADDF が提供するスキル（`/コマンド名` で呼び出し）:
 
 GUI 関連スキルはオプトイン式です（原本は `.claude/addf/optional/`、有効化するまで発見パスに存在しません）。
 `.claude/addf/Behavior.toml` で `enable = true` に設定し、
-`uv run --python 3.11 .claude/addf/tools/sync-optional-skills.py apply` で有効化コピーを配置してください
+`uv run --python 3.11 .claude/addf/addfTools/sync-optional-skills.py apply` で有効化コピーを配置してください
 （uv が無い場合は `python3` で直接実行。Python 3.11+ が必要。手順の詳細は `.claude/addf/guides/gui-test-setup.md`）。macOS のみ対応。
 
 | スキル | 呼び出し | 説明 |

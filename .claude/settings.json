@@ -95,7 +95,7 @@
       "Bash(gh pr checks *)",
       "Bash(gh pr checkout *)",
       "Bash(bash .claude/addf/tests/run-all.sh *)",
-      "Bash(uv run --python 3.11 .claude/addf/tools/lint *)"
+      "Bash(uv run --python 3.11 .claude/addf/addfTools/lint *)"
     ],
     "ask": [
       "Bash(git push *)",

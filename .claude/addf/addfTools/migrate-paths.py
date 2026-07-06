@@ -63,7 +63,7 @@ except ModuleNotFoundError:
 
 # paths.toml の探索先（移行後の新位置を優先し、移行前の旧位置にフォールバック）
 MAP_CANDIDATES = [
-    '.claude/addf/tools/paths.toml',
+    '.claude/addf/addfTools/paths.toml',
     '.claude/addfTools/paths.toml',
 ]
 
@@ -368,7 +368,14 @@ def mode_rewrite(cfg, map_path):
     print(f'完了: {changed_files} ファイル / {total} 箇所を書き換えました。'
           'ここでコミットし、残存ゼロを確認してください:\n'
           f'  uv run --python 3.11 {tools_dir}/lint-residual-paths.py\n'
-          f'  （uv が無ければ: python3 {tools_dir}/lint-residual-paths.py）')
+          f'  （uv が無ければ: python3 {tools_dir}/lint-residual-paths.py）\n'
+          '\n'
+          '注意: 以下は rewrite の書き換え対象外です。移行後に手動確認してください（lint も検出できません）:\n'
+          '  - git 追跡外のファイル（.claude/settings.local.json の許可ルール等）に残る旧パス\n'
+          '  - 相対階層参照（SCRIPT_DIR/../.. 等）・os.path.join / 文字列連結で組み立てるパス断片\n'
+          '  - Markdown の相対リンク（../../ 等。ファイルの階層が変わるとずれる）\n'
+          '  - コンパイル済みバイナリ内のパス（ソース修正＋再ビルドが必要）\n'
+          '  確認後、プロジェクト自身のテストを一度回すことを推奨します')
 
 
 def main():

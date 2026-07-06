@@ -63,7 +63,7 @@ Plan 0015 の検証項目は `run-all.sh` と `/addf-init check` のみで、
 Feedback.md の改善アクション「意思で覚えず機械化する」（`.claude/addf/knowhow/ADDF/sync-lint-design.md`）に倣う。
 
 **対応**: 以下のいずれか（実装時に選択。a を推奨）:
-- (a) `.claude/addf/tools/lint-template-sync.py` に「リポジトリ実体 ⇔ addf-init コピーリスト」の検査を追加する。
+- (a) `.claude/addf/addfTools/lint-template-sync.py` に「リポジトリ実体 ⇔ addf-init コピーリスト」の検査を追加する。
   CLAUDE.md テンプレートが `@` や バッククオートで参照する `.claude/` 配下のファイルが
   コピーリスト（グロブ含む）でカバーされているかを検証する
 - (b) コピーリストをグロブ＋除外方式（例: `.claude/*.example.md`）に書き換え、明示列挙を減らす
@@ -77,7 +77,7 @@ Feedback.md の改善アクション「意思で覚えず機械化する」（`.
 |---|---|
 | `.claude/commands/addf-init.md` | カテゴリ1に example 2ファイル追加、Progress.md 生成元の明記 |
 | `.claude/addf/tests/skills/`（新規シナリオ） | 外部起動フローの E2E シナリオ |
-| `.claude/addf/tools/lint-template-sync.py`（案 a の場合） | コピーリスト検査（ペア5）の追加 |
+| `.claude/addf/addfTools/lint-template-sync.py`（案 a の場合） | コピーリスト検査（ペア5）の追加 |
 | `.claude/addf/tests/tools/test-template-sync.sh`（案 a の場合) | ペア5のテスト追加 |
 
 ## 検証

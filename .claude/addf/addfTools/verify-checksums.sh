@@ -107,7 +107,7 @@ if [ ! -f "$SUMS" ]; then
   kind="$(detect_repo_kind)"
   case "$kind" in
     upstream)
-      echo "ERROR: checksums.sha256 が不在（repo_kind=upstream。ADDF 本体では build.sh が生成・コミットする — ビルド漏れか削除ドリフト。復旧: bash .claude/addf/tools/build.sh --checksums-only）"
+      echo "ERROR: checksums.sha256 が不在（repo_kind=upstream。ADDF 本体では build.sh が生成・コミットする — ビルド漏れか削除ドリフト。復旧: bash .claude/addf/addfTools/build.sh --checksums-only）"
       exit 1
       ;;
     downstream)

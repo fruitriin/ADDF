@@ -3,9 +3,9 @@ title: 自分自身を移動させる移行ツールの設計パターン
 created: 2026-07-06
 last_verified: 2026-07-06
 depends_on:
-  - file: .claude/addf/tools/paths.toml
-  - file: .claude/addf/tools/migrate-paths.py
-  - file: .claude/addf/tools/lint-residual-paths.py
+  - file: .claude/addf/addfTools/paths.toml
+  - file: .claude/addf/addfTools/migrate-paths.py
+  - file: .claude/addf/addfTools/lint-residual-paths.py
 status: active
 ---
 
@@ -94,7 +94,7 @@ run-all 全19スイート中18が移行直後に失敗し、原因は類型1〜3
 
 ## 参照
 
-- `.claude/addf/tools/migrate-paths.py` / `lint-residual-paths.py` / `paths.toml`
+- `.claude/addf/addfTools/migrate-paths.py` / `lint-residual-paths.py` / `paths.toml`
 - `.claude/addf/tests/tools/test-migrate-paths.sh`（51アサーション。攻撃再現テスト込み）
 - `.claude/addf/plans-add/0037-addf-directory-consolidation.md`
 - [persona-review-oneshot.md](persona-review-oneshot.md) — これらの穴を検出したレビュー体制
