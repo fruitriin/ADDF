@@ -2,6 +2,12 @@
 
 ## 実装状況: 完了（2026-03-18、2026-06-11 遡及確認）
 
+## 意図的完了の明記（2026-07-06・Plan 0036 埋没監査 #6 の回収）
+
+- 「hooks 活用」の High 推奨は**実装済み**として閉じる（Plan 0021〜0023 で hooks 群を導入・現在 CI/pre-commit/context-reminder 等で稼働中）
+- 「言語別ルール分離」の High 推奨は Plan 0045 に回収（判断 Plan として起案）
+
+
 ## 動機
 `plan.md` #7 のオーナーリクエスト。外部リポジトリ https://github.com/affaan-m/everything-claude-code/ から ADD フレームワークに取り込めるプラクティスを調査する。
 

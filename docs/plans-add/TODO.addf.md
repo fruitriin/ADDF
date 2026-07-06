@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: 0032 完了（knowhow 鮮度棚卸し・新 knowhow 1本追加。2026-07-06）。次は 0037（一発通し切り・オーナー同席推奨）。0026 はオーナー指示待ち。0030 は実装済み（CI 実地検証済・branch protection の要否オーナー判断待ち）。未着手 0039・0040・0041（いずれもオーナー起案 2026-07-06）、0029 フェーズ2以降
+## 現在のフェーズ: /loop サイクル12 = レビューモード。オーナー対応待ちを一括整理（Q2 応答→Plan 0037 別セッション実施予定 / 0040/0041/0042 実施承認 / 0043/0044/0045 起案 / 0020/0016/0005/0028 意図的完了明記）。次サイクルは 0041 優先実施
 
 ## バックログ
 
@@ -34,7 +34,7 @@
 | 23 | 23 | `docs/plans-add/0023-turn-reminder-context-split.md` | 完了 |
 | 24 | 24 | `docs/plans-add/0024-todo-plan-status-lint.md` | 完了 |
 | 25 | 25 | `docs/plans-add/0025-rename-repo-to-addf.md` | 完了 |
-| 1 | 26 | `docs/plans-add/0026-review-residual-backlog.md` | 一部完了（残りはオーナー指示待ち） |
+| 1 | 26 | `docs/plans-add/0026-review-residual-backlog.md` | 一部完了（残りは Plan 0043 に回収予定・オーナー指示反映 2026-07-06） |
 | 2 | 27 | `docs/plans-add/0027-executable-checklist-doctrine.md` | 完了 |
 | 3 | 28 | `docs/plans-add/0028-worktree-speculative-dev.md` | 完了 |
 | 4 | 29 | `docs/plans-add/0029-gui-test-environment-matrix.md` | 一部完了（フェーズ1 完了。環境マトリクスはフェーズ2以降） |
@@ -48,9 +48,12 @@
 | 4 | 37 | `docs/plans-add/0037-addf-directory-consolidation.md` | 未着手（オーナー起案 2026-07-05。docs 明け渡し・.claude/addf/ 集約。0035/0036/0038 消化後に着手推奨・メジャーリリース級・one-shot 実施） |
 | 3 | 38 | `docs/plans-add/0038-speculation-fitness.md` | 完了（2026-07-05。投機適性3区分・Plan 化フォールバック・one-shot 定義の guides 単一ソース化・窓検出（手順 1.8）・reconcile check に pending_count 追加） |
 | 5 | 39 | `docs/plans-add/0039-docs-website.md` | 一部完了（フェーズ1=addf-doc-review-agent 逆輸入 完了 2026-07-06。フェーズ2/3 は Plan 0037 完了後） |
-| 5 | 40 | `docs/plans-add/0040-ccchain-optin.md` | 未着手（オーナー起案 2026-07-06。EnumaElish/ccchain のオプトイン統合・本体ドッグフーディング） |
-| 4 | 41 | `docs/plans-add/0041-context-exhaustion-loop-wall.md` | 未着手（オーナー起案 2026-07-06。方針確定済み: 止まらない教義＋compaction 耐性のタスク運び。能動コンパクション系は knowhow に死蔵、アーカイブは 0042 に切り出し） |
-| 4 | 42 | `docs/plans-add/0042-precompact-transcript-archive.md` | 未着手（0041 から切り出し 2026-07-06。PreCompact フックで生トランスクリプトをアーカイブ — 保全＋resume 可能スナップショット。既定パス・世代数上限は要オーナー確認） |
+| 4 | 40 | `docs/plans-add/0040-ccchain-optin.md` | 未着手（オーナー起案 2026-07-06・**投機的実施承認 2026-07-06**。大きな変更のため後続も並列もなし = 単独投機） |
+| **2** | 41 | `docs/plans-add/0041-context-exhaustion-loop-wall.md` | 未着手（オーナー起案 2026-07-06・**優先実施 2026-07-06**。方針確定済み: 止まらない教義＋compaction 耐性のタスク運び） |
+| 3 | 42 | `docs/plans-add/0042-precompact-transcript-archive.md` | 未着手（0041 から切り出し 2026-07-06・**実施承認・オプトイン要素として導入 2026-07-06**。ストレージ消費増をトレードオフ許容） |
+| 3 | 43 | `docs/plans-add/0043-security-recovery.md` | 未着手（オーナー起案 2026-07-06。B3 = 0026 Critical/High + 0033 パストラバーサル Low を「不便のない範囲で」回収） |
+| 5 | 44 | `docs/plans-add/0044-experience-strategy-decision.md` | 未着手（オーナー起案 2026-07-06。B3 = experience 運用方式（案A/案B）の決定 Plan） |
+| 6 | 45 | `docs/plans-add/0045-language-specific-rules.md` | 未着手（オーナー起案 2026-07-06。B3 = 言語別ルール分離の導入判断 Plan） |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください

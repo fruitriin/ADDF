@@ -79,7 +79,7 @@
 
 ## 要オーナー確認
 
-- root ロケールを ja にするか en にするか（提案: ja。ADDF の正文は日本語）
+- ~~root ロケールを ja にするか en にするか（提案: ja。ADDF の正文は日本語）~~ → **確定: ja**（オーナー判断 2026-07-06）
 - GitHub Pages の有効化（リポジトリ Settings → Pages → GitHub Actions ソース）はオーナー操作が必要
 - フェーズ4（英訳拡充）の要否
 
