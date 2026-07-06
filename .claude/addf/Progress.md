@@ -88,7 +88,7 @@
 - [x] C: addf-init.md の整合確認 — 素の addf-lock.json 表記3箇所のみ乖離を検出し修正済み
 - [x] D: CHANGELOG [0.6.0]（破壊的変更・移行ガイド8ステップ・リネーム対応表）。移行案内自身が rewrite で壊れる問題を rewrite_exclusions 追加で根治
 - [x] Stage 1: A・B+D を main にマージ（--no-ff ×2）後 run-all 全19スイートパス。worktree/ブランチ掃除済み
-- [ ] Stage 2: レビュー実行中（skeptic=発動判定 / newcomer=合成ダウンストリームでの実地リハーサル / attacker=道具と除外の穴 / doc-review=ドリフト の4体並列）
+- [x] Stage 2: 4体並列レビュー完了（Critical 3・Warning 6 を検出）→ 全指摘修正・マージ済み（テスト60→71・run-all 全パス・lint-residual/checklist OK）。行マーカー residual-path: allow 導入・旧版スキル経路の再実行案内・addfTools 混在退避手順・type2 偽陽性抑制・走査1周化
 - [ ] E: リリース準備（v0.6.0 採番。リリース実行はオーナー確認後）
 - [ ] 完了処理（knowhow・Progress アーカイブ・コミット）
 
@@ -96,7 +96,7 @@
 
 ##### 2026-07-06 — フェーズ3 レビュー3/4完了。対応リスト集約中（attacker 待ち）
 **やったこと**: doc-review 分は対応済み（setup.md ツリー図の新構造化・migration.md 裸参照修正・6.6 exit2 注記・knowhow を射程外5類型に更新）。newcomer 実地リハーサルはハッピーパス完走を確認。skeptic が Critical を検出。
-**今の見立て**: 未対応の集約リスト: (1)[C/skeptic] 旧版スキル経路 — 旧版 addf-migrate.md は CHANGELOG を旧位置に探すため Phase 2.5 到達が未保証。対応: CHANGELOG [0.6.0] 冒頭に「必ず新版 addf-migrate.md で実行・旧版で始めたらスキル更新後に2周目」を明記＋Phase 2.5 に復旧手順ノート。 (2)[C/newcomer] .claude/addfTools のディレクトリ丸ごと移動は独自ファイル混在を占有空間へ引き込み、将来の migrate 上書きで消しうる。対応: 6.3 にクローン元との差分確認・6.8 に混在チェック項目・Phase 5 ステップ14 に addf- 以外保護句。 (3)[W/skeptic] 6.1 発動判定の1点依存 — 部分適用（.claude/addf だけ存在）で永久スキップ。セカンダリチェック追記。 (4)[W/skeptic] 射程外 type2 スキャンが一般語 basename（templates/tests 等）×全リポジトリ走査で偽陽性氾濫 — ツール修正＋テスト。 (5)[W/newcomer] 6.7 に run-all 不在分岐。 (6)[W/newcomer] Phase 2.5 の独立フェーズ注記。 (7)[S] 6.8 grep 例・6.2 cp 上書き注意・6.1 new_root 手動同期コメント。
+**今の見立て**: 未対応の集約リスト: (1)[C/skeptic] 旧版スキル経路 — 旧版 addf-migrate.md は CHANGELOG を旧位置に探すため Phase 2.5 到達が未保証。対応: CHANGELOG [0.6.0] 冒頭に「必ず新版 addf-migrate.md で実行・旧版で始めたらスキル更新後に2周目」を明記＋Phase 2.5 に復旧手順ノート。 (2)[C/newcomer] .claude/addfTools のディレクトリ丸ごと移動は独自ファイル混在を占有空間へ引き込み、将来の migrate 上書きで消しうる。対応: 6.3 にクローン元との差分確認・6.8 に混在チェック項目・Phase 5 ステップ14 に addf- 以外保護句。 (3)[W/skeptic] 6.1 発動判定の1点依存 — 部分適用（.claude/addf だけ存在）で永久スキップ。セカンダリチェック追記。 (4)[W/skeptic] 射程外 type2 スキャンが一般語 basename（templates/tests 等）×全リポジトリ走査で偽陽性氾濫 — ツール修正＋テスト。 (5)[W/newcomer] 6.7 に run-all 不在分岐。 (6)[W/newcomer] Phase 2.5 の独立フェーズ注記。 (7)[S] 6.8 grep 例・6.2 cp 上書き注意・6.1 new_root 手動同期コメント。 <!-- residual-path: allow（レビュー指摘の引用のため旧パス表記が正当） -->
 **次の自分へ**: attacker の結果が来たら重複を集約（コンセンサス補正）して一括対応 → run-all → E（リリース準備）→ オーナー最終確認。(4) はコード修正なので test-migrate-paths.sh の更新も忘れずに。
 **気になっていること**: (1) の「2周目の自己修復」経路は現実には Phase 5 step 12 のスキル上書きで機能するはずだが、1周目の Phase 3/4 が新旧構造の diff を「削除」と誤分類する動作が未テスト。CHANGELOG 冒頭案内で1周目自体を避けさせるのが最も安全。
 
