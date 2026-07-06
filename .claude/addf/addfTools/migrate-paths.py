@@ -35,6 +35,8 @@
   拡張子なしスクリプトも対象に入る）。**symlink は除外する** — git は symlink を
   blob として追跡するため、open() で辿るとリンク先（リポジトリ外でもよい）を
   読み書きしてしまう（リポジトリ外書き込みの攻撃経路になる）。
+  行内に EXCLUSION_MARKER（residual-path: allow）を含む行は集計・書き換え・
+  検査の全てでスキップする（移行手順書等の正当な旧パス言及行の行単位除外）。
 
 境界チェック:
   `docs/plans` の置換が `docs/plans-add` に誤マッチしない等のため、長いキーから
@@ -69,9 +71,26 @@ MAP_CANDIDATES = [
     '.claude/addfTools/paths.toml',
 ]
 
+# 行単位の除外マーカー。この文字列を行内に含む行は check の参照集計・rewrite の
+# 書き換え・射程外候補スキャン・lint-residual-paths.py の検査の全てでスキップされる
+# （コメント形式は問わない — `<!-- residual-path: allow -->` でも
+# `# residual-path: allow` でも行内一致で判定する）。
+# 移行手順書・移行ガイド（addf-migrate.md / addf-init.md / CHANGELOG.md）が正当に
+# 含む旧パス言及行に付ける。ファイル丸ごとの除外（rewrite_exclusions）は
+# そのファイル全体が lint の永久盲点になるため、ドキュメントには使わない
+# （同期契約: lint-residual-paths.py の EXCLUSION_MARKER と同一に保つ）
+EXCLUSION_MARKER = 'residual-path: allow'
+
 # check のマッチ例表示の上限（旧パスごと）と1行の最大表示幅
 SAMPLE_LIMIT = 3
 SAMPLE_WIDTH = 100
+
+# 走査するテキストファイルのサイズ上限。超過したファイルは読み込まずスキップし、
+# 走査後に件数付きで手動確認を案内する（巨大ファイルでの実行時間・メモリの爆発防止。
+# 実測: 392MB のテキストで check 67秒 / RSS 1.35GB — attacker 指摘。
+# 同期契約: lint-residual-paths.py の MAX_TEXT_BYTES と同一に保つ）
+MAX_TEXT_BYTES = 5 * 1024 * 1024
+SIZE_SKIPPED = set()  # サイズ超過でスキップしたパス（重複走査があるため set）
 
 
 def run_git(*args, check=False):
@@ -156,10 +175,15 @@ def read_text(path):
     - symlink は除外: git は symlink を blob 追跡するため、open() で辿ると
       リンク先（リポジトリ外でもよい）を読み書きしてしまう
     - バイナリは NUL バイト検査＋ UTF-8 デコード失敗で除外（拡張子に依存しない）
+    - MAX_TEXT_BYTES 超過は読み込まずスキップし SIZE_SKIPPED に記録する
+      （report_size_skips() が件数付きで手動確認を案内 — silent 無効化の禁止）
     """
     if os.path.islink(path) or not os.path.isfile(path):
         return None
     try:
+        if os.path.getsize(path) > MAX_TEXT_BYTES:
+            SIZE_SKIPPED.add(path)
+            return None
         with open(path, 'rb') as f:
             data = f.read()
     except OSError:
@@ -227,17 +251,27 @@ def preflight(cfg):
     return moves, skips, infos, problems
 
 
-def scan_references(cfg):
-    """旧パス参照の全数とマッチ例を集計する。
+def scan_references(cfg, fragment_match=None):
+    """旧パス参照の全数とマッチ例を集計し、(stats, fragment_hits) を返す。
 
-    {old: {'files': set, 'count': int, 'samples': [(path, lineno, line)]}}
+    stats = {old: {'files': set, 'count': int, 'samples': [(path, lineno, line)]}}
     長いキー優先＋マッチ済み範囲の消し込みで、docs/plans-add の参照を
     docs/plans の参照として二重計上しない。
+
+    fragment_match（fragment_matcher() の戻り値）が与えられた場合、**同じ1周**で
+    射程外類型2（分割断片）の候補行も fragment_hits に集計する — 巨大リポジトリで
+    走査を複数回繰り返さないため。全ファイルの全文はメモリに保持せず、
+    1ファイルずつ読んで両方の集計に通す。
     """
     reps = sorted_replacements(cfg)
     stats = {old: {'files': set(), 'count': 0, 'samples': []} for _, old, _ in reps}
+    fragment_hits = []
     for path, text in scan_targets(cfg):
         for lineno, line in enumerate(text.splitlines(), 1):
+            if EXCLUSION_MARKER in line:
+                continue  # 行単位マーカー（正当な旧パス言及行）はスキップ
+            if fragment_match is not None and fragment_match(line):
+                fragment_hits.append((path, lineno, line.strip()))
             remaining = line
             for pattern, old, _ in reps:
                 n = len(pattern.findall(remaining))
@@ -249,7 +283,7 @@ def scan_references(cfg):
                 if len(s['samples']) < SAMPLE_LIMIT:
                     s['samples'].append((path, lineno, line.strip()))
                 remaining = pattern.sub(lambda m: '\0' * len(m.group(0)), remaining)
-    return stats
+    return stats, fragment_hits
 
 
 def migrated_tool_dir(cfg):
@@ -317,26 +351,48 @@ def oos_scan_relative_hierarchy(move_files):
         if text is None:
             continue
         for lineno, line in enumerate(text.splitlines(), 1):
+            if EXCLUSION_MARKER in line:
+                continue
             if any(p.search(line) for p in OOS_REL_HIERARCHY_PATTERNS):
                 hits.append((path, lineno, line.strip()))
     return hits
 
 
-def oos_scan_split_fragments(cfg):
-    """類型2: 全 git 追跡テキストにあるパスの分割断片（os.path.join / 文字列連結）。
+def fragment_matcher(cfg):
+    """類型2（分割断片）の行マッチャを返す: os.path.join / 文字列連結のパス組み立て。
 
-    フルパス文字列が現れないため rewrite は書き換えられない。
+    フルパス文字列が現れないため rewrite は書き換えられない候補行を検出する。
+    scan_references() に渡し、参照集計と**同じ1周**で全 git 追跡テキストを走査する
+    （走査を複数回繰り返さない — 巨大リポジトリの性能対策）。
+
+    偽陽性抑制のヒューリスティック: 一般語 basename（templates / tests / plans 等）は
+    無関係な定型句（Django の os.path.join(BASE_DIR, 'templates') 等）に大量マッチする。
+    - 行内に `.claude` を含む → 全 basename で検出（ADDF 文脈の確度が高い）
+    - 行内に `.claude` を含まない → **固有名 basename**（`addf` を含む・大文字を含む・
+      拡張子付きのファイル名）が現れる行のみ検出し、全小文字の一般語ディレクトリ名は
+      対象外にする
     """
     basenames = sorted({'.claude', *derive_move_basenames(cfg)})
-    quoted = re.compile('[\'"](' + '|'.join(re.escape(b) for b in basenames) + ')[\'"]')
+    distinctive = sorted(b for b in basenames
+                         if 'addf' in b.lower() or b != b.lower() or '.' in b)
+
+    def quoted_re(names):
+        return re.compile('[\'"](' + '|'.join(re.escape(b) for b in names) + ')[\'"]')
+
+    quoted_any = quoted_re(basenames)
+    quoted_distinctive = quoted_re(distinctive)
+    distinctive_sub = re.compile('|'.join(re.escape(b) for b in distinctive))
     joiner = re.compile(r'os\.path\.join\s*\(')
     concat = re.compile(r'''\+\s*f?['"]/''')  # scriptDir + "/../..." 等の文字列連結パス
-    hits = []
-    for path, text in scan_targets(cfg):
-        for lineno, line in enumerate(text.splitlines(), 1):
-            if (joiner.search(line) and quoted.search(line)) or concat.search(line):
-                hits.append((path, lineno, line.strip()))
-    return hits
+
+    def match(line):
+        if '.claude' in line:
+            return bool((joiner.search(line) and quoted_any.search(line))
+                        or concat.search(line))
+        return bool((joiner.search(line) and quoted_distinctive.search(line))
+                    or (concat.search(line) and distinctive_sub.search(line)))
+
+    return match
 
 
 def oos_scan_md_relative_links(move_files):
@@ -354,6 +410,8 @@ def oos_scan_md_relative_links(move_files):
         if text is None:
             continue
         for lineno, line in enumerate(text.splitlines(), 1):
+            if EXCLUSION_MARKER in line:
+                continue
             if pat.search(line):
                 hits.append((path, lineno, line.strip()))
     return hits
@@ -388,8 +446,13 @@ def print_oos_hits(label, hits):
         print(f'    …ほか {len(hits) - OOS_SAMPLE_LIMIT} 箇所')
 
 
-def scan_out_of_scope(cfg, moves):
-    """rewrite 射程外4類型の候補スキャン。WARNING のみで exit code に影響しない"""
+def scan_out_of_scope(cfg, moves, fragment_hits):
+    """rewrite 射程外4類型の候補スキャン。WARNING のみで exit code に影響しない。
+
+    類型2（fragment_hits）は scan_references() の1周で集計済みのものを受け取る
+    （全追跡テキストの再走査をしない）。類型1/3/4 は移動対象内のファイルのみの
+    小さな部分集合走査のためここで読む。
+    """
     print('\n--- 射程外候補スキャン（WARNING — check の成否には影響しない）---')
     print('rewrite はフルパス文字列のリテラル出現しか書き換えられません。以下は移行で壊れる可能性の')
     print('ある箇所の候補です（偽陽性を含みます）。apply/rewrite 後にこれらを確認し、')
@@ -398,7 +461,7 @@ def scan_out_of_scope(cfg, moves):
     print_oos_hits('類型1: 相対階層参照（SCRIPT_DIR/.. 等・移動対象内の .sh/.py/.bash）',
                    oos_scan_relative_hierarchy(move_files))
     print_oos_hits('類型2: 分割断片（os.path.join / 文字列連結のパス組み立て・全追跡テキスト）',
-                   oos_scan_split_fragments(cfg))
+                   fragment_hits)
     print_oos_hits('類型3: Markdown 相対リンク（](../ 形式・移動対象内の .md）',
                    oos_scan_md_relative_links(move_files))
     bins = oos_scan_binaries(move_files)
@@ -409,6 +472,17 @@ def scan_out_of_scope(cfg, moves):
         print(f'    …ほか {len(bins) - OOS_SAMPLE_LIMIT} 件')
     print('注意: git 追跡外のファイル（.claude/settings.local.json の許可ルール等）は'
           '走査対象外です。移行後に旧パスが残っていないか手動で確認してください')
+
+
+def report_size_skips():
+    """サイズ上限超過でスキップしたファイルを件数付きで案内する（silent 無効化の禁止）"""
+    if not SIZE_SKIPPED:
+        return
+    print(f'\n注意: サイズ上限（{MAX_TEXT_BYTES // (1024 * 1024)}MB）超過のため '
+          f'{len(SIZE_SKIPPED)} ファイルの読み込みをスキップしました。'
+          '旧パス参照が残っていないか手動で確認してください:')
+    for p in sorted(SIZE_SKIPPED):
+        print(f'    {p}')
 
 
 def mode_check(cfg, map_path):
@@ -423,8 +497,11 @@ def mode_check(cfg, map_path):
         print(f'ERROR: {line}')
     print('\n--- 旧パス参照の全数（git 追跡テキストファイル・除外リスト適用後）---')
     print(f'（マッチ例は旧パスごとに先頭 {SAMPLE_LIMIT} 件。rewrite 前の誤爆候補の目視確認用）')
+    # 射程外類型2 は参照集計と同じ1周で集める（移動対象ゼロ = 移行済みなら集めない）
+    stats, fragment_hits = scan_references(
+        cfg, fragment_matcher(cfg) if moves else None)
     total_refs = 0
-    for old, s in scan_references(cfg).items():
+    for old, s in stats.items():
         if not s['count']:
             continue
         total_refs += s['count']
@@ -436,7 +513,8 @@ def mode_check(cfg, map_path):
     print(f'参照合計: {total_refs} 箇所（`rewrite` で書き換える）')
     if moves:
         # 移行前のリポジトリでのみ意味がある案内のため、移動対象ゼロなら実行しない
-        scan_out_of_scope(cfg, moves)
+        scan_out_of_scope(cfg, moves, fragment_hits)
+    report_size_skips()
     if problems:
         print('\nERROR: ブロッカーがあります。解消してから apply してください')
         sys.exit(1)
@@ -505,21 +583,29 @@ def mode_rewrite(cfg, map_path):
         print(f'ERROR: {new_root}/ が存在しません。apply（git mv）を先に実行してください'
               '（apply 前に rewrite すると、参照だけが実在しないパスへ一括で書き換わる）')
         sys.exit(1)
-    ensure_clean_tree('apply（git mv）分を先にコミットしてから rewrite してください')
+    ensure_clean_tree('未コミットの変更（apply 分のコミット忘れ、または apply 後の別の編集）を'
+                      'コミットか退避してから rewrite してください')
     reps = sorted_replacements(cfg)
     changed_files = 0
     total = 0
     for path, text in scan_targets(cfg):
-        new_text = text
+        # 行単位マーカー（EXCLUSION_MARKER）行を書き換えから外すため行ごとに処理する
+        # （keepends=True の join は原文を完全復元する — 改行コードを壊さない）
+        lines = text.splitlines(keepends=True)
         n_file = 0
-        for pattern, old, new in reps:
-            new_text, n = pattern.subn(new, new_text)
-            n_file += n
+        for i, line in enumerate(lines):
+            if EXCLUSION_MARKER in line:
+                continue
+            for pattern, old, new in reps:
+                line, n = pattern.subn(new, line)
+                n_file += n
+            lines[i] = line
         if n_file:
             with open(path, 'w', encoding='utf-8') as f:
-                f.write(new_text)
+                f.write(''.join(lines))
             changed_files += 1
             total += n_file
+    report_size_skips()
     tools_dir = migrated_tool_dir(cfg)
     print(f'完了: {changed_files} ファイル / {total} 箇所を書き換えました。'
           'ここでコミットし、残存ゼロを確認してください:\n'
