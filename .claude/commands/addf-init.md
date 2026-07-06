@@ -34,7 +34,8 @@ user_invocable: true
 
 ## 部分導入からの正規化
 
-`addf-lock.json` が無いまま ADDF 由来ファイル（`.claude/commands/addf-*.md` 等）の一部が
+lock ファイル（`.claude/addf/lock.json`。旧配布の位置は `.claude/addf-lock.json`）が無いまま
+ADDF 由来ファイル（`.claude/commands/addf-*.md` 等）の一部が
 存在するプロジェクト（手縫い導入・旧版の部分コピー）を、正規の導入状態に揃えるモード。
 `/addf-migrate` は lock 不在かつ部分導入を検出したとき、このモードを提案して誘導する。
 
@@ -88,7 +89,7 @@ user_invocable: true
 
 1. 既に ADDF 導入済みか判定する:
    - `.claude/addf/lock.json` が存在する → 「ADDF は導入済みです。`/addf-init check` で構造を検証できます」と案内して終了
-   - `.claude/commands/addf-*.md` が存在するが `addf-lock.json` がない → **Template 経由の新規プロジェクト**（ADDF ファイルは同梱済み、ロックファイルのみ未生成）または**部分導入プロジェクト**（過去に手動で ADDF ファイルの一部を導入した状態）。どちらかをユーザーに確認する <!-- human-judgment -->。Template 経由なら Phase 2 に進む。部分導入なら上記「部分導入からの正規化」に従う（既存ファイルが最新版と差分なしなら lock 再生成のみで完了する）
+   - `.claude/commands/addf-*.md` が存在するが lock ファイルがない（旧位置 `.claude/addf-lock.json` にもない） → **Template 経由の新規プロジェクト**（ADDF ファイルは同梱済み、ロックファイルのみ未生成）または**部分導入プロジェクト**（過去に手動で ADDF ファイルの一部を導入した状態）。どちらかをユーザーに確認する <!-- human-judgment -->。Template 経由なら Phase 2 に進む。部分導入なら上記「部分導入からの正規化」に従う（既存ファイルが最新版と差分なしなら lock 再生成のみで完了する）
    - `CLAUDE.md` または `.claude/` が存在するが ADDF ファイルがない → **既存プロジェクト導入モード**。「既存プロジェクトに ADDF を導入します。続行しますか？」と確認を求める <!-- human-judgment -->
    - どちらも存在しない → 初期セットアップを開始
 
@@ -323,7 +324,7 @@ ADDF ファイルの配置元を決定する:
 1. 必須ファイル        ✓ 7/7 存在
 2. @ メンション解決    ✓ 全て解決可能
 3. TODO ↔ plans 整合   ✓ 一致
-4. addf-lock.json      ✓ 有効
+4. addf/lock.json      ✓ 有効
 5. AGENTS.md           ✓ 存在（Codex 対応）
 6. Hooks 配線          ✓ 全配線済み
 

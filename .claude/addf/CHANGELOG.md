@@ -2,6 +2,76 @@
 
 ADDF フレームワークの変更履歴。`/addf-migrate` 実行時に該当バージョン間のエントリを表示する。
 
+## [0.6.0] - 2026-07-06
+
+### 破壊的変更 — ディレクトリ大集約（Plan 0037）
+
+ADDF 管理ファイルの配置を全面変更した。`docs/` を明け渡し（ダウンストリームが GitHub Pages 等の
+一般用途に使えるように）、ADDF 由来ファイルを `.claude/addf/` 名前空間に集約した。
+旧→新の全対応は `.claude/addf/addfTools/paths.toml`（単一ソース — migrate の移動処理・
+残存 lint・テストが全て参照する）が保持する。主な移動:
+
+- `docs/plans` → `.claude/addf/plans`（同様に `plans-add` / `knowhow` / `guides` /
+  `project-overview`。docs/ 直下の ADDF 管理外ファイル — Pages コンテンツ等 — には
+  一切触れない: 存在≠所有）
+- `.claude/templates` → `.claude/addf/templates`（同様に `tests` / `optional` / `Progresses` /
+  `addfTools`）
+- リネームを伴う移動（`.claude/addf/` 内は占有空間のため `addf-` プレフィックスを外す）:
+  - `.claude/addf-Behavior.toml` → `.claude/addf/Behavior.toml`
+  - `.claude/addf-lock.json` → `.claude/addf/lock.json`（旧位置は `/addf-migrate` が
+    フォールバック検出する）
+  - `.claude/ADDF-CHANGELOG.md` → `.claude/addf/CHANGELOG.md`（本ファイル）
+  - `.claude/ADDF-Release.addf.md` → `.claude/addf/Release.addf.md`（`.addf.md` サフィックスは
+    配布除外規則の判定パターンのため維持）
+  - `.claude/Progress.md`・`Feedback.md`・`Questions.md`・`Questions.example.md`・
+    `Dashboard.example.md`・`Dashboard.md`・`Worktrees.md` → `.claude/addf/` 直下へ
+- 移動しないもの: `.claude/commands`・`agents`・`hooks`・`skills`・`settings*.json`
+  （Claude Code が読み込み位置を規定 — 従来どおり `addf-` プレフィックスで分離）と、
+  ルートのエントリポイント（`CLAUDE.md`・`TODO.md`・`AGENTS.md`・`CLAUDE.repo.md` 等）
+- 旧パスへの symlink 等の後方互換スタブは置かない。残存参照は lint が即時 ERROR で知らせる
+  （「静かに壊れる」より「うるさく直させる」）
+
+### 移行ガイド
+
+`/addf-migrate` を実行すると Phase 2.5（構造差分で発動 — 0.4.x 以前からの直行アップグレード
+でも漏れない）が本手順を案内する。手動で行う場合の要約:
+
+1. 作業ツリーを clean にする（dirty なら開始しない）
+2. 最新版クローンから移行ツール3点（`migrate-paths.py`・`lint-residual-paths.py`・
+   `paths.toml`）を旧位置 `.claude/addfTools/` へコピーしてコミットする
+   （移行前のプロジェクトには道具がまだ無い）
+3. `uv run --python 3.11 .claude/addfTools/migrate-paths.py check` で移動計画・旧パス参照数・
+   rewrite 射程外の候補を確認する（uv が無ければ python3（3.11+）で直接実行）
+4. `uv run --python 3.11 .claude/addfTools/migrate-paths.py apply` → **git mv だけを
+   単独コミット**（backup ref `refs/backup/pre-0037-migration` が自動作成される）
+5. **新位置**の `uv run --python 3.11 .claude/addf/addfTools/migrate-paths.py rewrite` →
+   参照書き換えを別コミット（ツール自身も移動済みのため旧パスのコピペは不可）
+6. `uv run --python 3.11 .claude/addf/addfTools/lint-residual-paths.py` で残存ゼロを確認する
+   （ERROR = 移行未完了）
+7. プロジェクト自身のビルド・テストを実行する。失敗したら **rewrite 射程外の4類型**
+   （相対階層参照 / `os.path.join` 等の分割断片 / 書き込み先の親 mkdir / Markdown 相対リンク）
+   を疑う — ADDF 本体の移行実測では 19 スイート中 18 の失敗が全てこの類型だった。
+   git 追跡外ファイル（`settings.local.json` の許可ルール等）とコンパイル済みバイナリ内の
+   パス断片も rewrite の対象外のため手動確認する
+8. 失敗時の巻き戻し: `git reset --hard refs/backup/pre-0037-migration`
+
+### 追加
+- `migrate-paths.py` — paths.toml 駆動の移行ツール（check / apply / rewrite の3モード）。
+  apply と rewrite の dirty 拒否でコミット分離を構造的に強制・backup ref の既存上書き拒否・
+  symlink 除外・境界チェック付き置換（`docs/plans` が `docs/plans-add` に誤マッチしない）。
+  check は rewrite 射程外の候補（相対階層参照・パス断片・相対リンク）も警告する
+- `lint-residual-paths.py` — 旧パス残存の完了ゲート（ERROR ゼロになるまで移行を完了扱い
+  しない）＋移行後の docs/ 逆流 WARNING（移行前のリポジトリでは明示 SKIP）
+- `paths.toml` — 旧→新パスマップの単一ソース（コピーリスト類の手書きドリフトの構造的排除）
+- `test-migrate-paths.sh` — 51 アサーション（独自 knowhow・Pages コンテンツを持つ合成
+  プロジェクトでのダウンストリーム移行シミュレーション・ドリフト注入・攻撃再現テスト込み）
+- rewrite 完了メッセージに書き換え対象外（追跡外ファイル・パス断片・相対リンク・バイナリ）の
+  手動確認案内
+
+### 変更
+- `/addf-migrate` に Phase 2.5（ディレクトリ大移行のワンショット手順）と lock 旧位置
+  （`.claude/addf-lock.json`）のフォールバック検出を追加
+
 ## [0.5.0] - 2026-07-05
 
 ### 追加
