@@ -342,9 +342,24 @@ def oos_scan_split_fragments(cfg):
     """類型2: 全 git 追跡テキストにあるパスの分割断片（os.path.join / 文字列連結）。
 
     フルパス文字列が現れないため rewrite は書き換えられない。
+
+    偽陽性抑制のヒューリスティック: 一般語 basename（templates / tests / plans 等）は
+    無関係な定型句（Django の os.path.join(BASE_DIR, 'templates') 等）に大量マッチする。
+    - 行内に `.claude` を含む → 全 basename で検出（ADDF 文脈の確度が高い）
+    - 行内に `.claude` を含まない → **固有名 basename**（`addf` を含む・大文字を含む・
+      拡張子付きのファイル名）が現れる行のみ検出し、全小文字の一般語ディレクトリ名は
+      対象外にする
     """
     basenames = sorted({'.claude', *derive_move_basenames(cfg)})
-    quoted = re.compile('[\'"](' + '|'.join(re.escape(b) for b in basenames) + ')[\'"]')
+    distinctive = sorted(b for b in basenames
+                         if 'addf' in b.lower() or b != b.lower() or '.' in b)
+
+    def quoted_re(names):
+        return re.compile('[\'"](' + '|'.join(re.escape(b) for b in names) + ')[\'"]')
+
+    quoted_any = quoted_re(basenames)
+    quoted_distinctive = quoted_re(distinctive)
+    distinctive_sub = re.compile('|'.join(re.escape(b) for b in distinctive))
     joiner = re.compile(r'os\.path\.join\s*\(')
     concat = re.compile(r'''\+\s*f?['"]/''')  # scriptDir + "/../..." 等の文字列連結パス
     hits = []
@@ -352,7 +367,13 @@ def oos_scan_split_fragments(cfg):
         for lineno, line in enumerate(text.splitlines(), 1):
             if EXCLUSION_MARKER in line:
                 continue
-            if (joiner.search(line) and quoted.search(line)) or concat.search(line):
+            if '.claude' in line:
+                hit = (joiner.search(line) and quoted_any.search(line)) \
+                    or concat.search(line)
+            else:
+                hit = (joiner.search(line) and quoted_distinctive.search(line)) \
+                    or (concat.search(line) and distinctive_sub.search(line))
+            if hit:
                 hits.append((path, lineno, line.strip()))
     return hits
 

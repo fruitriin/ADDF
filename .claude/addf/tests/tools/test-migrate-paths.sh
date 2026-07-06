@@ -185,6 +185,12 @@ EOF
 import os
 CONF = os.path.join(ROOT, '.claude', 'addf-Behavior.toml')
 EOF
+  # 類型2の偽陽性抑制（W2）: .claude を含まない一般語 join（Django 定型句）は検出しない
+  printf "TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')\n" > django_settings.py
+  # .claude を含む行は一般語 basename でも検出する
+  printf "p = os.path.join(root, '.claude', 'templates')\n" > frag2.py
+  # .claude を含まなくても固有名 basename（addf を含む等）の文字列連結は検出する
+  printf 'let conf = scriptDir + "/../addf-Behavior.toml"\n' > frag3.swift
   # 類型3: 移動対象内 Markdown の相対リンク（ファイル自身の階層が変わるとずれる）
   printf 'see [readme](../README.md)\n' > docs/guides/linked.md
   # 類型4: 移動対象内の実行可能バイナリ（NUL 入り）
@@ -197,12 +203,22 @@ out="$(runpy "$box" "$MIGRATE")"; code=$?
 check "4類型を仕込んでも check は exit 0（WARNING は成否に影響しない）" 0 "$code" "$out" "射程外候補スキャン"
 check "類型1: 相対階層参照（SCRIPT_DIR/..）を検出" 0 "$code" "$out" "docs/guides/helper.sh"
 check "類型2: os.path.join 断片を検出" 0 "$code" "$out" "frag.py"
+check "類型2: .claude ありの一般語 join（frag2.py）を検出" 0 "$code" "$out" "frag2.py"
+check "類型2: .claude なしでも固有名連結（frag3.swift）を検出" 0 "$code" "$out" "frag3.swift"
+if grep -q 'django_settings.py' <<<"$out"; then
+  echo "  FAIL: 偽陽性抑制 — .claude なしの一般語 join（Django 定型句）は検出しない"
+  FAIL=$((FAIL + 1))
+else
+  echo "  PASS: 偽陽性抑制 — .claude なしの一般語 join（Django 定型句）は検出しない"
+  PASS=$((PASS + 1))
+fi
 check "類型3: Markdown 相対リンク（](../）を検出" 0 "$code" "$out" "docs/guides/linked.md"
 check "類型4: バイナリ（NUL 検査）を列挙" 0 "$code" "$out" "fake-bin"
 check "偽陽性を含む目視確認の案内を明示する" 0 "$code" "$out" "偽陽性"
 check "git 追跡外ファイルは走査対象外の注意を出す" 0 "$code" "$out" "走査対象外"
 # 後続テスト（apply〜）を射程外注入と独立させるため取り除く
-git_box rm -qf docs/guides/helper.sh frag.py docs/guides/linked.md .claude/addfTools/fake-bin
+git_box rm -qf docs/guides/helper.sh frag.py frag2.py frag3.swift django_settings.py \
+  docs/guides/linked.md .claude/addfTools/fake-bin
 git_box commit -q -m "cleanup out-of-scope"
 
 echo "Test 8.6: 移行済みリポジトリ（移動対象ゼロ）では射程外スキャンを実行しない"
