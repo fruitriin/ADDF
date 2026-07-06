@@ -3,7 +3,7 @@
 `.claude/addf/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: Plan 0037 実施中（オーナー同席・2026-07-06）。フェーズ1 完了 → フェーズ2（本体移行 one-shot）はオーナー開始確認待ち
+## 現在のフェーズ: Plan 0037 フェーズ1・2 完了（2026-07-06 オーナー同席・一発完走）。次はフェーズ3（migrate 統合とメジャーリリース）
 
 ## バックログ
 
@@ -45,7 +45,7 @@
 | 5 | 34 | `.claude/addf/plans-add/0034-downstream-feedback-fixes.md` | 完了 |
 | 3 | 35 | `.claude/addf/plans-add/0035-pr-standard-format.md` | 完了（フェーズA・B・C。2026-07-05） |
 | 3 | 36 | `.claude/addf/plans-add/0036-plan-audit-skill.md` | 完了（2026-07-05。/addf-plan-audit 新設・migrate ワンショット統合。ドッグフーディング検出10件は処置提案としてオーナー判断待ち） |
-| **1** | 37 | `.claude/addf/plans-add/0037-addf-directory-consolidation.md` | 一部完了（フェーズ1=道具整備 完了 2026-07-06・オーナー同席セッションで着手。4体レビュー済み・51アサーション。フェーズ2=本体移行 one-shot・フェーズ3=migrate 統合とリリースが残り） |
+| **1** | 37 | `.claude/addf/plans-add/0037-addf-directory-consolidation.md` | 一部完了（フェーズ1・2 完了 2026-07-06 オーナー同席。本体は新構造（.claude/addf/）で運用中。フェーズ3=addf-migrate 統合・addf-init 新構造化・メジャーリリースが残り） |
 | 3 | 38 | `.claude/addf/plans-add/0038-speculation-fitness.md` | 完了（2026-07-05。投機適性3区分・Plan 化フォールバック・one-shot 定義の guides 単一ソース化・窓検出（手順 1.8）・reconcile check に pending_count 追加） |
 | 5 | 39 | `.claude/addf/plans-add/0039-docs-website.md` | 一部完了（フェーズ1=addf-doc-review-agent 逆輸入 完了 2026-07-06。フェーズ2/3 は Plan 0037 完了後） |
 | 4 | 40 | `.claude/addf/plans-add/0040-ccchain-optin.md` | 未着手（オーナー起案 2026-07-06・**投機的実施承認 2026-07-06**。大きな変更のため後続も並列もなし = 単独投機） |
