@@ -1,6 +1,10 @@
 # Plan 0041: コンテキスト枯渇によるループ停止の壁の突破
 
-## 実装状況: 未着手
+## 実装状況: 一部完了（フェーズ1・2 完了・実地検証は別サイクル）
+
+- フェーズ1（実測）: 2026-07-06 完了。`compact_boundary` エントリの `compactMetadata.preTokens` を根拠に auto-compact 発動点を測定
+- フェーズ2（教義の実装）: 2026-07-06 完了。context-reminder の注入文言追加・addf-dev.md ステップ5・ProgressTemplate 両方（同期ペア）に「満杯時の出口」教義を配線
+- 実地検証: /loop 自走でコンテキスト枯渇を跨いで継続することの1回以上の観測は別サイクルで実施予定
 
 > 出典: オーナー指示（2026-07-06）—「コンテキスト残量が残り少ないときに記録作業に回れるのはいいとして、いよいよ記載することがなくなったときに能動的に compact できなくてループが止まっちゃう壁を突破する計画を考えてほしい」
 > 同日のオーナー対話で方針確定: ペインの核心を特定し、能動コンパクション系のアイデアは死蔵（knowhow に記録保存）、教義＋タスク運びを主軸に。副産物の PreCompact トランスクリプトアーカイブは Plan 0042 に切り出し。
@@ -54,6 +58,23 @@
 - 可能なら 1M variant セッションの実効劣化目安も観測し、`[context-reminder.effective-context]` の Fable 系の値を埋める（Plan 0023 の残課題の回収）
 - 停止事例の解剖は行わない（ペインの核心はオーナー確定済みのため省略）
 
+#### 実測結果（2026-07-06）
+
+`~/.claude/projects/` 配下の全 JSONL（702 ファイル）を Python でスキャンし、`subtype: "compact_boundary"` エントリに付随する `compactMetadata.trigger` と `compactMetadata.preTokens` を根拠に採取。`trigger` は `"auto"` / `"manual"` を明示区別する（Claude Code 自身が記録した実測値）。
+
+| 分類 | preTokens | モデル | 推定ウィンドウ | 使用率 |
+|---|---:|---|---:|---:|
+| 200k セッション | 175,133 | claude-fable-5 | 200k | 87.6% |
+| 1M variant (min) | 967,754 | claude-fable-5 | 1M | 96.8% |
+| 1M variant (median) | 973,582 | claude-fable-5 | 1M | 97.4% |
+| 1M variant (max) | 1,000,566 | claude-fable-5 | 1M | 100.0% |
+
+- **200k セッションの auto 発動点は約 87.5%（≈175k）**。現行の context-reminder 閾値 180k はこの発動点よりわずかに高く、200k ウィンドウでは reminder より先に auto-compact が来る場面が原理的にありうる（N=1 の観測のため即断は避けるが、閾値見直しは Plan 0023 の余地として残る）
+- **1M variant の auto 発動点は約 97%（≈970k）**。N=3、min-max で 30k のばらつき
+- サンプル数は少ない（auto 発動を含むトランスクリプトは全 702 ファイル中 4 件）。opus 系の auto 発火サンプルは検出できず（トランスクリプトに `compact_boundary` エントリを含む opus セッションが存在しなかった。手動 `/compact` は N=4 = EnumaElish/opus-4-7 の 1M variant で観測されたが本 Plan のスコープ外）
+- 参照ファイル: `~/.claude/projects/-Users-riin-workspace-MagiaMagica/*.jsonl`（3件）、`~/.claude/projects/-Users-riin-workspace-SDIT/03df66de-1204-4ea4-a55f-c03c204bd731.jsonl`（1件）
+- 1M variant の「実効劣化」観測は行わず（発動限界の観測 ≠ 劣化限界の観測。Plan 0023 の残課題として据え置き）
+
 ### フェーズ2: 「満杯時の出口」教義 — 止まらないこと ＋ compaction 耐性のタスク運び
 
 - **対象**: `.claude/addfTools/context-reminder.py` / `.claude/commands/addf-dev.md` / `.claude/templates/ProgressTemplate.md`・`ProgressTemplate.addf.md`（同期ペア lint 対象）
@@ -89,8 +110,8 @@
 
 ## 完了条件
 
-- [ ] フェーズ1: auto-compact 発動点の実測値が `addf-Behavior.toml` コメントと本 Plan に記録されている
-- [ ] フェーズ2: context-reminder.py・addf-dev.md・ProgressTemplate 系に「満杯時の出口」（止まらない教義＋compaction 耐性のタスク運び）が記載され、`bash .claude/tests/run-all.sh` と `/addf-lint`（同期ペア）が全パスする
+- [x] フェーズ1: auto-compact 発動点の実測値が `addf-Behavior.toml` コメントと本 Plan に記録されている
+- [x] フェーズ2: context-reminder.py・addf-dev.md・ProgressTemplate 系に「満杯時の出口」（止まらない教義＋compaction 耐性のタスク運び）が記載され、`bash .claude/tests/run-all.sh` と `/addf-lint`（同期ペア）が全パスする
 - [ ] 実地検証: /loop 自走がコンテキスト枯渇を跨いで継続することを1回以上観測する <!-- human-judgment -->
 
 ## AI 実装時間見積もり

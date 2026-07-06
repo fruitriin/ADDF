@@ -49,7 +49,7 @@
 | 3 | 38 | `docs/plans-add/0038-speculation-fitness.md` | 完了（2026-07-05。投機適性3区分・Plan 化フォールバック・one-shot 定義の guides 単一ソース化・窓検出（手順 1.8）・reconcile check に pending_count 追加） |
 | 5 | 39 | `docs/plans-add/0039-docs-website.md` | 一部完了（フェーズ1=addf-doc-review-agent 逆輸入 完了 2026-07-06。フェーズ2/3 は Plan 0037 完了後） |
 | 4 | 40 | `docs/plans-add/0040-ccchain-optin.md` | 未着手（オーナー起案 2026-07-06・**投機的実施承認 2026-07-06**。大きな変更のため後続も並列もなし = 単独投機） |
-| **2** | 41 | `docs/plans-add/0041-context-exhaustion-loop-wall.md` | 未着手（オーナー起案 2026-07-06・**優先実施 2026-07-06**。方針確定済み: 止まらない教義＋compaction 耐性のタスク運び） |
+| **2** | 41 | `docs/plans-add/0041-context-exhaustion-loop-wall.md` | 一部完了（フェーズ1・2 完了 2026-07-06。実地検証は別サイクル。止まらない教義＋compaction 耐性のタスク運びを配線） |
 | 3 | 42 | `docs/plans-add/0042-precompact-transcript-archive.md` | 未着手（0041 から切り出し 2026-07-06・**実施承認・オプトイン要素として導入 2026-07-06**。ストレージ消費増をトレードオフ許容） |
 | 3 | 43 | `docs/plans-add/0043-security-recovery.md` | 未着手（オーナー起案 2026-07-06。B3 = 0026 Critical/High + 0033 パストラバーサル Low を「不便のない範囲で」回収） |
 | 5 | 44 | `docs/plans-add/0044-experience-strategy-decision.md` | 未着手（オーナー起案 2026-07-06。B3 = experience 運用方式（案A/案B）の決定 Plan） |
