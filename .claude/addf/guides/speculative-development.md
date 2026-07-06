@@ -1,7 +1,7 @@
 # 投機開発ガイド（worktree speculative development）
 
 アイドル時（着手可能なタスクがないとき）に、直交する概念を git worktree で先行開発する仕組みの概観。
-手順の詳細はスキル本文 [`.claude/commands/addf-speculate.md`](../../.claude/commands/addf-speculate.md) が正。
+手順の詳細はスキル本文 [`.claude/commands/addf-speculate.md`](../../../.claude/commands/addf-speculate.md) が正。
 このガイドは全体像の把握用で、コマンドや判定基準はスキル本文を参照すること。
 
 ## オプトイン
