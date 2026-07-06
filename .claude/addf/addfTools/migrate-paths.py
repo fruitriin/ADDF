@@ -583,7 +583,8 @@ def mode_rewrite(cfg, map_path):
         print(f'ERROR: {new_root}/ が存在しません。apply（git mv）を先に実行してください'
               '（apply 前に rewrite すると、参照だけが実在しないパスへ一括で書き換わる）')
         sys.exit(1)
-    ensure_clean_tree('apply（git mv）分を先にコミットしてから rewrite してください')
+    ensure_clean_tree('未コミットの変更（apply 分のコミット忘れ、または apply 後の別の編集）を'
+                      'コミットか退避してから rewrite してください')
     reps = sorted_replacements(cfg)
     changed_files = 0
     total = 0
