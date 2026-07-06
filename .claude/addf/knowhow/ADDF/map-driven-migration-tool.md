@@ -90,11 +90,13 @@ run-all 全19スイート中18が移行直後に失敗し、原因は類型1〜3
 - import ガード（変更系=ERROR / lint=SKIP）とドリフト注入 TDD の一般則は
   [sync-lint-design.md](sync-lint-design.md) が単一ソース
 - ADDF 管理サブディレクトリ内部の非所有ファイルは無条件に巻き込む仮定が残る（Plan 0037
-  レビュー残課題参照）
+  レビュー残課題参照）。ツールの仮定自体は残るが、運用面は addf-migrate Phase 2.5 の 6.3
+  「ディレクトリ丸ごと移動の混在確認」（クローン元との diff で独自ファイルを退避）と
+  Phase 5 ステップ14 の保護句で緩和済み（フェーズ3 レビュー C3 対応）
 
 ## 参照
 
 - `.claude/addf/addfTools/migrate-paths.py` / `lint-residual-paths.py` / `paths.toml`
-- `.claude/addf/tests/tools/test-migrate-paths.sh`（51アサーション。攻撃再現テスト込み）
+- `.claude/addf/tests/tools/test-migrate-paths.sh`（71アサーション。攻撃再現テスト込み）
 - `.claude/addf/plans-add/0037-addf-directory-consolidation.md`
 - [persona-review-oneshot.md](persona-review-oneshot.md) — これらの穴を検出したレビュー体制
