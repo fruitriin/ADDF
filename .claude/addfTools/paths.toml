@@ -12,6 +12,14 @@
 #   optional = true なら「存在しなければスキップ」（ダウンストリームに
 #              存在しないものはスキップして続行する）。false なら旧・新の
 #              両方が存在しないとき ERROR（apply を拒否する）
+#
+# dirs / files / dynamic の区分は人間向けの分類であり、実際の移動方式は
+# 実行時の git 追跡状態で自動判定される（追跡あり = git mv / なし = fs 移動）。
+#
+# 逐次置換の不変条件: どのエントリの new（新パス文字列）も、他のエントリの
+# old（旧キー）を部分文字列として含まないこと。含むと rewrite の逐次置換で
+# 置換済みテキストが再置換される。エントリ追加時はこの不変条件を目視確認する
+# （immovable と old の重複は migrate-paths.py がロード時に機械検査する）。
 # ============================================================
 
 [meta]
@@ -146,11 +154,13 @@ optional = true
 [[dynamic]]
 old = ".claude/Dashboard.md"
 new = ".claude/addf/Dashboard.md"
+optional = true
 
 [[dynamic]]
 # Plan の指示ではファイル扱いだが、.gitignore 対象の実行時生成物のため dynamic に分類
 old = ".claude/Worktrees.md"
 new = ".claude/addf/Worktrees.md"
+optional = true
 
 # ------------------------------------------------------------
 # 不動（移動しない）。機械処理はしないが判断の記録として明記する
@@ -187,7 +197,7 @@ paths = [
 # 旧パス文字列を正当に含む）。移行前後の両方の位置を列挙する
 # ------------------------------------------------------------
 
-[exclusions]
+[rewrite_exclusions]
 files = [
   ".claude/addfTools/paths.toml",
   ".claude/addf/tools/paths.toml",
