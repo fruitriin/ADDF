@@ -3,7 +3,7 @@
 ## 運用ルール
 
 ### タスク開始時
-1. `.claude/Feedback.md` を読み、前回の改善アクションで未対応のものがあれば考慮する
+1. `.claude/addf/Feedback.md` を読み、前回の改善アクションで未対応のものがあれば考慮する
 2. 以下の手順で Markdown チェックリストを作成する
    1. 1ショットで作業できる範囲にサブタスクを分割する
    2. 並行作業できる粒度でさらに分割する
@@ -21,7 +21,7 @@
 ### タスク完了時 — 品質検証
 
 4. プロジェクトのビルド・Lint・テストコマンドを実行する
-   - ADD フレームワークテスト: `bash .claude/tests/run-all.sh`
+   - ADD フレームワークテスト: `bash .claude/addf/tests/run-all.sh`
    - **失敗した場合 → 実装に差し戻す**。原因分析 → 修正 → 再実行
 5. `addf-code-review-agent` でコードレビューを実施する
    - 通常タスクは単体（ペルソナなし）で起動する
@@ -32,16 +32,16 @@
    - **Critical/High**: 必ずこのフェーズ内で修正する（先送り禁止）
    - **Medium**: 原則修正。先送りする場合は独立計画を起こす
    - **Low/Info**: Plan に記録し、必要に応じて独立計画で対応
-   - **バグ分離**: 発見されたバグが現在のプランと関心事が異なる場合は、修正せずに新しいプラン（`docs/plans/`）を書き起こし、`TODO.md` に追加するのみで現在のプランを完了させる
+   - **バグ分離**: 発見されたバグが現在のプランと関心事が異なる場合は、修正せずに新しいプラン（`.claude/addf/plans/`）を書き起こし、`TODO.md` に追加するのみで現在のプランを完了させる
    - 修正後、ビルド・Lint・テストを再実行して通過を確認する
 
 #### 完了処理
 
 8. 投入されたタスクのPlanに実装完了状況を反映する
-9. `.claude/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
-10. `.claude/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
-11. `.claude/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
-12. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/templates/ProgressTemplate.addf.md`）の改善案を `.claude/Feedback.md` に記録する
+9. `.claude/addf/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
+10. `.claude/addf/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
+11. `.claude/addf/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/addf/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
+12. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/addf/templates/ProgressTemplate.addf.md`）の改善案を `.claude/addf/Feedback.md` に記録する
 
 13. コミットする
 
@@ -55,10 +55,10 @@
 
 - [x] `.claude/agents/addf-code-review-agent.md` にペルソナ機構（5種 + 集約ルール）を追加
 - [x] `.claude/agents/addf-security-review-agent.md` の攻撃者プロンプトを強化
-- [x] `.claude/templates/ProgressTemplate.addf.md` に発動条件付きペルソナ並列を追記（運用中 Progress.md にも同期）
+- [x] `.claude/addf/templates/ProgressTemplate.addf.md` に発動条件付きペルソナ並列を追記（運用中 Progress.md にも同期）
 - [x] `CLAUDE.repo.example.md` の品質ゲート拡張にペルソナ言及を追加
-- [x] `docs/guides/agents.md` にペルソナ一覧・発動条件の解説を追加
-- [x] `bash .claude/tests/run-all.sh` 通過確認（8 passed, 0 failed）
+- [x] `.claude/addf/guides/agents.md` にペルソナ一覧・発動条件の解説を追加
+- [x] `bash .claude/addf/tests/run-all.sh` 通過確認（8 passed, 0 failed）
 - [x] addf-code-review-agent でセルフレビュー（Critical 0 / Warning 2 / Suggestion 4 → 全対応、テスト再通過）
 - [x] Plan 0020 に実装状況反映・TODO.addf.md 更新
 - [x] knowhow 記録（rule-placement-execution-guarantee.md 新規、upstream-downstream-separation.md 統合）・Feedback 追記

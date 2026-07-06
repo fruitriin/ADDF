@@ -72,7 +72,7 @@
 
 ### スキル本体（/addf-plan-audit）
 
-1. `docs/plans/`（本体では `docs/plans-add/` も）の全 Plan を走査する
+1. `.claude/addf/plans/`（本体では `.claude/addf/plans-add/` も）の全 Plan を走査する
 2. 以下の突合で「埋没候補」を検出する:
    - 実装状況ヘッダ「完了」× 完了条件チェックボックス未完（構造）
    - 「先送り」「残課題」「別途対応」「独立計画で」等の意味的パターンで、対応する後続 Plan が

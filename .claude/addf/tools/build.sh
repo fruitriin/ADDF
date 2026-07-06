@@ -9,7 +9,7 @@
 #                                     # （swiftc 不要。全 OS で実行可能）
 # 出力先: このスクリプトと同じディレクトリ
 #
-# 照合は verify-checksums.sh（テスト: .claude/tests/tools/test-binary-checksums.sh）。
+# 照合は verify-checksums.sh（テスト: .claude/addf/tests/tools/test-binary-checksums.sh）。
 
 set -euo pipefail
 

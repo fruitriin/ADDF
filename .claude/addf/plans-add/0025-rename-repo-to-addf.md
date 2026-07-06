@@ -25,12 +25,12 @@ GitHub リネーム**前に** main にマージしておく。リネーム直後
 | `README.md:52` | `github.com/fruitriin/AutomatonDevDriveFramework` → `.../ADDF` |
 | `README.en.md:46` | 同上（raw URL） |
 | `README.en.md:48` | 同上（repo URL） |
-| `.claude/addf-lock.json:5` | `repository` URL |
+| `.claude/addf/lock.json:5` | `repository` URL |
 | `.claude/commands/addf-init.md:17` | デフォルト URL |
 | `.claude/commands/addf-migrate.md:33` | デフォルト URL |
-| `.claude/tests/skills/test-addf-init-external.md:23,25` | テスト内の URL |
-| `docs/plans-add/0015-existing-project-install.md:33,35` | 計画内の URL（アーカイブだが正確性のため） |
-| `docs/guides/setup.md:3` | "Use this template" リンク |
+| `.claude/addf/tests/skills/test-addf-init-external.md:23,25` | テスト内の URL |
+| `.claude/addf/plans-add/0015-existing-project-install.md:33,35` | 計画内の URL（アーカイブだが正確性のため） |
+| `.claude/addf/guides/setup.md:3` | "Use this template" リンク |
 
 ### フェーズ 2: テキスト上の名前表記（任意）
 
@@ -42,8 +42,8 @@ GitHub リネーム**前に** main にマージしておく。リネーム直後
 - `CLAUDE.repo.example.md` — テンプレート内の名称・哲学の説明
 - `.claude/agents/addf-contribution-agent.md` — エージェントの説明文
 - `.claude/commands/addf-overview.md` — overview テンプレート
-- `docs/project-overview/INDEX.md` — 概要文
-- `docs/guides/codex-setup.md` — ガイド文
+- `.claude/addf/project-overview/INDEX.md` — 概要文
+- `.claude/addf/guides/codex-setup.md` — ガイド文
 
 ### フェーズ 3: GitHub 上でリネーム実行
 

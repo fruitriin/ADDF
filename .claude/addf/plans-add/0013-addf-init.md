@@ -45,10 +45,10 @@ GitHub Issue: #3
    - `AGENTS.md` がリポジトリに存在することを確認（ADDF 同梱済み）
    - Codex 向け推奨設定（`approval_policy`, `sandbox_mode`）を案内
 4. `CLAUDE.local.example.md` → `CLAUDE.local.md` のコピー
-5. `.claude/addf-lock.json` の初期生成（Phase 11）
+5. `.claude/addf/lock.json` の初期生成（Phase 11）
 6. `TODO.md` の初期化（テンプレートから）
-7. `docs/plans/` ディレクトリの作成
-8. `docs/knowhow/INDEX.md` の初期化
+7. `.claude/addf/plans/` ディレクトリの作成
+8. `.claude/addf/knowhow/INDEX.md` の初期化
 9. 完了メッセージと次のステップの案内
 
 #### check モード（構造検証）
@@ -60,13 +60,13 @@ GitHub Issue: #3
 実行内容:
 1. 必須ファイルの存在確認:
    - `CLAUDE.md`, `CLAUDE.repo.md`, `TODO.md`
-   - `.claude/Progress.md`, `.claude/Feedback.md`
-   - `.claude/addf-lock.json`
+   - `.claude/addf/Progress.md`, `.claude/addf/Feedback.md`
+   - `.claude/addf/lock.json`
    - `.claude/settings.json`
 2. ファイル間の整合性チェック:
    - `CLAUDE.md` の `@` メンションが解決可能か
-   - `TODO.md` と `docs/plans/` の一致
-   - `.claude/addf-lock.json` の存在と妥当性
+   - `TODO.md` と `.claude/addf/plans/` の一致
+   - `.claude/addf/lock.json` の存在と妥当性
 3. 結果をレポート（OK / WARNING / ERROR）
 
 ### 2. 再生性（Idempotency）
@@ -93,6 +93,6 @@ AI 実装: 15-20 分
 - 手動導入済みプロジェクトの検出（CLAUDE.md 存在 + lock なしのケース）
 - `addf-lock.json` の repository URL 取得元を `git remote get-url origin` に明確化
 - check モードの commit ハッシュ形式チェック追加
-- `docs/knowhow/INDEX.md` のテンプレートを実際の形式に修正
+- `.claude/addf/knowhow/INDEX.md` のテンプレートを実際の形式に修正
 
 ## 状態: 完了（2026-03-20）

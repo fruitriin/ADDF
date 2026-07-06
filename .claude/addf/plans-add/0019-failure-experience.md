@@ -29,7 +29,7 @@ Fable からの一次フィードバック:
 既存ファイルへの遡及適用は記録内容を歪める恐れがあり（過去の成功体験を後から失敗の文脈で書き直すのは不自然）、
 **書き手の温度感を尊重して新規分から穏やかに浸透させる**方針とする。
 
-`.claude/templates/ExperienceTemplate.addf.md` を新設し、新しい `.exp.md` 作成時のテンプレートとする。
+`.claude/addf/templates/ExperienceTemplate.addf.md` を新設し、新しい `.exp.md` 作成時のテンプレートとする。
 構造:
 
 ```markdown
@@ -61,7 +61,7 @@ Fable からの一次フィードバック:
 
 ### 3. ProgressTemplate への組み込み
 
-`.claude/templates/ProgressTemplate.addf.md` の「タスク完了時」フローに追加:
+`.claude/addf/templates/ProgressTemplate.addf.md` の「タスク完了時」フローに追加:
 
 ```diff
  4. 実装フェーズの最終サブタスク完了時、実装で得た知見を `/addf-knowhow` で記録する
@@ -94,8 +94,8 @@ Fable からの一次フィードバック:
 
 | ファイル | 変更 |
 |---|---|
-| `.claude/templates/ExperienceTemplate.addf.md` | 新規作成（3セクション構造のテンプレート） |
-| `.claude/templates/ProgressTemplate.addf.md` | 失敗記録トリガーを追加 |
+| `.claude/addf/templates/ExperienceTemplate.addf.md` | 新規作成（3セクション構造のテンプレート） |
+| `.claude/addf/templates/ProgressTemplate.addf.md` | 失敗記録トリガーを追加 |
 | `.claude/commands/addf-knowhow.md` | 失敗ログスキャン・追記提案を追加 |
 
 既存 `.exp.md`（`addf-dev.exp.md` ほか）は **変更しない**。
@@ -103,7 +103,7 @@ Fable からの一次フィードバック:
 
 ## 検証
 
-1. `bash .claude/tests/run-all.sh` 通過
+1. `bash .claude/addf/tests/run-all.sh` 通過
 2. ダミーの差し戻しシナリオを作り、`/addf-knowhow` 実行時に失敗追記が提案されることを確認
 3. `ExperienceTemplate.addf.md` から新規 `.exp.md` を生成し、3セクション構造が反映されることを確認
 

@@ -12,7 +12,7 @@
 
 ## Context
 
-ADDF は `docs/knowhow/` にノウハウを蓄積する設計だが、ノウハウは溜まるほど価値が出る一方で、古い知見は静かに嘘になる。
+ADDF は `.claude/addf/knowhow/` にノウハウを蓄積する設計だが、ノウハウは溜まるほど価値が出る一方で、古い知見は静かに嘘になる。
 依存ライブラリのバージョン変更、API の仕様変更、内部設計の刷新などで「過去は正しかったが今は誤り」になった knowhow を、後続エージェントが古文書として信じる事故は時間問題で起きる。
 
 Fable からの一次フィードバック:
@@ -36,7 +36,7 @@ verified_against:
   - claude-sonnet-4-6
 depends_on:
   - skill: addf-dev
-  - file: .claude/templates/ProgressTemplate.addf.md
+  - file: .claude/addf/templates/ProgressTemplate.addf.md
   - library: zod >=3.22
 status: active  # active | superseded | retired | needs-review
 superseded_by:   # status: superseded のときのみ。後継ノウハウへの相対パス
@@ -77,7 +77,7 @@ superseded_by:   # status: superseded のときのみ。後継ノウハウへの
 4. INDEX に「鮮度マーク」を追加（例: 🟢 fresh / 🟡 aging / 🔴 stale）
 
 ```
-docs/knowhow/INDEX.addf.md
+.claude/addf/knowhow/INDEX.addf.md
 
 | 🟢 | モデル定義時の型整合パターン | 2026-06-10 verified |
 | 🟡 | UI テストのアサーション設計 | 2026-03-05 verified (90日経過) |
@@ -190,8 +190,8 @@ status: active
 
 ```
 📜 鮮度低下した knowhow が 5 件あります:
-  - docs/knowhow/ADDF/codex-startup.md (2025-12-01)
-  - docs/knowhow/ADDF/old-pattern.md (依存ファイル欠落)
+  - .claude/addf/knowhow/ADDF/codex-startup.md (2025-12-01)
+  - .claude/addf/knowhow/ADDF/old-pattern.md (依存ファイル欠落)
   ...
 
 `/addf-knowhow review` で再検証してください。
@@ -210,7 +210,7 @@ status: active
 | `.claude/agents/addf-knowhow-agent.md` | status / 鮮度ベースのフィルタリング、関連ノウハウへの追跡 |
 | `.claude/commands/addf-lint.md` | 鮮度警告チェック、双方向リンク欠落チェック追加 |
 | 既存 knowhow ファイル | フロントマター追記（一括マイグレーション） |
-| `docs/knowhow/INDEX.addf.md` | 鮮度マーク列・ハブノウハウサマリの追加 |
+| `.claude/addf/knowhow/INDEX.addf.md` | 鮮度マーク列・ハブノウハウサマリの追加 |
 
 ## マイグレーション
 
@@ -218,7 +218,7 @@ status: active
 
 ```bash
 # 各ファイルに以下を挿入（last_verified は git log の最終更新日）
-for f in docs/knowhow/**/*.md; do
+for f in .claude/addf/knowhow/**/*.md; do
   ...
 done
 ```
@@ -227,7 +227,7 @@ done
 
 ## 検証
 
-1. `bash .claude/tests/run-all.sh` 通過
+1. `bash .claude/addf/tests/run-all.sh` 通過
 2. `/addf-knowhow-index reindex` で鮮度マークが INDEX に反映されることを確認
 3. 故意に `last_verified` を 200 日前に書き換え、stale としてマークされることを確認
 4. `depends_on` で存在しないファイルを指定し、依存欠落として検出されることを確認

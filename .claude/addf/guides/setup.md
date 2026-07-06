@@ -61,7 +61,7 @@
 - GUI テストが macOS 専用
 ```
 
-これを Claude に渡す（`plan.md` とだけ入力する、チャットに箇条書きを貼る、等）だけで、AI が自動的にプロジェクトをレビューし、正式な計画ファイル群に分解して `docs/plans/` と `TODO.md` に投入します。
+これを Claude に渡す（`plan.md` とだけ入力する、チャットに箇条書きを貼る、等）だけで、AI が自動的にプロジェクトをレビューし、正式な計画ファイル群に分解して `.claude/addf/plans/` と `TODO.md` に投入します。
 
 計画ファイルの書式は [CONTRIBUTING.md](../../CONTRIBUTING.md) を参照してください。
 
@@ -69,9 +69,9 @@
 
 このリポジトリ自体が ADDF を使って開発されています:
 
-- **`docs/plans-add/`** — ADDF 自身の開発計画。Plan の書き方・粒度の実例
-- **`docs/knowhow/ADDF/`** — 開発で蓄積されたノウハウ
+- **`.claude/addf/plans-add/`** — ADDF 自身の開発計画。Plan の書き方・粒度の実例
+- **`.claude/addf/knowhow/ADDF/`** — 開発で蓄積されたノウハウ
 - **`.claude/settings.json`** — ダウンストリームテンプレートの実例
 - **`.github/workflows/test.yml`** — CI 品質ゲート（run-all.sh + lint 一式）の実例。ダウンストリームには配布されないが、同じゲートを組みたい場合は雛形として参照できる。CI が落ちたらローカルで `/addf-lint`（lint 一式）または `bash .github/scripts/run-lint.sh <lintスクリプト>` で再現できる
-- **`.claude/Progresses/`** — 完了タスクのアーカイブ
+- **`.claude/addf/Progresses/`** — 完了タスクのアーカイブ
 - **`git log`** — コミットログ規約・品質ゲートの適用結果

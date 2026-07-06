@@ -42,34 +42,34 @@ jobs:
       # フック・ツールの自動テスト。ubuntu では macOS 専用バイナリのテストが
       # SKIP としてログに現れる（Results 行に skipped として計上 — silent truncation にしない）
       - name: Framework tests (run-all.sh)
-        run: bash .claude/tests/run-all.sh
+        run: bash .claude/addf/tests/run-all.sh
 
       # lint 一式は個別ステップで実行する（どれが落ちたか Actions UI で判別できるように）。
       # `if: ${{ !cancelled() }}` により、先行 lint が ERROR でも残りの lint を実行して全件報告する
       - name: lint-json
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-json.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-json.py
       - name: lint-toml
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-toml.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-toml.py
       - name: lint-frontmatter
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-frontmatter.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-frontmatter.py
       - name: lint-template-sync
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-template-sync.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-template-sync.py
       - name: lint-hooks-exec
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-hooks-exec.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-hooks-exec.py
       - name: lint-hooks-wiring
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-hooks-wiring.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-hooks-wiring.py
       - name: lint-checklist
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-checklist.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-checklist.py
       - name: lint-plan-status
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addfTools/lint-plan-status.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/tools/lint-plan-status.py
       - name: sync-optional-skills (check)
         if: ${{ !cancelled() }}
-        run: bash .github/scripts/run-lint.sh .claude/addfTools/sync-optional-skills.py
+        run: bash .github/scripts/run-lint.sh .claude/addf/tools/sync-optional-skills.py

@@ -33,7 +33,7 @@
   トグルとして扱う。CommonMark の「開始フェンスと同種・同数以上で閉じる」までは
   追わない（例示の除外にはこの近似で十分）
 
-対象ディレクトリ: docs/plans-add/（ADDF 本体）と docs/plans/（ダウンストリーム）の
+対象ディレクトリ: .claude/addf/plans-add/（ADDF 本体）と .claude/addf/plans/（ダウンストリーム）の
 `[0-9]*.md`。ディレクトリが存在しない場合は SKIP する（欠如はドリフトではない）。
 検査対象が 0 件（ディレクトリ不在含む）の場合は NOTE を出して exit 0 する。
 
@@ -60,7 +60,7 @@ ALT_HEADER_RES = [
     re.compile(r'^#{1,6}\s*実装状況'),  # レベル違い（### 実装状況:）・コロン無し（## 実装状況 完了）
 ]
 
-PLAN_DIRS = ['docs/plans-add', 'docs/plans']
+PLAN_DIRS = ['.claude/addf/plans-add', '.claude/addf/plans']
 
 errors = []
 warnings = []

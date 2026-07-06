@@ -8,7 +8,7 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-TOOLS_DIR="$PROJECT_DIR/.claude/addfTools"
+TOOLS_DIR="$PROJECT_DIR/.claude/addf/tools"
 VERIFY="$TOOLS_DIR/verify-checksums.sh"
 PASS=0
 FAIL=0
@@ -47,10 +47,10 @@ assert_not_contains() {
 }
 
 # サンドボックス: 偽バイナリ4つ + build.sh / verify-checksums.sh のコピーで
-# .claude/addfTools/ の相対レイアウトを再現する（照合はハッシュのみなので偽物で十分）
+# .claude/addf/tools/ の相対レイアウトを再現する（照合はハッシュのみなので偽物で十分）
 BOX="$(mktemp -d)"
 trap 'rm -rf "$BOX"' EXIT
-BOX_TOOLS="$BOX/.claude/addfTools"
+BOX_TOOLS="$BOX/.claude/addf/tools"
 mkdir -p "$BOX_TOOLS"
 for f in window-info capture-window annotate-grid clip-image; do
   printf 'fake-binary-%s\n' "$f" > "$BOX_TOOLS/$f"
@@ -101,14 +101,14 @@ assert_contains "upstream 判定の明示" "repo_kind=upstream" "$out"
 # テスト 6: checksums 不在 + downstream（lock フォールバック）→ 明示 SKIP で exit 0
 echo "Test 6: checksums 不在（downstream）→ SKIP"
 rm -f "$BOX/CLAUDE.repo.md"
-printf '{"version":"0.0.0"}\n' > "$BOX/.claude/addf-lock.json"
+printf '{"version":"0.0.0"}\n' > "$BOX/.claude/addf/lock.json"
 out="$(bash "$BOX_TOOLS/verify-checksums.sh" 2>&1)"
 assert_exit "downstream で checksums 不在は exit 0" 0 $?
 assert_contains "SKIP の明示出力" "SKIP" "$out"
 
 # テスト 7: checksums 不在 + シグナルなし（判定不能）→ SKIP + WARNING（exit 2）
 echo "Test 7: checksums 不在（判定不能）→ WARNING"
-rm -f "$BOX/.claude/addf-lock.json"
+rm -f "$BOX/.claude/addf/lock.json"
 out="$(bash "$BOX_TOOLS/verify-checksums.sh" 2>&1)"
 assert_exit "判定不能で exit 2" 2 $?
 assert_contains "種別シグナル整備の促し" "判定不能" "$out"
@@ -121,7 +121,7 @@ bash "$BOX_TOOLS/verify-checksums.sh" >/dev/null 2>&1
 assert_exit "宣言による downstream 判定で exit 0" 0 $?
 
 # 整合状態に復旧してから攻撃者モデル系のテストへ入る
-rm -f "$BOX/CLAUDE.repo.md" "$BOX/.claude/addf-lock.json"
+rm -f "$BOX/CLAUDE.repo.md" "$BOX/.claude/addf/lock.json"
 bash "$BOX_TOOLS/build.sh" --checksums-only >/dev/null 2>&1
 
 # テスト 9: attacker — allowlist 外の実行可能ファイル（evil-tool）混入 → ERROR（Plan 0031 C1）
@@ -190,17 +190,17 @@ bash "$BOX_TOOLS/build.sh" --checksums-only >/dev/null 2>&1
 # 「@メンション経由の upstream 判定」の疎通を確認する（Plan 0031 H3(d)）
 echo "Test 15: 実プロジェクト構成の CLAUDE.repo.md をコピー → upstream 判定"
 BOX2="$(mktemp -d)"
-mkdir -p "$BOX2/.claude/addfTools"
+mkdir -p "$BOX2/.claude/addf/tools"
 for f in window-info capture-window annotate-grid clip-image; do
-  printf 'fake-binary-%s\n' "$f" > "$BOX2/.claude/addfTools/$f"
+  printf 'fake-binary-%s\n' "$f" > "$BOX2/.claude/addf/tools/$f"
 done
-cp "$TOOLS_DIR/build.sh" "$TOOLS_DIR/verify-checksums.sh" "$BOX2/.claude/addfTools/"
+cp "$TOOLS_DIR/build.sh" "$TOOLS_DIR/verify-checksums.sh" "$BOX2/.claude/addf/tools/"
 # @メンション構造をそのまま再現するため、実プロジェクトの CLAUDE.repo.md と
 # 参照先 CLAUDE.repo.example.md を両方コピー
 cp "$PROJECT_DIR/CLAUDE.repo.md" "$BOX2/CLAUDE.repo.md"
 cp "$PROJECT_DIR/CLAUDE.repo.example.md" "$BOX2/CLAUDE.repo.example.md"
 # checksums 不在 + upstream 判定成立 → ERROR + repo_kind=upstream を出す
-out="$(bash "$BOX2/.claude/addfTools/verify-checksums.sh" 2>&1)"
+out="$(bash "$BOX2/.claude/addf/tools/verify-checksums.sh" 2>&1)"
 exit_code=$?
 assert_exit "実プロジェクト CLAUDE.repo.md コピーで upstream 判定 → ERROR" 1 "$exit_code"
 assert_contains "@メンション解決で upstream 判定" "repo_kind=upstream" "$out"

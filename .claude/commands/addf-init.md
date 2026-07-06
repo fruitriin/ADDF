@@ -47,15 +47,15 @@ user_invocable: true
   通常 init の「既存ファイルは上書きしない」原則の例外。ただし**存在≠所有**
   （ファイル名の一致は ADDF 由来の証明にならない）のため、2群に分けて扱う:
   - **安全一括上書き** — `addf-` プレフィックスや専用ディレクトリで ADDF 所有と識別できるもの:
-    `.claude/commands/addf-*.md`・`.claude/agents/addf-*.md`・`docs/knowhow/ADDF/`・
-    `.claude/addfTools/`・`.claude/tests/`・`.claude/templates/`。
+    `.claude/commands/addf-*.md`・`.claude/agents/addf-*.md`・`.claude/addf/knowhow/ADDF/`・
+    `.claude/addf/tools/`・`.claude/addf/tests/`・`.claude/addf/templates/`。
     一覧を提示してまとめて承認を得る <!-- human-judgment -->
   - **個別確認必須** — プレフィックス識別が効かない、または設定値・プロジェクト独自ファイルの可能性があるもの:
     - `.claude/hooks/*.sh` — 既存との diff を提示し、1ファイルずつ承認を得る <!-- human-judgment -->
     - `AGENTS.md` — ADDF ブートシーケンス見出しの有無で所有を確認する:
       `grep -q '^## Boot Sequence' AGENTS.md`。見出しが無ければ
       プロジェクト独自の同名無関係ファイルとみなし、上書きしない（実例あり — 存在≠所有）
-    - `.claude/addf-Behavior.toml` — 上書きではなく、既存の `enable` 値等の設定値を
+    - `.claude/addf/Behavior.toml` — 上書きではなく、既存の `enable` 値等の設定値を
       保持して最新版の構造にマージする
   - 上書き前の差分確認は、既存ファイルごとに以下を実行して裏付ける。
     **差分が非空のファイルは安全一括上書きの群から外し、個別確認に回す**
@@ -66,9 +66,9 @@ user_invocable: true
 - 最新版（クローン元）に存在しない ADDF 由来ファイル（リネーム前の旧名残留等）は
   削除を提案する <!-- human-judgment -->
 - プロジェクト固有ファイルは従来どおり保護する（`.claude/commands/*.exp.md`・
-  `.claude/Progress.md`・`.claude/Feedback.md`・`CLAUDE.repo.md`・`TODO.md` 等。
+  `.claude/addf/Progress.md`・`.claude/addf/Feedback.md`・`CLAUDE.repo.md`・`TODO.md` 等。
   カテゴリ2 のマージ・カテゴリ3 の生成は既存があれば上書きしない）
-- 完了時に `.claude/addf-lock.json` をクローン元の `ref` で生成する（カテゴリ3 と同じ手順）。
+- 完了時に `.claude/addf/lock.json` をクローン元の `ref` で生成する（カテゴリ3 と同じ手順）。
   以後のアップグレードは `/addf-migrate` が使える
 - 正規化完了後に `/addf-plan-audit` の初回実行を案内する（部分導入で運用してきた
   プロジェクトこそ「完了扱いだが未完了タスクが残っている計画」を抱えている母集団のため）
@@ -87,7 +87,7 @@ user_invocable: true
 ### Phase 1: 状態確認
 
 1. 既に ADDF 導入済みか判定する:
-   - `.claude/addf-lock.json` が存在する → 「ADDF は導入済みです。`/addf-init check` で構造を検証できます」と案内して終了
+   - `.claude/addf/lock.json` が存在する → 「ADDF は導入済みです。`/addf-init check` で構造を検証できます」と案内して終了
    - `.claude/commands/addf-*.md` が存在するが `addf-lock.json` がない → **Template 経由の新規プロジェクト**（ADDF ファイルは同梱済み、ロックファイルのみ未生成）または**部分導入プロジェクト**（過去に手動で ADDF ファイルの一部を導入した状態）。どちらかをユーザーに確認する <!-- human-judgment -->。Template 経由なら Phase 2 に進む。部分導入なら上記「部分導入からの正規化」に従う（既存ファイルが最新版と差分なしなら lock 再生成のみで完了する）
    - `CLAUDE.md` または `.claude/` が存在するが ADDF ファイルがない → **既存プロジェクト導入モード**。「既存プロジェクトに ADDF を導入します。続行しますか？」と確認を求める <!-- human-judgment -->
    - どちらも存在しない → 初期セットアップを開始
@@ -141,7 +141,7 @@ user_invocable: true
      CONTRIBUTING.md       — 既存あり → 上書き or スキップを選択
 
    ■ 新規作成
-     TODO.md, CLAUDE.repo.md, .claude/Progress.md, ...
+     TODO.md, CLAUDE.repo.md, .claude/addf/Progress.md, ...
    ```
 
    Template 経由の場合（ADDF ファイルが既に揃っている場合）はこの Phase をスキップ。
@@ -188,19 +188,19 @@ ADDF ファイルの配置元を決定する:
 衝突リスクなし（`addf-` プレフィックスで識別可能）:
 - `.claude/commands/addf-*.md` — スキル定義
 - `.claude/agents/addf-*.md` — エージェント定義
-- `.claude/optional/` — オプトイン式スキル・エージェントの原本（GUI テスト等。有効化は `.claude/addfTools/sync-optional-skills.py apply`）
+- `.claude/addf/optional/` — オプトイン式スキル・エージェントの原本（GUI テスト等。有効化は `.claude/addf/tools/sync-optional-skills.py apply`）
 - `.claude/hooks/*.sh` — フック
-- `.claude/templates/` — テンプレート（ディレクトリ丸ごと。個別ファイル名は列挙しない — 列挙は本体側のテンプレート追加に追従できず腐るため。除外規則により `ProgressTemplate.addf.md` 等の `*.addf.md` はコピーしない）
-- `.claude/addfTools/` — ツール群
-- `.claude/tests/` — テストスイート
-- `.claude/addf-Behavior.toml`
-- `.claude/ADDF-CHANGELOG.md`（`ADDF-Release.addf.md` は除外規則によりコピーしない）
-- `.claude/Questions.example.md`, `.claude/Dashboard.example.md` — CLAUDE.md が書式参照するため必須
+- `.claude/addf/templates/` — テンプレート（ディレクトリ丸ごと。個別ファイル名は列挙しない — 列挙は本体側のテンプレート追加に追従できず腐るため。除外規則により `ProgressTemplate.addf.md` 等の `*.addf.md` はコピーしない）
+- `.claude/addf/tools/` — ツール群
+- `.claude/addf/tests/` — テストスイート
+- `.claude/addf/Behavior.toml`
+- `.claude/addf/CHANGELOG.md`（`ADDF-Release.addf.md` は除外規則によりコピーしない）
+- `.claude/addf/Questions.example.md`, `.claude/addf/Dashboard.example.md` — CLAUDE.md が書式参照するため必須
 - `CLAUDE.repo.example.md`, `CLAUDE.local.example.md`
 - `AGENTS.md`
 - `.claudeignore`
-- `docs/knowhow/ADDF/`（`INDEX.addf.md` は除外規則によりコピーしない。ダウンストリームの knowhow インデックスは `docs/knowhow/INDEX.md` に一本化する）
-- `docs/guides/`
+- `.claude/addf/knowhow/ADDF/`（`INDEX.addf.md` は除外規則によりコピーしない。ダウンストリームの knowhow インデックスは `.claude/addf/knowhow/INDEX.md` に一本化する）
+- `.claude/addf/guides/`
 
 #### カテゴリ2: インテリジェントマージ
 
@@ -230,16 +230,16 @@ ADDF ファイルの配置元を決定する:
     パラフレーズしない — lint-template-sync の種別判定がこの書式（太字込みの厳密一致）に依存する）
   - プロジェクト名、ビルド・Lint・テストコマンド、コミットログ規約を反映
 - **`CLAUDE.local.md`** — テンプレートからコピー
-- **`.claude/addf-lock.json`** — ADDF クローン元の `ref` で生成
+- **`.claude/addf/lock.json`** — ADDF クローン元の `ref` で生成
   - `ref` にはクローン元の lock の `ref`（`vX.Y.Z` タグ名）をそのまま記録する。クローン元の lock が旧形式（`commit` フィールド）の場合は `v<version>` タグ名に読み替える
   - `git remote get-url origin` でリポジトリ URL を取得（取得できない場合はユーザーに入力を求める）
   - このファイルは `/addf-migrate` がバージョン差分を算出する際のアンカーとして使用される
 - **`TODO.md`** — 初期テンプレート
-- **`docs/plans/`** — ディレクトリ作成
-- **`docs/knowhow/INDEX.md`** — インデックス初期化
-- **`.claude/Progress.md`** — `.claude/templates/ProgressTemplate.md` から生成（`ProgressTemplate.addf.md` は ADDF 本体用のため使わない）
-- **`.claude/Feedback.md`** — 初期テンプレート
-- **`.claude/Questions.md`** — `Questions.example.md` の書式説明を残して未回答・回答済みを空で生成（非同期質問箱。ブートシーケンス 1.5 が参照）
+- **`.claude/addf/plans/`** — ディレクトリ作成
+- **`.claude/addf/knowhow/INDEX.md`** — インデックス初期化
+- **`.claude/addf/Progress.md`** — `.claude/addf/templates/ProgressTemplate.md` から生成（`ProgressTemplate.addf.md` は ADDF 本体用のため使わない）
+- **`.claude/addf/Feedback.md`** — 初期テンプレート
+- **`.claude/addf/Questions.md`** — `Questions.example.md` の書式説明を残して未回答・回答済みを空で生成（非同期質問箱。ブートシーケンス 1.5 が参照）
 
 **Codex 対応**（ターゲットが Codex または両方の場合）:
 - `AGENTS.md` がリポジトリに存在することを確認する（ADDF 同梱済み）: `test -f AGENTS.md`
@@ -260,7 +260,7 @@ ADDF ファイルの配置元を決定する:
 
     次のステップ:
     1. CLAUDE.repo.md を確認・カスタマイズしてください
-    2. docs/plans/ に計画ファイルを作成してください
+    2. .claude/addf/plans/ に計画ファイルを作成してください
     3. `/addf-dev` で開発を開始できます
     ```
 
@@ -280,10 +280,10 @@ ADDF ファイルの配置元を決定する:
    - `CLAUDE.md` — ブートシーケンス定義
    - `CLAUDE.repo.md` — プロジェクト固有設定
    - `TODO.md` — タスクバックログ
-   - `.claude/Progress.md` — 進捗管理
-   - `.claude/Feedback.md` — フィードバック記録
-   - `.claude/Questions.md` — 非同期質問箱（無ければ WARNING、`Questions.example.md` から生成を案内）
-   - `.claude/addf-lock.json` — バージョンロック
+   - `.claude/addf/Progress.md` — 進捗管理
+   - `.claude/addf/Feedback.md` — フィードバック記録
+   - `.claude/addf/Questions.md` — 非同期質問箱（無ければ WARNING、`Questions.example.md` から生成を案内）
+   - `.claude/addf/lock.json` — バージョンロック
    - `.claude/settings.json` — 権限設定
 
 2. **`CLAUDE.md` の `@` メンション解決**:
@@ -291,11 +291,11 @@ ADDF ファイルの配置元を決定する:
    - 各参照先ファイルが実在するか確認
    - 解決できない参照があれば WARNING
 
-3. **`TODO.md` と `docs/plans/` の整合性**:
-   - TODO に記載された計画ファイルが `docs/plans/` に存在するか
-   - `docs/plans/` にあるが TODO に未記載のファイルがないか
+3. **`TODO.md` と `.claude/addf/plans/` の整合性**:
+   - TODO に記載された計画ファイルが `.claude/addf/plans/` に存在するか
+   - `.claude/addf/plans/` にあるが TODO に未記載のファイルがないか
 
-4. **`.claude/addf-lock.json` の妥当性**:
+4. **`.claude/addf/lock.json` の妥当性**:
    - JSON として valid か
    - `version`, `ref`, `repository` フィールドが存在するか
    - `ref` が `v<version>` 形式のタグ名か（形式チェックのみ、リモート確認は行わない）
@@ -308,7 +308,7 @@ ADDF ファイルの配置元を決定する:
    - `.claude/hooks/*.sh` が `settings.json` の hooks セクションに配線されているかを検査する
      （ファイルが存在しても配線がなければ実行されない — 手縫い導入で漏れやすい）:
      ```bash
-     uv run --python 3.11 .claude/addfTools/lint-hooks-wiring.py
+     uv run --python 3.11 .claude/addf/tools/lint-hooks-wiring.py
      ```
      tomllib 不要のため uv が無ければ `python3` 直接実行でよい。
    - 未配線フックは WARNING（意図的に外している可能性があるため）。詳細は `/addf-lint` セクション11（Hooks 配線チェック）を参照

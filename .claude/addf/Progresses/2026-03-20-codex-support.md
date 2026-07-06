@@ -2,7 +2,7 @@
 
 ## タスク: Phase 12 — Codex サポート
 
-Plan: `docs/plans-add/0012-codex-support.md`
+Plan: `.claude/addf/plans-add/0012-codex-support.md`
 
 ### 調査
 - [x] Codex の AGENTS.md 仕様調査
@@ -14,12 +14,12 @@ Plan: `docs/plans-add/0012-codex-support.md`
 ### 実装
 - [x] 互換性マッピング表の確定 & Plan 更新
 - [x] `AGENTS.md` 作成（Codex 互換ブートシーケンス）
-- [x] `docs/guides/codex-setup.md` 作成（詳細セットアップガイド）
+- [x] `.claude/addf/guides/codex-setup.md` 作成（詳細セットアップガイド）
 - [x] `addf-init` Plan（0013）に Codex オプションを追記
 - [x] `addf-migrate` 対象に AGENTS.md を追加
 
 ### 品質検証
-- [x] `bash .claude/tests/run-all.sh` 実行 — 全テスト通過
+- [x] `bash .claude/addf/tests/run-all.sh` 実行 — 全テスト通過
 - [x] `addf-code-review-agent` でコードレビュー
 - [x] `addf-contribution-agent` でコントリビューション検出
 - [x] レビュー指摘への対応（fallback 動作説明修正、ブートシーケンス補完、ADDF 開発推奨明記）

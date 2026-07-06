@@ -1,14 +1,14 @@
 # Plan テンプレート
 
-> 計画ファイル（`docs/plans/`、ADDF 本体では `docs/plans-add/`）の標準テンプレート。
+> 計画ファイル（`.claude/addf/plans/`、ADDF 本体では `.claude/addf/plans-add/`）の標準テンプレート。
 > 下の「標準テンプレート」をコピーして `<番号>-<slug>.md` として保存し、プレースホルダを埋める。
 > まだ実装計画に固まっていない検討段階のメモには、末尾の「検討スタブ variant」を使う。
 >
 > 出典: ダウンストリームで独立起草された計画8本が同一構造に収束した実績（Plan 0033 項目4）。
 > `## 実装状況:` ヘッダは lint（TODO ⇔ Plan 状態の突合）の保護対象に入るため必ず残すこと。
-> PR を作成する際の本文書式（対象 Plan リンク・進捗位置欄）は `docs/guides/pr-format.md` を参照。
+> PR を作成する際の本文書式（対象 Plan リンク・進捗位置欄）は `.claude/addf/guides/pr-format.md` を参照。
 >
-> ADDF 本体（`docs/plans-add/`）では既存 Plan の慣行（目的 / 項目・フェーズ / 影響範囲 /
+> ADDF 本体（`.claude/addf/plans-add/`）では既存 Plan の慣行（目的 / 項目・フェーズ / 影響範囲 /
 > 完了条件 / 関連 Plan）を優先してよく、本テンプレートの追加見出し
 > （現状の挙動・テスト方針・破壊的変更の許容範囲・要オーナー確認）は任意。
 
@@ -29,7 +29,7 @@
 
      意味と実施様式（事前清算・リハーサル前置・単一セッション完走・失敗時は backup ref へ
      巻き戻し優先・オーナー同席推奨）の単一ソースは
-     docs/guides/speculative-development.md「one-shot」。
+     .claude/addf/guides/speculative-development.md「one-shot」。
      /addf-speculate の窓検出（手順 1.8）がこの行を行頭一致の grep で拾うため、
      プレースホルダや解説文の行頭には書かないこと（上の完成形例が字下げされているのもそのため）。
      TODO の状態注記にも「one-shot」を併記する。
@@ -58,7 +58,7 @@
 
 <!-- 規模に応じて「項目1・項目2…」または「フェーズ1・フェーズ2…」で分割する。
      フェーズ分割した Plan は途中フェーズの PR がマージされても完了ではない —
-     PR 本文の「計画の進捗位置」欄（docs/guides/pr-format.md）で残フェーズを可視化する。 -->
+     PR 本文の「計画の進捗位置」欄（.claude/addf/guides/pr-format.md）で残フェーズを可視化する。 -->
 
 ### 項目1: <見出し>
 

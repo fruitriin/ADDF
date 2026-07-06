@@ -3,7 +3,7 @@
 ## 運用ルール
 
 ### タスク開始時
-1. `.claude/Feedback.md` を読み、前回の改善アクションで未対応のものがあれば考慮する
+1. `.claude/addf/Feedback.md` を読み、前回の改善アクションで未対応のものがあれば考慮する
 2. 以下の手順で Markdown チェックリストを作成する
    1. 1ショットで作業できる範囲にサブタスクを分割する
    2. 並行作業できる粒度でさらに分割する
@@ -12,7 +12,7 @@
 
 ### 作業中
 3. サブタスク着手時に `- [x]` でチェックしていく。並列可能なタスクはコンテナオーケストレーションを利用する
-   - Plan の曖昧さで確信が持てないときは CLAUDE.md「迷ったときの作法（7割共有原則）」に従う（閾値割れなら `.claude/Questions.md` に質問を置いてタスクを切り替える）
+   - Plan の曖昧さで確信が持てないときは CLAUDE.md「迷ったときの作法（7割共有原則）」に従う（閾値割れなら `.claude/addf/Questions.md` に質問を置いてタスクを切り替える）
    - 長大なタスクでは、サブタスク完了時点でブランチ `checkpoint/<phase>-<N>` を切ってよい。別方針を試すときは checkpoint から `alt/` を分岐する
 4. 実装フェーズの最終サブタスク完了時、以下の知見を `/addf-knowhow` で記録する（既存 knowhow の更新も含む）:
    - **コーディング知見**: 実装中に発見した再利用可能なパターン、落とし穴、技術的判断とその根拠
@@ -24,7 +24,7 @@
 ### タスク完了時 — 品質検証
 
 4. プロジェクトのビルド・Lint・テストコマンドを実行する
-   - ADD フレームワークテスト: `bash .claude/tests/run-all.sh`
+   - ADD フレームワークテスト: `bash .claude/addf/tests/run-all.sh`
    - **失敗した場合 → 実装に差し戻す**。原因分析 → 修正 → 再実行
 5. `addf-code-review-agent` でコードレビューを実施する
    - 通常タスクは単体（ペルソナなし）で起動する
@@ -35,7 +35,7 @@
    - **Critical/High**: 必ずこのフェーズ内で修正する（先送り禁止）
    - **Medium**: 原則修正。先送りする場合は独立計画を起こす
    - **Low/Info**: Plan に記録し、必要に応じて独立計画で対応
-   - **バグ分離**: 発見されたバグが現在のプランと関心事が異なる場合は、修正せずに新しいプラン（`docs/plans/`）を書き起こし、`TODO.md` に追加するのみで現在のプランを完了させる
+   - **バグ分離**: 発見されたバグが現在のプランと関心事が異なる場合は、修正せずに新しいプラン（`.claude/addf/plans/`）を書き起こし、`TODO.md` に追加するのみで現在のプランを完了させる
    - 修正後、ビルド・Lint・テストを再実行して通過を確認する
 8. 品質ゲートで得た知見を `/addf-knowhow` で記録する:
    - **品質ゲート知見**: レビューエージェントが検出したパターン（セキュリティ、コード品質、分離パターン違反等）のうち、他のタスクでも再発しうるもの
@@ -48,13 +48,13 @@
 
 #### フィードバック記録
 
-11. `.claude/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
-12. `.claude/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
-13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/templates/ProgressTemplate.addf.md`）の改善案を `.claude/Feedback.md` に記録する
+11. `.claude/addf/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
+12. `.claude/addf/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
+13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/addf/templates/ProgressTemplate.addf.md`）の改善案を `.claude/addf/Feedback.md` に記録する
 
 #### アーカイブとコミット
 
-14. `.claude/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
+14. `.claude/addf/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/addf/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
 15. コミットする
 
 ---
@@ -67,13 +67,13 @@
 
 - [x] `CLAUDE.md` に「迷ったときの作法」セクション追加 + ブートシーケンス 1.5/1.6（Questions/Dashboard）追加
 - [x] `AGENTS.md` ブートシーケンス同期（70% rule の言及も追加）
-- [x] `.claude/Questions.example.md` / `.claude/Questions.md` 新規作成
-- [x] `.claude/Dashboard.example.md` 新規作成 + `.gitignore` に `.claude/Dashboard.md` 追加
+- [x] `.claude/addf/Questions.example.md` / `.claude/addf/Questions.md` 新規作成
+- [x] `.claude/addf/Dashboard.example.md` 新規作成 + `.gitignore` に `.claude/addf/Dashboard.md` 追加
 - [x] `.claude/commands/addf-mode.md` 新規スキル（モード状態は CLAUDE.local.md に保存）
 - [x] `.claude/commands/addf-dev.md` にスキップフラグ・worktree 閾値の参照追加
 - [x] `.claude/commands/addf-init.md` に Questions.md 生成・check 項目追加
 - [x] ProgressTemplate/Progress.md に判断ルール参照追加・「unattended は将来導入予定」注記を5ファイルから除去
-- [x] `bash .claude/tests/run-all.sh` + @メンション整合確認（全解決）
+- [x] `bash .claude/addf/tests/run-all.sh` + @メンション整合確認（全解決）
 - [x] addf-code-review-agent でセルフレビュー（Critical 1 / Warning 4 / Suggestion 4 → S-1 以外対応、S-1 は Plan に先送り記録）
 - [x] Plan 0016 反映・TODO.addf.md 更新・knowhow 統合（実行保証 knowhow に CLAUDE.local.md 応用を追記）
 - [ ] コミット

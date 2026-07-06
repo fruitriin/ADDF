@@ -79,4 +79,4 @@ model: sonnet
 | 投機サイクルの Stage 2（integration 一括レビュー） | `skeptic` + `attacker` + `newcomer` の3体並列（`/addf-speculate` 手順7） |
 
 ## 知見の蓄積
-レビューで発見した繰り返しパターン・プロジェクト固有の規約・注意すべきポイントがあれば、`/addf-knowhow` で docs/knowhow/ に記録する。
+レビューで発見した繰り返しパターン・プロジェクト固有の規約・注意すべきポイントがあれば、`/addf-knowhow` で .claude/addf/knowhow/ に記録する。

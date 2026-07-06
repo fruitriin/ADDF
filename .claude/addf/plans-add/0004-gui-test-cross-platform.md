@@ -30,12 +30,12 @@ machine = "mac"  # "mac" | "linux" | "windows"
 - macOS での Screen Recording 権限の設定方法
 
 ## 影響範囲
-- `.claude/addf-Behavior.toml`（旧 `add-Behavier.toml` からリネーム）
+- `.claude/addf/Behavior.toml`（旧 `add-Behavier.toml` からリネーム）
 - `.claude/skills/addf-gui-test.md`（プラットフォーム判定ロジック追加）
 - `.claude/skills/optional/addf-gui-test.md`（同上）
-- `.claude/addfTools/window-info.swift`, `capture-window.swift`（参照更新）
+- `.claude/addf/tools/window-info.swift`, `capture-window.swift`（参照更新）
 - `README.md`, `README.en.md`（ファイル名参照更新）
-- `docs/guides/gui-test-setup.md`（新規作成）
+- `.claude/addf/guides/gui-test-setup.md`（新規作成）
 
 ## 実装完了状況
 - 全項目を実施完了（2026-03-18）

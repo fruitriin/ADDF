@@ -3,7 +3,7 @@
 ## 運用ルール
 
 ### タスク開始時
-1. `.claude/Feedback.md` を読み、前回の改善アクションで未対応のものがあれば考慮する
+1. `.claude/addf/Feedback.md` を読み、前回の改善アクションで未対応のものがあれば考慮する
 2. 以下の手順で Markdown チェックリストを作成する
    1. 1ショットで作業できる範囲にサブタスクを分割する
    2. 並行作業できる粒度でさらに分割する
@@ -12,7 +12,7 @@
 
 ### 作業中
 3. サブタスク着手時に `- [x]` でチェックしていく。並列可能なタスクはコンテナオーケストレーションを利用する
-   - Plan の曖昧さで確信が持てないときは CLAUDE.md「迷ったときの作法（7割共有原則）」に従う（閾値割れなら `.claude/Questions.md` に質問を置いてタスクを切り替える）
+   - Plan の曖昧さで確信が持てないときは CLAUDE.md「迷ったときの作法（7割共有原則）」に従う（閾値割れなら `.claude/addf/Questions.md` に質問を置いてタスクを切り替える）
    - 長大なタスクでは、サブタスク完了時点でブランチ `checkpoint/<phase>-<N>` を切ってよい。別方針を試すときは checkpoint から `alt/` を分岐する
 3.5. **日記を書く（代替わり引き継ぎ）**（「3.5」は後続の番号参照を壊さないための意図的な枝番）: resume・compaction・`/loop` の次イテレーションで起きる「小さな代替わり」のたびに、次の代の自分（同僚でもあり、寝て起きたあとの自分でもある）が状況に入れるよう、タスクの「#### 日記」セクションにエントリーを書く
    - **書くタイミング**: サブタスク完了時 / 重要な判断をした直後 / 計画を変更したとき / コンテキストが長くなり compaction を予感したとき
@@ -24,12 +24,12 @@
      **次の自分へ**: <次に着手すべきこと・先に確認すべきこと>
      **気になっていること**: <未解決の不確実性・前提・違和感。なければ「なし」>
      ```
-   - 「日記」という語彙の意図（「遺書」を使わない理由）は `docs/guides/development-process.md` 参照
+   - 「日記」という語彙の意図（「遺書」を使わない理由）は `.claude/addf/guides/development-process.md` 参照
    - ブランチ checkpoint が「何がコミットされたか（事実）」を残すのに対し、日記は「なぜそうしたか・次に何を考えていたか（文脈）」を残す。両方で前任者の靴に履き替えられる
    - 日記の自動生成フックは導入しない。書くこと自体が思考の整理であり、次の自分への手紙として人格を持って書く
 4. 実装フェーズの最終サブタスク完了時、以下の知見を `/addf-knowhow` で記録する（既存 knowhow の更新も含む）:
    - **コーディング知見**: 実装中に発見した再利用可能なパターン、落とし穴、技術的判断とその根拠
-   - **分かれ道の目印**: 差し戻し・やり直し・想定外の判断が発生したサブタスクがあれば、使用したスキルの `.exp.md`「🔀 分かれ道の目印」にも追記する（書式: `.claude/templates/ExperienceTemplate.md`。失敗の告白ではなく、意思決定が枝分かれしたポイントと次に同じ分岐に立ったときの選び方を道標として書く）
+   - **分かれ道の目印**: 差し戻し・やり直し・想定外の判断が発生したサブタスクがあれば、使用したスキルの `.exp.md`「🔀 分かれ道の目印」にも追記する（書式: `.claude/addf/templates/ExperienceTemplate.md`。失敗の告白ではなく、意思決定が枝分かれしたポイントと次に同じ分岐に立ったときの選び方を道標として書く）
 
 ### エージェント起動時の共通ルール
 - エージェントチーム（TeamCreate）やサブエージェント（Agent）を作成するとき、各エージェントへのプロンプトに **最初に `/addf-knowhow-index` を実行する** よう指示を含めること
@@ -38,7 +38,7 @@
 ### タスク完了時 — 品質検証
 
 4. プロジェクトのビルド・Lint・テストコマンドを実行する
-   - ADD フレームワークテスト: `bash .claude/tests/run-all.sh`
+   - ADD フレームワークテスト: `bash .claude/addf/tests/run-all.sh`
    - **失敗した場合 → 実装に差し戻す**。原因分析 → 修正 → 再実行
 5. `addf-code-review-agent` でコードレビューを実施する
    - 通常タスクは単体（ペルソナなし）で起動する
@@ -49,7 +49,7 @@
    - **Critical/High**: 必ずこのフェーズ内で修正する（先送り禁止）
    - **Medium**: 原則修正。先送りする場合は独立計画を起こす
    - **Low/Info**: Plan に記録し、必要に応じて独立計画で対応
-   - **バグ分離**: 発見されたバグが現在のプランと関心事が異なる場合は、修正せずに新しいプラン（`docs/plans/`）を書き起こし、`TODO.md` に追加するのみで現在のプランを完了させる
+   - **バグ分離**: 発見されたバグが現在のプランと関心事が異なる場合は、修正せずに新しいプラン（`.claude/addf/plans/`）を書き起こし、`TODO.md` に追加するのみで現在のプランを完了させる
    - 修正後、ビルド・Lint・テストを再実行して通過を確認する
 8. 品質ゲートで得た知見を `/addf-knowhow` で記録する:
    - **品質ゲート知見**: レビューエージェントが検出したパターン（セキュリティ、コード品質、分離パターン違反等）のうち、他のタスクでも再発しうるもの
@@ -62,13 +62,13 @@
 
 #### フィードバック記録
 
-11. `.claude/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
-12. `.claude/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
-13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/templates/ProgressTemplate.addf.md`）の改善案を `.claude/Feedback.md` に記録する
+11. `.claude/addf/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
+12. `.claude/addf/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
+13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/addf/templates/ProgressTemplate.addf.md`）の改善案を `.claude/addf/Feedback.md` に記録する
 
 #### アーカイブとコミット
 
-14. `.claude/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
+14. `.claude/addf/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/addf/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
 15. コミットする
 
 ---
@@ -77,7 +77,7 @@
 
 ### 現在のタスク: Plan 0034 フェーズ1 — ダウンストリーム実働フィードバック対応
 
-出典: `docs/plans-add/0034-downstream-feedback-fixes.md`（Issue #18/#20 由来の明確な修正5件）。フェーズ2（#19 の設計系要望）は次サイクル以降。
+出典: `.claude/addf/plans-add/0034-downstream-feedback-fixes.md`（Issue #18/#20 由来の明確な修正5件）。フェーズ2（#19 の設計系要望）は次サイクル以降。
 
 #### サブタスクチェックリスト
 
@@ -102,7 +102,7 @@
 **やったこと**: 委譲エージェントがフェーズ1 の5件実装完了（30テスト全パス・lint OK・作業ツリー残置）。ペルソナ3体起動、newcomer 先着（Critical 0 / Warning 2: ①Plan 0034「対応しない（記録のみ）」節の見出しと本文の矛盾＋「手順6へ tomllib 注記を再確認」の約束が未実施・未追跡 ②手順4 の再構築が「必要な場合」という受動的判定 / Suggestion 4: コードブロック内コメント・--base の help=・detect_default_branch のエラーメッセージ・Test 12 の混在明記）。
 **今の見立て**: skeptic / attacker 待ち。特に attacker の find -exec rm -rf と sed ブロック置換の結果を見てから修正委譲。
 **次の自分へ**: compaction 後: (1) skeptic/attacker の通知を確認して集約 (2) 修正委譲（newcomer 分は上記②まで含めて全部軽い）(3) run-all 再実行 (4) 完了処理: Plan 0034 状態=フェーズ1 完了・フェーズ2 残り、TODO 更新、アーカイブ、**コミットのみ・push しない**（保留 push: 838f172・4f1afe7 の2件＋今回分）。Issue #18/#19/#20 への返信文はオーナー承認待ち事項。
-**気になっていること**: コンテキストが限界圏。compaction 後の再開者へ: このタスクの全体像は docs/plans-add/0034-downstream-feedback-fixes.md と本チェックリストで再構築できる。/loop cron（毎時:23、ID 2dc5f16d）は生きている。
+**気になっていること**: コンテキストが限界圏。compaction 後の再開者へ: このタスクの全体像は .claude/addf/plans-add/0034-downstream-feedback-fixes.md と本チェックリストで再構築できる。/loop cron（毎時:23、ID 2dc5f16d）は生きている。
 
 ##### 2026-07-03 — skeptic 受領（2/3）
 **やったこと**: skeptic から Critical 1（実測再現）: detect_default_branch が名前を剥がして返すため、「fetch 済み・ローカルブランチ無し」（CI shallow checkout・コンテナ — この機能の本来の対象）で `rev-parse --verify <name>` が失敗し die。Test 11 はローカルに trunk を先に作るため検出不能。Warning 7: fallback 経路の不可視 / remote 名 origin 固定の暗黙 / venv 除外の列挙が3種固定（venv・.tox 等で再発） / .venv シンボリックリンクは -type d に不一致 / 名前ベース prune の無差別性 / migrate 14.6 の「ブロック内 100% ADDF 所有」前提と sed の1組前提 / 単独実行判定のシグナル欠如。

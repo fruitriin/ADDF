@@ -10,7 +10,7 @@ CLAUDE.md（汎用テンプレート — マイグレーション時に上書き
 ├─ @CLAUDE.repo.md（プロジェクト固有設定 — コミットする方針）
 │    └─ @CLAUDE.repo.example.md（ダウンストリーム用テンプレート）
 │         └─ ADDF 本体では: ブートシーケンス補足
-│              @docs/plans-add/TODO.addf.md
+│              @.claude/addf/plans-add/TODO.addf.md
 │
 ├─ CLAUDE.local.md（開発者個人設定 — .gitignore 対象）
 │    ├─ @CLAUDE.local.example.md
@@ -32,32 +32,32 @@ CLAUDE.md で定義されるブートシーケンス:
 ├─ [Hook] post-compact-recovery.sh（compact 時のみ）
 │
 ▼
-Step 1: @.claude/Feedback.md を読む
+Step 1: @.claude/addf/Feedback.md を読む
 │       └─ 未対応の改善アクションを確認
-│  Step 1.5: @.claude/Questions.md を読む
+│  Step 1.5: @.claude/addf/Questions.md を読む
 │       └─ オーナーの新しい回答があれば Plan に反映し「回答済み」へ移す
-│  Step 1.6: .claude/Dashboard.md が存在すれば冒頭で提示
+│  Step 1.6: .claude/addf/Dashboard.md が存在すれば冒頭で提示
 │       └─ unattended 自走の差分まとめ。オーナー応答確認後に削除
 │
 Step 2: @TODO.md を読む
 │       └─ タスクバックログと優先度を把握
-│       └─ [ADDF 本体のみ] @docs/plans-add/TODO.addf.md も読む
+│       └─ [ADDF 本体のみ] @.claude/addf/plans-add/TODO.addf.md も読む
 │
-Step 3: @.claude/Progress.md を読む
+Step 3: @.claude/addf/Progress.md を読む
 │       └─ 進行中タスクがあれば継続
 │       └─ 「日記」セクションがあれば末尾3エントリーを読み、
 │          前任者の状況・判断・気にしていたことを把握してから着手
 │
 Step 4: TODO に未完了タスクがない場合
-│       ├─ docs/plans/ に計画ファイルがない（プロジェクト初回）
+│       ├─ .claude/addf/plans/ に計画ファイルがない（プロジェクト初回）
 │       │   → 骨格プランニング（走査 → ヒアリング（A: 質問形式 / B: フリーフォーム）
-│       │     → 初動計画 2〜3本を docs/plans/ に作成 → TODO 登録
+│       │     → 初動計画 2〜3本を .claude/addf/plans/ に作成 → TODO 登録
 │       │     → CLAUDE.repo.md 未作成なら生成 → オーナーに優先度確認）
 │       └─ 計画ファイルがある → オーナーに次のタスクを確認
 │
 Step 5: Plan 特定後、knowhow サブエージェントを起動
         ├─ Plan ファイルの内容をサブエージェントに渡す
-        ├─ docs/knowhow/ を走査
+        ├─ .claude/addf/knowhow/ を走査
         └─ 関連 knowhow のパスと要約をメインコンテキストに返す
 ```
 
@@ -79,18 +79,18 @@ Plan の曖昧さに遭遇したら「この方向で進めて Plan の意図と
 
 ```
 CLAUDE.md
-├─ @.claude/Feedback.md ................ 改善アクション記録
-├─ @.claude/Questions.md ............... 非同期質問箱（1.5）
-├─ .claude/Dashboard.md ................ unattended 差分まとめ（1.6・実行時生成、.gitignore）
-├─ .claude/Dashboard.example.md ........ Dashboard 書式の参照元
-├─ .claude/Questions.example.md ........ Questions 書式（Q例）の参照元
+├─ @.claude/addf/Feedback.md ................ 改善アクション記録
+├─ @.claude/addf/Questions.md ............... 非同期質問箱（1.5）
+├─ .claude/addf/Dashboard.md ................ unattended 差分まとめ（1.6・実行時生成、.gitignore）
+├─ .claude/addf/Dashboard.example.md ........ Dashboard 書式の参照元
+├─ .claude/addf/Questions.example.md ........ Questions 書式（Q例）の参照元
 ├─ @TODO.md ............................ タスクバックログ
-├─ @.claude/Progress.md ................ 現在のタスク進捗（運用ルール・日記書式）
+├─ @.claude/addf/Progress.md ................ 現在のタスク進捗（運用ルール・日記書式）
 ├─ @CLAUDE.repo.md ..................... プロジェクト固有設定
 │    └─ @CLAUDE.repo.example.md
-│         └─ @docs/plans-add/TODO.addf.md（ADDF 本体のみ）
-├─ docs/plans/ ......................... 実装計画ファイル群
-├─ docs/knowhow/ ....................... ノウハウ蓄積
+│         └─ @.claude/addf/plans-add/TODO.addf.md（ADDF 本体のみ）
+├─ .claude/addf/plans/ ......................... 実装計画ファイル群
+├─ .claude/addf/knowhow/ ....................... ノウハウ蓄積
 └─ CLAUDE.repo.md 経由で CONTRIBUTING.md の計画駆動モデルに接続
 ```
 

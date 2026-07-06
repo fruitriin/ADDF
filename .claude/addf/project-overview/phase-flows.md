@@ -80,7 +80,7 @@
 - Phase 2: セットアップ情報収集（外部起動: 自動推定+確認 / Template: 対話）
 - Phase 2.5: 干渉チェック（競合なし / マージ必要 / 要確認 / 新規作成に分類）
 - Phase 2.7: 導入前レビュー（hooks・権限・CLAUDE.md への影響を明示して確認）
-- Phase 3: ファイルコピー & マージ（カテゴリ1: 無条件コピー（.claude/optional/ 含む） / 2: インテリジェントマージ / 3: プロジェクト固有生成。lock は ref = クローン元タグで生成）
+- Phase 3: ファイルコピー & マージ（カテゴリ1: 無条件コピー（.claude/addf/optional/ 含む） / 2: インテリジェントマージ / 3: プロジェクト固有生成。lock は ref = クローン元タグで生成）
 - Phase 4: 完了レポート・tmp 削除
 **check モード**: 必須ファイル（Questions.md 含む）→ @メンション解決 → TODO⇔plans 整合 → lock 妥当性（ref 形式・旧形式は WARNING）→ AGENTS.md の5項目
 
@@ -184,7 +184,7 @@
 > Plan に関連するノウハウだけをフィルタリングして返す。
 
 1. Plan ファイル読み込み
-2. docs/knowhow/ 全走査（INDEX・CLAUDE.md 除く）
+2. .claude/addf/knowhow/ 全走査（INDEX・CLAUDE.md 除く）
 3. 関連度判定（技術領域・ハマりポイント・アーキテクチャ影響。タイトルで推測せず本文で判断）
 4. 結果出力（パス・要約・関連理由）
 5. 該当なしなら「関連するノウハウはありません」
@@ -196,7 +196,7 @@
 > knowhow インデックスの参照・再構築（ADDF 本体: INDEX.addf.md / ダウンストリーム: INDEX.md）。
 
 - 引数なし: インデックス参照（何を知っているかの把握）
-- reindex: docs/knowhow/ 走査 → フロントマターから鮮度判定（🟢 fresh / 🟡 aging / 🔴 stale のしきい値定義はこのスキルに一元化）→ INDEX 再生成 → 鮮度レポート（stale があれば /addf-knowhow-revise を案内）
+- reindex: .claude/addf/knowhow/ 走査 → フロントマターから鮮度判定（🟢 fresh / 🟡 aging / 🔴 stale のしきい値定義はこのスキルに一元化）→ INDEX 再生成 → 鮮度レポート（stale があれば /addf-knowhow-revise を案内）
 
 ---
 
@@ -227,7 +227,7 @@
 
 > .exp.md の @メンション書式を検証・修正する。
 
-- Phase 1: スキャン（.claude/commands/ / .claude/optional/ 配下ファイルの .exp.md 参照行）
+- Phase 1: スキャン（.claude/commands/ / .claude/addf/optional/ 配下ファイルの .exp.md 参照行）
 - Phase 2: 判定（正常 / 要修正（クオート内） / 例外（意図的リテラル））
 - Phase 3: 修正（クオート除去 + 一覧報告）
 - Phase 4: 検証（再スキャンで意図しない変更がないか確認）

@@ -6,7 +6,7 @@
 #   2 = WARNING → ステップは通すが `::warning::` annotation で PR / Actions UI に可視化する
 #
 # WARNING の扱いは全 lint 一律「通す + annotation」（lint ごとの個別設定は
-# 運用実績を見てから — 判断の経緯は docs/plans-add/0030-ci-quality-gate.md 参照）。
+# 運用実績を見てから — 判断の経緯は .claude/addf/plans-add/0030-ci-quality-gate.md 参照）。
 # lint は `uv run --python 3.11` で実行し、ローカルの /addf-lint と
 # Python バージョン・PEP 723 依存解決（pyyaml 等）を一致させる。
 #

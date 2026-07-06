@@ -13,7 +13,7 @@ model: sonnet
 
 - `*.md` ファイル（README・CONTRIBUTING・docs/ 配下・スキル/エージェント定義等）が `git diff` に含まれる
 - `docs/` 配下のいずれかのファイルが追加・変更・削除された
-- `.claude/commands/` `.claude/agents/` `.claude/optional/` 配下の定義ファイル（frontmatter を持つ Markdown）が変更された
+- `.claude/commands/` `.claude/agents/` `.claude/addf/optional/` 配下の定義ファイル（frontmatter を持つ Markdown）が変更された
 
 起動判定はメインエージェント側で行う。差分が上記のいずれにも該当しなければ本エージェントは呼ばずスキップしてよい。
 
@@ -105,7 +105,7 @@ model: sonnet
 
 ## 知見の蓄積
 
-レビューで発見した繰り返しパターン・プロジェクト固有の規約・注意すべきポイントがあれば、`/addf-knowhow` で `docs/knowhow/` に記録する。
+レビューで発見した繰り返しパターン・プロジェクト固有の規約・注意すべきポイントがあれば、`/addf-knowhow` で `.claude/addf/knowhow/` に記録する。
 
 ---
 

@@ -46,14 +46,14 @@ Codex ユーザーがそのまま利用することはできない。
 ### 実装内容
 
 1. **`AGENTS.md`**: リポジトリルートに配置。Codex 向けの簡潔なブートシーケンスと機能互換性の案内
-2. **`docs/guides/codex-setup.md`**: 詳細なセットアップガイド（fallback 設定、スキル移植手順、制限事項）
+2. **`.claude/addf/guides/codex-setup.md`**: 詳細なセットアップガイド（fallback 設定、スキル移植手順、制限事項）
 3. **Phase 13（addf-init）への入力**: Codex ユーザー向けの初期設定生成オプション
 
 ## 影響範囲
 
 - `AGENTS.md`（新規）
-- `docs/guides/codex-setup.md`（新規）
-- `docs/plans-add/0013-addf-init.md`（Codex オプション追記）
+- `.claude/addf/guides/codex-setup.md`（新規）
+- `.claude/addf/plans-add/0013-addf-init.md`（Codex オプション追記）
 
 ## 見積もり
 
@@ -64,7 +64,7 @@ Codex ユーザーがそのまま利用することはできない。
 
 ### 完了した項目
 - `AGENTS.md` — Codex 向けブートシーケンス + 機能互換性マッピング
-- `docs/guides/codex-setup.md` — 詳細セットアップガイド（fallback 設定、スキル移植、デュアル運用）
+- `.claude/addf/guides/codex-setup.md` — 詳細セットアップガイド（fallback 設定、スキル移植、デュアル運用）
 - 互換性マッピング表の確定
 
 ### 主な設計判断

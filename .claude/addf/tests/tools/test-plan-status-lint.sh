@@ -8,7 +8,7 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-LINT="$PROJECT_DIR/.claude/addfTools/lint-plan-status.py"
+LINT="$PROJECT_DIR/.claude/addf/tools/lint-plan-status.py"
 PASS=0
 FAIL=0
 
@@ -75,7 +75,7 @@ assert_contains "OK メッセージ" "OK: Plan 状態整合チェック通過" "
 #  完了条件の未チェックが残る = 0028 型の誤完了）→ ERROR
 echo "Test 2: ヘッダ完了 × 未チェック残存 → ERROR"
 box="$(make_sandbox)"
-cat > "$box/docs/plans-add/0001-test.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0001-test.md" <<'EOF'
 # Plan 0001: テスト計画
 
 ## 実装状況: 完了（2026-07-05 フェーズA 完了）
@@ -96,7 +96,7 @@ rm -rf "$box"
 # テスト 3: 一部完了 × 未チェック → OK（中間状態は正当）
 echo "Test 3: 一部完了 × 未チェック → OK"
 box="$(make_sandbox)"
-cat > "$box/docs/plans-add/0001-test.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0001-test.md" <<'EOF'
 # Plan 0001: テスト計画
 
 ## 実装状況: 一部完了（フェーズA のみ。B・C は残り）
@@ -113,7 +113,7 @@ rm -rf "$box"
 # テスト 4: 完了 × 全チェック済み → OK（検査件数に計上される）
 echo "Test 4: 完了 × 全チェック → OK"
 box="$(make_sandbox)"
-cat > "$box/docs/plans-add/0001-test.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0001-test.md" <<'EOF'
 # Plan 0001: テスト計画
 
 ## 実装状況: 完了（2026-07-05）
@@ -131,7 +131,7 @@ rm -rf "$box"
 # テスト 5: チェックボックスの無い旧書式 Plan → SKIP（明示出力・exit 0）
 echo "Test 5: 旧書式（素の箇条書き完了条件）→ SKIP"
 box="$(make_sandbox)"
-cat > "$box/docs/plans-add/0001-old.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0001-old.md" <<'EOF'
 # Plan 0001: 旧計画
 
 ## 実装状況: 完了（2026-03-18）
@@ -141,7 +141,7 @@ cat > "$box/docs/plans-add/0001-old.md" <<'EOF'
 - フェーズ1: run-all.sh 全パス
 - ドキュメント更新
 EOF
-cat > "$box/docs/plans-add/0002-older.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0002-older.md" <<'EOF'
 # Plan 0002: さらに旧い計画（完了条件セクション自体が無い）
 
 ## 実装状況: 完了（2026-03-18）
@@ -160,7 +160,7 @@ rm -rf "$box"
 # テスト 6: コードフェンス内のチェックボックス・見出し例示は無視
 echo "Test 6: コードフェンス内の例示は検査しない"
 box="$(make_sandbox)"
-cat > "$box/docs/plans-add/0001-test.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0001-test.md" <<'EOF'
 # Plan 0001: テンプレートを説明する計画
 
 ## 実装状況: 完了（2026-07-05）
@@ -186,14 +186,14 @@ rm -rf "$box"
 # テスト 7: ヘッダ無し旧 Plan・未着手 Plan は対象外
 echo "Test 7: ヘッダ無し・未着手は対象外"
 box="$(make_sandbox)"
-cat > "$box/docs/plans-add/0001-noheader.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0001-noheader.md" <<'EOF'
 # Plan 0001: ヘッダの無い旧計画
 
 ## 完了条件
 
 - [ ] 未チェックだがヘッダが無いので対象外
 EOF
-cat > "$box/docs/plans-add/0002-notstarted.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0002-notstarted.md" <<'EOF'
 # Plan 0002: 未着手計画
 
 ## 実装状況: 未着手
@@ -207,10 +207,10 @@ assert_exit "ヘッダ無し・未着手で OK" 0 $?
 assert_contains "対象外の件数計上" "対象外 2 件" "$output"
 rm -rf "$box"
 
-# テスト 8: docs/plans（ダウンストリーム系統）も検査される・plans-add 不在は SKIP
-echo "Test 8: ダウンストリーム系統（docs/plans）の検査と plans-add 不在 SKIP"
+# テスト 8: .claude/addf/plans（ダウンストリーム系統）も検査される・plans-add 不在は SKIP
+echo "Test 8: ダウンストリーム系統（.claude/addf/plans）の検査と plans-add 不在 SKIP"
 box="$(make_sandbox plans)"
-cat > "$box/docs/plans/0001-downstream.md" <<'EOF'
+cat > "$box/.claude/addf/plans/0001-downstream.md" <<'EOF'
 # Plan 0001: ダウンストリーム計画
 
 ## 実装状況: 完了
@@ -221,14 +221,14 @@ cat > "$box/docs/plans/0001-downstream.md" <<'EOF'
 EOF
 output=$(run_lint "$box")
 assert_exit "ダウンストリーム系統でも ERROR" 1 $?
-assert_contains "plans-add 不在の SKIP 明示" "SKIP: docs/plans-add が存在しない" "$output"
-assert_contains "docs/plans 側の検出" "docs/plans/0001-downstream.md" "$output"
+assert_contains "plans-add 不在の SKIP 明示" "SKIP: .claude/addf/plans-add が存在しない" "$output"
+assert_contains ".claude/addf/plans 側の検出" ".claude/addf/plans/0001-downstream.md" "$output"
 rm -rf "$box"
 
 # テスト 9: 水平線 --- で完了条件セクションが終わる（以降のチェックボックスは対象外）
 echo "Test 9: セクション境界（水平線）"
 box="$(make_sandbox)"
-cat > "$box/docs/plans-add/0001-test.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0001-test.md" <<'EOF'
 # Plan 0001: テスト計画
 
 ## 実装状況: 完了
@@ -252,7 +252,7 @@ rm -rf "$box"
 # （ドリフト注入 TDD: CHECKBOX_RE が `[-*]` のみだった頃の false negative を固定する）
 echo "Test 10: + マーカー・番号付きリストのチェックボックスも検出（ERROR）"
 box="$(make_sandbox)"
-cat > "$box/docs/plans-add/0001-plus.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0001-plus.md" <<'EOF'
 # Plan 0001: + マーカーの計画
 
 ## 実装状況: 完了
@@ -262,7 +262,7 @@ cat > "$box/docs/plans-add/0001-plus.md" <<'EOF'
 + [x] 実装する
 + [ ] plus マーカーの未チェック項目
 EOF
-cat > "$box/docs/plans-add/0002-numbered.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0002-numbered.md" <<'EOF'
 # Plan 0002: 番号付きリストの計画
 
 ## 実装状況: 完了
@@ -284,7 +284,7 @@ rm -rf "$box"
 # （`## 状態:` / レベル違い `### 実装状況:` / コロン無し `## 実装状況 完了` の3類型）
 echo "Test 11: 表記ゆれヘッダは無言スキップせず WARNING"
 box="$(make_sandbox)"
-cat > "$box/docs/plans-add/0001-alt.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0001-alt.md" <<'EOF'
 # Plan 0001: 状態ヘッダの計画
 
 ## 状態: 完了
@@ -293,7 +293,7 @@ cat > "$box/docs/plans-add/0001-alt.md" <<'EOF'
 
 - [ ] 未チェックだが表記ゆれヘッダのため ERROR 検査からは漏れる
 EOF
-cat > "$box/docs/plans-add/0002-level.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0002-level.md" <<'EOF'
 # Plan 0002: レベル違いヘッダの計画
 
 ### 実装状況: 完了
@@ -302,7 +302,7 @@ cat > "$box/docs/plans-add/0002-level.md" <<'EOF'
 
 - [ ] 未チェック
 EOF
-cat > "$box/docs/plans-add/0003-nocolon.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0003-nocolon.md" <<'EOF'
 # Plan 0003: コロン無しヘッダの計画
 
 ## 実装状況 完了
@@ -322,7 +322,7 @@ rm -rf "$box"
 # テスト 11b: 表記ゆれヘッダでもチェックボックスが無ければ WARNING しない（旧 Plan の平穏を守る）
 echo "Test 11b: 表記ゆれ × チェックボックス無し → 対象外のまま OK"
 box="$(make_sandbox)"
-cat > "$box/docs/plans-add/0001-alt-nobox.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0001-alt-nobox.md" <<'EOF'
 # Plan 0001: 状態ヘッダはあるがチェックボックスの無い旧計画
 
 ## 状態: 完了
@@ -339,7 +339,7 @@ rm -rf "$box"
 # （attacker 実測の false positive: ~~~ 内の例示チェックボックスで正当 Plan が ERROR になっていた）
 echo "Test 12: ~~~ / ```` フェンス内の例示は検査しない"
 box="$(make_sandbox)"
-cat > "$box/docs/plans-add/0001-tilde.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0001-tilde.md" <<'EOF'
 # Plan 0001: チルダフェンスで例示する計画
 
 ## 実装状況: 完了
@@ -373,7 +373,7 @@ rm -rf "$box"
 # テスト 13: 見出しに「完了条件」を含むセクション（### フェーズA: 完了条件）も検出
 echo "Test 13: 「完了条件」を含む見出し（前置き付き）も対象"
 box="$(make_sandbox)"
-cat > "$box/docs/plans-add/0001-phase.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0001-phase.md" <<'EOF'
 # Plan 0001: フェーズ分割の計画
 
 ## 実装状況: 完了
@@ -391,7 +391,7 @@ rm -rf "$box"
 # テスト 14: 複数の完了条件セクションは全部拾う（2つ目の未チェックも検出）
 echo "Test 14: 複数の完了条件セクションを全て検査"
 box="$(make_sandbox)"
-cat > "$box/docs/plans-add/0001-multi.md" <<'EOF'
+cat > "$box/.claude/addf/plans-add/0001-multi.md" <<'EOF'
 # Plan 0001: 完了条件が2つある計画
 
 ## 実装状況: 完了

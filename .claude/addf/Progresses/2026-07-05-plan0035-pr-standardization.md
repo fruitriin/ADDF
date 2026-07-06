@@ -3,7 +3,7 @@
 ## 運用ルール
 
 ### タスク開始時
-1. `.claude/Feedback.md` を読み、前回の改善アクションで未対応のものがあれば考慮する
+1. `.claude/addf/Feedback.md` を読み、前回の改善アクションで未対応のものがあれば考慮する
 2. 以下の手順で Markdown チェックリストを作成する
    1. 1ショットで作業できる範囲にサブタスクを分割する
    2. 並行作業できる粒度でさらに分割する
@@ -12,7 +12,7 @@
 
 ### 作業中
 3. サブタスク着手時に `- [x]` でチェックしていく。並列可能なタスクはコンテナオーケストレーションを利用する
-   - Plan の曖昧さで確信が持てないときは CLAUDE.md「迷ったときの作法（7割共有原則）」に従う（閾値割れなら `.claude/Questions.md` に質問を置いてタスクを切り替える）
+   - Plan の曖昧さで確信が持てないときは CLAUDE.md「迷ったときの作法（7割共有原則）」に従う（閾値割れなら `.claude/addf/Questions.md` に質問を置いてタスクを切り替える）
    - 長大なタスクでは、サブタスク完了時点でブランチ `checkpoint/<phase>-<N>` を切ってよい。別方針を試すときは checkpoint から `alt/` を分岐する
 3.5. **日記を書く（代替わり引き継ぎ）**（「3.5」は後続の番号参照を壊さないための意図的な枝番）: resume・compaction・`/loop` の次イテレーションで起きる「小さな代替わり」のたびに、次の代の自分（同僚でもあり、寝て起きたあとの自分でもある）が状況に入れるよう、タスクの「#### 日記」セクションにエントリーを書く
    - **書くタイミング**: サブタスク完了時 / 重要な判断をした直後 / 計画を変更したとき / コンテキストが長くなり compaction を予感したとき
@@ -24,12 +24,12 @@
      **次の自分へ**: <次に着手すべきこと・先に確認すべきこと>
      **気になっていること**: <未解決の不確実性・前提・違和感。なければ「なし」>
      ```
-   - 「日記」という語彙の意図（「遺書」を使わない理由）は `docs/guides/development-process.md` 参照
+   - 「日記」という語彙の意図（「遺書」を使わない理由）は `.claude/addf/guides/development-process.md` 参照
    - ブランチ checkpoint が「何がコミットされたか（事実）」を残すのに対し、日記は「なぜそうしたか・次に何を考えていたか（文脈）」を残す。両方で前任者の靴に履き替えられる
    - 日記の自動生成フックは導入しない。書くこと自体が思考の整理であり、次の自分への手紙として人格を持って書く
 4. 実装フェーズの最終サブタスク完了時、以下の知見を `/addf-knowhow` で記録する（既存 knowhow の更新も含む）:
    - **コーディング知見**: 実装中に発見した再利用可能なパターン、落とし穴、技術的判断とその根拠
-   - **分かれ道の目印**: 差し戻し・やり直し・想定外の判断が発生したサブタスクがあれば、使用したスキルの `.exp.md`「🔀 分かれ道の目印」にも追記する（書式: `.claude/templates/ExperienceTemplate.md`。失敗の告白ではなく、意思決定が枝分かれしたポイントと次に同じ分岐に立ったときの選び方を道標として書く）
+   - **分かれ道の目印**: 差し戻し・やり直し・想定外の判断が発生したサブタスクがあれば、使用したスキルの `.exp.md`「🔀 分かれ道の目印」にも追記する（書式: `.claude/addf/templates/ExperienceTemplate.md`。失敗の告白ではなく、意思決定が枝分かれしたポイントと次に同じ分岐に立ったときの選び方を道標として書く）
 
 ### エージェント起動時の共通ルール
 - エージェントチーム（TeamCreate）やサブエージェント（Agent）を作成するとき、各エージェントへのプロンプトに **最初に `/addf-knowhow-index` を実行する** よう指示を含めること
@@ -38,7 +38,7 @@
 ### タスク完了時 — 品質検証
 
 4. プロジェクトのビルド・Lint・テストコマンドを実行する
-   - ADD フレームワークテスト: `bash .claude/tests/run-all.sh`
+   - ADD フレームワークテスト: `bash .claude/addf/tests/run-all.sh`
    - **失敗した場合 → 実装に差し戻す**。原因分析 → 修正 → 再実行
 5. `addf-code-review-agent` でコードレビューを実施する
    - 通常タスクは単体（ペルソナなし）で起動する
@@ -49,7 +49,7 @@
    - **Critical/High**: 必ずこのフェーズ内で修正する（先送り禁止）
    - **Medium**: 原則修正。先送りする場合は独立計画を起こす
    - **Low/Info**: Plan に記録し、必要に応じて独立計画で対応
-   - **バグ分離**: 発見されたバグが現在のプランと関心事が異なる場合は、修正せずに新しいプラン（`docs/plans/`）を書き起こし、`TODO.md` に追加するのみで現在のプランを完了させる
+   - **バグ分離**: 発見されたバグが現在のプランと関心事が異なる場合は、修正せずに新しいプラン（`.claude/addf/plans/`）を書き起こし、`TODO.md` に追加するのみで現在のプランを完了させる
    - 修正後、ビルド・Lint・テストを再実行して通過を確認する
 8. 品質ゲートで得た知見を `/addf-knowhow` で記録する:
    - **品質ゲート知見**: レビューエージェントが検出したパターン（セキュリティ、コード品質、分離パターン違反等）のうち、他のタスクでも再発しうるもの
@@ -62,13 +62,13 @@
 
 #### フィードバック記録
 
-11. `.claude/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
-12. `.claude/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
-13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/templates/ProgressTemplate.addf.md`）の改善案を `.claude/Feedback.md` に記録する
+11. `.claude/addf/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
+12. `.claude/addf/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
+13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/addf/templates/ProgressTemplate.addf.md`）の改善案を `.claude/addf/Feedback.md` に記録する
 
 #### アーカイブとコミット
 
-14. `.claude/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
+14. `.claude/addf/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/addf/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
 15. コミットする
 
 ---
@@ -84,7 +84,7 @@
 
 ##### 2026-07-05 — サイクル3: フェーズC 実装済み・レビュー3体中1体受領
 **やったこと**: worktree agent-a86918fff3520f434 でフェーズC 実装完了（lint-plan-status.py 新設・TDD 9テスト・自己適用第1号成立・addf-init 列挙廃止採用・風化検出→0036 / Pending 機械化→0038 送り）。newcomer 受領: Warning 2（表記ゆれヘッダ `## 状態: 完了` のすり抜け — ペア6 の alt_status_header 相当が未踏襲 / SKIP 29件のファイル名が出力にない）。
-**次の自分へ**: skeptic・attacker の通知待ち → 集約 → 修正委譲（worktree 同上）→ squash マージ → Plan 0035 完了化確認 → **Progress アーカイブ（.claude/Progresses/2026-07-05-plan0035-pr-standardization.md）→ 新 Progress.md 作成 → コミット・push**。次サイクルは Plan 0036。
+**次の自分へ**: skeptic・attacker の通知待ち → 集約 → 修正委譲（worktree 同上）→ squash マージ → Plan 0035 完了化確認 → **Progress アーカイブ（.claude/addf/Progresses/2026-07-05-plan0035-pr-standardization.md）→ 新 Progress.md 作成 → コミット・push**。次サイクルは Plan 0036。
 **気になっていること**: コンテキスト 371k。compaction されたらこの日記が正。worktree パスとレビュー通知の対応: skeptic=af8558974c839ad7e / attacker=ad83102e1059368ed（完了通知の result に全文が入る）。
 
 ### （完了）フェーズB — 投機運用拡張（昇格 PR 経路・部分昇格・Pending・深化）
@@ -113,15 +113,15 @@
 
 ### （完了）フェーズA — PR 作法ドキュメント一式（PlanTemplate 引き取り込み）
 
-出典: `docs/plans-add/0035-pr-standard-format.md`。フェーズ分割（今サイクルで宣言）:
+出典: `.claude/addf/plans-add/0035-pr-standard-format.md`。フェーズ分割（今サイクルで宣言）:
 - **フェーズA（今回）**: PR 本文フォーマット規約の guides 単一ソース化＋PlanTemplate.md 新設（0033 項目4 引き取り）＋相互リンク規約＋進捗位置欄
 - フェーズB: 投機運用系（昇格 PR 経路・部分昇格・Pending・深化ブランチ・ライフサイクル図）
 - フェーズC: 誤完了防止 lint 新設（チェックボックス未完×ヘッダ完了 ERROR・ドリフト注入 TDD）
 
 #### サブタスクチェックリスト
 
-- [ ] PlanTemplate.md 新設（.claude/templates/。関連 Plan セクション・実装状況ヘッダ・完了条件・進捗位置の器。0033 項目4 の対象 = CLAUDE.md 骨格プランニング・addf-init からの参照も更新）
-- [ ] PR 本文フォーマット規約を docs/guides/ に単一ソース化（Plan リンク「Plan <番号>: <日本語タイトル>」形式・バッククォート禁止・head ブランチ blob URL・進捗位置欄必須）
+- [ ] PlanTemplate.md 新設（.claude/addf/templates/。関連 Plan セクション・実装状況ヘッダ・完了条件・進捗位置の器。0033 項目4 の対象 = CLAUDE.md 骨格プランニング・addf-init からの参照も更新）
+- [ ] PR 本文フォーマット規約を .claude/addf/guides/ に単一ソース化（Plan リンク「Plan <番号>: <日本語タイトル>」形式・バッククォート禁止・head ブランチ blob URL・進捗位置欄必須）
 - [ ] addf-dev / addf-speculate から規約への参照を追記
 - [ ] Plan 相互リンク規約（関連 Plan セクション・双方向原則）を PlanTemplate と guides に記載
 - [ ] Stage 1: run-all＋lint 一式（特にペア5=addf-init コピーリスト、テンプレート追加の同期）

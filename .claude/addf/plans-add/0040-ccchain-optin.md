@@ -24,7 +24,7 @@
 
 - ADDF のパーミッション管理は `settings.json` / `settings.local.json` の permissions 配列（プレフィックスマッチ）と `/addf-permission-audit`（3パターン分類）のみ。`cmd1 && rm -rf foo` のようなチェーン後段は制御できない
 - ccchain は EnumaElish リポジトリで完成済み: `go install github.com/fruitriin/ccchain/cmd/ccchain@latest` で導入、`ccchain init` で `.ccchain.conf` 生成、PreToolUse hook（matcher: Bash → `ccchain hook pre`）で配線。deny にヒントメッセージを添えられ、エージェントが自力で安全なコマンドに書き直せる（ブロックが対話になる設計）
-- ADDF には GUI テストで実績のあるオプトイン機構が既にある: `.claude/optional/` 原本 + `addf-Behavior.toml` の `enable` フラグ + `sync-optional-skills.py`（check/apply）。ccchain 統合はこのパターンを踏襲する
+- ADDF には GUI テストで実績のあるオプトイン機構が既にある: `.claude/addf/optional/` 原本 + `addf-Behavior.toml` の `enable` フラグ + `sync-optional-skills.py`（check/apply）。ccchain 統合はこのパターンを踏襲する
 
 ## 変更内容（フェーズ）
 
@@ -34,11 +34,11 @@
 - ccchain を本体開発環境にインストールし、`.ccchain.conf` に ADDF 開発の実運用ルールを書く。初期ルールの種:
   - 既知の危険パターン（`git push --force` 系・migration/ブランチ削除前の不可逆操作）の deny + ヒント
   - `settings.local.json` の既存 Bash 許可のうち、構造を見ないと危険なもの（パイプ・チェーン許可）の移管候補を `/addf-permission-audit` の観点で棚卸しする
-- まず**フェーズ1だけで数タスク分運用**し、誤 deny・ルール表現の知見を `docs/knowhow/ADDF/` に記録してからフェーズ2へ進む（配布物を実運用知見で固める）
+- まず**フェーズ1だけで数タスク分運用**し、誤 deny・ルール表現の知見を `.claude/addf/knowhow/ADDF/` に記録してからフェーズ2へ進む（配布物を実運用知見で固める）
 
 ### フェーズ2: オプトイン機構の整備（配布側）
 
-- **対象**: `addf-Behavior.toml`（`[ccchain]` セクション新設: `enable = false` 既定）、`.claude/optional/`（配線テンプレート・`.ccchain.conf` 雛形）、同期スクリプト
+- **対象**: `addf-Behavior.toml`（`[ccchain]` セクション新設: `enable = false` 既定）、`.claude/addf/optional/`（配線テンプレート・`.ccchain.conf` 雛形）、同期スクリプト
 - GUI テストの3原則（原本が真実源・有効化コピーは使い捨て・乖離時は WARNING）を踏襲する。ただし ccchain は**外部バイナリ依存**な点が GUI スキルと異なる:
   - バイナリは ADDF が配布しない。`go install`（または EnumaElish の GitHub Releases）で利用者が取得する。有効化時にバイナリ不在なら hook はフェイルセーフ側の挙動を明示する（要設計判断: 不在時に警告して素通しか、有効化自体を拒否するか）
   - `enable = true` 時の apply 動作: settings.json への hook 追記（または hook 配線ファイルの配置）と `.ccchain.conf` 雛形コピー
@@ -46,7 +46,7 @@
 
 ### フェーズ3: ガイド・マイグレーション統合
 
-- **対象**: `docs/guides/ccchain-setup.md`（新設。gui-test-setup.md の体裁に合わせる）、`/addf-migrate`（既存ダウンストリームへの案内）、`/addf-init`（初期化時の選択肢）
+- **対象**: `.claude/addf/guides/ccchain-setup.md`（新設。gui-test-setup.md の体裁に合わせる）、`/addf-migrate`（既存ダウンストリームへの案内）、`/addf-init`（初期化時の選択肢）
 - 導入手順: インストール → `ccchain init` → Behavior.toml オプトイン → apply → `ccchain eval` での動作確認、まで実行チェック付きで書く（Plan 0027 のチェックリスト裏付けドクトリンに従う）
 - CLAUDE.md に参照を足す場合は addf-init コピーリストとセットで（Feedback.md の改善アクション）
 
@@ -58,14 +58,14 @@
 ## 影響範囲
 
 - `addf-Behavior.toml` スキーマ拡張（lint-toml.py・addf-migrate の差分算出に影響）
-- `.claude/optional/` の対象拡大（sync-optional-skills.py の汎用性確認 — GUI 専用の前提が埋まっていれば汎用化）
+- `.claude/addf/optional/` の対象拡大（sync-optional-skills.py の汎用性確認 — GUI 専用の前提が埋まっていれば汎用化）
 - settings.json（配布テンプレート）は既定では変更しない（オプトイン時のみ apply で配線）
 - 同期ファイルペアが増える場合は lint ペア追加 + addf-lint.md セクション6の表更新をセットで行う（Feedback.md の再発防止事項）
 
 ## テスト方針
 
 - `ccchain eval` によるルール単体テスト（EnumaElish 側の作法を流用）
-- オプトイン機構: enable/disable の apply → check 往復テスト、バイナリ不在時のフェイルセーフ挙動テストを `.claude/tests/` に追加
+- オプトイン機構: enable/disable の apply → check 往復テスト、バイナリ不在時のフェイルセーフ挙動テストを `.claude/addf/tests/` に追加
 - ドッグフーディング実運用が最大のテスト — フェーズ1で誤 deny 事例を最低数件収集してからフェーズ2の雛形を確定する
 
 ## 破壊的変更の許容範囲
@@ -81,9 +81,9 @@
 ## 完了条件
 
 - [ ] ADDF 本体で ccchain が PreToolUse hook として稼働し、構造ルールによる deny + ヒントが実タスクで機能している <!-- human-judgment -->
-- [ ] `addf-Behavior.toml` の `[ccchain]` オプトインで有効化/無効化が往復でき、check/apply テストが `bash .claude/tests/run-all.sh` で通過する
+- [ ] `addf-Behavior.toml` の `[ccchain]` オプトインで有効化/無効化が往復でき、check/apply テストが `bash .claude/addf/tests/run-all.sh` で通過する
 - [ ] バイナリ不在時のフェイルセーフ挙動がテストで検証されている
-- [ ] `docs/guides/ccchain-setup.md` が実行チェック付きで存在し、`/addf-lint` セクション9を通過する
+- [ ] `.claude/addf/guides/ccchain-setup.md` が実行チェック付きで存在し、`/addf-lint` セクション9を通過する
 - [ ] `/addf-lint` 全通過（Behavior.toml・コピーリスト・同期ペア整合）
 
 ## AI 実装時間見積もり

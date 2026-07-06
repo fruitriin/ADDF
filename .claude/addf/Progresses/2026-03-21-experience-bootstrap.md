@@ -2,7 +2,7 @@
 
 ## タスク: Phase 9 — 経験ファイルのブートストラップ
 
-Plan: `docs/plans-add/0009-experience-bootstrap.md`
+Plan: `.claude/addf/plans-add/0009-experience-bootstrap.md`
 
 ### 実装
 - [x] `addf-knowhow-index.exp.md` 作成
@@ -11,7 +11,7 @@ Plan: `docs/plans-add/0009-experience-bootstrap.md`
 - [x] 経験ファイルテンプレート定義（ExperienceTemplate.md）
 
 ### 品質検証
-- [x] `bash .claude/tests/run-all.sh` 実行 — 全テスト通過
+- [x] `bash .claude/addf/tests/run-all.sh` 実行 — 全テスト通過
 
 ### 完了処理
 - [x] Plan に実装完了状況を反映

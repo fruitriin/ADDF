@@ -7,7 +7,7 @@
 実装は計画より進化しており、URL の `https://` 限定検証、既存ファイルからのプロジェクト情報自動推定、既存 CLAUDE.md/AGENTS.md の CLAUDE.repo.md への退避ロジックが追加されている。
 
 TODO 上「未着手」のまま残っていたが、2026-06-10 の突合確認で実装済みと判明し完了化した。
-突合で見つかった残差分（コピーリストの鮮度ドリフト等）は `docs/plans-add/0022-addf-init-copylist-refresh.md` に切り出した。
+突合で見つかった残差分（コピーリストの鮮度ドリフト等）は `.claude/addf/plans-add/0022-addf-init-copylist-refresh.md` に切り出した。
 
 ## Context
 
@@ -72,7 +72,7 @@ addf-init.md の冒頭に「外部起動セクション」を設ける:
 ### Phase 1: 状態判定（拡張）
 
 ```
-.claude/addf-lock.json あり → 導入済み（終了）
+.claude/addf/lock.json あり → 導入済み（終了）
 .claude/ or CLAUDE.md あり but lock なし → 既存プロジェクト導入モード
 何もなし → 新規セットアップモード
 ```
@@ -101,7 +101,7 @@ addf-init.md の冒頭に「外部起動セクション」を設ける:
   .claude/commands/     — 存在しない（新規作成）
   .claude/agents/       — 存在しない（新規作成）
   .claude/hooks/        — 存在しない（新規作成）
-  docs/guides/          — 存在しない（新規作成）
+  .claude/addf/guides/          — 存在しない（新規作成）
 
 ■ マージが必要
   .gitignore            — 既存あり → ADDF エントリを追加
@@ -112,7 +112,7 @@ addf-init.md の冒頭に「外部起動セクション」を設ける:
   CONTRIBUTING.md       — 既存あり → 上書きするかスキップするか選択
 
 ■ 新規作成
-  TODO.md, CLAUDE.repo.md, .claude/Progress.md, ...
+  TODO.md, CLAUDE.repo.md, .claude/addf/Progress.md, ...
 ```
 
 ### Phase 2.7: 導入前レビュー（セキュリティ）
@@ -147,16 +147,16 @@ ADDF リポジトリ（tmp）から対象プロジェクトへファイルをコ
 - `.claude/commands/addf-*.md` — スキル定義
 - `.claude/agents/addf-*.md` — エージェント定義
 - `.claude/hooks/*.sh` — フック
-- `.claude/templates/` — テンプレート
-- `.claude/addfTools/` — ツール群
-- `.claude/tests/` — テストスイート
-- `.claude/addf-Behavior.toml`
-- `.claude/ADDF-CHANGELOG.md`, `.claude/ADDF-Release.addf.md`
+- `.claude/addf/templates/` — テンプレート
+- `.claude/addf/tools/` — ツール群
+- `.claude/addf/tests/` — テストスイート
+- `.claude/addf/Behavior.toml`
+- `.claude/addf/CHANGELOG.md`, `.claude/addf/Release.addf.md`
 - `CLAUDE.repo.example.md`, `CLAUDE.local.example.md`
 - `AGENTS.md`
 - `.claudeignore`
-- `docs/knowhow/ADDF/`, `docs/knowhow/INDEX.addf.md`
-- `docs/guides/`
+- `.claude/addf/knowhow/ADDF/`, `.claude/addf/knowhow/INDEX.addf.md`
+- `.claude/addf/guides/`
 
 **カテゴリ2: インテリジェントマージ**
 - **`.claude/settings.json`**: 既存 hooks/permissions に ADDF エントリをユニオン追加。削除しない。結果を表示して確認
@@ -177,11 +177,11 @@ ADDF リポジトリ（tmp）から対象プロジェクトへファイルをコ
 - `CLAUDE.repo.md` — 「ADDF 利用プロジェクト」として生成
 - `CLAUDE.local.md` — テンプレートからコピー
 - `TODO.md` — 初期テンプレート
-- `docs/plans/` — ディレクトリ作成
-- `docs/knowhow/INDEX.md` — インデックス初期化
-- `.claude/Progress.md` — テンプレートから生成
-- `.claude/Feedback.md` — 初期テンプレート
-- `.claude/addf-lock.json` — ADDF クローン元のコミットハッシュで生成
+- `.claude/addf/plans/` — ディレクトリ作成
+- `.claude/addf/knowhow/INDEX.md` — インデックス初期化
+- `.claude/addf/Progress.md` — テンプレートから生成
+- `.claude/addf/Feedback.md` — 初期テンプレート
+- `.claude/addf/lock.json` — ADDF クローン元のコミットハッシュで生成
 
 ### Phase 4: 完了レポート & tmp 削除
 
@@ -197,7 +197,7 @@ ADDF リポジトリ（tmp）から対象プロジェクトへファイルをコ
 
 次のステップ:
 1. CLAUDE.repo.md を確認・カスタマイズしてください
-2. docs/plans/ に計画ファイルを作成してください
+2. .claude/addf/plans/ に計画ファイルを作成してください
 3. `/addf-dev` で開発を開始できます
 ```
 
@@ -212,5 +212,5 @@ ADDF リポジトリ（tmp）から対象プロジェクトへファイルをコ
 
 ## 検証
 
-1. `bash .claude/tests/run-all.sh` が通過すること
+1. `bash .claude/addf/tests/run-all.sh` が通過すること
 2. `/addf-init check` で構造検証が通ること

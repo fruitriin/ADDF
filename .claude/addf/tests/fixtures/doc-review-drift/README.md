@@ -14,5 +14,5 @@
 エージェントを LLM で起動する場合、これらのフィクスチャを対象に3件以上の指摘（各観点1件以上）を返せば
 「検出できる状態にある」と判断する（Plan 0039 完了条件の human-judgment 側）。
 
-自動テスト（`.claude/tests/tools/test-doc-review-agent.sh`）はエージェント定義と
+自動テスト（`.claude/addf/tests/tools/test-doc-review-agent.sh`）はエージェント定義と
 このフィクスチャの静的整合（キーワードの存在）のみを検査する。

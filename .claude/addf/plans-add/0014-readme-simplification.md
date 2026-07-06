@@ -30,16 +30,16 @@ README に残す内容（必須情報のみ）:
 
 ### 2. 分離先ドキュメント
 
-以下を `docs/guides/` に分離:
+以下を `.claude/addf/guides/` に分離:
 
 | ファイル | 内容 |
 |---|---|
-| `docs/guides/setup.md` | 詳細セットアップ（設定の役割、手動セットアップ手順、ディレクトリ構成） |
-| `docs/guides/skills.md` | スキル一覧と使い方 |
-| `docs/guides/agents.md` | エージェント一覧と起動タイミング |
-| `docs/guides/development-process.md` | 開発プロセスの詳細（ブートシーケンス、品質ゲート、並列実装） |
-| `docs/guides/migration.md` | バージョンアップ手順（Phase 11 の `/addf-migrate` の使い方） |
-| `docs/guides/codex.md` | Codex ユーザー向けガイド（Phase 12 の結果） |
+| `.claude/addf/guides/setup.md` | 詳細セットアップ（設定の役割、手動セットアップ手順、ディレクトリ構成） |
+| `.claude/addf/guides/skills.md` | スキル一覧と使い方 |
+| `.claude/addf/guides/agents.md` | エージェント一覧と起動タイミング |
+| `.claude/addf/guides/development-process.md` | 開発プロセスの詳細（ブートシーケンス、品質ゲート、並列実装） |
+| `.claude/addf/guides/migration.md` | バージョンアップ手順（Phase 11 の `/addf-migrate` の使い方） |
+| `.claude/addf/guides/codex.md` | Codex ユーザー向けガイド（Phase 12 の結果） |
 
 ### 3. 英語版（README.en.md）も同様に更新
 
@@ -55,7 +55,7 @@ README に残す内容（必須情報のみ）:
 
 - `README.md`（大幅縮小）
 - `README.en.md`（大幅縮小）
-- `docs/guides/`（新規、複数ファイル）
+- `.claude/addf/guides/`（新規、複数ファイル）
 
 ## 見積もり
 
@@ -66,12 +66,12 @@ AI 実装: 15-20 分
 ### 完了した項目
 - `README.md` — 174行→65行にスリム化（クイックスタート + ドキュメントリンク集）
 - `README.en.md` — 163行→65行にスリム化（同構造）
-- `docs/guides/setup.md` — 詳細セットアップ（手動セットアップ、設定役割、ディレクトリ構成）
-- `docs/guides/skills.md` — スキル一覧（addf-init, addf-migrate 等の新スキルも含む）
-- `docs/guides/agents.md` — エージェント一覧と品質ゲート
-- `docs/guides/development-process.md` — 開発プロセスの詳細
-- `docs/guides/migration.md` — バージョンアップ手順
-- 既存の `docs/guides/codex-setup.md` と `docs/guides/gui-test-setup.md` はそのまま活用
+- `.claude/addf/guides/setup.md` — 詳細セットアップ（手動セットアップ、設定役割、ディレクトリ構成）
+- `.claude/addf/guides/skills.md` — スキル一覧（addf-init, addf-migrate 等の新スキルも含む）
+- `.claude/addf/guides/agents.md` — エージェント一覧と品質ゲート
+- `.claude/addf/guides/development-process.md` — 開発プロセスの詳細
+- `.claude/addf/guides/migration.md` — バージョンアップ手順
+- 既存の `.claude/addf/guides/codex-setup.md` と `.claude/addf/guides/gui-test-setup.md` はそのまま活用
 
 ### 設計判断
 - README のクイックスタートは `/addf-init` を中核に据えた（手動ファイル差し替え → 自動初期化）

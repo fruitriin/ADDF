@@ -3,11 +3,11 @@
 
 /addf-speculate のサイクル冒頭（再構築と掃除）と `clean` サブコマンドから呼ばれる
 決定的スクリプト。git の実体（worktree・ローカル/リモートブランチ）を走査して
-機械的事実を key=value で出力するまでが責務で、解釈（.claude/Worktrees.md との突合・
+機械的事実を key=value で出力するまでが責務で、解釈（.claude/addf/Worktrees.md との突合・
 復元・「昇格済み」の確定判断）はエージェントが行う（検出=スクリプト / 解釈=エージェント）。
 
 原則の例外（不可逆な削除だけは記録との突合をスクリプトが強制する）:
-  `--delete` 対象については、`.claude/Worktrees.md` の該当行の状態が「昇格済み」または
+  `--delete` 対象については、`.claude/addf/Worktrees.md` の該当行の状態が「昇格済み」または
   「放棄」であることをスクリプト自身が検証する。ファイルが無い・行が無い・状態が違う場合は
   「記録なし/不一致」として削除せず ERROR で中断する（`--force-delete` 併用時のみスキップ）。
   消したら戻らない操作の安全は、解釈の柔軟さより優先する。
@@ -186,7 +186,7 @@ def merged_hint(base, branch):
 
 
 def worktrees_md_state(branch):
-    """.claude/Worktrees.md の表から branch の行の状態セルを緩く拾う。
+    """.claude/addf/Worktrees.md の表から branch の行の状態セルを緩く拾う。
     「| <path> | <branch> | ... | <状態> |」形式の行からセルを分割し、branch と一致する
     セルを含む行を探して、既知の状態語彙で始まるセルを状態として返す。
     返り値: ('no-file'|'no-row'|'found', 状態セル or None)"""
@@ -211,7 +211,7 @@ def worktrees_md_state(branch):
 
 
 def _worktrees_table_states():
-    """.claude/Worktrees.md の**投機管理表**の状態セルを列位置ベースで列挙する。
+    """.claude/addf/Worktrees.md の**投機管理表**の状態セルを列位置ベースで列挙する。
 
     ヘッダ行（「ブランチ」と「状態」の両列を持つ行 — 手順5の書式
     「| worktree パス | ブランチ | 対象概念（出典） | 状態 | 最終更新 |」）を検出して
@@ -274,7 +274,7 @@ def verify_delete_targets(branches):
     for branch in branches:
         kind, state = worktrees_md_state(branch)
         if kind == 'no-file':
-            problems.append(f'{branch}: .claude/Worktrees.md が無く記録を確認できない（記録なし）')
+            problems.append(f'{branch}: .claude/addf/Worktrees.md が無く記録を確認できない（記録なし）')
         elif kind == 'no-row':
             problems.append(f'{branch}: Worktrees.md に記録なし')
         elif state is None or not state.startswith(DELETABLE_STATES):

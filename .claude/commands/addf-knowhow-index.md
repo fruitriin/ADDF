@@ -1,7 +1,7 @@
 ---
 name: addf-knowhow-index
 description: |
-  docs/knowhow/ のインデックスを参照して「何を知っているか」を把握する。reindex 引数でインデックスを再構築する。
+  .claude/addf/knowhow/ のインデックスを参照して「何を知っているか」を把握する。reindex 引数でインデックスを再構築する。
   ADD フレームワーク本体では INDEX.addf.md、ダウンストリームプロジェクトでは INDEX.md を使用する。
   プロジェクトの知見ベースを確認したいとき、ノウハウの追加・削除後にインデックスを更新したいときに使う。
 context: fork
@@ -12,15 +12,15 @@ user_invocable: true
 
 ## インデックスファイルの選択
 
-- ADDF 開発プロジェクト（フレームワーク本体）では `docs/knowhow/INDEX.addf.md` を使用する
-- ADDF 利用プロジェクト（ダウンストリーム）では `docs/knowhow/INDEX.md` を使用する
+- ADDF 開発プロジェクト（フレームワーク本体）では `.claude/addf/knowhow/INDEX.addf.md` を使用する
+- ADDF 利用プロジェクト（ダウンストリーム）では `.claude/addf/knowhow/INDEX.md` を使用する
 - 判定方法（`INDEX.addf.md` の**存在で判定しない** — 配布によりダウンストリームにも物理存在しうる。存在≠所有）:
   1. **一次根拠**: `CLAUDE.repo.md` のプロジェクト種別宣言を読む。「ADDF 開発プロジェクト」なら `INDEX.addf.md`、「ADDF 利用プロジェクト」なら `INDEX.md`（宣言が `@メンション` 先のファイルにある場合はそれを辿る。コードブロック内の書き換え例は宣言として扱わない）
-  2. **フォールバック**（宣言が見つからない場合）: `.claude/addf-lock.json` が存在すればダウンストリームとして `INDEX.md` を使用する。それも無ければ ADDF 本体として `INDEX.addf.md` を使用する
+  2. **フォールバック**（宣言が見つからない場合）: `.claude/addf/lock.json` が存在すればダウンストリームとして `INDEX.md` を使用する。それも無ければ ADDF 本体として `INDEX.addf.md` を使用する
 
 ## 引数
 - **引数なし**: インデックスファイルを読み、内容をそのまま返す
-- **`reindex`**: `docs/knowhow/` の全ファイルを読み込み、インデックスファイルを再構築する
+- **`reindex`**: `.claude/addf/knowhow/` の全ファイルを読み込み、インデックスファイルを再構築する
 
 ## 目的
 
@@ -38,7 +38,7 @@ user_invocable: true
 
 ## `reindex` の場合
 
-1. `docs/knowhow/` 内の全 `.md` ファイルを読む（`INDEX.md` 自体と `CLAUDE.md`（読み方の作法）は除く）
+1. `.claude/addf/knowhow/` 内の全 `.md` ファイルを読む（`INDEX.md` 自体と `CLAUDE.md`（読み方の作法）は除く）
 2. 各ファイルについて以下を抽出する:
    - **ファイルパス**
    - **一行要約**: そのファイルが扱う中心トピック（1文）

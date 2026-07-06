@@ -27,7 +27,7 @@
 
 つまりデッドロックの原因は「compaction の手段がないこと」ではなく「エージェントが止まること」。auto-compact は作業を続けてさえいれば発動し、復帰フック（Plan 0017 の日記＋`post-compact-recovery.sh`）が受け止める準備は既に整っている。
 
-補強材料: compaction には**トランスクリプト汚染（不正ツールコールの自己強化劣化。[claude-code#72015](https://github.com/anthropics/claude-code/issues/72015)）の解毒**という副次価値もある。長セッション・非 ASCII・高ツール密度という悪化条件は ADDF の /loop 自走と重なるため、「止まらず compaction に到達する」ことは劣化リセットの意味でも合理的（詳細は `docs/knowhow/ADDF/context-and-transcript.md`）。
+補強材料: compaction には**トランスクリプト汚染（不正ツールコールの自己強化劣化。[claude-code#72015](https://github.com/anthropics/claude-code/issues/72015)）の解毒**という副次価値もある。長セッション・非 ASCII・高ツール密度という悪化条件は ADDF の /loop 自走と重なるため、「止まらず compaction に到達する」ことは劣化リセットの意味でも合理的（詳細は `.claude/addf/knowhow/ADDF/context-and-transcript.md`）。
 
 ## 現状の挙動と壁の構造
 
@@ -39,9 +39,9 @@
 
 ### 壁
 
-- エージェントから compaction を能動的に起こす手段は存在しない（2026-07 時点。詳細と実験結果は `docs/knowhow/ADDF/context-and-transcript.md`）
+- エージェントから compaction を能動的に起こす手段は存在しない（2026-07 時点。詳細と実験結果は `.claude/addf/knowhow/ADDF/context-and-transcript.md`）
 - auto-compact は harness が「コンテキスト上限接近時」に自動発動する。context-reminder 閾値（180k）〜auto-compact 発動点の間の**グレーゾーン**で、記録を書き尽くしたエージェントは「新規着手は危険・compact 手段はない」の板挟みになり、次サイクルを予約せずループを止める（自主停止）
-- 検討した能動コンパクション系の代替案（トランスクリプト手術 + resume・世代交代・ループの閉じ方3案）は、原理成立を実証したうえで「ループが閉じきらない（OS レベルの外部足場が必須）」ため死蔵と決定した。アイデア・実証結果・着手トリガーは `docs/knowhow/ADDF/context-and-transcript.md` に保存
+- 検討した能動コンパクション系の代替案（トランスクリプト手術 + resume・世代交代・ループの閉じ方3案）は、原理成立を実証したうえで「ループが閉じきらない（OS レベルの外部足場が必須）」ため死蔵と決定した。アイデア・実証結果・着手トリガーは `.claude/addf/knowhow/ADDF/context-and-transcript.md` に保存
 
 ## 方針（オーナー決定 2026-07-06）
 
@@ -77,7 +77,7 @@
 
 ### フェーズ2: 「満杯時の出口」教義 — 止まらないこと ＋ compaction 耐性のタスク運び
 
-- **対象**: `.claude/addfTools/context-reminder.py` / `.claude/commands/addf-dev.md` / `.claude/templates/ProgressTemplate.md`・`ProgressTemplate.addf.md`（同期ペア lint 対象）
+- **対象**: `.claude/addf/tools/context-reminder.py` / `.claude/commands/addf-dev.md` / `.claude/addf/templates/ProgressTemplate.md`・`ProgressTemplate.addf.md`（同期ペア lint 対象）
 - context-reminder の注入文言に「記録が尽きたあと」の行動指針を追加する:
   - 「記録が済んでいるなら、そのまま作業を続行してよい。compaction を起こすのは harness の仕事であり、復帰フックと日記が受け止める準備は整っている。エージェントの仕事は**止まらないこと**である」
 - addf-dev.md のステップ5（ループ継続）に「コンテキスト満杯時の出口」を追記する:
@@ -111,7 +111,7 @@
 ## 完了条件
 
 - [x] フェーズ1: auto-compact 発動点の実測値が `addf-Behavior.toml` コメントと本 Plan に記録されている
-- [x] フェーズ2: context-reminder.py・addf-dev.md・ProgressTemplate 系に「満杯時の出口」（止まらない教義＋compaction 耐性のタスク運び）が記載され、`bash .claude/tests/run-all.sh` と `/addf-lint`（同期ペア）が全パスする
+- [x] フェーズ2: context-reminder.py・addf-dev.md・ProgressTemplate 系に「満杯時の出口」（止まらない教義＋compaction 耐性のタスク運び）が記載され、`bash .claude/addf/tests/run-all.sh` と `/addf-lint`（同期ペア）が全パスする
 - [ ] 実地検証: /loop 自走がコンテキスト枯渇を跨いで継続することを1回以上観測する <!-- human-judgment -->
 
 ## AI 実装時間見積もり

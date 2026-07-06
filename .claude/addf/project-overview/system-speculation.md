@@ -11,17 +11,17 @@ ADDF 本体リポジトリでは有効化済み（`max_worktrees = 7`）。
 | 種別 | 名前 | 役割 |
 |---|---|---|
 | スキル | addf-speculate | 投機1サイクルの手順（発動ガード→再構築と掃除→選定→worktree 起動→Stage 1→integration 統合→Stage 2→Dashboard 書き分け→push）＋ `clean` サブコマンド＋昇格手順 |
-| ツール | .claude/addfTools/speculate-guard.py | 発動ガード。`[speculation]` 設定検証と現在の worktree 数を突合し `enable/max_worktrees/active/slots` を出力（exit 0=OK / 1=ERROR / 2=上限到達） |
-| ツール | .claude/addfTools/speculate-integrate.py | `integration/loop-<日付>` を base から作り直し、指定 feature を1本ずつ squash 統合。衝突 feature はスキップ報告して続行。`--base` 省略時は origin の default branch を自動検出 |
-| ツール | .claude/addfTools/speculate-reconcile.py | check: git 実体（worktree・ローカル/リモートブランチ）の走査。clean: 確定済みブランチの削除（Worktrees.md の「昇格済み/放棄」記録と突合し、記録がなければ ERROR で中断） |
-| ファイル | .claude/Worktrees.md | 投機の進行状態の記録（.gitignore 対象の実行時状態。git から再構築可能なビュー） |
-| 設定 | .claude/addf-Behavior.toml [speculation] | `enable`（デフォルト false・オプトイン）/ `max_worktrees`（同時「開発中」上限。採否判断待ちは数えない） |
-| ガイド | docs/guides/speculative-development.md | 2層モデル・ライフサイクル・clean 原則の概観（手順の正はスキル本文） |
+| ツール | .claude/addf/tools/speculate-guard.py | 発動ガード。`[speculation]` 設定検証と現在の worktree 数を突合し `enable/max_worktrees/active/slots` を出力（exit 0=OK / 1=ERROR / 2=上限到達） |
+| ツール | .claude/addf/tools/speculate-integrate.py | `integration/loop-<日付>` を base から作り直し、指定 feature を1本ずつ squash 統合。衝突 feature はスキップ報告して続行。`--base` 省略時は origin の default branch を自動検出 |
+| ツール | .claude/addf/tools/speculate-reconcile.py | check: git 実体（worktree・ローカル/リモートブランチ）の走査。clean: 確定済みブランチの削除（Worktrees.md の「昇格済み/放棄」記録と突合し、記録がなければ ERROR で中断） |
+| ファイル | .claude/addf/Worktrees.md | 投機の進行状態の記録（.gitignore 対象の実行時状態。git から再構築可能なビュー） |
+| 設定 | .claude/addf/Behavior.toml [speculation] | `enable`（デフォルト false・オプトイン）/ `max_worktrees`（同時「開発中」上限。採否判断待ちは数えない） |
+| ガイド | .claude/addf/guides/speculative-development.md | 2層モデル・ライフサイクル・clean 原則の概観（手順の正はスキル本文） |
 | フック連携 | /addf-dev 手順2 | アイドル検出時（着手可能タスクなし）に `enable = true` なら /addf-speculate を1サイクル実行 |
 | エージェント | addf-code-review-agent（3ペルソナ並列） | 投機 Stage 2 の integration 一括レビュー（→ system-quality） |
-| ファイル | .claude/Dashboard.md | 「投機ブランチ（採否判断待ち）」と「気になった点」の書き分け先（→ system-planning） |
-| テスト | .claude/tests/tools/test-speculate-guard.sh / test-speculate-integrate.sh / test-speculate-reconcile.sh | speculate ツール3本の自動テスト（pre-commit フックで commit 失敗を注入するテスト手法を含む） |
-| knowhow | docs/knowhow/ADDF/worktree-dotdir-copy.md / speculative-integration-design.md | worktree への .claude 複製の罠、squash 統合設計の知見 |
+| ファイル | .claude/addf/Dashboard.md | 「投機ブランチ（採否判断待ち）」と「気になった点」の書き分け先（→ system-planning） |
+| テスト | .claude/addf/tests/tools/test-speculate-guard.sh / test-speculate-integrate.sh / test-speculate-reconcile.sh | speculate ツール3本の自動テスト（pre-commit フックで commit 失敗を注入するテスト手法を含む） |
+| knowhow | .claude/addf/knowhow/ADDF/worktree-dotdir-copy.md / speculative-integration-design.md | worktree への .claude 複製の罠、squash 統合設計の知見 |
 
 ## 設計思想
 

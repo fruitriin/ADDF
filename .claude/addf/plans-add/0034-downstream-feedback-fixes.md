@@ -73,7 +73,7 @@
 
 ## 完了条件
 
-- フェーズ1: `bash .claude/tests/run-all.sh` 全パス（--base 自動検出の回帰テスト含む）。
+- フェーズ1: `bash .claude/addf/tests/run-all.sh` 全パス（--base 自動検出の回帰テスト含む）。
   venv 除外は fake `.venv` を仕込んだサンドボックスで「コピーされないこと」を機械検証
 - フェーズ2: 各項目の受け入れ確認はフェーズ2 詳細化時に定義する
 - Issue #18/#19/#20 への返信はオーナー確認後に行う <!-- human-judgment: Issue 返信文はオーナーが承認してから投稿する -->
@@ -81,6 +81,6 @@
 ## 関連
 
 - Issue: https://github.com/fruitriin/ADDF/issues/18 / 19 / 20
-- `docs/knowhow/ADDF/worktree-dotdir-copy.md` — 複製の既知の罠（今回 venv を追記）
-- `docs/knowhow/ADDF/sync-lint-design.md` — SKIP 設計の裏面（#19 引っかかり2 と同根）
+- `.claude/addf/knowhow/ADDF/worktree-dotdir-copy.md` — 複製の既知の罠（今回 venv を追記）
+- `.claude/addf/knowhow/ADDF/sync-lint-design.md` — SKIP 設計の裏面（#19 引っかかり2 と同根）
 - Plan 0028（投機基盤）/ Plan 0033（存在≠所有）

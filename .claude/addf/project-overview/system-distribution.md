@@ -11,17 +11,17 @@
 | スキル | addf-migrate | addf-lock.json の ref（タグ）基準でフレームワークを最新版にアップグレード（6フェーズ）。lock 不在＋ADDF ファイル検出時は部分導入正規化へ誘導 |
 | スキル | addf-release | リリースワークフロー（upstream/downstream 自動切替） |
 | スキル | addf-overview | エコシステム概要ドキュメントの生成（本ドキュメント。full/patch モード + .lock） |
-| ツール | .claude/addfTools/sync-optional-skills.py | オプトインスキル機構の同期（check / apply）。.claude/optional/ の原本と有効化コピーを [gui-test] enable と整合させる |
-| ディレクトリ | .claude/optional/ | オプトインスキル・エージェントの原本置き場（現在は GUI テスト一式: 3スキル+1エージェント） |
-| ファイル | .claude/addf-lock.json | バージョン追跡（現在 v0.4.0）。`version` / `ref` / `updated_at` / `repository`。プロジェクト種別の明示シグナルの一部 |
-| ファイル | .claude/ADDF-CHANGELOG.md | フレームワーク変更履歴。migrate 時に該当バージョン間のエントリを表示 |
-| ファイル | .claude/ADDF-Release.addf.md | ADDF 本体（upstream）のリリース手順定義 |
+| ツール | .claude/addf/tools/sync-optional-skills.py | オプトインスキル機構の同期（check / apply）。.claude/addf/optional/ の原本と有効化コピーを [gui-test] enable と整合させる |
+| ディレクトリ | .claude/addf/optional/ | オプトインスキル・エージェントの原本置き場（現在は GUI テスト一式: 3スキル+1エージェント） |
+| ファイル | .claude/addf/lock.json | バージョン追跡（現在 v0.4.0）。`version` / `ref` / `updated_at` / `repository`。プロジェクト種別の明示シグナルの一部 |
+| ファイル | .claude/addf/CHANGELOG.md | フレームワーク変更履歴。migrate 時に該当バージョン間のエントリを表示 |
+| ファイル | .claude/addf/Release.addf.md | ADDF 本体（upstream）のリリース手順定義 |
 | ファイル | CONTRIBUTING.md | コントリビューションモデル（計画駆動レビュー・きっかけの記載。英語版 CONTRIBUTING.en.md あり） |
 | ファイル | .gitignore の ADDF マーカーブロック | 実行時生成ファイルの除外定義（addf-init がブロックごとコピー — 列挙を持たない単一ソース化） |
-| テンプレート | .claude/templates/Release.md | リリース手順テンプレート |
-| ディレクトリ | docs/guides/ | セットアップ・運用ガイド群（8本） |
+| テンプレート | .claude/addf/templates/Release.md | リリース手順テンプレート |
+| ディレクトリ | .claude/addf/guides/ | セットアップ・運用ガイド群（8本） |
 
-### docs/guides/ 一覧
+### .claude/addf/guides/ 一覧
 
 | ファイル | 内容 |
 |---|---|
@@ -45,16 +45,16 @@ ADDF は「配布されるフレームワーク」であり、導入→運用→
 
 **バージョン管理**:
 - `addf-lock.json` は **ref（`vX.Y.Z` タグ名）を記録する**。旧形式（`commit` ハッシュ）はリリースプロセスの都合で実在しないハッシュになりうるため、`v<version>` タグに読み替える後方互換を addf-init / addf-migrate / addf-init check が持つ
-- `addf-migrate` がロックファイルの ref と最新版の差分を算出し、対象ファイル（addf- プレフィックス・.claude 配下・guides・knowhow/ADDF/）だけを安全にアップグレード。プロジェクト固有ファイル（Progress/Feedback/.exp.md/CLAUDE.repo.md/TODO 等）はスキップ。`.claude/optional/` に変更があれば `sync-optional-skills.py apply` を再実行し、旧配布の `*.addf.md` 残留も検出して削除提案する
+- `addf-migrate` がロックファイルの ref と最新版の差分を算出し、対象ファイル（addf- プレフィックス・.claude 配下・guides・knowhow/ADDF/）だけを安全にアップグレード。プロジェクト固有ファイル（Progress/Feedback/.exp.md/CLAUDE.repo.md/TODO 等）はスキップ。`.claude/addf/optional/` に変更があれば `sync-optional-skills.py apply` を再実行し、旧配布の `*.addf.md` 残留も検出して削除提案する
 - CLAUDE.md / CLAUDE.repo.md の分離設計により、マイグレーション時の衝突を最小化
 
-**分離パターン（配布の前提）**: `.addf.md` サフィックス並置 / `ADDF/` サブディレクトリ隔離 / `addf-` プレフィックス識別の3パターン（docs/knowhow/ADDF/upstream-downstream-separation.md）。lint・テストは対象ファイル欠如を SKIP 扱いにしてダウンストリームでの誤 ERROR を防ぐ。**upstream/downstream の判定はファイルの存在ではなく明示シグナル（CLAUDE.repo.md の種別宣言＋addf-lock.json）で行い、配布から `*.addf.md` を除外する**（Plan 0033。「存在≠所有」— 配布物として物理存在しても所有の証明にならない）。
+**分離パターン（配布の前提）**: `.addf.md` サフィックス並置 / `ADDF/` サブディレクトリ隔離 / `addf-` プレフィックス識別の3パターン（.claude/addf/knowhow/ADDF/upstream-downstream-separation.md）。lint・テストは対象ファイル欠如を SKIP 扱いにしてダウンストリームでの誤 ERROR を防ぐ。**upstream/downstream の判定はファイルの存在ではなく明示シグナル（CLAUDE.repo.md の種別宣言＋addf-lock.json）で行い、配布から `*.addf.md` を除外する**（Plan 0033。「存在≠所有」— 配布物として物理存在しても所有の証明にならない）。
 
-**オプトインスキル機構**（Plan 0029）: 全プロジェクトが使うとは限らない機能（現在は GUI テスト一式）は `.claude/optional/` に原本を退避し、`addf-Behavior.toml` のフラグ＋ `sync-optional-skills.py apply` で有効化コピーを配置する。原本が真実源・コピーは使い捨て・改変コピーは触らず WARNING（docs/knowhow/ADDF/optional-skill-optin.md）。
+**オプトインスキル機構**（Plan 0029）: 全プロジェクトが使うとは限らない機能（現在は GUI テスト一式）は `.claude/addf/optional/` に原本を退避し、`addf-Behavior.toml` のフラグ＋ `sync-optional-skills.py apply` で有効化コピーを配置する。原本が真実源・コピーは使い捨て・改変コピーは触らず WARNING（.claude/addf/knowhow/ADDF/optional-skill-optin.md）。
 
 **リリース**:
 - `addf-release` が upstream（ADDF 本体）と downstream（利用プロジェクト）で手順を自動切替
-- 責務分割: スキル=ルーター、設定ファイル（ADDF-Release.addf.md）=手順定義、.exp.md=プロジェクト戦略（docs/knowhow/ADDF/release-skill-separation.md）
+- 責務分割: スキル=ルーター、設定ファイル（ADDF-Release.addf.md）=手順定義、.exp.md=プロジェクト戦略（.claude/addf/knowhow/ADDF/release-skill-separation.md）
 - バージョン履歴: v0.1.0（lock+migrate 基盤）→ v0.2.0（init/release・Codex 対応・guides 分離）→ v0.3.0（迷ったときの作法・日記・knowhow ライフサイクル・ペルソナレビュー・同期 lint・context-reminder）→ v0.4.0（チェックリスト裏付け lint・オプトインスキル機構・投機開発基盤・tomllib 環境ガード）
 
 ## 主要フロー
@@ -88,14 +88,14 @@ ADDF は「配布されるフレームワーク」であり、導入→運用→
 
 ドキュメント化:
   addf-overview
-  ├─ full: 全スキャン → 概念システム探索 → docs/project-overview/ 再生成
+  ├─ full: 全スキャン → 概念システム探索 → .claude/addf/project-overview/ 再生成
   └─ patch: .lock からの diff → 影響システムのみ再生成
 ```
 
 ## 下流でのカスタマイズ
 
 - `CLAUDE.repo.md` でプロジェクト種別（ADDF 開発 or ADDF 利用）を宣言 — addf-release / addf-permission-audit / lint の種別判定に使われる（明示シグナル）
-- `docs/guides/` にプロジェクト固有のガイドを追加可能
+- `.claude/addf/guides/` にプロジェクト固有のガイドを追加可能
 - `addf-release` は downstream で初回実行時に対話的にリリース戦略を構築し、.exp.md に保存
 - `addf-lock.json` の `repository` を差し替えれば fork した ADDF からのマイグレーションも可能（デフォルト URL と異なる場合は警告）
 - オプトイン機能（GUI テスト等）は addf-Behavior.toml のフラグで各プロジェクトが選択する
@@ -106,5 +106,5 @@ ADDF は「配布されるフレームワーク」であり、導入→運用→
 - **品質ゲート**: addf-lint がフレームワーク整合性を検証（配布物の品質保証）。lint の SKIP 設計・addf-init コピーリストのカバレッジ検査（ペア5）・オプトイン同期検査（項目10）は配布安全性のための機構
 - **視覚テスト**: オプトインスキル機構の現在唯一の適用対象が GUI テスト一式
 - **投機開発**: speculate-*.py は addfTools として配布対象。[speculation] は Behavior.toml のオプトインフラグ
-- **ノウハウ蓄積**: docs/knowhow/ADDF/ は配布・マイグレーション対象。プロジェクト固有 knowhow は対象外
+- **ノウハウ蓄積**: .claude/addf/knowhow/ADDF/ は配布・マイグレーション対象。プロジェクト固有 knowhow は対象外
 - **全システム**: addf-overview が全システムを横断的にドキュメント化

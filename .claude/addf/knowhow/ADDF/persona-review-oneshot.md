@@ -45,5 +45,5 @@ Plan 0037 フェーズ1（一発本番で失敗できない移行ツール）の
 ## 参照
 
 - `.claude/agents/addf-code-review-agent.md` — ペルソナ定義・集約ルール
-- `docs/plans-add/0020-adversarial-review.md` / `docs/plans-add/0037-addf-directory-consolidation.md`
+- `.claude/addf/plans-add/0020-adversarial-review.md` / `.claude/addf/plans-add/0037-addf-directory-consolidation.md`
 - [map-driven-migration-tool.md](map-driven-migration-tool.md) — 検出された穴の設計パターン側

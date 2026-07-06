@@ -14,13 +14,13 @@
 | ファイル | AGENTS.md | Codex 等の AGENTS.md 互換ツール用（英語。lint ペア3で CLAUDE.md と同期検査） |
 | ファイル | .claude/settings.json | フック定義・権限設定（ダウンストリーム配布） |
 | ファイル | .claude/settings.local.json | ADDF 開発用ローカル権限（配布しない） |
-| ファイル | .claude/addf-Behavior.toml | フレームワーク動作設定（[gui-test] / [speculation] / [context-reminder] / [context-reminder.effective-context]） |
+| ファイル | .claude/addf/Behavior.toml | フレームワーク動作設定（[gui-test] / [speculation] / [context-reminder] / [context-reminder.effective-context]） |
 | スキル | addf-permission-audit | 権限を3パターンに分類し settings ファイルへの配置を提案 |
 | フック | reset-turn-count.sh | SessionStart: ターンカウンター（.claude/.turn-count）をリセット |
 | フック | turn-reminder.sh | UserPromptSubmit: 関心事A（ターン10/15の棚卸しリマインダー）+ 関心事B（context-reminder.py への中継） |
 | フック | post-compact-recovery.sh | SessionStart(compact): コンパクション後の復帰手順（ブートシーケンス再実行）を注入 |
 | フック | skill-usage-log.sh | PreToolUse(Skill): スキル呼び出しを .claude/logs/skill-usage.jsonl にロギング |
-| ツール | .claude/addfTools/context-reminder.py | transcript の usage を実測し、閾値超過時に能動コンパクション促しを注入 |
+| ツール | .claude/addf/tools/context-reminder.py | transcript の usage を実測し、閾値超過時に能動コンパクション促しを注入 |
 | 状態 | .claude/.turn-count / .claude/.context-reminder-state | ターン数・前回通知時の実測値（.gitignore 対象） |
 
 ## 設計思想
@@ -34,7 +34,7 @@ CLAUDE.md（汎用テンプレート）
   └─ CLAUDE.local.md（個人設定・gitignore。/addf-mode の状態保存先）
 ```
 
-この分離により CLAUDE.md のマイグレーションを「ほぼ上書き」に近づける（Feedback.md 記録済み）。CLAUDE.local.md は「.gitignore 対象かつ毎セッション自動読込」という性質を利用して、新しいブートステップを増やさずにモード状態を全セッションへ行き渡らせる（docs/knowhow/ADDF/rule-placement-execution-guarantee.md）。
+この分離により CLAUDE.md のマイグレーションを「ほぼ上書き」に近づける（Feedback.md 記録済み）。CLAUDE.local.md は「.gitignore 対象かつ毎セッション自動読込」という性質を利用して、新しいブートステップを増やさずにモード状態を全セッションへ行き渡らせる（.claude/addf/knowhow/ADDF/rule-placement-execution-guarantee.md）。
 
 ### turn-reminder の関心事分離 — Plan 0023
 
@@ -96,5 +96,5 @@ CLAUDE.md ブートシーケンス
 - **計画駆動**: ブートシーケンスが計画駆動システムの起点。/addf-mode の状態を CLAUDE.local.md に保存。コンパクション復帰・context-reminder は日記（代替わり）と連動
 - **ノウハウ蓄積**: turn-reminder（関心事A）と context-reminder（関心事B）がともに知見記録を促す
 - **配布・導入**: settings.json / CLAUDE.md / hooks / addf-Behavior.toml は配布対象。マイグレーション時に更新される
-- **品質ゲート**: フックは .claude/tests/hooks/（reset-turn-count・turn-reminder・context-reminder）で自動テストされ、実行権限（lint 項目2）と settings への配線（lint 項目11）も機械検査される
+- **品質ゲート**: フックは .claude/addf/tests/hooks/（reset-turn-count・turn-reminder・context-reminder）で自動テストされ、実行権限（lint 項目2）と settings への配線（lint 項目11）も機械検査される
 - **投機開発**: [speculation] は Behavior.toml のオプトインフラグ。addf-speculate は CLAUDE.local.md の /addf-mode 状態（responsiveness）を参照して事前確認の要否を決める

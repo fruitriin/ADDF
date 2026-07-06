@@ -5,7 +5,7 @@
 実装サマリ:
 - `turn-reminder.sh` を関心事分離版に書き換え（A: ターンベース棚卸し・残量言及削除・
   安心文追加 / B: stdin の hook JSON を `context-reminder.py` に中継）
-- `.claude/addfTools/context-reminder.py` 新設: transcript 末尾2MBから
+- `.claude/addf/tools/context-reminder.py` 新設: transcript 末尾2MBから
   メインチェーン直近 assistant の usage 3項目を合算し、閾値超過時のみ
   「実測値＋モデル別目安＋安心文」を注入。再通知抑制（増分50k）と
   コンパクション後の状態自動リセット付き。取得不能時は静かに終了
@@ -152,13 +152,13 @@ threshold_tokens = 180000
 | ファイル | 変更 |
 |---|---|
 | `.claude/hooks/turn-reminder.sh` | 関心事Aの文言改訂 + 関心事Bのコンテキスト残量チェック追加 |
-| `.claude/addf-Behavior.toml` | `[context-reminder]` セクション追加 |
-| `.claude/tests/hooks/` | 閾値前後・usage 取得不能時のテスト追加 |
+| `.claude/addf/Behavior.toml` | `[context-reminder]` セクション追加 |
+| `.claude/addf/tests/hooks/` | 閾値前後・usage 取得不能時のテスト追加 |
 | `CLAUDE.md` 等のドキュメント | 必要なら turn-reminder の説明を更新（同期 lint ペアへの影響を確認） |
 
 ## 検証
 
-1. `bash .claude/tests/run-all.sh` が通過すること
+1. `bash .claude/addf/tests/run-all.sh` が通過すること
 2. フックテスト: 閾値未満で注入なし / 超過で注入あり / transcript 不在時に SKIP
 3. 関心事Aの注入文に残量への言及がなく、安心文が含まれること
 4. `/addf-lint` 通過（Behavior.toml 構文チェック・テンプレート同期）

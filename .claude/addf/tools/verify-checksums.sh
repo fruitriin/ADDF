@@ -18,7 +18,7 @@
 #   - downstream: SKIP（必ず明示出力する。silent 無効化にしない）— checksums 導入前の
 #     旧バージョン配布には存在せず、配布状態という環境起因のため
 #   - repo_kind 判定は「存在≠所有」原則に従い、CLAUDE.repo.md の種別宣言（一次）→
-#     .claude/addf-lock.json の存在（フォールバック = downstream）の明示シグナルで行う。
+#     .claude/addf/lock.json の存在（フォールバック = downstream）の明示シグナルで行う。
 #     lint-template-sync.py detect_repo_kind() の bash ミラー（判定仕様を変えるときは両方更新）
 #
 # 攻撃者モデル対策（Plan 0031 レビュー Critical）:
@@ -100,14 +100,14 @@ EOF_LINES
   if [ "$up" -eq 1 ] && [ "$down" -eq 0 ]; then echo upstream; return; fi
   if [ "$down" -eq 1 ] && [ "$up" -eq 0 ]; then echo downstream; return; fi
   # 両方ヒット（混在 = 判定不能・安全側）と宣言なしは lock フォールバックに委ねる
-  if [ -f "$PROJECT_DIR/.claude/addf-lock.json" ]; then echo downstream; else echo unknown; fi
+  if [ -f "$PROJECT_DIR/.claude/addf/lock.json" ]; then echo downstream; else echo unknown; fi
 }
 
 if [ ! -f "$SUMS" ]; then
   kind="$(detect_repo_kind)"
   case "$kind" in
     upstream)
-      echo "ERROR: checksums.sha256 が不在（repo_kind=upstream。ADDF 本体では build.sh が生成・コミットする — ビルド漏れか削除ドリフト。復旧: bash .claude/addfTools/build.sh --checksums-only）"
+      echo "ERROR: checksums.sha256 が不在（repo_kind=upstream。ADDF 本体では build.sh が生成・コミットする — ビルド漏れか削除ドリフト。復旧: bash .claude/addf/tools/build.sh --checksums-only）"
       exit 1
       ;;
     downstream)
@@ -115,7 +115,7 @@ if [ ! -f "$SUMS" ]; then
       exit 0
       ;;
     *)
-      echo "SKIP: checksums.sha256 不在・repo_kind 判定不能（WARNING）。ダウンストリームなら CLAUDE.repo.md に種別宣言（このリポジトリは **ADDF 利用プロジェクト** です。）を書くか .claude/addf-lock.json を配置する"
+      echo "SKIP: checksums.sha256 不在・repo_kind 判定不能（WARNING）。ダウンストリームなら CLAUDE.repo.md に種別宣言（このリポジトリは **ADDF 利用プロジェクト** です。）を書くか .claude/addf/lock.json を配置する"
       exit 2
       ;;
   esac

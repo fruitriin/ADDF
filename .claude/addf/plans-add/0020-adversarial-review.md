@@ -111,13 +111,13 @@ Plan が複雑な場合、ペルソナを3体並列実行 → 結果を別エー
 |---|---|
 | `.claude/agents/addf-code-review-agent.md` | ペルソナ受け取り・並列起動対応・集約ルール |
 | `.claude/agents/addf-security-review-agent.md` | 攻撃者プロンプト強化 |
-| `.claude/templates/ProgressTemplate.addf.md` | Stage 2 で複数ペルソナ並列起動を明示 |
+| `.claude/addf/templates/ProgressTemplate.addf.md` | Stage 2 で複数ペルソナ並列起動を明示 |
 | `CLAUDE.repo.example.md` | 品質ゲート拡張の説明にペルソナを追記 |
-| `docs/guides/agents.md` | ペルソナ一覧と意義を解説 |
+| `.claude/addf/guides/agents.md` | ペルソナ一覧と意義を解説 |
 
 ## 検証
 
-1. `bash .claude/tests/run-all.sh` 通過
+1. `bash .claude/addf/tests/run-all.sh` 通過
 2. ダミー実装（意図的に新人にわかりにくい命名・境界欠落を仕込む）に対して、`skeptic` と `newcomer` が異なる指摘を返すことを確認
 3. 集約結果で重複・コンセンサス補正が機能していることを確認
 

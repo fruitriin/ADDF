@@ -4,17 +4,17 @@
 
 ### フェーズA 実装記録（2026-07-05）
 
-- `.claude/templates/PlanTemplate.md` 新設 — Plan 0033 項目4 を本 Plan で引き取り実施。
+- `.claude/addf/templates/PlanTemplate.md` 新設 — Plan 0033 項目4 を本 Plan で引き取り実施。
   標準テンプレート（実装状況ヘッダ・関連 Plan（双方向原則コメント付き）・目的・現状の挙動・
   変更内容（項目/フェーズ）・影響範囲・テスト方針・破壊的変更の許容範囲・要オーナー確認・
   完了条件チェックボックス・AI 見積もり任意）＋検討スタブ variant（分かっていること /
   未解決の問い / 着手のトリガー）
-- `docs/guides/pr-format.md` 新設 — 項目1（対象 Plan リンク・blob URL・バッククォート禁止）と
+- `.claude/addf/guides/pr-format.md` 新設 — 項目1（対象 Plan リンク・blob URL・バッククォート禁止）と
   項目3-1（計画の進捗位置欄）・項目3-2（Plan 相互リンク規約）の単一ソース。記載例（PR #21）込み
 - addf-dev（完了処理）・addf-speculate（手順9 push）に pr-format.md への参照を1行追加
   （規約本文はコピーしない — 単一ソース維持）
 - CLAUDE.md 骨格プランニング手順（手順4-4）に PlanTemplate 参照を追加。同期対象の
-  AGENTS.md・development-process.md・addf-init コピーリスト（`.claude/templates/` エントリの
+  AGENTS.md・development-process.md・addf-init コピーリスト（`.claude/addf/templates/` エントリの
   例示に PlanTemplate.md を明記）も同時更新
 - **残り**: フェーズB=項目2（同日実施済み — 下記実装記録参照）、
   フェーズC=項目3-3（誤完了 lint 新設＋ドリフト注入 TDD）
@@ -45,7 +45,7 @@
     判断ガイド3点・運命連帯（親放棄→共倒れ・親昇格→rebase 繰り上がり）・制約
     （通常スロット1消費・2世代まで・Worktrees.md 親子記録・親 PR に深化注記）。
     手順2（選定）と手順5（記録）にも参照を追加
-- `docs/guides/speculative-development.md` — ライフサイクル図を分岐付きに更新
+- `.claude/addf/guides/speculative-development.md` — ライフサイクル図を分岐付きに更新
   （オーナー承認3形態・要再検証・Pending・放棄・深化の分岐と繰り上がりを1枚に）。
   「発展的な運用（上流で設計中）」を「実装済みの概観」に置き換え（詳細はスキル本文参照の
   構成を維持。投機適性=Plan 0038 のみ設計中として残置）。昇格定義に PR 経路でも
@@ -54,7 +54,7 @@
 
 ### フェーズC 実装記録（2026-07-05）
 
-- `.claude/addfTools/lint-plan-status.py` 新設 — 実装状況ヘッダ「完了」×完了条件の
+- `.claude/addf/tools/lint-plan-status.py` 新設 — 実装状況ヘッダ「完了」×完了条件の
   未チェック `- [ ]` 残存を ERROR 検出（項目3-3）。**独立スクリプトにした判断根拠**:
   lint-template-sync.py は「2ファイル間の同期ペア」の意味論で統一されており、本 lint は
   単一 Plan ファイル内のヘッダ ⇔ 自身のチェックボックスの内部整合検査（lint-checklist.py と
@@ -62,7 +62,7 @@
   同期契約（ヘッダ ⇔ 完了条件。ペア6の手前を担う分担）はスクリプト冒頭に明記。
   stdlib のみ（import ガード類型の対象外）。「一部完了」「未着手」・ヘッダ無しは対象外、
   チェックボックス非採用の旧書式 Plan（0001〜0034）は SKIP（明示出力・件数計上）
-- `.claude/tests/tools/test-plan-status-lint.sh` 新設 — ドリフト注入 TDD 16テスト38アサーション
+- `.claude/addf/tests/tools/test-plan-status-lint.sh` 新設 — ドリフト注入 TDD 16テスト38アサーション
   （きっかけの当のケース=完了ヘッダ×未チェック残存の ERROR / 一部完了×未チェック OK /
   完了×全チェック OK / 旧書式 SKIP＋ファイル名列挙 / フェンス内例示無視（```・~~~・
   4連バッククォート）/ ダウンストリーム系統 / セクション境界 / GFM 全マーカー
@@ -90,7 +90,7 @@
      機械化できる骨（ヘッダ×チェックボックス）だけを本フェーズで lint 化した
   2. **addf-init のテンプレート個別列挙 — 採用（列挙廃止）**。lint 強化ではなく
      knowhow「列挙の陳腐化は列挙を持たない設計で構造的に排除」に従い、
-     `.claude/templates/` エントリの例示列挙（ProgressTemplate.md 等）を削除して
+     `.claude/addf/templates/` エントリの例示列挙（ProgressTemplate.md 等）を削除して
      ディレクトリ表記＋ `*.addf.md` 除外規則のみに変更（フェーズA で明記した
      PlanTemplate.md 例示の巻き戻しになるが、attacker 実測「飾りの列挙は lint 非保護」への
      根治として意図的に判断を更新）
@@ -133,21 +133,21 @@
 - リンクテキストは **「Plan <番号>: <計画タイトル（日本語）>」** とする（ファイル名やパスではなく）
 - **バッククォートで囲まない**こと（コードスパン内の markdown リンクは plain text になりリンク化されない）
 - リンク先は PR の **head ブランチの blob URL**（マージ前でも 404 にならない）:
-  `https://github.com/<owner>/<repo>/blob/<headブランチ>/docs/plans-add/<file>.md`
+  `https://github.com/<owner>/<repo>/blob/<headブランチ>/.claude/addf/plans-add/<file>.md`
 
 ### 記載例
 
 ```markdown
 ## 対象 Plan
 
-- [Plan 0033: ダウンストリーム実測バグの修正](https://github.com/fruitriin/ADDF/blob/plan-0033-0028-0034-batch/docs/plans-add/0033-downstream-reported-fixes.md)
+- [Plan 0033: ダウンストリーム実測バグの修正](https://github.com/fruitriin/ADDF/blob/plan-0033-0028-0034-batch/.claude/addf/plans-add/0033-downstream-reported-fixes.md)
 ```
 
 ### 設計方針
 
 - 規約本文は**単一ソース**に置き、addf-dev / addf-speculate の両スキルからは参照のみとする
   （2ファイルに同文を書くと同期ペアが増え、lint ペア追加が必要になる — Feedback.md の教訓に従い増殖を避ける）
-- 置き場所の候補: `docs/guides/`（ダウンストリーム配布対象）または `.claude/templates/`。
+- 置き場所の候補: `.claude/addf/guides/`（ダウンストリーム配布対象）または `.claude/addf/templates/`。
   ダウンストリームでも PR を作る場面はあるため guides を第一候補とする
 - 初出の実例: PR #21（https://github.com/fruitriin/ADDF/pull/21）
 

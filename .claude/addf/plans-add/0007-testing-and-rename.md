@@ -9,17 +9,17 @@
 ## 設計
 
 ### 1. `addToolsSrc` → `addfTools` リネーム（実施済み）
-- `.claude/addToolsSrc/` → `.claude/addfTools/`
+- `.claude/addToolsSrc/` → `.claude/addf/tools/`
 - build.sh 内のパス更新
 - .claudeignore のバイナリパス更新
 - settings.json の build.sh パス更新
-- docs/guides/gui-test-setup.md の参照更新
+- .claude/addf/guides/gui-test-setup.md の参照更新
 - README.md / README.en.md の参照更新
 - Swift バイナリ再ビルド
 
 ### 2. テストディレクトリ構成
 ```
-.claude/tests/
+.claude/addf/tests/
 ├── skills/           # スキルの自然言語テストシナリオ
 ├── hooks/            # フックの入力シミュレーションテスト
 └── tools/            # addfTools のバイナリテスト
@@ -55,8 +55,8 @@
 - clip-image（同上）
 
 ## 影響範囲
-- `.claude/addToolsSrc/` → `.claude/addfTools/`（リネーム済み）
-- `.claude/tests/`（新規作成）
+- `.claude/addToolsSrc/` → `.claude/addf/tools/`（リネーム済み）
+- `.claude/addf/tests/`（新規作成）
 - settings.json, .claudeignore, docs/, README 等の参照更新
 
 ## 実装完了状況

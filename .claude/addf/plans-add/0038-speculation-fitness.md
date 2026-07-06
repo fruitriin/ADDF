@@ -7,7 +7,7 @@
 - **項目1（投機適性3区分）**: `.claude/commands/addf-speculate.md` 手順2 に
   「投機適性の判定（除外基準）」を組み込み — 3区分表・特徴ベースで固定式にしない旨
   （7割共有原則と整合）・判定理由を Worktrees.md（表の下の `> 適性判定:` 行）か Dashboard に
-  1行残すステップ。`docs/guides/speculative-development.md` に「投機適性」節を追加
+  1行残すステップ。`.claude/addf/guides/speculative-development.md` に「投機適性」節を追加
 - **項目2（フォールバック導線）**: 手順2 に「不適合（不向き/禁止）のフォールバック —
   捨てずに Plan 化する」を追加（PlanTemplate での草案起案・TODO 登録・大改造級は
   one-shot マーカー付与＋TODO 状態注記への併記・Dashboard と日記への記録で silent 廃棄を禁止）
@@ -15,7 +15,7 @@
   節を定義の単一ソースとして新設（事前清算・リハーサル前置・単一セッション完走・失敗時は
   backup ref へ巻き戻し優先・オーナー同席推奨 — 0037「実施様式」の一般化。0037 側の記述は
   将来この節への参照に置き換えられる予定である旨を guides 側に注記し、0037 本文は
-  書き換えていない）。`.claude/templates/PlanTemplate.md` にマーカーの書き方を追記
+  書き換えていない）。`.claude/addf/templates/PlanTemplate.md` にマーカーの書き方を追記
   （実装状況ヘッダ直後・行頭。窓検出の grep が行頭一致で拾うため、解説文の行頭に
   マーカー文字列を書かない注意書き込み）
 - **項目4（窓検出）**: addf-speculate に手順 1.8「大改造の窓検出」を新設 — reconcile check

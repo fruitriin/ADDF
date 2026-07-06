@@ -9,7 +9,7 @@
 ペア3: CLAUDE.md ⇔ AGENTS.md（ブートシーケンス手順番号の対応・WARNING）
        ダウンストリームでは SKIP（独自の AGENTS.md を持つプロジェクトで
        「ブートシーケンス見出しなし」を誤報するため）
-ペア4: CLAUDE.md ⇔ docs/guides/development-process.md（ブートシーケンス概要手順番号の対応・WARNING）
+ペア4: CLAUDE.md ⇔ .claude/addf/guides/development-process.md（ブートシーケンス概要手順番号の対応・WARNING）
 
 ペア5: CLAUDE.md ⇔ addf-init.md コピーリスト（参照ファイルのカバレッジ・WARNING）
        CLAUDE.md が参照する .claude/ 配下のファイルが、addf-init の Phase 3
@@ -28,13 +28,13 @@
 
 ペア6: TODO ⇔ Plan 実装状況ヘッダ（状態の矛盾・参照切れ・登録漏れ・WARNING）
        TODO テーブルの状態列と各 Plan ファイルの `## 実装状況:` ヘッダを突合する。
-       対象は ADDF 本体（docs/plans-add/TODO.addf.md ⇔ docs/plans-add/）と
-       ダウンストリーム（TODO.md ⇔ docs/plans/）の2系統。
+       対象は ADDF 本体（.claude/addf/plans-add/TODO.addf.md ⇔ .claude/addf/plans-add/）と
+       ダウンストリーム（TODO.md ⇔ .claude/addf/plans/）の2系統。
        ヘッダの無い Plan は検査しない（旧 Plan の欠如はドリフトではない）。
        ただし `## 状態:` 等の表記ゆれヘッダは「状態を書いているのに検査から漏れる」
        信頼モデルの穴になるため WARNING で形式統一を促す（Plan 0025 で顕在化）。
        エージェントが TODO の状態表記を「信用ベース」で扱えるようにする機械検査
-       （docs/knowhow/ADDF/plan-status-drift-check.md 参照）。
+       （.claude/addf/knowhow/ADDF/plan-status-drift-check.md 参照）。
 
 ペア2〜6 は対象ファイルが存在しない場合 SKIP する（ADDF 本体固有ファイルは
 ダウンストリームプロジェクトに存在しないため、欠如はドリフトではない）。
@@ -46,7 +46,7 @@ upstream/downstream の判定はファイルの存在ではなく明示シグナ
    @メンション1段を解決し、コードフェンス（``` / ~~~）内の記述は除外する。
    両方の宣言がヒットした場合は判定不能として安全側に倒し、フォールバックへ委ねる
    （無条件の upstream 優先はしない）
-2. フォールバック: .claude/addf-lock.json が存在すればダウンストリーム
+2. フォールバック: .claude/addf/lock.json が存在すればダウンストリーム
 3. どちらも判定不能（None）な場合のみ、従来のファイル存在フォールバックに委ねる
    （テストサンドボックス等、シグナルの無い環境の互換動作）。ただし判定不能を
    upstream と同一視しない — 旧配布のダウンストリーム（宣言なし・lock なし）で
@@ -151,7 +151,7 @@ KIND_UNKNOWN_HINT = (
     'upstream/downstream を判定できないため WARNING に格下げ。'
     'ダウンストリームなら CLAUDE.repo.md に種別宣言'
     '（このリポジトリは **ADDF 利用プロジェクト** です。）を書くか、'
-    '.claude/addf-lock.json を配置する'
+    '.claude/addf/lock.json を配置する'
 )
 
 
@@ -184,7 +184,7 @@ def detect_repo_kind():
     if len(kinds) == 1:
         return 'upstream' if '開発' in kinds else 'downstream'
     # len(kinds) == 2 は宣言の混在（判定不能・安全側）。0 は宣言なし。いずれも lock に委ねる
-    if os.path.exists('.claude/addf-lock.json'):
+    if os.path.exists('.claude/addf/lock.json'):
         return 'downstream'
     return None
 
@@ -196,7 +196,7 @@ def check_pair1(repo_kind):
     `.addf.md` を比較対象にした場合の乖離は、誤検知の可能性があるため
     WARNING に格下げして種別宣言/lock の整備を促す（判定不能を upstream と同一視しない）。
     """
-    addf_tmpl = '.claude/templates/ProgressTemplate.addf.md'
+    addf_tmpl = '.claude/addf/templates/ProgressTemplate.addf.md'
     tmpl_path = addf_tmpl
     kind_unknown = False
     if repo_kind == 'downstream' or not os.path.exists(addf_tmpl):
@@ -206,10 +206,10 @@ def check_pair1(repo_kind):
                 f'（物理存在しても配布物 — ProgressTemplate.md を正として検査する）'
             )
         # ダウンストリームでは無印版が正（.addf.md が物理存在しても配布物のため比較しない）
-        tmpl_path = '.claude/templates/ProgressTemplate.md'
+        tmpl_path = '.claude/addf/templates/ProgressTemplate.md'
     elif repo_kind is None:
         kind_unknown = True
-    prog_path = '.claude/Progress.md'
+    prog_path = '.claude/addf/Progress.md'
     if not os.path.exists(tmpl_path) or not os.path.exists(prog_path):
         skips.append(f'[1] SKIP: {tmpl_path} または {prog_path} が存在しない')
         return
@@ -234,8 +234,8 @@ def check_pair1(repo_kind):
 
 def check_pair2(repo_kind):
     """ProgressTemplate.addf.md ⇔ ProgressTemplate.md の運用ルールを正規化して相互比較（WARNING）"""
-    addf_path = '.claude/templates/ProgressTemplate.addf.md'
-    down_path = '.claude/templates/ProgressTemplate.md'
+    addf_path = '.claude/addf/templates/ProgressTemplate.addf.md'
+    down_path = '.claude/addf/templates/ProgressTemplate.md'
     if repo_kind == 'downstream':
         skips.append(f'[2] SKIP: repo_kind=downstream のため対象外（{addf_path} が物理存在しても配布物のため比較しない）')
         return
@@ -250,7 +250,7 @@ def check_pair2(repo_kind):
 
     # ペア2専用ホワイトリスト: ADDF 版にのみ存在してよい意図的差分（strip 済みで比較）
     whitelist_addf_only = {
-        '- ADD フレームワークテスト: `bash .claude/tests/run-all.sh`',
+        '- ADD フレームワークテスト: `bash .claude/addf/tests/run-all.sh`',
     }
 
     def normalize(lines, is_addf):
@@ -330,7 +330,7 @@ def claude_md_references(path):
 
     コードブロック内は例示パスの可能性があるため除外する。
     検査対象を CLAUDE.md に限定するのは意図的: CLAUDE.repo.example.md や
-    テンプレート群が参照するファイルは `.claude/templates/` 等のディレクトリ丸ごと
+    テンプレート群が参照するファイルは `.claude/addf/templates/` 等のディレクトリ丸ごと
     コピーでカバーされるため、参照切れの主リスクは CLAUDE.md 直下参照に集中する。
     """
     with open(path) as f:
@@ -343,9 +343,9 @@ def claude_md_references(path):
             continue
         if in_code:
             continue
-        # @.claude/Feedback.md 形式（@メンション）
+        # @.claude/addf/Feedback.md 形式（@メンション）
         refs.update(re.findall(r'@(\.claude/[^\s`]+\.\w+)', line))
-        # `.claude/Questions.md` 形式（バッククオート内・拡張子付きファイルのみ）
+        # `.claude/addf/Questions.md` 形式（バッククオート内・拡張子付きファイルのみ）
         refs.update(re.findall(r'`(\.claude/[^\s`]+\.\w+)`', line))
     return sorted(refs)
 
@@ -463,7 +463,7 @@ def todo_table_rows(path):
         if '状態' in cells:  # ヘッダ行。以降のデータ行にこの列位置を適用する
             status_idx = cells.index('状態')
             continue
-        m = re.search(r'`(docs/plans[^`]*?\.md)`', line)
+        m = re.search(r'`(.claude/addf/plans[^`]*?\.md)`', line)
         if not m:
             continue
         status = cells[status_idx] if -1 < status_idx < len(cells) else cells[-1]
@@ -478,8 +478,8 @@ def check_pair7():
     挙動そのものの比較は困難（言語が異なる）なため、契約文言の存在を機械保証することで
     実装差分を発見しやすくする。ダウンストリームで verify-checksums.sh が無ければ SKIP。
     """
-    verify_path = '.claude/addfTools/verify-checksums.sh'
-    self_path = '.claude/addfTools/lint-template-sync.py'
+    verify_path = '.claude/addf/tools/verify-checksums.sh'
+    self_path = '.claude/addf/tools/lint-template-sync.py'
     if not os.path.exists(verify_path):
         skips.append(f'[7] SKIP: {verify_path} が存在しない（ダウンストリームでは対象外）')
         return
@@ -520,8 +520,8 @@ def check_pair6():
     加えて TODO が指す Plan の不在と、Plan の TODO 登録漏れを検出する。
     """
     targets = [
-        ('docs/plans-add/TODO.addf.md', 'docs/plans-add'),
-        ('TODO.md', 'docs/plans'),
+        ('.claude/addf/plans-add/TODO.addf.md', '.claude/addf/plans-add'),
+        ('TODO.md', '.claude/addf/plans'),
     ]
     for todo_path, plans_dir in targets:
         if not os.path.exists(todo_path):
@@ -576,7 +576,7 @@ else:
                     'CLAUDE.md ⇔ AGENTS.md ブートシーケンス',
                     downgrade_missing_header=(repo_kind is None))
 check_boot_pair(4, 'CLAUDE.md', '## ブートシーケンス',
-                'docs/guides/development-process.md', '## ブートシーケンス',
+                '.claude/addf/guides/development-process.md', '## ブートシーケンス',
                 'CLAUDE.md ⇔ development-process.md ブートシーケンス概要')
 check_pair5()
 check_pair6()

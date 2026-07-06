@@ -60,8 +60,8 @@ status: active
       "Bash(git add *)", "Bash(git commit *)", "Bash(git rm *)",
       "Bash(git ls-files *)", "Bash(git branch *)", "Bash(git worktree *)",
       "Bash(git checkout *)", "Bash(git show *)", "Bash(git merge *)", "Bash(git stash *)",
-      "Bash(bash .claude/tests/run-all.sh *)",
-      "Bash(uv run --python 3.11 .claude/addfTools/lint *)"
+      "Bash(bash .claude/addf/tests/run-all.sh *)",
+      "Bash(uv run --python 3.11 .claude/addf/tools/lint *)"
     ],
     "ask": [
       "Bash(git push *)",
@@ -80,7 +80,7 @@ status: active
       "Bash(sed *)",
       "Bash(find *)",
       "Bash(git rev-parse *)",
-      "Bash(bash .claude/addfTools/build.sh *)",
+      "Bash(bash .claude/addf/tools/build.sh *)",
       "Bash(swiftc *)"
     ]
   }
@@ -158,7 +158,7 @@ status: active
 
 `python3` を全面許可すると権限が強すぎる場合、実行スクリプトをディレクトリに集約して限定:
 ```json
-"Bash(uv run --python 3.11 .claude/addfTools/lint *)"
+"Bash(uv run --python 3.11 .claude/addf/tools/lint *)"
 ```
 
 ### PreToolUse フックによる権限拡張
@@ -210,7 +210,7 @@ status: active
 - ファイル操作（作成主目的）: `cp`, `mkdir`, `mktemp`, `ls`, `tail`, `cd`, `which`（mv/rm/chmod は除外）
 - git 参照系 + commit/add + `git clone`, `git -C *`（push は ask）
 - gh 参照系: `view`, `list`, `status`, `diff`, `checks`, `checkout`, `clone`
-- フレームワークツール: `bash .claude/tests/run-all.sh *`, `uv run --python 3.11 .claude/addfTools/lint *`
+- フレームワークツール: `bash .claude/addf/tests/run-all.sh *`, `uv run --python 3.11 .claude/addf/tools/lint *`
 
 > 実際の一覧はドリフトするため、正は `.claude/settings.json` を参照する。上記は「テンプレートに何を入れる／入れないか」の**基準**の例示。
 
@@ -234,7 +234,7 @@ status: active
 - https://code.claude.com/docs/ja/permissions — 公式ドキュメント
 - `.claude/settings.json` — プロジェクト共有設定
 - `.claude/settings.local.json` — ローカル設定
-- `docs/knowhow/ADDF/upstream-downstream-separation.md` — 分離パターンの全体像
+- `.claude/addf/knowhow/ADDF/upstream-downstream-separation.md` — 分離パターンの全体像
 
 ## 訂正履歴
 

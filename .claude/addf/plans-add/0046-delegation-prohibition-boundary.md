@@ -33,7 +33,7 @@
 
 ### 項目2: 委譲プロンプト禁止事項の共通テンプレート化
 
-- 毎回書き直している委譲プロンプトの共通部分（Progress.md 境界・git commit/push 禁止・「単一ソース維持」等）を `.claude/templates/DelegationRules.md` 等に単一ソース化
+- 毎回書き直している委譲プロンプトの共通部分（Progress.md 境界・git commit/push 禁止・「単一ソース維持」等）を `.claude/addf/templates/DelegationRules.md` 等に単一ソース化
 - 委譲時は `@DelegationRules.md` メンションで参照する（Plan 0035 の pr-format.md と同じ設計思想）
 - ダウンストリームでも同じ禁止事項テンプレートが使えるよう配布対象に含める
 
@@ -44,9 +44,9 @@
 
 ## 影響範囲
 
-- `.claude/templates/DelegationRules.md`（新設）
+- `.claude/addf/templates/DelegationRules.md`（新設）
 - 委譲プロンプトを持つスキル: `.claude/commands/addf-dev.md`・`addf-speculate.md`（参照方法の明示）
-- `.claude/addfTools/lint-template-sync.py`（ペア1 の検査範囲コメント）
+- `.claude/addf/tools/lint-template-sync.py`（ペア1 の検査範囲コメント）
 - addf-init コピーリスト（新テンプレート配布）
 
 ## テスト方針
@@ -63,7 +63,7 @@
 - [ ] DelegationRules.md 新設・addf-dev/addf-speculate から参照
 - [ ] 委譲プロンプトの Progress.md 禁止事項が境界緩和されている
 - [ ] lint-template-sync ペア1 の検査範囲が明文化されている
-- [ ] `bash .claude/tests/run-all.sh` と `/addf-lint` 全通過
+- [ ] `bash .claude/addf/tests/run-all.sh` と `/addf-lint` 全通過
 
 ## AI 実装時間見積もり
 

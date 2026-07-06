@@ -14,7 +14,7 @@
 - `CLAUDE.local.md` が `@CLAUDE.local.example.md` を参照しているが、ファイルが存在しない
 - テンプレートとして最低限の構造を持つファイルを作成
 
-### 3. `docs/knowhow/INDEX.md` 初期生成
+### 3. `.claude/addf/knowhow/INDEX.md` 初期生成
 - `addf-knowhow-index` スキルが参照する INDEX ファイル
 - 既存の knowhow 2件（claude-md-at-mention, ignore-file-strategy）を登録
 
@@ -30,7 +30,7 @@
 - バイナリファイルは Claude の読解対象外なので追加する
 
 ## 影響範囲
-- `CLAUDE.repo.example.md`, `CLAUDE.local.example.md`, `docs/knowhow/INDEX.md`
+- `CLAUDE.repo.example.md`, `CLAUDE.local.example.md`, `.claude/addf/knowhow/INDEX.md`
 - `plan.md`（削除）, `.gitignore`, `.claudeignore`
 
 ## 実装完了状況

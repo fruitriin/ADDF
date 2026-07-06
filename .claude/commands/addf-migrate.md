@@ -18,7 +18,7 @@ ADDF フレームワークを最新版（またはターゲットバージョン
 
 ## 前提条件
 
-- `.claude/addf-lock.json` が存在すること。存在しない場合は2分岐:
+- `.claude/addf/lock.json` が存在すること。存在しない場合は2分岐:
   - ADDF 由来ファイル（`.claude/commands/addf-*.md` 等）も存在しない → エラー終了し `/addf-init` を案内する
   - ADDF 由来ファイルが存在する（= lock 未生成の**部分導入**プロジェクト。手縫い導入・旧版の部分コピー） → 「lock がありませんが ADDF ファイルを検出しました。初期正規化モードで走りますか？」と提案する <!-- human-judgment -->。承認されたら `/addf-init` の「部分導入からの正規化」手順に合流する: 最新版をクローンし、既存の ADDF 由来ファイルは最新版で上書き（安全一括上書きと個別確認必須の2群に分けて扱う — 存在≠所有）・プロジェクト固有ファイル（`*.exp.md`・`Progress.md`・`CLAUDE.repo.md` 等）は保護・完了時に `addf-lock.json` を生成する。手順の実体は `addf-init.md`（外部起動導入＋読み替え）を参照する — ここには重複記述しない
 - ワーキングツリーがクリーンであること（未コミットの変更があれば中断して案内する）
@@ -27,7 +27,7 @@ ADDF フレームワークを最新版（またはターゲットバージョン
 
 ### Phase 1: 状態確認
 
-1. `.claude/addf-lock.json` を読み、現在の `ref`（`vX.Y.Z` タグ名）と `version` を記録する
+1. `.claude/addf/lock.json` を読み、現在の `ref`（`vX.Y.Z` タグ名）と `version` を記録する
    - **旧形式の後方互換**: `ref` がなく `commit` フィールドがある lock（v0.3.0 以前の形式）は、`v<version>` タグを起点として扱う（記録されたハッシュはリリースプロセスの都合で実在しない場合があるため、タグを正とする）
 2. `git status` でワーキングツリーがクリーンか確認する
    - クリーンでなければ: 「未コミットの変更があります。コミットまたはスタッシュしてから再実行してください」と案内して終了
@@ -64,30 +64,30 @@ ADDF フレームワークを最新版（またはターゲットバージョン
 旧バージョンの配布で残っている `*.addf.md`（例: `ProgressTemplate.addf.md`、`INDEX.addf.md`）があれば削除を提案する）:
 - `.claude/commands/addf-*.md` — スキル定義
 - `.claude/agents/addf-*.md` — エージェント定義
-- `.claude/optional/` — オプトイン式スキル・エージェントの原本（適用後に `sync-optional-skills.py` の再実行を案内）
+- `.claude/addf/optional/` — オプトイン式スキル・エージェントの原本（適用後に `sync-optional-skills.py` の再実行を案内）
 - `.claude/hooks/` — フック
-- `.claude/templates/` — テンプレート
-- `.claude/addfTools/` — ツール群
-- `.claude/tests/` — テストスイート
+- `.claude/addf/templates/` — テンプレート
+- `.claude/addf/tools/` — ツール群
+- `.claude/addf/tests/` — テストスイート
 - `.claude/settings.json` — 共有権限設定（マージ — Phase 5 参照）
 - `CLAUDE.md` — ブートシーケンス（マージ注意）
 - `AGENTS.md` — Codex 向けブートシーケンス（上書き）
 - `CONTRIBUTING.md` — コントリビューションガイド
 - `.claudeignore` — Claude 除外設定
-- `.claude/ADDF-CHANGELOG.md` — 変更履歴（`ADDF-Release.addf.md` は除外規則により対象外）
-- `docs/guides/` — ADDF ガイドドキュメント
-- `docs/knowhow/ADDF/` — ADDF ノウハウ
+- `.claude/addf/CHANGELOG.md` — 変更履歴（`ADDF-Release.addf.md` は除外規則により対象外）
+- `.claude/addf/guides/` — ADDF ガイドドキュメント
+- `.claude/addf/knowhow/ADDF/` — ADDF ノウハウ
 
 **マイグレーション対象外（スキップ）:**
-- `.claude/Progress.md` — プロジェクト固有の進捗
-- `.claude/Feedback.md` — プロジェクト固有の記録
-- `.claude/Progresses/` — 完了タスクアーカイブ
+- `.claude/addf/Progress.md` — プロジェクト固有の進捗
+- `.claude/addf/Feedback.md` — プロジェクト固有の記録
+- `.claude/addf/Progresses/` — 完了タスクアーカイブ
 - `.claude/commands/*.exp.md` — ローカル経験ファイル
 - `.claude/settings.local.json` — ローカル設定
-- `.claude/addf-lock.json` — 自身（最後に更新）
+- `.claude/addf/lock.json` — 自身（最後に更新）
 - `CLAUDE.repo.md`, `CLAUDE.local.md` — プロジェクト固有設定
-- `TODO.md`, `docs/plans/` — プロジェクトのタスク管理
-- `docs/knowhow/*.md`（ADDF/ 以外） — プロジェクトのノウハウ
+- `TODO.md`, `.claude/addf/plans/` — プロジェクトのタスク管理
+- `.claude/addf/knowhow/*.md`（ADDF/ 以外） — プロジェクトのノウハウ
 - `README.md`, `README.en.md` — プロジェクトの説明
 - `.gitignore` — プロジェクトの除外設定。ただし ADDF マーカーブロック（`# --- ADDF Framework` 〜 `# --- /ADDF Framework`）**のみ**はステップ 14.6 でクローン元の同ブロックによる置換を提案する。ブロック外に変更がある場合は従来どおり手動マージを案内
 
@@ -114,12 +114,12 @@ find . -name '*.addf.md' -not -path './.git/*'
 ■ 新規追加 (3)
   + .claude/commands/addf-new-skill.md
   + .claude/agents/addf-new-agent.md
-  + docs/knowhow/ADDF/new-pattern.md
+  + .claude/addf/knowhow/ADDF/new-pattern.md
 
 ■ 更新 (5)
   ~ .claude/commands/addf-lint.md
   ~ .claude/hooks/turn-reminder.sh
-  ~ .claude/templates/ProgressTemplate.md
+  ~ .claude/addf/templates/ProgressTemplate.md
   ~ CLAUDE.md
   ~ CONTRIBUTING.md
 
@@ -127,17 +127,17 @@ find . -name '*.addf.md' -not -path './.git/*'
   - .claude/commands/addf-deprecated.md
 
 ■ 削除推奨（旧配布残留ファイル） (2)
-  - .claude/templates/ProgressTemplate.addf.md
-  - docs/knowhow/INDEX.addf.md
+  - .claude/addf/templates/ProgressTemplate.addf.md
+  - .claude/addf/knowhow/INDEX.addf.md
 
 ■ 要手動マージ (1)
   ! .gitignore (変更あり — 手動確認推奨)
 
 ■ スキップ (対象外)
-  ○ .claude/Progress.md, .claude/Feedback.md, *.exp.md ...
+  ○ .claude/addf/Progress.md, .claude/addf/Feedback.md, *.exp.md ...
 ```
 
-9. 最新版の `.claude/ADDF-CHANGELOG.md` から、現在のバージョンからターゲットバージョンまでのエントリを抽出して表示する:
+9. 最新版の `.claude/addf/CHANGELOG.md` から、現在のバージョンからターゲットバージョンまでのエントリを抽出して表示する:
     ```
     ■ Changelog (v0.1.0 → v0.2.0)
       [0.2.0] - 2026-04-15
@@ -174,12 +174,12 @@ find . -name '*.addf.md' -not -path './.git/*'
 
 14. **その他のファイル**:
     - hooks、addfTools、tests は上書き
-    - docs/knowhow/ADDF/ は上書き（ADDF 由来のノウハウのみ）
+    - .claude/addf/knowhow/ADDF/ は上書き（ADDF 由来のノウハウのみ）
 
 14.5. **オプショナルスキルの同期**（「14.5」は後続の番号参照を壊さないための枝番）:
-    `.claude/optional/` に変更（追加・更新・リネーム）が含まれる場合、有効化コピーを追従させる:
+    `.claude/addf/optional/` に変更（追加・更新・リネーム）が含まれる場合、有効化コピーを追従させる:
     ```bash
-    uv run --python 3.11 .claude/addfTools/sync-optional-skills.py apply
+    uv run --python 3.11 .claude/addf/tools/sync-optional-skills.py apply
     ```
     uv が無い環境では `python3` で直接実行する（Python 3.11+ が必要。旧い Python では ERROR 案内が出る）。
     `addf-Behavior.toml` の `[gui-test] enable` に従って配置/撤去される。改変された有効化コピーは
@@ -217,7 +217,7 @@ find . -name '*.addf.md' -not -path './.git/*'
 
 ### Phase 6: 完了
 
-15. `.claude/addf-lock.json` を更新する（旧形式の `commit` フィールドがあれば `ref` に置き換える）:
+15. `.claude/addf/lock.json` を更新する（旧形式の `commit` フィールドがあれば `ref` に置き換える）:
     ```json
     {
       "version": "<new-version>",

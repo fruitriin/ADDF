@@ -3,7 +3,7 @@
 ## 運用ルール
 
 ### タスク開始時
-1. `.claude/Feedback.md` を読み、前回の改善アクションで未対応のものがあれば考慮する
+1. `.claude/addf/Feedback.md` を読み、前回の改善アクションで未対応のものがあれば考慮する
 2. 以下の手順で Markdown チェックリストを作成する
    1. 1ショットで作業できる範囲にサブタスクを分割する
    2. 並行作業できる粒度でさらに分割する
@@ -12,7 +12,7 @@
 
 ### 作業中
 3. サブタスク着手時に `- [x]` でチェックしていく。並列可能なタスクはコンテナオーケストレーションを利用する
-   - Plan の曖昧さで確信が持てないときは CLAUDE.md「迷ったときの作法（7割共有原則）」に従う（閾値割れなら `.claude/Questions.md` に質問を置いてタスクを切り替える）
+   - Plan の曖昧さで確信が持てないときは CLAUDE.md「迷ったときの作法（7割共有原則）」に従う（閾値割れなら `.claude/addf/Questions.md` に質問を置いてタスクを切り替える）
    - 長大なタスクでは、サブタスク完了時点でブランチ `checkpoint/<phase>-<N>` を切ってよい。別方針を試すときは checkpoint から `alt/` を分岐する
 3.5. **日記を書く（代替わり引き継ぎ）**（「3.5」は後続の番号参照を壊さないための意図的な枝番）: resume・compaction・`/loop` の次イテレーションで起きる「小さな代替わり」のたびに、次の代の自分（同僚でもあり、寝て起きたあとの自分でもある）が状況に入れるよう、タスクの「#### 日記」セクションにエントリーを書く
    - **書くタイミング**: サブタスク完了時 / 重要な判断をした直後 / 計画を変更したとき / コンテキストが長くなり compaction を予感したとき
@@ -24,13 +24,13 @@
      **次の自分へ**: <次に着手すべきこと・先に確認すべきこと>
      **気になっていること**: <未解決の不確実性・前提・違和感。なければ「なし」>
      ```
-   - 「日記」という語彙の意図（「遺書」を使わない理由）は `docs/guides/development-process.md` 参照
+   - 「日記」という語彙の意図（「遺書」を使わない理由）は `.claude/addf/guides/development-process.md` 参照
    - ブランチ checkpoint が「何がコミットされたか（事実）」を残すのに対し、日記は「なぜそうしたか・次に何を考えていたか（文脈）」を残す。両方で前任者の靴に履き替えられる
    - 日記の自動生成フックは導入しない。書くこと自体が思考の整理であり、次の自分への手紙として人格を持って書く
    - **コンテキスト満杯時の指針**（Plan 0041 の「満杯時の出口」教義）: コンテキスト残量が少ないことを理由にループを止めない・タスク着手を控えない。auto-compact は harness が上限接近時に自動発動し、`post-compact-recovery.sh` と日記が受け止める。エージェントの仕事は止まらないこと。残量少時は**復帰容易性の高いタスク**（進捗がファイル差分に現れる・サブタスクの刻みが小さい）を優先し、**未コミットの大きな途中状態を長時間抱える one-shot 級タスクは残量少時に着手しない**。進捗の外部化（こまめなコミット・チェックリスト更新・日記）を通常より密に刻む
 4. 実装フェーズの最終サブタスク完了時、以下の知見を `/addf-knowhow` で記録する（既存 knowhow の更新も含む）:
    - **コーディング知見**: 実装中に発見した再利用可能なパターン、落とし穴、技術的判断とその根拠
-   - **分かれ道の目印**: 差し戻し・やり直し・想定外の判断が発生したサブタスクがあれば、使用したスキルの `.exp.md`「🔀 分かれ道の目印」にも追記する（書式: `.claude/templates/ExperienceTemplate.md`。失敗の告白ではなく、意思決定が枝分かれしたポイントと次に同じ分岐に立ったときの選び方を道標として書く）
+   - **分かれ道の目印**: 差し戻し・やり直し・想定外の判断が発生したサブタスクがあれば、使用したスキルの `.exp.md`「🔀 分かれ道の目印」にも追記する（書式: `.claude/addf/templates/ExperienceTemplate.md`。失敗の告白ではなく、意思決定が枝分かれしたポイントと次に同じ分岐に立ったときの選び方を道標として書く）
 
 ### エージェント起動時の共通ルール
 - エージェントチーム（TeamCreate）やサブエージェント（Agent）を作成するとき、各エージェントへのプロンプトに **最初に `/addf-knowhow-index` を実行する** よう指示を含めること
@@ -39,7 +39,7 @@
 ### タスク完了時 — 品質検証
 
 4. プロジェクトのビルド・Lint・テストコマンドを実行する
-   - ADD フレームワークテスト: `bash .claude/tests/run-all.sh`
+   - ADD フレームワークテスト: `bash .claude/addf/tests/run-all.sh`
    - **失敗した場合 → 実装に差し戻す**。原因分析 → 修正 → 再実行
 5. `addf-code-review-agent` でコードレビューを実施する
    - 通常タスクは単体（ペルソナなし）で起動する
@@ -51,7 +51,7 @@
    - **Critical/High**: 必ずこのフェーズ内で修正する（先送り禁止）
    - **Medium**: 原則修正。先送りする場合は独立計画を起こす
    - **Low/Info**: Plan に記録し、必要に応じて独立計画で対応
-   - **バグ分離**: 発見されたバグが現在のプランと関心事が異なる場合は、修正せずに新しいプラン（`docs/plans/`）を書き起こし、`TODO.md` に追加するのみで現在のプランを完了させる
+   - **バグ分離**: 発見されたバグが現在のプランと関心事が異なる場合は、修正せずに新しいプラン（`.claude/addf/plans/`）を書き起こし、`TODO.md` に追加するのみで現在のプランを完了させる
    - 修正後、ビルド・Lint・テストを再実行して通過を確認する
 8. 品質ゲートで得た知見を `/addf-knowhow` で記録する:
    - **品質ゲート知見**: レビューエージェントが検出したパターン（セキュリティ、コード品質、分離パターン違反等）のうち、他のタスクでも再発しうるもの
@@ -64,13 +64,13 @@
 
 #### フィードバック記録
 
-11. `.claude/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
-12. `.claude/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
-13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/templates/ProgressTemplate.addf.md`）の改善案を `.claude/Feedback.md` に記録する
+11. `.claude/addf/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
+12. `.claude/addf/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
+13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/addf/templates/ProgressTemplate.addf.md`）の改善案を `.claude/addf/Feedback.md` に記録する
 
 #### アーカイブとコミット
 
-14. `.claude/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
+14. `.claude/addf/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/addf/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
 15. コミットする
 
 ---
@@ -112,10 +112,10 @@
 **やったこと**: worktree（ブランチ `worktree-agent-a3809c64131a9d17f`）でフェーズ1の道具4点が完成（paths.toml / migrate-paths.py / lint-residual-paths.py / test-migrate-paths.sh 29アサーション・run-all 全パス）。実装エージェントの判断: Release.addf.md は `.addf.md` 配布除外規則が現役のためリネームせず維持・`.claude/assets` は不動・Worktrees.md は dynamic 分類。本体 check 実測: 移動19件・旧パス参照1695箇所・ブロッカーなし。マイルストーン級としてペルソナ3体（skeptic/attacker/newcomer）+ contribution の4体並列レビューを実施。
 **今の見立て**: レビューで Critical 4件（①symlink 越しリポジトリ外書き込み ②apply 前 rewrite の無警告破壊 ③dynamic/shutil.move 分岐未テスト ④apply 後の新パス未案内=2ペルソナ独立指摘でコンセンサス昇格）、Warning 7件（backup ref 上書き・走査対象不一致・空ディレクトリ自己ロック・実行位置未検証・部分適用識別不能・check コンテキスト表示なし・衝突回復手順なし）。attacker は全て実再現済み。one-shot 本番前に見つかるべきものが見つかった — ペルソナ並列の価値が出た。
 **次の自分へ**: 実装エージェント（agentId a3809c64131a9d17f）に SendMessage で修正依頼済み。完了通知が来たら: 修正確認 → worktree で run-all → main へマージ（squash せず履歴ごと merge --no-ff か、意味単位が保たれていれば ff でも可）→ main で run-all 再実行 → 完了処理（knowhow 記録・Feedback・Progress アーカイブ・コミット）。フェーズ2はオーナーに開始確認してから（一発通し切り・同席実施）。
-**気になっていること**: レビュー見送り2件（docs/plans 内非所有ファイル巻き込みの仮定・exclusions 二重管理）は Plan 0037 の「レビュー残課題」として記録すること。skeptic の「移行済み判定の1点依存」はフェーズ3（migrate 統合）でも再考の余地。
+**気になっていること**: レビュー見送り2件（.claude/addf/plans 内非所有ファイル巻き込みの仮定・exclusions 二重管理）は Plan 0037 の「レビュー残課題」として記録すること。skeptic の「移行済み判定の1点依存」はフェーズ3（migrate 統合）でも再考の余地。
 
 ##### 2026-07-06 — フェーズ1 完了・マージ済み。フェーズ2 はオーナー確認待ち
 **やったこと**: レビュー指摘の修正完了（Critical 4・Warning 6・Suggestion。テスト 29→51 アサーション・攻撃再現をテストに固定）。main へ --no-ff マージ（15769a2）し main で run-all 全パス。worktree/ブランチ削除済み。knowhow 2記事新規（map-driven-migration-tool / persona-review-oneshot）＋INDEX 登録。Plan 0037 に実装メモ・レビュー残課題を記録、TODO.addf.md 更新。
 **今の見立て**: フェーズ1 完了条件は全て満たした（道具・テスト・lint SKIP 動作・ドリフト注入実証）。フェーズ2（本体移行 one-shot）は道具が検証済みで「実行するだけ」の状態。本体 check 実測: 移動19件・参照1695箇所・ブロッカーなし。
-**次の自分へ**: フェーズ2 開始はオーナーの明示確認を取ってから（Plan の「オーナー同席・単一セッション完走」要件）。実行手順: (1) `python3 .claude/addfTools/migrate-paths.py check` で最終確認 → (2) `apply` → git mv コミット → (3) **新位置** `.claude/addf/tools/migrate-paths.py rewrite` → 参照書き換えコミット → (4) `.claude/addf/tools/lint-residual-paths.py` ERROR ゼロ → (5) `bash .claude/addf/tests/run-all.sh` 全パス。失敗時は `git reset --hard refs/backup/pre-0037-migration` で巻き戻し、道具を直してから再実行（直しながら進むの禁止）。
+**次の自分へ**: フェーズ2 開始はオーナーの明示確認を取ってから（Plan の「オーナー同席・単一セッション完走」要件）。実行手順: (1) `python3 .claude/addf/tools/migrate-paths.py check` で最終確認 → (2) `apply` → git mv コミット → (3) **新位置** `.claude/addf/tools/migrate-paths.py rewrite` → 参照書き換えコミット → (4) `.claude/addf/tools/lint-residual-paths.py` ERROR ゼロ → (5) `bash .claude/addf/tests/run-all.sh` 全パス。失敗時は `git reset --hard refs/backup/pre-0037-migration` で巻き戻し、道具を直してから再実行（直しながら進むの禁止）。
 **気になっていること**: フェーズ2 実施中は投機停止（Plan 明記）。rewrite は Progress.md 内の旧パス文字列も書き換えるため、書き換え後の Progress.md の記述が新パスになるのは正常。ベース名のみの参照（パスなし言及）は rewrite 対象外なので目視確認が要る。

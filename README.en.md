@@ -20,13 +20,13 @@ Install ADDF into your project and it provides plan-driven development, knowhow 
 | Agent | Support | Notes |
 |---|---|---|
 | **Claude Code** (Anthropic) | First-party | Full feature support. Hooks, Skills, Agents, parallel execution |
-| **Codex** (OpenAI) | Partial | Plan-driven workflow & knowhow work. Hooks & auto quality gates limited → [Details](docs/guides/codex-setup.md) |
+| **Codex** (OpenAI) | Partial | Plan-driven workflow & knowhow work. Hooks & auto quality gates limited → [Details](.claude/addf/guides/codex-setup.md) |
 | **Others** (Open Code, etc.) | Basic | Plan-driven workflow works if the agent reads CLAUDE.md / AGENTS.md |
 
 ## Features
 
 - **Plan-Driven** — Review plans, not code. AI ensures implementation quality
-- **Knowhow Accumulation** — Records implementation insights in `docs/knowhow/` and auto-references them
+- **Knowhow Accumulation** — Records implementation insights in `.claude/addf/knowhow/` and auto-references them
 - **Self-Driving** — `/addf-dev` completes one task; `/loop 1h /addf-dev` for continuous execution
 - **Quality Gate** — Automatically runs code review, security review, and contribution detection
 - **Separation of Skills and Experience** — Skill definitions (`.md`) and experience (`.exp.md`) are separated
@@ -63,7 +63,7 @@ Existing CLAUDE.md, AGENTS.md, and config files are automatically migrated and m
 - Increase test coverage
 ```
 
-Just hand it to Claude and the AI will break it into plan files in `docs/plans/` and `TODO.md`.
+Just hand it to Claude and the AI will break it into plan files in `.claude/addf/plans/` and `TODO.md`.
 
 ```
 /addf-dev
@@ -100,7 +100,7 @@ Skills provided by ADDF (invoked via `/command-name`):
 | **addf-knowhow-filter** | Filter knowhow relevant to a Plan |
 | **addf-knowhow-revise** | Re-verify and correct stale knowhow |
 | **addf-knowhow-network** | Cross-link knowhow articles into a wiki |
-| **addf-overview** | Generate ecosystem overview docs in `docs/project-overview/` |
+| **addf-overview** | Generate ecosystem overview docs in `.claude/addf/project-overview/` |
 | **addf-experience** | Validate experience file (`.exp.md`) mention syntax |
 | **addf-gui-test** | Run GUI tests (macOS optional) |
 | **addf-annotate-grid** | Draw grid lines on PNG images |
@@ -128,14 +128,14 @@ Sub-agents auto-launched during quality gates. Customize or add agents to fit yo
 
 | Guide | Content |
 |---|---|
-| [Detailed Setup](docs/guides/setup.md) | Manual setup, configuration roles, directory structure |
-| [Built-in Agents](docs/guides/agents.md) | Sub-agents for quality gates and how to customize them |
-| [Development Process](docs/guides/development-process.md) | Boot sequence, quality gates, task lifecycle |
-| [Migration](docs/guides/migration.md) | Upgrading ADDF with `/addf-migrate` |
-| [Speculative Development](docs/guides/speculative-development.md) | Overview of idle-time worktree speculation (two-layer model, promotion, cleanup) |
-| [PR Format](docs/guides/pr-format.md) | Standard PR body format (plan links, progress position) |
-| [Codex Setup](docs/guides/codex-setup.md) | Using ADDF with OpenAI Codex CLI |
-| [GUI Testing](docs/guides/gui-test-setup.md) | macOS GUI test setup |
+| [Detailed Setup](.claude/addf/guides/setup.md) | Manual setup, configuration roles, directory structure |
+| [Built-in Agents](.claude/addf/guides/agents.md) | Sub-agents for quality gates and how to customize them |
+| [Development Process](.claude/addf/guides/development-process.md) | Boot sequence, quality gates, task lifecycle |
+| [Migration](.claude/addf/guides/migration.md) | Upgrading ADDF with `/addf-migrate` |
+| [Speculative Development](.claude/addf/guides/speculative-development.md) | Overview of idle-time worktree speculation (two-layer model, promotion, cleanup) |
+| [PR Format](.claude/addf/guides/pr-format.md) | Standard PR body format (plan links, progress position) |
+| [Codex Setup](.claude/addf/guides/codex-setup.md) | Using ADDF with OpenAI Codex CLI |
+| [GUI Testing](.claude/addf/guides/gui-test-setup.md) | macOS GUI test setup |
 
 ## About the Name
 

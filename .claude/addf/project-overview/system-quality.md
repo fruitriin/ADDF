@@ -11,13 +11,13 @@
 | エージェント | addf-security-review-agent | ペネトレーションテスター人格で脆弱性検出・修正案提示（Sonnet。実装はしない） |
 | エージェント | addf-contribution-agent | ADDF / プロジェクト固有コードの識別、分離パターン違反検出、アップストリーム貢献候補検出（Sonnet） |
 | スキル | addf-lint | フレームワーク整合性チェック（11項目: JSON構文・hooks実行権限・frontmatter・Behavior.toml・INDEX整合・テンプレート同期・knowhow鮮度・knowhow双方向リンク・チェックリスト裏付け・オプショナルスキル同期・hooks配線） |
-| テスト | .claude/tests/run-all.sh | フレームワーク自動テスト（フック3本・ツール11本。スキルシナリオ8本は手動）。非 macOS ではバイナリ実行テストを SKIP。ランタイム不在を SKIP=成功として扱わない（silent 無効化の禁止） |
-| ツール | .claude/addfTools/lint-json.py / lint-frontmatter.py / lint-toml.py | 構文 Lint スクリプト（uv run --python 3.11 で実行。uv が無ければ python3 直接実行） |
-| ツール | .claude/addfTools/lint-hooks-exec.py | hooks の実行権限検査（実行権限のないフックは settings 登録済みでも静かに失敗する問題の防止） |
-| ツール | .claude/addfTools/lint-hooks-wiring.py | hooks ファイル名と settings.json / settings.local.json の配線突合（`# hooks-wiring: indirect` エスケープハッチあり） |
-| ツール | .claude/addfTools/lint-template-sync.py | テンプレート同期チェック（6ペア）。exit 0=全一致 / 1=ERROR / 2=WARNING のみ |
-| ツール | .claude/addfTools/lint-checklist.py | 手順書の「確認/検証」ステップの裏付け検査（実行チェック or human-judgment マーカー。WARNING のみ） |
-| ツール | .claude/addfTools/sync-optional-skills.py（check モード） | オプトインスキルの同期検査（孤児コピー・enable の型。→ system-distribution / system-visual-testing と共有） |
+| テスト | .claude/addf/tests/run-all.sh | フレームワーク自動テスト（フック3本・ツール11本。スキルシナリオ8本は手動）。非 macOS ではバイナリ実行テストを SKIP。ランタイム不在を SKIP=成功として扱わない（silent 無効化の禁止） |
+| ツール | .claude/addf/tools/lint-json.py / lint-frontmatter.py / lint-toml.py | 構文 Lint スクリプト（uv run --python 3.11 で実行。uv が無ければ python3 直接実行） |
+| ツール | .claude/addf/tools/lint-hooks-exec.py | hooks の実行権限検査（実行権限のないフックは settings 登録済みでも静かに失敗する問題の防止） |
+| ツール | .claude/addf/tools/lint-hooks-wiring.py | hooks ファイル名と settings.json / settings.local.json の配線突合（`# hooks-wiring: indirect` エスケープハッチあり） |
+| ツール | .claude/addf/tools/lint-template-sync.py | テンプレート同期チェック（6ペア）。exit 0=全一致 / 1=ERROR / 2=WARNING のみ |
+| ツール | .claude/addf/tools/lint-checklist.py | 手順書の「確認/検証」ステップの裏付け検査（実行チェック or human-judgment マーカー。WARNING のみ） |
+| ツール | .claude/addf/tools/sync-optional-skills.py（check モード） | オプトインスキルの同期検査（孤児コピー・enable の型。→ system-distribution / system-visual-testing と共有） |
 
 ## 設計思想
 
@@ -56,7 +56,7 @@ ADDF の第三の柱。「人間がレビューするのは計画の方向性、
 | 1. ProgressTemplate.addf.md ⇔ Progress.md | 運用ルールのテキスト包含 | ERROR |
 | 2. ProgressTemplate.addf.md ⇔ ProgressTemplate.md | 運用ルールの正規化比較 | WARNING |
 | 3. CLAUDE.md ⇔ AGENTS.md | ブートシーケンス手順番号の対応 | WARNING |
-| 4. CLAUDE.md ⇔ docs/guides/development-process.md | ブートシーケンス概要の手順番号 | WARNING |
+| 4. CLAUDE.md ⇔ .claude/addf/guides/development-process.md | ブートシーケンス概要の手順番号 | WARNING |
 | 5. CLAUDE.md ⇔ addf-init.md コピーリスト | 参照ファイルのカバレッジ（.gitignore ADDF ブロック含む） | WARNING |
 | 6. TODO ⇔ Plan の `## 実装状況:` ヘッダ | 状態の矛盾・参照切れ・登録漏れ・表記ゆれヘッダ検出 | WARNING |
 
@@ -64,11 +64,11 @@ ADDF の第三の柱。「人間がレビューするのは計画の方向性、
 
 ### チェックリスト裏付け lint — Plan 0027
 
-手順書（ADDF-Release / addf-init / addf-migrate / ProgressTemplate 系）の「確認/検証」ステップに、実行チェック（コードブロック・コマンド）か `<!-- human-judgment -->` マーカーの裏付けを要求するメタ lint（lint-checklist.py・WARNING のみ）。チェックリストの theater 化（確認と書いてあるが確認する手段がない）を防ぐ。理由付きホワイトリスト（skip-section マーカー）を持ち、責めないトーンで報告する（docs/knowhow/ADDF/checklist-backing-lint.md）。
+手順書（ADDF-Release / addf-init / addf-migrate / ProgressTemplate 系）の「確認/検証」ステップに、実行チェック（コードブロック・コマンド）か `<!-- human-judgment -->` マーカーの裏付けを要求するメタ lint（lint-checklist.py・WARNING のみ）。チェックリストの theater 化（確認と書いてあるが確認する手段がない）を防ぐ。理由付きホワイトリスト（skip-section マーカー）を持ち、責めないトーンで報告する（.claude/addf/knowhow/ADDF/checklist-backing-lint.md）。
 
 ### 実行環境ガードの3類型
 
-Python 3.11+ stdlib（tomllib）や PEP 723 依存（pyyaml）を使う addfTools は、責務別に実行環境欠如時の挙動を分ける（docs/knowhow/ADDF/sync-lint-design.md）:
+Python 3.11+ stdlib（tomllib）や PEP 723 依存（pyyaml）を使う addfTools は、責務別に実行環境欠如時の挙動を分ける（.claude/addf/knowhow/ADDF/sync-lint-design.md）:
 - **lint** = SKIP（明示出力・件数計上）
 - **実行前ゲート**（speculate-guard 等）= フェイルセーフ ERROR（動けないなら開始しない）
 - **変更系**（sync-optional-skills apply 等）= ERROR
@@ -80,7 +80,7 @@ Python 3.11+ stdlib（tomllib）や PEP 723 依存（pyyaml）を使う addfTool
   │
   ▼
 Stage 1: ビルド検証（ゲートキーパー）
-  ├─ bash .claude/tests/run-all.sh
+  ├─ bash .claude/addf/tests/run-all.sh
   ├─ プロジェクト固有の build/lint/test
   └─ 失敗 → 実装に差し戻し
   │

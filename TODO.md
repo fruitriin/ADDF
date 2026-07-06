@@ -1,7 +1,7 @@
 # TODO
 
-`docs/plans/` の完了状態・優先度をトラックする。
-`docs/plans/` と TODO が一致しなければ TODO を編集する。
+`.claude/addf/plans/` の完了状態・優先度をトラックする。
+`.claude/addf/plans/` と TODO が一致しなければ TODO を編集する。
 
 ## 現在のフェーズ: （次に着手）
 

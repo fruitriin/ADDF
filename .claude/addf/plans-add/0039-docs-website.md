@@ -8,7 +8,7 @@
   - `.claude/agents/addf-doc-review-agent.md` を新設。EnumaElish 版をベースに、EnumaElish 固有の突合手順（`printUsage()` ⇔ `switch command`・`internal/`・`cmd/` パス参照）は「プロジェクト固有チェック（ダウンストリームで追記）」の**例示**へ降格し、本体版は汎用観点3つ（①実装との乖離 ②モチベーション vs 実装事実 ③日英同期）を主軸にした
   - **起動条件を明記**（`*.md`・`docs/` 配下・`.claude/commands/` `.claude/agents/` の定義変更を含むときのみ起動）。毎タスク全読みしない
   - ProgressTemplate.addf.md / ProgressTemplate.md の「タスク完了時 — 品質検証」ステップ5 に**条件付きの並列起動**を追記（判断はメインエージェント側・両観点は独立に見るため並列で問題ない）
-  - `.claude/tests/fixtures/doc-review-drift/` に3観点の実在ドリフトパターンを再現するフィクスチャを配置し、`.claude/tests/tools/test-doc-review-agent.sh` で静的整合を検証（frontmatter・見出し構造・addf-init コピーリスト glob・フィクスチャの必須トークン）
+  - `.claude/addf/tests/fixtures/doc-review-drift/` に3観点の実在ドリフトパターンを再現するフィクスチャを配置し、`.claude/addf/tests/tools/test-doc-review-agent.sh` で静的整合を検証（frontmatter・見出し構造・addf-init コピーリスト glob・フィクスチャの必須トークン）
   - addf-init コピーリストは `.claude/agents/addf-*.md` の glob エントリで新エージェントを自動追従（列挙非依存 — Plan 0035 フェーズC で発見済みの設計を活用）
   - 判定: Plan 0039 フェーズ1 完了条件（addf-doc-review-agent の存在・ドリフト注入テストで3観点の検出パターン仕込み・品質ゲート手順の明文化）を満たす。実行時の LLM 検出力の確認は Plan 完了条件の human-judgment 側で確認する扱い
 
@@ -27,7 +27,7 @@
 
 ## 現状の挙動
 
-- ADDF のドキュメントは `README.md` / `README.en.md` / `docs/guides/`（9本・日本語のみ）/ `docs/project-overview/`（addf-overview 生成物）に分散しており、Web 上の入口がない
+- ADDF のドキュメントは `README.md` / `README.en.md` / `.claude/addf/guides/`（9本・日本語のみ）/ `.claude/addf/project-overview/`（addf-overview 生成物）に分散しており、Web 上の入口がない
 - ドキュメントドリフトの検出は lint（テンプレート同期ペア1〜6）でファイル間同期のみカバー。**実装とドキュメントの意味的乖離**（機能追加の記載漏れ・廃止機能の残留・日英乖離）を見る仕組みがない
 - 参考実装（EnumaElish）には両方が既にある:
   - VitePress ^1.6.4 / `docs/.vitepress/config.mts` / guide+reference 構成 / root=en + `ja/` ロケール / local search / GitHub Pages（`deploy-docs.yml`: push to main → build → deploy-pages）
@@ -37,7 +37,7 @@
 
 ### フェーズ1: ドキュメントドリフト対策の逆輸入（0037 と独立・先行可）
 
-- **対象**: `.claude/agents/addf-doc-review-agent.md`（新設）、`.claude/templates/ProgressTemplate.addf.md`・`ProgressTemplate.md`（品質ゲートへの組み込み）、`CLAUDE.md` ⇔ addf-init コピーリスト
+- **対象**: `.claude/agents/addf-doc-review-agent.md`（新設）、`.claude/addf/templates/ProgressTemplate.addf.md`・`ProgressTemplate.md`（品質ゲートへの組み込み）、`CLAUDE.md` ⇔ addf-init コピーリスト
 - EnumaElish 版をベースに汎用化する。EnumaElish 固有の検証手順（`printUsage()` ⇔ `switch command` 突合、`internal/` `cmd/` 参照）は「プロジェクト固有チェックの書き方」の例示に降格し、本体版は汎用観点（①②③）＋「ダウンストリームで固有チェックを追記せよ」の構造にする
 - 品質ゲートへの組み込み位置は Progress 運用ルールのステップ5（コードレビュー）と並列、**ドキュメントに触れた変更のときのみ起動**（毎タスク全読みはコスト過剰）
 - ダウンストリーム配布対象に含める（addf-init コピーリスト・lint ペア5 の整合を確認する）
@@ -46,20 +46,20 @@
 
 - **対象**: `package.json`（新設: vitepress devDependency + docs:dev/build/preview スクリプト）、`docs/.vitepress/config.mts`、`docs/index.md`
 - EnumaElish の config.mts を雛形にする。ADDF は日本語が正のため **root=ja / `en/` サブロケール**を第一候補とする（EnumaElish と逆。要オーナー確認）
-- 掲載対象: セットアップ（`docs/guides/setup.md` 系）・開発プロセス・スキル/エージェント一覧・マイグレーションガイド。`docs/plans-add/`（開発ログ）と `docs/knowhow/`（内部知見）は**掲載しない**
+- 掲載対象: セットアップ（`.claude/addf/guides/setup.md` 系）・開発プロセス・スキル/エージェント一覧・マイグレーションガイド。`.claude/addf/plans-add/`（開発ログ）と `.claude/addf/knowhow/`（内部知見）は**掲載しない**
 - `base:` はリポジトリ名に合わせる（GitHub Pages プロジェクトサイト想定）
 - `node_modules/` `.vitepress/dist/` `.vitepress/cache/` の .gitignore 追加
 
 ### フェーズ3: 公開 CI と既存ガイドの再編
 
-- **対象**: `.github/workflows/deploy-docs.yml`（新設）、`docs/guides/` の各ガイド
+- **対象**: `.github/workflows/deploy-docs.yml`（新設）、`.claude/addf/guides/` の各ガイド
 - EnumaElish の deploy-docs.yml をほぼ流用（Node 22 / npm ci / upload-pages-artifact / deploy-pages。ADDF は package-lock.json 新設に伴い cache: npm が有効）
 - 既存 Plan 0030 の CI（品質ゲート）と workflow を分離したまま並置する
 - ガイドの見出し・導線をサイドバー構成に合わせて微調整する（内容の書き直しはしない — ドリフト対策はフェーズ1のエージェントが担う）
 
 ### フェーズ4（任意・後続）: 英語ロケールの拡充
 
-- `docs/guides/` の英訳は現状存在しない。README.en.md の水準で主要ガイドのみ英訳し、`en/` ロケールに配置する。全訳はしない（ドリフト表面積が倍になるため、需要が見えるまで最小限）
+- `.claude/addf/guides/` の英訳は現状存在しない。README.en.md の水準で主要ガイドのみ英訳し、`en/` ロケールに配置する。全訳はしない（ドリフト表面積が倍になるため、需要が見えるまで最小限）
 
 ## 影響範囲
 
@@ -86,7 +86,7 @@
 ## 完了条件
 
 - [x] addf-doc-review-agent が本体に存在し、ドリフト注入テストで3観点の検出が確認できる
-- [ ] `bash .claude/tests/run-all.sh` と `/addf-lint` が全通過（同期ペア・コピーリスト整合を含む）
+- [ ] `bash .claude/addf/tests/run-all.sh` と `/addf-lint` が全通過（同期ペア・コピーリスト整合を含む）
 - [ ] `npm run docs:build` が成功し、GitHub Pages でサイトが閲覧できる <!-- human-judgment -->
 - [x] 品質ゲート手順（ProgressTemplate）にドキュメントレビューの起動条件が明文化されている
 

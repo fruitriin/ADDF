@@ -107,7 +107,7 @@
 │ Step 5: 品質検証                              │
 │                                              │
 │ Stage 1: ビルド検証 ◀──── 失敗時ループ         │
-│ ├─ bash .claude/tests/run-all.sh             │
+│ ├─ bash .claude/addf/tests/run-all.sh             │
 │ └─ プロジェクト固有 build/lint/test            │
 │         │                                     │
 │         ▼ (通過)                               │
@@ -147,7 +147,7 @@
 ┌───────────────────────────────────┐
 │ Stage 1: ゲートキーパー             │
 │                                    │
-│ bash .claude/tests/run-all.sh     │
+│ bash .claude/addf/tests/run-all.sh     │
 │ （フック3 + ツール11。非 macOS は   │
 │   バイナリ実行 SKIP）               │
 │ + プロジェクト固有 build/lint/test   │
