@@ -15,6 +15,10 @@
 - テスト: test-context-reminder.sh（8テスト19 assertion 新設）、
   test-turn-reminder.sh（新文言・残量言及の不在を検証）
 
+## 関連 Plan
+
+- [Plan 0041: コンテキスト枯渇によるループ停止の壁の突破](0041-context-exhaustion-loop-wall.md) — 本 Plan の観測層を前提に「観測したあと、出口がない」問題（記録を書き尽くしたあとの自主停止）を扱う後続 Plan。Fable 系実効コンテキストの計測（本 Plan の残課題）もそちらのフェーズ4で回収予定
+
 ## Context
 
 Fable 5 プロンプティングガイドの評価（2026-06-11）で、現行 `turn-reminder.sh` の
