@@ -54,6 +54,7 @@
 | 3 | 43 | `docs/plans-add/0043-security-recovery.md` | 未着手（オーナー起案 2026-07-06。B3 = 0026 Critical/High + 0033 パストラバーサル Low を「不便のない範囲で」回収） |
 | 5 | 44 | `docs/plans-add/0044-experience-strategy-decision.md` | 未着手（オーナー起案 2026-07-06。B3 = experience 運用方式（案A/案B）の決定 Plan） |
 | 6 | 45 | `docs/plans-add/0045-language-specific-rules.md` | 未着手（オーナー起案 2026-07-06。B3 = 言語別ルール分離の導入判断 Plan） |
+| 3 | 46 | `docs/plans-add/0046-delegation-prohibition-boundary.md` | 未着手（オーナー承認 2026-07-06 サイクル13。委譲プロンプトの Progress.md 禁止事項を境界緩和し DelegationRules.md に単一ソース化） |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
