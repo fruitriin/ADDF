@@ -13,7 +13,9 @@
 モード:
   check   移動対象の実在・移動先の衝突・旧パス参照の全数（ファイル数・箇所数）と
           マッチ例（rewrite 前の誤爆候補の目視確認用）を提示するのみ。
-          exit 0 = 実行可能 / 1 = ブロッカーあり
+          移動対象が1件以上あるときは末尾に「射程外候補スキャン」（rewrite が
+          書き換えられない4類型の候補列挙・WARNING のみ）を実行する。
+          exit 0 = 実行可能 / 1 = ブロッカーあり（射程外候補は成否に影響しない）
   apply   作業ツリーが clean であることを確認し、backup ref
           （paths.toml [meta].backup_ref）を作成してから git mv をまとめて実行する。
           既存の backup ref は上書きしない（「本当の移行前」の巻き戻し点を
@@ -258,6 +260,157 @@ def migrated_tool_dir(cfg):
     return '.claude/addfTools'
 
 
+# ------------------------------------------------------------
+# 射程外候補スキャン（check 専用・WARNING のみ）
+#
+# rewrite はフルパス文字列のリテラル出現しか書き換えられない。本体移行
+# （フェーズ2）では移行直後に run-all 18/19 スイートが失敗し、原因は全て
+# この「射程外」だった（knowhow: map-driven-migration-tool.md
+# 「rewrite の射程外 — 4類型」）。ダウンストリーム移行では事後デバッグでは
+# なく事前検出に変えるため、check の末尾で候補を列挙する。
+#
+# これは lint ではなく「apply/rewrite 後に目視確認する箇所の案内」であり、
+# 偽陽性を恐れず recall 優先で拾う。check の成否（exit code）には影響させない。
+# 移動対象が1件以上あるとき（= 移行前のリポジトリ）のみ実行する。
+# ------------------------------------------------------------
+
+# 射程外候補の表示上限（類型ごと）
+OOS_SAMPLE_LIMIT = 5
+
+# 類型1: 親ディレクトリ算出・相対階層参照（移動で階層が変わるとずれる候補）
+OOS_REL_HIERARCHY_PATTERNS = [
+    re.compile(r'dirname\s+"?\$\{?BASH_SOURCE'),                # dirname "${BASH_SOURCE[0]}"
+    re.compile(r'dirname\s+"?\$0'),                             # dirname "$0"
+    re.compile(r'\$\{?\w+\}?"?/\.\.'),                          # $SCRIPT_DIR/.. / "${DIR}"/..
+    re.compile(r'os\.path\.dirname\s*\(\s*os\.path\.dirname'),  # 二重 dirname（上方向の遡り）
+    re.compile(r'\.parent\.parent|\bparents\['),                # pathlib の親遡り
+    re.compile(r'''['"]\.\.['"/]'''),                           # '..' / "../" の断片
+]
+
+
+def derive_move_basenames(cfg):
+    """paths.toml から移動対象のベース名を導出する。
+
+    files/dynamic エントリの old のファイル名（addf-Behavior.toml 等）と
+    dirs の old 最終セグメント（addfTools 等）。ハードコード列挙は
+    paths.toml 追従にならないため禁止（マップが単一ソース）。
+    """
+    return {os.path.basename(e['old']) for e, _ in entries(cfg)}
+
+
+def oos_files_under_moves(cfg, moves):
+    """移動対象（old）自身とその配下の git 追跡ファイル（rewrite_exclusions 適用）"""
+    excluded = set(cfg.get('rewrite_exclusions', {}).get('files', []))
+    prefixes = [old for old, _new, _kind in moves]
+    return [path for path in tracked_files()
+            if path not in excluded
+            and any(path == p or path.startswith(p + '/') for p in prefixes)]
+
+
+def oos_scan_relative_hierarchy(move_files):
+    """類型1: 移動対象内の .sh/.py/.bash にある親ディレクトリ算出・相対階層参照"""
+    hits = []
+    for path in move_files:
+        if not path.endswith(('.sh', '.bash', '.py')):
+            continue
+        text = read_text(path)
+        if text is None:
+            continue
+        for lineno, line in enumerate(text.splitlines(), 1):
+            if any(p.search(line) for p in OOS_REL_HIERARCHY_PATTERNS):
+                hits.append((path, lineno, line.strip()))
+    return hits
+
+
+def oos_scan_split_fragments(cfg):
+    """類型2: 全 git 追跡テキストにあるパスの分割断片（os.path.join / 文字列連結）。
+
+    フルパス文字列が現れないため rewrite は書き換えられない。
+    """
+    basenames = sorted({'.claude', *derive_move_basenames(cfg)})
+    quoted = re.compile('[\'"](' + '|'.join(re.escape(b) for b in basenames) + ')[\'"]')
+    joiner = re.compile(r'os\.path\.join\s*\(')
+    concat = re.compile(r'''\+\s*f?['"]/''')  # scriptDir + "/../..." 等の文字列連結パス
+    hits = []
+    for path, text in scan_targets(cfg):
+        for lineno, line in enumerate(text.splitlines(), 1):
+            if (joiner.search(line) and quoted.search(line)) or concat.search(line):
+                hits.append((path, lineno, line.strip()))
+    return hits
+
+
+def oos_scan_md_relative_links(move_files):
+    """類型3: 移動対象内の .md にある `](../` 形式の相対リンク。
+
+    ファイル自身の階層が変わるとリンク先がずれる。テストにもかからない
+    （レンダリング時にしか壊れない）ため事前列挙が特に効く。
+    """
+    pat = re.compile(r'\]\(\.\./')
+    hits = []
+    for path in move_files:
+        if not path.endswith('.md'):
+            continue
+        text = read_text(path)
+        if text is None:
+            continue
+        for lineno, line in enumerate(text.splitlines(), 1):
+            if pat.search(line):
+                hits.append((path, lineno, line.strip()))
+    return hits
+
+
+def oos_scan_binaries(move_files):
+    """類型4: 移動対象内のバイナリ（NUL 検査で判定。symlink は除外）。
+
+    内部にパス断片を含む場合、ソース修正＋再ビルド＋checksums 更新まで必要。
+    """
+    bins = []
+    for path in move_files:
+        if os.path.islink(path) or not os.path.isfile(path):
+            continue
+        try:
+            with open(path, 'rb') as f:
+                data = f.read()
+        except OSError:
+            continue
+        if b'\0' in data:
+            bins.append(path)
+    return bins
+
+
+def print_oos_hits(label, hits):
+    print(f'[{label}]: {len(hits)} 箇所')
+    for path, lineno, line in hits[:OOS_SAMPLE_LIMIT]:
+        if len(line) > SAMPLE_WIDTH:
+            line = line[:SAMPLE_WIDTH] + '…'
+        print(f'    {path}:{lineno}: {line}')
+    if len(hits) > OOS_SAMPLE_LIMIT:
+        print(f'    …ほか {len(hits) - OOS_SAMPLE_LIMIT} 箇所')
+
+
+def scan_out_of_scope(cfg, moves):
+    """rewrite 射程外4類型の候補スキャン。WARNING のみで exit code に影響しない"""
+    print('\n--- 射程外候補スキャン（WARNING — check の成否には影響しない）---')
+    print('rewrite はフルパス文字列のリテラル出現しか書き換えられません。以下は移行で壊れる可能性の')
+    print('ある箇所の候補です（偽陽性を含みます）。apply/rewrite 後にこれらを確認し、')
+    print('プロジェクト自身のテストを実行してください。')
+    move_files = oos_files_under_moves(cfg, moves)
+    print_oos_hits('類型1: 相対階層参照（SCRIPT_DIR/.. 等・移動対象内の .sh/.py/.bash）',
+                   oos_scan_relative_hierarchy(move_files))
+    print_oos_hits('類型2: 分割断片（os.path.join / 文字列連結のパス組み立て・全追跡テキスト）',
+                   oos_scan_split_fragments(cfg))
+    print_oos_hits('類型3: Markdown 相対リンク（](../ 形式・移動対象内の .md）',
+                   oos_scan_md_relative_links(move_files))
+    bins = oos_scan_binaries(move_files)
+    print(f'[類型4: バイナリ（NUL 検査・移動対象内）]: {len(bins)} 件')
+    for path in bins[:OOS_SAMPLE_LIMIT]:
+        print(f'    {path}（rewrite 対象外 — 内部にパスを含むならソース修正＋再ビルドが必要）')
+    if len(bins) > OOS_SAMPLE_LIMIT:
+        print(f'    …ほか {len(bins) - OOS_SAMPLE_LIMIT} 件')
+    print('注意: git 追跡外のファイル（.claude/settings.local.json の許可ルール等）は'
+          '走査対象外です。移行後に旧パスが残っていないか手動で確認してください')
+
+
 def mode_check(cfg, map_path):
     print(f'マップ: {map_path}')
     moves, skips, infos, problems = preflight(cfg)
@@ -281,6 +434,9 @@ def mode_check(cfg, map_path):
                 line = line[:SAMPLE_WIDTH] + '…'
             print(f'    例: {path}:{lineno}: {line}')
     print(f'参照合計: {total_refs} 箇所（`rewrite` で書き換える）')
+    if moves:
+        # 移行前のリポジトリでのみ意味がある案内のため、移動対象ゼロなら実行しない
+        scan_out_of_scope(cfg, moves)
     if problems:
         print('\nERROR: ブロッカーがあります。解消してから apply してください')
         sys.exit(1)

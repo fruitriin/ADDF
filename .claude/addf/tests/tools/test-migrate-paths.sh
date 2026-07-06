@@ -17,6 +17,8 @@
 # - 拡張子なしテキスト（Makefile）の走査（check/rewrite/lint の対象一致）
 # - apply 後の案内どおり「新位置のツール」で rewrite を実行する経路
 # - 逆流 WARNING・tomllib 欠如の責務別ふるまい（migrate=ERROR / lint=SKIP）
+# - 射程外候補スキャン（rewrite が書き換えられない4類型を check が WARNING で
+#   事前列挙する。exit code には影響しない・移動対象ゼロの移行済みリポジトリでは出さない）
 
 set -uo pipefail
 
@@ -166,6 +168,51 @@ out="$(runpy "$box" "$MIGRATE")"; code=$?
 check "非空衝突を ERROR（exit 1）" 1 "$code" "$out" "衝突: .claude/addf/templates"
 check "回復手順（中身確認→不要なら削除）を案内" 1 "$code" "$out" "不要なら削除"
 rm -rf "$box/.claude/addf"
+
+echo "Test 8.5: 射程外候補スキャン — rewrite が書き換えられない4類型を check が WARNING で事前列挙する"
+(
+  cd "$box"
+  # 類型1: 移動対象内スクリプトの親ディレクトリ算出（移動で階層が変わるとずれる）
+  cat > docs/guides/helper.sh <<'EOF'
+#!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/../.."
+EOF
+  # 類型2: 分割断片（os.path.join の組み立て — フルパス文字列が現れず rewrite の射程外）
+  cat > frag.py <<'EOF'
+import os
+CONF = os.path.join(ROOT, '.claude', 'addf-Behavior.toml')
+EOF
+  # 類型3: 移動対象内 Markdown の相対リンク（ファイル自身の階層が変わるとずれる）
+  printf 'see [readme](../README.md)\n' > docs/guides/linked.md
+  # 類型4: 移動対象内の実行可能バイナリ（NUL 入り）
+  printf 'BIN\0DATA' > .claude/addfTools/fake-bin
+  chmod +x .claude/addfTools/fake-bin
+)
+git_box add -A
+git_box commit -q -m "inject out-of-scope"
+out="$(runpy "$box" "$MIGRATE")"; code=$?
+check "4類型を仕込んでも check は exit 0（WARNING は成否に影響しない）" 0 "$code" "$out" "射程外候補スキャン"
+check "類型1: 相対階層参照（SCRIPT_DIR/..）を検出" 0 "$code" "$out" "docs/guides/helper.sh"
+check "類型2: os.path.join 断片を検出" 0 "$code" "$out" "frag.py"
+check "類型3: Markdown 相対リンク（](../）を検出" 0 "$code" "$out" "docs/guides/linked.md"
+check "類型4: バイナリ（NUL 検査）を列挙" 0 "$code" "$out" "fake-bin"
+check "偽陽性を含む目視確認の案内を明示する" 0 "$code" "$out" "偽陽性"
+check "git 追跡外ファイルは走査対象外の注意を出す" 0 "$code" "$out" "走査対象外"
+# 後続テスト（apply〜）を射程外注入と独立させるため取り除く
+git_box rm -qf docs/guides/helper.sh frag.py docs/guides/linked.md .claude/addfTools/fake-bin
+git_box commit -q -m "cleanup out-of-scope"
+
+echo "Test 8.6: 移行済みリポジトリ（移動対象ゼロ）では射程外スキャンを実行しない"
+out="$(runpy "$REPO_ROOT" "$MIGRATE")"; code=$?
+check "本体（移行済み）で check は exit 0・移動 0 件" 0 "$code" "$out" "移動 0 件"
+if grep -q '射程外候補スキャン' <<<"$out"; then
+  echo "  FAIL: 移動対象ゼロのとき射程外スキャンを出さない"
+  FAIL=$((FAIL + 1))
+else
+  echo "  PASS: 移動対象ゼロのとき射程外スキャンを出さない"
+  PASS=$((PASS + 1))
+fi
 
 echo "Test 9: apply — 空の移動先ディレクトリは衝突扱いせず継続する（途中クラッシュ残骸の自己ロック防止）"
 mkdir -p "$box/.claude/addf/plans"   # 空ディレクトリ（git 的には不可視 = clean）
