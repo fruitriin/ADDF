@@ -3,7 +3,7 @@
 `docs/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: /loop サイクル12 = レビューモード。オーナー対応待ちを一括整理（Q2 応答→Plan 0037 別セッション実施予定 / 0040/0041/0042 実施承認 / 0043/0044/0045 起案 / 0020/0016/0005/0028 意図的完了明記）。次サイクルは 0041 優先実施
+## 現在のフェーズ: Plan 0037 実施中（オーナー同席・2026-07-06）。フェーズ1 完了 → フェーズ2（本体移行 one-shot）はオーナー開始確認待ち
 
 ## バックログ
 
@@ -45,7 +45,7 @@
 | 5 | 34 | `docs/plans-add/0034-downstream-feedback-fixes.md` | 完了 |
 | 3 | 35 | `docs/plans-add/0035-pr-standard-format.md` | 完了（フェーズA・B・C。2026-07-05） |
 | 3 | 36 | `docs/plans-add/0036-plan-audit-skill.md` | 完了（2026-07-05。/addf-plan-audit 新設・migrate ワンショット統合。ドッグフーディング検出10件は処置提案としてオーナー判断待ち） |
-| 4 | 37 | `docs/plans-add/0037-addf-directory-consolidation.md` | 未着手（オーナー起案 2026-07-05。docs 明け渡し・.claude/addf/ 集約。0035/0036/0038 消化後に着手推奨・メジャーリリース級・one-shot 実施） |
+| **1** | 37 | `docs/plans-add/0037-addf-directory-consolidation.md` | 一部完了（フェーズ1=道具整備 完了 2026-07-06・オーナー同席セッションで着手。4体レビュー済み・51アサーション。フェーズ2=本体移行 one-shot・フェーズ3=migrate 統合とリリースが残り） |
 | 3 | 38 | `docs/plans-add/0038-speculation-fitness.md` | 完了（2026-07-05。投機適性3区分・Plan 化フォールバック・one-shot 定義の guides 単一ソース化・窓検出（手順 1.8）・reconcile check に pending_count 追加） |
 | 5 | 39 | `docs/plans-add/0039-docs-website.md` | 一部完了（フェーズ1=addf-doc-review-agent 逆輸入 完了 2026-07-06。フェーズ2/3 は Plan 0037 完了後） |
 | 4 | 40 | `docs/plans-add/0040-ccchain-optin.md` | 未着手（オーナー起案 2026-07-06・**投機的実施承認 2026-07-06**。大きな変更のため後続も並列もなし = 単独投機） |

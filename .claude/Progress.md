@@ -77,7 +77,45 @@
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: Plan 0037 — ADDF ディレクトリ大集約（フェーズ1: paths.toml とツール整備）
 
-> 新しいタスク開始時は以下の構造で記録する:
-> `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）
+オーナー指示: `/addf-dev Plan37 大改造の始まりだ`（2026-07-06・オーナー同席セッション。Q2 回答「別のクリアなセッションで実施」の当該セッション）
+
+#### サブタスクチェックリスト
+
+- [x] 事前清算: worktree 残骸3つを処理（Plan 0046 WIP は `plan-0046-wip` ブランチに保全・他2つは clean 残骸で削除）
+- [x] reconcile check 異常なし（投機在庫ゼロ・pending 0・active 0）
+- [ ] paths.toml（旧→新パスマップ）設計・作成
+- [ ] 移動スクリプト（マップ駆動 git mv・check/apply 分離）
+- [ ] 参照書き換えスクリプト（境界チェック付き置換）
+- [ ] 残存参照 lint 新設（ドリフト注入 TDD 込み）
+- [ ] 合成プロジェクトでの移行シミュレーションテスト（存在≠所有判定・Pages コンテンツ不可侵）
+- [x] run-all.sh 組込み・Stage 1（worktree 内で run-all 全パス。run-all は glob 収集のため編集不要）
+- [x] Stage 2 レビュー（ペルソナ3体並列 + contribution 配布安全性 = 4体。指摘: Critical 4件・Warning 7件・Suggestion 群）
+- [x] レビュー指摘の修正（Critical 4・Warning 6・Suggestion 対応。テスト 29→51 アサーション）
+- [x] main へマージ（--no-ff・15769a2）→ main で run-all 全パス
+- [x] knowhow 記録（map-driven-migration-tool.md / persona-review-oneshot.md 新規・INDEX 登録）
+- [x] Plan 0037 ヘッダ・完了条件・レビュー残課題を反映、TODO.addf.md 更新
+- [ ] フェーズ1完了コミット（この時点ではまだ何も動かさない — 道具のみ）
+
+フェーズ2（本体移行の一発通し切り）はフェーズ1完了後、オーナーに開始確認してから着手する。
+
+#### 日記
+
+##### 2026-07-06 — コンパクション明け・事前清算完了、フェーズ1着手
+**やったこと**: コンパクション後復帰。worktree 残骸3つを清算（agent-a22ce… に Plan 0046 の未コミット実装が dirty で残っていたため `plan-0046-wip` ブランチにコミット保全。agent-abd0…（Plan 0031 squash 済み）と mystifying-jepsen（PR #16 マージ済み）は clean のため worktree 削除・ブランチ残置）。reconcile check 異常なし。knowhow 抽出済み（sync-lint-design / checklist-backing-lint / existing-project-install-pattern が中核）。
+**今の見立て**: Plan 0037 着手条件（在庫ゼロ・清算済み）成立。プレフィックス簡素化（addf-Behavior.toml → Behavior.toml 等）は Plan の構造図がリネーム後の名前を明記しているため移動と同時に実施する（参照書き換え1回で済む。確信度8割）。
+**次の自分へ**: フェーズ1の道具（paths.toml・移動/書き換えスクリプト・残存参照 lint・合成プロジェクトテスト）を worktree 隔離エージェントに委譲する。完了したらレビュー→main マージ→Stage 1/2。フェーズ2はオーナー確認後。
+**気になっていること**: ADDF-Release.addf.md → Release.md のリネームは .addf.md サフィックス判定ロジック（addf-init コピー除外・lint）に影響する可能性。委譲エージェントに調査を指示する。Plan 0046 の実装（DelegationRules.md）は main 未マージのため、委譲プロンプトの禁止事項は直書きする。
+
+##### 2026-07-06 — フェーズ1 実装完了・4体レビュー完了・修正依頼中
+**やったこと**: worktree（ブランチ `worktree-agent-a3809c64131a9d17f`）でフェーズ1の道具4点が完成（paths.toml / migrate-paths.py / lint-residual-paths.py / test-migrate-paths.sh 29アサーション・run-all 全パス）。実装エージェントの判断: Release.addf.md は `.addf.md` 配布除外規則が現役のためリネームせず維持・`.claude/assets` は不動・Worktrees.md は dynamic 分類。本体 check 実測: 移動19件・旧パス参照1695箇所・ブロッカーなし。マイルストーン級としてペルソナ3体（skeptic/attacker/newcomer）+ contribution の4体並列レビューを実施。
+**今の見立て**: レビューで Critical 4件（①symlink 越しリポジトリ外書き込み ②apply 前 rewrite の無警告破壊 ③dynamic/shutil.move 分岐未テスト ④apply 後の新パス未案内=2ペルソナ独立指摘でコンセンサス昇格）、Warning 7件（backup ref 上書き・走査対象不一致・空ディレクトリ自己ロック・実行位置未検証・部分適用識別不能・check コンテキスト表示なし・衝突回復手順なし）。attacker は全て実再現済み。one-shot 本番前に見つかるべきものが見つかった — ペルソナ並列の価値が出た。
+**次の自分へ**: 実装エージェント（agentId a3809c64131a9d17f）に SendMessage で修正依頼済み。完了通知が来たら: 修正確認 → worktree で run-all → main へマージ（squash せず履歴ごと merge --no-ff か、意味単位が保たれていれば ff でも可）→ main で run-all 再実行 → 完了処理（knowhow 記録・Feedback・Progress アーカイブ・コミット）。フェーズ2はオーナーに開始確認してから（一発通し切り・同席実施）。
+**気になっていること**: レビュー見送り2件（docs/plans 内非所有ファイル巻き込みの仮定・exclusions 二重管理）は Plan 0037 の「レビュー残課題」として記録すること。skeptic の「移行済み判定の1点依存」はフェーズ3（migrate 統合）でも再考の余地。
+
+##### 2026-07-06 — フェーズ1 完了・マージ済み。フェーズ2 はオーナー確認待ち
+**やったこと**: レビュー指摘の修正完了（Critical 4・Warning 6・Suggestion。テスト 29→51 アサーション・攻撃再現をテストに固定）。main へ --no-ff マージ（15769a2）し main で run-all 全パス。worktree/ブランチ削除済み。knowhow 2記事新規（map-driven-migration-tool / persona-review-oneshot）＋INDEX 登録。Plan 0037 に実装メモ・レビュー残課題を記録、TODO.addf.md 更新。
+**今の見立て**: フェーズ1 完了条件は全て満たした（道具・テスト・lint SKIP 動作・ドリフト注入実証）。フェーズ2（本体移行 one-shot）は道具が検証済みで「実行するだけ」の状態。本体 check 実測: 移動19件・参照1695箇所・ブロッカーなし。
+**次の自分へ**: フェーズ2 開始はオーナーの明示確認を取ってから（Plan の「オーナー同席・単一セッション完走」要件）。実行手順: (1) `python3 .claude/addfTools/migrate-paths.py check` で最終確認 → (2) `apply` → git mv コミット → (3) **新位置** `.claude/addf/tools/migrate-paths.py rewrite` → 参照書き換えコミット → (4) `.claude/addf/tools/lint-residual-paths.py` ERROR ゼロ → (5) `bash .claude/addf/tests/run-all.sh` 全パス。失敗時は `git reset --hard refs/backup/pre-0037-migration` で巻き戻し、道具を直してから再実行（直しながら進むの禁止）。
+**気になっていること**: フェーズ2 実施中は投機停止（Plan 明記）。rewrite は Progress.md 内の旧パス文字列も書き換えるため、書き換え後の Progress.md の記述が新パスになるのは正常。ベース名のみの参照（パスなし言及）は rewrite 対象外なので目視確認が要る。

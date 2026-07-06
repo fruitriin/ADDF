@@ -1,0 +1,49 @@
+---
+title: one-shot 実施 Plan にはペルソナ並列レビュー＋実地攻撃が効く
+created: 2026-07-06
+last_verified: 2026-07-06
+depends_on:
+  - file: .claude/agents/addf-code-review-agent.md
+status: active
+---
+
+# one-shot 実施 Plan にはペルソナ並列レビュー＋実地攻撃が効く
+
+Plan 0037 フェーズ1（一発本番で失敗できない移行ツール）の品質ゲートで、視点ずらしレビュー
+（Plan 0020）の効果が定量的に確認できた事例。
+
+## 発見した知見
+
+- **51テスト全パスの実装**に対し、4体並列レビュー（skeptic / attacker / newcomer / 配布安全性）が
+  Critical 4件・Warning 6件を検出した。テストが通っていることと安全であることは別物
+- **attacker に「実際に動かして攻撃してよい」と明示指示**したのが決定打。静的読解ではなく
+  サンドボックスでスクリプトを実行し、Critical 2件（symlink 越しのリポジトリ外書き込み・
+  apply 前 rewrite の無警告破壊）と Warning 3件を**全て実再現**した。再現手順付きの指摘は
+  修正とテスト固定が一直線に進む
+- **skeptic は「テストが網羅している範囲」そのものを疑う**役として機能した。
+  「未追跡ファイルの移動分岐が一度もテストで実行されておらず、本番では確実に実行される」
+  という指摘は、テスト結果をいくら眺めても出てこない（通ったテストの外側にあるため）
+- **コンセンサス補正が機能した**: skeptic と newcomer が独立に「自己移動後のコマンド案内欠如」を
+  指摘し、Warning → Critical に昇格。実際、one-shot 実施の現場でオペレーターを即死させる罠だった
+- newcomer は将来のダウンストリーム利用者（内部構造を知らない人）の代理として、
+  エラーメッセージの回復手順欠如を検出した
+
+## プロジェクトへの適用
+
+- one-shot 級（一発本番・失敗時のやり直しコストが大きい）Plan の道具は、
+  マイルストーン扱いでペルソナ3体＋配布安全性を並列起動する
+- attacker には対象の worktree パスと「実際に動かして攻撃してよい（本体には触るな）」を明示する。
+  静的レビューと実地攻撃は検出能力が別物
+- レビュー指摘の修正では、**攻撃の再現手順を「裏付けを剥がした状態の再現テスト」としてスイートに固定**する
+  （ドリフト注入 TDD と同型 — [sync-lint-design.md](sync-lint-design.md)）
+
+## 注意点・制約
+
+- ペルソナ並列は常設しない（発動条件は `.claude/agents/addf-code-review-agent.md` の表が単一ソース）
+- 実地攻撃を許可する場合は対象を worktree に限定し、メインリポジトリへの接触を禁止事項として明示する
+
+## 参照
+
+- `.claude/agents/addf-code-review-agent.md` — ペルソナ定義・集約ルール
+- `docs/plans-add/0020-adversarial-review.md` / `docs/plans-add/0037-addf-directory-consolidation.md`
+- [map-driven-migration-tool.md](map-driven-migration-tool.md) — 検出された穴の設計パターン側
