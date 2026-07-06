@@ -85,22 +85,31 @@
 
 - [x] 事前清算: worktree 残骸3つを処理（Plan 0046 WIP は `plan-0046-wip` ブランチに保全・他2つは clean 残骸で削除）
 - [x] reconcile check 異常なし（投機在庫ゼロ・pending 0・active 0）
-- [ ] paths.toml（旧→新パスマップ）設計・作成
-- [ ] 移動スクリプト（マップ駆動 git mv・check/apply 分離）
-- [ ] 参照書き換えスクリプト（境界チェック付き置換）
-- [ ] 残存参照 lint 新設（ドリフト注入 TDD 込み）
-- [ ] 合成プロジェクトでの移行シミュレーションテスト（存在≠所有判定・Pages コンテンツ不可侵）
+- [x] paths.toml（旧→新パスマップ）設計・作成
+- [x] 移動スクリプト（マップ駆動 git mv・check/apply 分離）
+- [x] 参照書き換えスクリプト（境界チェック付き置換）
+- [x] 残存参照 lint 新設（ドリフト注入 TDD 込み）
+- [x] 合成プロジェクトでの移行シミュレーションテスト（存在≠所有判定・Pages コンテンツ不可侵）
 - [x] run-all.sh 組込み・Stage 1（worktree 内で run-all 全パス。run-all は glob 収集のため編集不要）
 - [x] Stage 2 レビュー（ペルソナ3体並列 + contribution 配布安全性 = 4体。指摘: Critical 4件・Warning 7件・Suggestion 群）
 - [x] レビュー指摘の修正（Critical 4・Warning 6・Suggestion 対応。テスト 29→51 アサーション）
 - [x] main へマージ（--no-ff・15769a2）→ main で run-all 全パス
 - [x] knowhow 記録（map-driven-migration-tool.md / persona-review-oneshot.md 新規・INDEX 登録）
 - [x] Plan 0037 ヘッダ・完了条件・レビュー残課題を反映、TODO.addf.md 更新
-- [ ] フェーズ1完了コミット（この時点ではまだ何も動かさない — 道具のみ）
+- [x] フェーズ1完了コミット（25ce899）
+- [x] **フェーズ2: 本体移行の一発完走**（オーナー承認 2026-07-06）: check → apply（git mv 20件・21c0b61）→ 新位置 rewrite（1709箇所/205ファイル・fb57924）→ 新構造適応修正（5205b4c）→ lint-residual-paths OK → run-all 全19スイートパス → docs/ 空確認・削除
+- [ ] フェーズ2差分の単体レビュー（バックグラウンド実行中）→ 指摘対応
+- [ ] 完了処理（Progress アーカイブ・コミット）
 
-フェーズ2（本体移行の一発通し切り）はフェーズ1完了後、オーナーに開始確認してから着手する。
+フェーズ3（addf-migrate 統合・addf-init 新構造化・メジャーリリース）は別セッションで実施する。
 
 #### 日記
+
+##### 2026-07-06 — フェーズ2 一発完走。rewrite の射程外3類型を実測
+**やったこと**: オーナー承認を得てフェーズ2実施。backup ref → git mv 20件 → 新位置 rewrite 1709箇所 → 直後の run-all で18/19スイート失敗 → 原因は全て「rewrite の射程外」（①相対階層参照 `SCRIPT_DIR/../../..` のずれ ②`os.path.join` / Swift 文字列連結の分割断片 ③テストサンドボックスの mkdir/cp 先）。3類型を系統的に修正し（Swift は再ビルド＋checksums 更新）、run-all 全パス・lint OK・docs/ 削除で明け渡し完了。knowhow（map-driven-migration-tool.md）に3類型を追記済み。
+**今の見立て**: 「巻き戻し優先」教義と照らし合わせた上で続行を選んだ — 失敗は移行操作自体ではなく新構造への適応課題で、巻き戻しても道具側では直せない種類だった（相対参照は原理的にマップ外）。run-all という完了ゲートが網を張っていたおかげで全数検出できた。
+**次の自分へ**: フェーズ2差分の単体レビューが返ってきたら指摘対応 → Progress をアーカイブしてこのタスクを閉じる。フェーズ3（addf-migrate のバージョン差分手順・addf-init 新構造化・CHANGELOG 移行ガイド・メジャーリリース）は新しいセッションで。paths.toml は移行後も旧→新マップを保持しているためフェーズ3にそのまま使える。
+**気になっていること**: ダウンストリーム移行時も同じ3類型（特にプロジェクト独自スクリプトの相対参照・分割断片）が起きうる。フェーズ3の migrate 手順に「移行後にプロジェクト自身のテストを回す」ステップと分割断片のプリフライト grep を含めること。backup ref `refs/backup/pre-0037-migration` は残置中 — フェーズ3完了後の削除を検討。
 
 ##### 2026-07-06 — コンパクション明け・事前清算完了、フェーズ1着手
 **やったこと**: コンパクション後復帰。worktree 残骸3つを清算（agent-a22ce… に Plan 0046 の未コミット実装が dirty で残っていたため `plan-0046-wip` ブランチにコミット保全。agent-abd0…（Plan 0031 squash 済み）と mystifying-jepsen（PR #16 マージ済み）は clean のため worktree 削除・ブランチ残置）。reconcile check 異常なし。knowhow 抽出済み（sync-lint-design / checklist-backing-lint / existing-project-install-pattern が中核）。
