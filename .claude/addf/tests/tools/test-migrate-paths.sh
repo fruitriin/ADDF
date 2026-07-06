@@ -21,11 +21,11 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TOOLS="$(cd "$SCRIPT_DIR/../.." && pwd)/addfTools"
+TOOLS="$(cd "$SCRIPT_DIR/../.." && pwd)/tools"
 MIGRATE="$TOOLS/migrate-paths.py"
 LINT="$TOOLS/lint-residual-paths.py"
 PATHS_TOML="$TOOLS/paths.toml"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 PASS=0
 FAIL=0
 
@@ -129,9 +129,9 @@ echo "Test 2: 移行前の合成プロジェクトで lint は SKIP を明示す
 out="$(runpy "$box" "$LINT")"; code=$?
 check "移行前 SKIP（exit 0）" 0 "$code" "$out" "SKIP: 移行前のリポジトリ"
 
-echo "Test 3: 本体リポジトリ（移行前）でも lint は SKIP を出す（完了条件）"
+echo "Test 3: 本体リポジトリ（移行済み）で lint が旧パス残存ゼロを確認する（恒久の完了ゲート）"
 out="$(runpy "$REPO_ROOT" "$LINT")"; code=$?
-check "本体で SKIP（exit 0）" 0 "$code" "$out" "SKIP: 移行前のリポジトリ"
+check "本体で OK（exit 0）" 0 "$code" "$out" "OK: 旧パス残存なし"
 
 echo "Test 4: リポジトリルート以外の cwd では両スクリプトとも ERROR"
 out="$(runpy "$box/docs" "$MIGRATE")"; code=$?

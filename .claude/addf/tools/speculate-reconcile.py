@@ -191,7 +191,7 @@ def worktrees_md_state(branch):
     セルを含む行を探して、既知の状態語彙で始まるセルを状態として返す。
     返り値: ('no-file'|'no-row'|'found', 状態セル or None)"""
     top = run(['rev-parse', '--show-toplevel']).stdout.strip()
-    path = os.path.join(top, '.claude', 'Worktrees.md')
+    path = os.path.join(top, '.claude', 'addf', 'Worktrees.md')
     if not os.path.isfile(path):
         return 'no-file', None
     with open(path, encoding='utf-8') as f:
@@ -222,7 +222,7 @@ def _worktrees_table_states():
     セル値は前後空白と `**` 強調を剥がしてから返す。ファイルが無ければ空リスト。
     """
     top = run(['rev-parse', '--show-toplevel']).stdout.strip()
-    path = os.path.join(top, '.claude', 'Worktrees.md')
+    path = os.path.join(top, '.claude', 'addf', 'Worktrees.md')
     if not os.path.isfile(path):
         return []
     states = []

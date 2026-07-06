@@ -11,7 +11,7 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 AGENT="$PROJECT_DIR/.claude/agents/addf-doc-review-agent.md"
 INIT="$PROJECT_DIR/.claude/commands/addf-init.md"
 FIXTURES="$PROJECT_DIR/.claude/addf/tests/fixtures/doc-review-drift"

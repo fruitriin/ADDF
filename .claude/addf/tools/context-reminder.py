@@ -13,7 +13,7 @@ transcript JSONL の直近 assistant メッセージの usage からコンテキ
 - usage が取得できない状況（transcript 不在・圧縮直後・パース失敗）は静かに終了する
   （誤発火より無発火が安全。ターンベースの棚卸しリマインダーは別途生きている）
 
-設定（addf-Behavior.toml）:
+設定（addf/Behavior.toml）:
   [context-reminder]
   threshold_tokens = 180000        # 発火閾値（0 で無効化）
   renotify_step_tokens = 50000     # 再通知に必要な増分
@@ -32,10 +32,10 @@ TAIL_BYTES = 2 * 1024 * 1024  # transcript は末尾だけ読む
 
 
 def read_settings(project_dir):
-    """addf-Behavior.toml の [context-reminder] を依存なしで読む（tomllib 非依存）"""
+    """addf/Behavior.toml の [context-reminder] を依存なしで読む（tomllib 非依存）"""
     settings = {'threshold_tokens': 180000, 'renotify_step_tokens': 50000}
     effective = {}
-    path = os.path.join(project_dir, '.claude', 'addf-Behavior.toml')
+    path = os.path.join(project_dir, '.claude', 'addf', 'Behavior.toml')
     if not os.path.exists(path):
         return settings, effective
     section = None
@@ -126,7 +126,7 @@ def main():
     model = re.sub(r'[<>\r\n]', ' ', model)[:80]
     # 目安キーは単語単位の部分一致（"o" が "opus" に誤マッチしない）
     guideline = next((f'このモデルの実効コンテキストの目安は約 {v:,} トークン'
-                      f'（addf-Behavior.toml の設定値）。'
+                      f'（addf/Behavior.toml の設定値）。'
                       for k, v in effective.items()
                       if re.search(r'(?<![a-z0-9])' + re.escape(k) + r'(?![a-z0-9])', model)),
                      None)

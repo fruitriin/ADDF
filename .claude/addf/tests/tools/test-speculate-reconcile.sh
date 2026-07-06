@@ -10,7 +10,7 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RECONCILE="$(cd "$SCRIPT_DIR/../.." && pwd)/addfTools/speculate-reconcile.py"
+RECONCILE="$(cd "$SCRIPT_DIR/../.." && pwd)/tools/speculate-reconcile.py"
 PASS=0
 FAIL=0
 
@@ -92,7 +92,7 @@ make_feature() {
 
 # Worktrees.md を行指定で書く（各引数 = 「ブランチ 状態」のペア）
 write_worktrees_md() {
-  mkdir -p "$repo/.claude"
+  mkdir -p "$repo/.claude/addf"
   {
     echo "# Worktrees（投機の進行状態）"
     echo ""
@@ -277,7 +277,7 @@ g2 checkout -q main
 out="$(cd "$repo2" && python3 "$RECONCILE" --today $TODAY 2>&1)"; code=$?
 check "remote 無し check は exit 0" 0 "$code" "$out" "SKIP: remote なし"
 check "origin は unknown 扱い" 0 "$code" "$out" "branch=speculative/x worktree=no origin=unknown merged_hint=no"
-mkdir -p "$repo2/.claude"
+mkdir -p "$repo2/.claude/addf"
 printf '| ../wt | speculative/x | test | 放棄 | %s |\n' "$TODAY" > "$repo2/.claude/addf/Worktrees.md"
 out="$(cd "$repo2" && python3 "$RECONCILE" clean --today $TODAY --delete speculative/x 2>&1)"; code=$?
 check "remote 無し clean は exit 0" 0 "$code" "$out" "SKIP: remote なし"
@@ -321,7 +321,7 @@ check "Worktrees.md 無しは active_count=0" 0 "$code" "$out" "active_count=0"
 
 echo "Test 20: check — 騙し入力（列順詐称・強調・無関係テーブル）を列位置ベースで正しく捌く"
 # 20-1: 列順詐称 — 概念名列が状態語（Pending/テスト通過）で始まっても、状態列だけを判定する
-mkdir -p "$repo/.claude"
+mkdir -p "$repo/.claude/addf"
 cat > "$repo/.claude/addf/Worktrees.md" <<EOF
 # Worktrees（投機の進行状態）
 

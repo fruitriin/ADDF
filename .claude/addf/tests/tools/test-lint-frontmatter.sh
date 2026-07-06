@@ -5,7 +5,7 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LINT="$(cd "$SCRIPT_DIR/../.." && pwd)/addfTools/lint-frontmatter.py"
+LINT="$(cd "$SCRIPT_DIR/../.." && pwd)/tools/lint-frontmatter.py"
 PASS=0
 FAIL=0
 

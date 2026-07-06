@@ -5,7 +5,7 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LINT="$(cd "$SCRIPT_DIR/../.." && pwd)/addfTools/lint-toml.py"
+LINT="$(cd "$SCRIPT_DIR/../.." && pwd)/tools/lint-toml.py"
 PASS=0
 FAIL=0
 
@@ -37,7 +37,7 @@ echo "=== test-lint-toml.sh ==="
 
 box="$(mktemp -d)"
 trap 'rm -rf "$box"' EXIT
-mkdir -p "$box/.claude"
+mkdir -p "$box/.claude/addf"
 
 echo "Test 1: 正常な TOML → OK・exit 0"
 printf '[gui-test]\nenable = false\n' > "$box/.claude/addf/Behavior.toml"

@@ -39,7 +39,7 @@ EXPECTED_BINARIES="window-info capture-window annotate-grid clip-image"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOLS_DIR="$(cd "${1:-$SCRIPT_DIR}" && pwd)"
-PROJECT_DIR="$(cd "$TOOLS_DIR/../.." && pwd)"
+PROJECT_DIR="$(cd "$TOOLS_DIR/../../.." && pwd)"
 SUMS="$TOOLS_DIR/checksums.sha256"
 
 # SHA-256 ハッシュ計算（sha256sum: Linux/coreutils → shasum -a 256: macOS のフォールバック）
