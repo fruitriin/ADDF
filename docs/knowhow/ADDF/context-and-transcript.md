@@ -41,6 +41,16 @@ Plan 0041 の調査・実験（2026-07-06）で確立した、セッションの
 - Agent SDK には compaction API（`context_management.edits`）があるが Claude Code CLI には露出していない
 - auto-compact は harness がコンテキスト上限接近時に自動発動する。エージェントにできるのは「止まらずに作業を続けて発動点まで到達する」ことだけ（Plan 0041 の教義）
 
+### トランスクリプト汚染 — 自己強化劣化（transcript poisoning）
+
+[claude-code#72015](https://github.com/anthropics/claude-code/issues/72015)（2026-06 報告・open・関連 issue 多数の duplicate ラベル付き）: Opus 4.8[1m] で、ツールコールが不正な legacy XML（`antml:` プレフィックス欠落の `<invoke>`）として出力される失敗が、一度トランスクリプトに混入すると**以後の失敗確率を自己強化的に上げる**。コンテキスト内の不正パターンがモデルを同じ出力に誘導するため。
+
+- 悪化条件: 1M variant・effort xhigh・長セッション・非 ASCII 主体（報告は韓国語だが日本語も同条件）・高ツール/MCP 密度 — **日本語運用で /loop 自走する ADDF の条件とほぼ一致する**
+- 大きな `Write`/`Edit` ペイロードや長い前置きテキスト付きの呼び出しほど失敗しやすく、短い呼び出しは通る
+- 含意1: **compaction は解毒を兼ねる**。要約で汚染パターンが洗い流されるため、「止まらず auto-compact に到達する」教義（Plan 0041）には劣化リセットの価値もある
+- 含意2: **スナップショット復元（Plan 0042）は汚染ごと復元する**。復元直後から同種のツールコール失敗が頻発する場合は、アーカイブ時点で汚染が混入していたことを疑う
+- 含意3: 死蔵中のトランスクリプト手術には「解毒」ユースケースがある — コンテキスト圧縮ではなく、汚染エントリ（不正 XML を含む assistant 出力）の間引きを目的に手術 → resume する道。ツールコール失敗が自己強化ループに入ったときの脱出手段になりうる
+
 ### セッション内再帰装置の寿命
 
 セッションの死を越えるループを組もうとすると、ハーネス内の道具は全て使えない:
@@ -67,3 +77,4 @@ Plan 0041 の調査・実験（2026-07-06）で確立した、セッションの
 - [Plan 0041: コンテキスト枯渇によるループ停止の壁の突破](../../plans-add/0041-context-exhaustion-loop-wall.md) — 本知見の出自。採用された方針（止まらない教義＋compaction 耐性のタスク運び）
 - [Plan 0042: PreCompact トランスクリプトアーカイブ](../../plans-add/0042-precompact-transcript-archive.md) — 「resume 可能スナップショット」の系を応用する実装 Plan
 - 関連 knowhow: [claude-code-hooks.md](claude-code-hooks.md) — フックイベント一覧・transcript からのコンテキスト使用量実測の罠
+- [claude-code#72015](https://github.com/anthropics/claude-code/issues/72015) — トランスクリプト汚染（不正ツールコールの自己強化劣化）の報告。関連: #64235, #63604, #64658, #63875, #62123, #61133

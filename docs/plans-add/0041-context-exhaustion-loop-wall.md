@@ -23,6 +23,8 @@
 
 つまりデッドロックの原因は「compaction の手段がないこと」ではなく「エージェントが止まること」。auto-compact は作業を続けてさえいれば発動し、復帰フック（Plan 0017 の日記＋`post-compact-recovery.sh`）が受け止める準備は既に整っている。
 
+補強材料: compaction には**トランスクリプト汚染（不正ツールコールの自己強化劣化。[claude-code#72015](https://github.com/anthropics/claude-code/issues/72015)）の解毒**という副次価値もある。長セッション・非 ASCII・高ツール密度という悪化条件は ADDF の /loop 自走と重なるため、「止まらず compaction に到達する」ことは劣化リセットの意味でも合理的（詳細は `docs/knowhow/ADDF/context-and-transcript.md`）。
+
 ## 現状の挙動と壁の構造
 
 ### 整備済みの機構（Plan 0017・0023）

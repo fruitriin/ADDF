@@ -36,6 +36,7 @@ compaction によって要約に潰される前の生トランスクリプトを
 
 - **対象**: `docs/knowhow/ADDF/transcript-archive-restore.md`（新設）
 - アーカイブを新しい有効な UUID にリネーム → `~/.claude/projects/<スラグ>/` に配置 → `claude --resume <新uuid>` で compaction 直前の状態に戻る手順と注意点（非公開フォーマット・バージョン差異・元セッションと並走させない）を記録する
+- 注意点に**トランスクリプト汚染ごと復元されるリスク**を含める: 復元直後からツールコール失敗が頻発する場合、アーカイブ時点で汚染（[claude-code#72015](https://github.com/anthropics/claude-code/issues/72015) の自己強化劣化）が混入していた可能性を疑い、その復元は諦める（詳細は `docs/knowhow/ADDF/context-and-transcript.md`）
 - `context-and-transcript.md` と相互リンクする
 
 ### 項目4: lint・配布の整備
