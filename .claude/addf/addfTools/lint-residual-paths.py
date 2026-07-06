@@ -59,6 +59,11 @@ MAP_CANDIDATES = [
 # 同期契約: migrate-paths.py の EXCLUSION_MARKER と同一に保つ）
 EXCLUSION_MARKER = 'residual-path: allow'
 
+# 走査するテキストファイルのサイズ上限。超過は読み込まずスキップし件数付きで案内する
+# （同期契約: migrate-paths.py の MAX_TEXT_BYTES と同一に保つ — 走査対象集合の一致）
+MAX_TEXT_BYTES = 5 * 1024 * 1024
+SIZE_SKIPPED = set()
+
 
 def compile_pattern(old):
     """境界チェック付きの検出パターン（migrate-paths.py の compile_pattern() と同一規則）"""
@@ -79,6 +84,9 @@ def read_text(path):
     if os.path.islink(path) or not os.path.isfile(path):
         return None
     try:
+        if os.path.getsize(path) > MAX_TEXT_BYTES:
+            SIZE_SKIPPED.add(path)
+            return None
         with open(path, 'rb') as f:
             data = f.read()
     except OSError:
@@ -154,6 +162,13 @@ for path in files:
 
 for msg in errors + warnings:
     print(msg)
+
+if SIZE_SKIPPED:
+    print(f'注意: サイズ上限（{MAX_TEXT_BYTES // (1024 * 1024)}MB）超過のため '
+          f'{len(SIZE_SKIPPED)} ファイルを検査せずスキップしました。'
+          '旧パス参照が残っていないか手動で確認してください:')
+    for p in sorted(SIZE_SKIPPED):
+        print(f'    {p}')
 
 if errors:
     print(f'ERROR: 旧パス参照が {len(errors)} 箇所残存。'

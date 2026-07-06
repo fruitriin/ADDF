@@ -326,6 +326,16 @@ check "逆流を WARNING 検出（exit 2）" 2 "$code" "$out" "逆流"
 git_box rm -qf docs/knowhow/reflux.md
 rmdir "$box/docs/knowhow" 2>/dev/null
 
+echo "Test 14.5: サイズ上限 — 5MB 超のファイルは読み込まずスキップし、件数付きで手動確認を案内する"
+{ printf '旧パス入りの巨大ファイル: docs/plans/0001-sample.md\n'; head -c 6000000 /dev/zero | tr '\0' 'a'; } > "$box/huge.txt"
+git_box add huge.txt
+out="$(runpy "$box" "$LINT")"; code=$?
+check "lint: サイズ超過は ERROR にせずスキップ案内を出す（exit 0）" 0 "$code" "$out" "サイズ上限"
+check "lint: スキップしたパスを列挙する" 0 "$code" "$out" "huge.txt"
+out="$(runpy "$box" ".claude/addf/addfTools/migrate-paths.py")"; code=$?
+check "check: サイズ超過の案内を出す" 0 "$code" "$out" "サイズ上限"
+git_box rm -qf huge.txt
+
 echo "Test 15: tomllib が無い環境 — migrate は ERROR（変更系）・lint は SKIP（受動 lint）"
 # PYTHONPATH シムで ModuleNotFoundError を注入し、旧 Python（3.9 等）を再現する
 shim="$(mktemp -d)"
