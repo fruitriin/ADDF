@@ -15,6 +15,7 @@
 - [Plan 0023: turn-reminder の関心事分離と能動コンパクション](0023-turn-reminder-context-split.md) — 本 Plan の前提となる残量観測層（context-reminder.py）。本 Plan はその「観測したあと、出口がない」問題を扱う
 - [Plan 0017: 代替わり日記](0017-progress-checkpoints.md) — セッション間引き継ぎの既存基盤。「compaction 越え前提のタスク運び」の思想的土台
 - [Plan 0016: stop-or-go 教義](0016-stop-or-go-doctrine.md) — 「ループ中の突然死」への既存の備え。本 Plan は「突然死」ではなく「自主停止」を扱う
+- [Plan 0047: 変更ルート判断基準とフォローアップ切り出し粒度の再定義](0047-change-route-criteria-and-followup-granularity.md) — 本 Plan が扱った 200k→1M のコンテキスト事情変化を受けて、フォローアップ切り出し粒度を再定義する後続
 
 ## 目的
 

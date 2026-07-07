@@ -55,6 +55,7 @@
 | 5 | 44 | `.claude/addf/plans-add/0044-experience-strategy-decision.md` | 未着手（オーナー起案 2026-07-06。B3 = experience 運用方式（案A/案B）の決定 Plan） |
 | 6 | 45 | `.claude/addf/plans-add/0045-language-specific-rules.md` | 未着手（オーナー起案 2026-07-06。B3 = 言語別ルール分離の導入判断 Plan） |
 | 3 | 46 | `.claude/addf/plans-add/0046-delegation-prohibition-boundary.md` | 未着手（オーナー承認 2026-07-06 サイクル13。委譲プロンプトの Progress.md 禁止事項を境界緩和し DelegationRules.md に単一ソース化） |
+| 3 | 47 | `.claude/addf/plans-add/0047-change-route-criteria-and-followup-granularity.md` | 未着手（オーナー起案 2026-07-07。変更ルート判断基準（dev 直行/問い合わせ/speculate）の明文化＋フォローアップ切り出し一次軸を「主題からの逸脱」へ。粒度変更方針は要オーナー最終確認） |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
