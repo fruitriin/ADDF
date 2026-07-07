@@ -17,7 +17,7 @@
 | ツール | .claude/addf/addfTools/lint-json.py / lint-frontmatter.py / lint-toml.py | 構文 Lint スクリプト（uv run --python 3.11 で実行。uv が無ければ python3 直接実行） |
 | ツール | .claude/addf/addfTools/lint-hooks-exec.py | hooks の実行権限検査（実行権限のないフックは settings 登録済みでも静かに失敗する問題の防止） |
 | ツール | .claude/addf/addfTools/lint-hooks-wiring.py | hooks ファイル名と settings.json / settings.local.json の配線突合（`# hooks-wiring: indirect` エスケープハッチあり） |
-| ツール | .claude/addf/addfTools/lint-template-sync.py | テンプレート同期チェック（6ペア）。exit 0=全一致 / 1=ERROR / 2=WARNING のみ |
+| ツール | .claude/addf/addfTools/lint-template-sync.py | テンプレート同期チェック（7ペア）。exit 0=全一致 / 1=ERROR / 2=WARNING のみ |
 | ツール | .claude/addf/addfTools/lint-checklist.py | 手順書の「確認/検証」ステップの裏付け検査（実行チェック or human-judgment マーカー。WARNING のみ） |
 | ツール | .claude/addf/addfTools/lint-plan-status.py | Plan の `## 実装状況:` ヘッダ「完了」×完了条件の未チェック `- [ ]` 残存の矛盾検出（誤完了防止・Plan 0035 フェーズC。addf-lint セクション12） |
 | ツール | .claude/addf/addfTools/lint-residual-paths.py | 旧パス残存の検査（Plan 0037 移行完了ゲート＋docs/ 逆流 WARNING。→ system-distribution と共有） |
@@ -74,7 +74,7 @@ ADDF の第三の柱。「人間がレビューするのは計画の方向性、
 
 ### チェックリスト裏付け lint — Plan 0027
 
-手順書（ADDF-Release / addf-init / addf-migrate / ProgressTemplate 系）の「確認/検証」ステップに、実行チェック（コードブロック・コマンド）か `<!-- human-judgment -->` マーカーの裏付けを要求するメタ lint（lint-checklist.py・WARNING のみ）。チェックリストの theater 化（確認と書いてあるが確認する手段がない）を防ぐ。理由付きホワイトリスト（skip-section マーカー）を持ち、責めないトーンで報告する（.claude/addf/knowhow/ADDF/checklist-backing-lint.md）。
+手順書（Release.addf / addf-init / addf-migrate / addf-plan-audit / ProgressTemplate 系）の「確認/検証」ステップに、実行チェック（コードブロック・コマンド）か `<!-- human-judgment -->` マーカーの裏付けを要求するメタ lint（lint-checklist.py・WARNING のみ）。チェックリストの theater 化（確認と書いてあるが確認する手段がない）を防ぐ。理由付きホワイトリスト（skip-section マーカー）を持ち、責めないトーンで報告する（.claude/addf/knowhow/ADDF/checklist-backing-lint.md）。
 
 ### Plan 状態整合 lint（誤完了防止）— Plan 0035 フェーズC
 

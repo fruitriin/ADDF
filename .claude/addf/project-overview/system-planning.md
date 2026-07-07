@@ -11,14 +11,14 @@
 | スキル | addf-mode | 「迷ったときの作法」3軸モードと unattended 情報伝達フラグの切替（保存先: CLAUDE.local.md） |
 | スキル | addf-plan-audit | 「完了扱いだが未完了タスクが残っている計画」（埋没）の掘り起こし棚卸し（Plan 0036）。構造検査・意味的パターン・TODO 突合の3層で走査し、処置3択（回収計画に起こす / 一部完了に訂正 / 意図的な完了と明記）を**提案する**（完了状態の変更・採否はオーナー判断） |
 | ファイル | TODO.md | ダウンストリームのタスクバックログ |
-| ファイル | .claude/addf/plans-add/TODO.addf.md | ADDF 開発のタスクバックログ（Phase 1〜46。lint ペア6が Plan の実装状況ヘッダと突合） |
+| ファイル | .claude/addf/plans-add/TODO.addf.md | ADDF 開発のタスクバックログ（Phase 1〜47。lint ペア6が Plan の実装状況ヘッダと突合） |
 | ファイル | .claude/addf/Progress.md | 現在のタスク進捗・運用ルール（チェックリスト・日記・品質検証フロー） |
 | ファイル | .claude/addf/Feedback.md | 問題・改善アクションの記録。タスク完了時に追記 |
 | ファイル | .claude/addf/Questions.md | 非同期質問箱。閾値割れ時に質問を置いて別タスクへ移る（コミットされる共有チャンネル） |
 | ファイル | .claude/addf/Dashboard.md | unattended 自走の差分まとめ（実行時生成・.gitignore。オーナー確認後に削除） |
 | ファイル | .claude/addf/Questions.example.md / Dashboard.example.md | 上記2ファイルの書式定義（addf-init コピー対象） |
 | ディレクトリ | .claude/addf/plans/ | ダウンストリーム実装計画ファイル |
-| ディレクトリ | .claude/addf/plans-add/ | ADDF 自身の開発計画ファイル（46件） |
+| ディレクトリ | .claude/addf/plans-add/ | ADDF 自身の開発計画ファイル（47件） |
 | ディレクトリ | .claude/addf/Progresses/ | 完了タスクの Progress アーカイブ（日記ごと保存） |
 | テンプレート | .claude/addf/templates/PlanTemplate.md | Plan の標準書式（Plan 0035）。実装状況ヘッダ・完了条件チェックボックス・`execution_style: one-shot` マーカー（大改造 Plan の実施様式宣言 — 意味の単一ソースは guides/speculative-development.md） |
 | テンプレート | .claude/addf/templates/ProgressTemplate.md | ダウンストリーム用 Progress テンプレート |

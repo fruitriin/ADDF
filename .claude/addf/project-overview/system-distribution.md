@@ -17,9 +17,9 @@
 | ツール | .claude/addf/addfTools/lint-residual-paths.py | 移行の**完了ゲート**。旧パス残存を ERROR 検査（ゼロになるまで完了扱いしない）。移行後は docs/ への逆流を WARNING で恒久検査。移行前リポジトリは SKIP 明示 |
 | ツール | .claude/addf/addfTools/verify-checksums.sh + checksums.sha256 | 配布バイナリ（Swift ツール）の SHA-256 照合＋allowlist ガード（Plan 0031。→ system-visual-testing） |
 | ディレクトリ | .claude/addf/optional/ | オプトインスキル・エージェントの原本置き場（現在は GUI テスト一式: 3スキル+1エージェント） |
-| ファイル | .claude/addf/lock.json | バージョン追跡（現在 v0.5.0・v0.6.0 リリース準備中）。`version` / `ref` / `updated_at` / `repository`。プロジェクト種別の明示シグナルの一部。旧位置 `.claude/addf-lock.json` から v0.6.0 で移動 <!-- residual-path: allow --> |
+| ファイル | .claude/addf/lock.json | バージョン追跡（現在 v0.6.0）。`version` / `ref` / `updated_at` / `repository`。プロジェクト種別の明示シグナルの一部。旧位置 `.claude/addf-lock.json` から v0.6.0 で移動 <!-- residual-path: allow --> |
 | ファイル | .claude/addf/CHANGELOG.md | フレームワーク変更履歴。migrate 時に該当バージョン間のエントリを表示 |
-| ファイル | .claude/addf/Release.addf.md | ADDF 本体（upstream）のリリース手順定義 |
+| ファイル | .claude/addf/Release.addf.md | ADDF 本体（upstream）のリリース手順定義。プレリリースチェック5が overview 鮮度を検査し、patch で通した場合の full 負債はリリース後タスクとして TODO に積む（full のトリガーはリリースではなく構造変更） |
 | ファイル | CONTRIBUTING.md | コントリビューションモデル（計画駆動レビュー・きっかけの記載。英語版 CONTRIBUTING.en.md あり） |
 | ファイル | .gitignore の ADDF マーカーブロック | 実行時生成ファイルの除外定義（addf-init がブロックごとコピー — 列挙を持たない単一ソース化） |
 | テンプレート | .claude/addf/templates/Release.md | リリース手順テンプレート |
@@ -70,8 +70,8 @@ ADDF 管理ファイルは `.claude/addf/` 占有名前空間に集約され、*
 
 **リリース**:
 - `addf-release` が upstream（ADDF 本体）と downstream（利用プロジェクト）で手順を自動切替
-- 責務分割: スキル=ルーター、設定ファイル（ADDF-Release.addf.md）=手順定義、.exp.md=プロジェクト戦略（.claude/addf/knowhow/ADDF/release-skill-separation.md）
-- バージョン履歴: v0.1.0（lock+migrate 基盤）→ v0.2.0（init/release・Codex 対応・guides 分離）→ v0.3.0（迷ったときの作法・日記・knowhow ライフサイクル・ペルソナレビュー・同期 lint・context-reminder）→ v0.4.0（チェックリスト裏付け lint・オプトインスキル機構・投機開発基盤・tomllib 環境ガード）→ v0.5.0（投機開発サイクル完成・投機運用ガイド）→ v0.6.0 準備中（ディレクトリ大集約・移行ツール・doc-review・plan-audit・CI 品質ゲート・止まらない教義）
+- 責務分割: スキル=ルーター、設定ファイル（Release.addf.md）=手順定義、.exp.md=プロジェクト戦略（.claude/addf/knowhow/ADDF/release-skill-separation.md）
+- バージョン履歴: v0.1.0（lock+migrate 基盤）→ v0.2.0（init/release・Codex 対応・guides 分離）→ v0.3.0（迷ったときの作法・日記・knowhow ライフサイクル・ペルソナレビュー・同期 lint・context-reminder）→ v0.4.0（チェックリスト裏付け lint・オプトインスキル機構・投機開発基盤・tomllib 環境ガード）→ v0.5.0（投機開発サイクル完成・投機運用ガイド）→ v0.6.0（ディレクトリ大集約・移行ツール・doc-review・plan-audit・CI 品質ゲート・止まらない教義。2026-07-06 リリース）
 
 ## 主要フロー
 
@@ -105,7 +105,7 @@ ADDF 管理ファイルは `.claude/addf/` 占有名前空間に集約され、*
 
 リリース:
   addf-release
-  ├─ upstream: ADDF-Release.addf.md に従う（タグ vX.Y.Z 発行 → migrate の参照先になる）
+  ├─ upstream: Release.addf.md に従う（タグ vX.Y.Z 発行 → migrate の参照先になる）
   └─ downstream: .exp.md or 対話的に戦略構築
 
 ドキュメント化:

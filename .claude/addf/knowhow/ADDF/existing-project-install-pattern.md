@@ -82,7 +82,7 @@ ADDF エントリを `# --- ADDF Framework ---` で囲むことで:
 
 具体的な除外対象例:
 - `ProgressTemplate.addf.md`（テンプレート）
-- `ADDF-Release.addf.md`（リリース手順）
+- `Release.addf.md`（リリース手順）
 - `INDEX.addf.md`（knowhow インデックス — ダウンストリームは `INDEX.md` に一本化）
 
 判定ロジック側では、CLAUDE.repo.md の種別宣言＋`addf-lock.json` の明示シグナルで

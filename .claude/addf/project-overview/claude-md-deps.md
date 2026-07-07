@@ -1,6 +1,6 @@
 # CLAUDE.md 依存グラフ・Boot Sequence
 
-> 生成日: 2026-07-05（CLAUDE.md・AGENTS.md・settings.json は前回生成時から変更なし — 内容は再検証済み）
+> 生成日: 2026-07-07（CLAUDE.md・AGENTS.md・settings.json は前回生成時から変更なし — 内容は再検証済み）
 
 ## CLAUDE.md と CLAUDE.repo.md の関係
 
