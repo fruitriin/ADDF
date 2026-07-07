@@ -157,12 +157,18 @@ ADDF 由来ファイル（`.claude/commands/addf-*.md` 等）の一部が
 
    ■ Hooks（セッション中に自動実行されるコマンド）
      + SessionStart: reset-turn-count.sh → ターンカウンターリセット
+     + SessionStart (compact): post-compact-recovery.sh → コンパクション後の復帰
      + UserPromptSubmit: turn-reminder.sh → ターンリマインダー
+     + PreCompact: pre-compact-archive.sh → トランスクリプトアーカイブ（オプトイン）
      + PreToolUse (Skill): skill-usage-log.sh → スキル使用ログ
+     + PreToolUse (Bash): destructive-git-guard.sh → 破壊的 git 操作の理由提示（Plan 0043 項目3）
 
    ■ 権限変更（settings.json）
      allow に追加: Read, Edit, Write, Agent, Skill, Bash(git *), ...
-     ask に追加: Bash(git push *), Bash(git reset --hard *), ...
+     ask に追加: Bash(git push *), Bash(git reset --hard *), Bash(git branch -D *),
+                Bash(git checkout -- *), Bash(git restore .), Bash(git clean *)
+     deny に追加: Bash(rm -rf /), Bash(chmod 777 /), Bash(dd if=* of=/dev/*),
+                Bash(mkfs.*), Bash(shutdown *), Bash(reboot *), ...（極端な破壊操作 11 パターン・Plan 0043 項目1）
 
    ■ CLAUDE.md
      + ブートシーケンス（Feedback → TODO → Progress 自動読み込み）
@@ -179,6 +185,24 @@ ADDF ファイルの配置元を決定する:
 - **外部起動**: `<tmp>/addf-source` からコピー
 - **Template 経由**: ADDF ファイルは既にプロジェクト内に存在（コピー不要）
 - **既存ファイルは上書きしない**（存在する場合はスキップして通知）
+
+#### Phase 3 前置: バイナリ実物の preview（Plan 0043 項目2）
+
+コピー実行の**前に**、配布バイナリの実物 preview をオーナーに提示する。
+Plan 0031 の checksums 照合の**上流**として位置付ける — 照合は改竄検出、preview は
+意図の確認。「不便のない範囲」の実装として、以下の最小構成で行う <!-- human-judgment -->:
+
+1. `<tmp>/addf-source/.claude/addf/addfTools/checksums.sha256` を読み、記載された
+   実行可能バイナリ（Swift ツール群 4本: annotate-grid / capture-window / clip-image /
+   window-info）の SHA-256 と、`file`/`stat` によるサイズ・種別を1行ずつ表示する
+2. ダウンストリームでは通常 **skip** で構わない（バイナリを利用する GUI テスト
+   機能自体がオプトインのため）。オーナーに「preview 表示 / skip」の選択を提示する
+3. skip を選ばれた場合は verify-checksums.sh を Phase 4（変更確認）の直前で1度実行し、
+   改竄検出だけは残す（意図の確認は諦めるが、改竄検出は担保する）<!-- human-judgment -->
+4. preview を選ばれた場合はハッシュ・サイズ・種別を表示 → オーナーが問題なしと
+   判断したら続行、疑わしければ導入を中止する <!-- human-judgment -->
+
+以下のカテゴリのファイル（バイナリ以外）は preview 対象外 — テキストなので addf-init 実行前後の `git diff` でオーナーが直接内容を確認できる。
 
 #### カテゴリ1: 無条件コピー（外部起動の場合のみ）
 

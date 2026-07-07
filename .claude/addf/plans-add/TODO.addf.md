@@ -3,7 +3,7 @@
 `.claude/addf/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: Plan 0043 項目4 完了（2026-07-07）。項目1〜3 は Questions Q3 応答待ち。goal「47/46/43 完了まで」は Q3 応答後に残作業
+## 現在のフェーズ: Plan 0043 完了（2026-07-07・4項目とも最小実装）。goal「47/46/43 完了まで」達成
 
 ## バックログ
 
@@ -51,7 +51,7 @@
 | 4 | 40 | `.claude/addf/plans-add/0040-ccchain-optin.md` | 未着手（オーナー起案 2026-07-06・**投機的実施承認 2026-07-06**。大きな変更のため後続も並列もなし = 単独投機） |
 | **2** | 41 | `.claude/addf/plans-add/0041-context-exhaustion-loop-wall.md` | 一部完了（フェーズ1・2 完了 2026-07-06。実地検証は別サイクル。止まらない教義＋compaction 耐性のタスク運びを配線） |
 | 3 | 42 | `.claude/addf/plans-add/0042-precompact-transcript-archive.md` | 完了（2026-07-07。PreCompact フック・[transcript-archive] 設定・復元手順 knowhow・36テスト。code-review Warning 3件と Suggestion 4件、doc-review 指摘を全反映） |
-| 3 | 43 | `.claude/addf/plans-add/0043-security-recovery.md` | 一部完了（2026-07-07。項目4=@メンションのパストラバーサル耐性・Python/Bash 両側実装・Test 20/20b/20c 追加。項目1〜3 は Questions Q3 応答待ち） |
+| 3 | 43 | `.claude/addf/plans-add/0043-security-recovery.md` | 完了（2026-07-07。4項目とも最小実装: 項目1 deny 11パターン・項目2 addf-init preview・項目3 destructive-git-guard フック 13テスト・項目4 パストラバーサル Test 20 x3。事後観測方式で段階調整） |
 | 5 | 44 | `.claude/addf/plans-add/0044-experience-strategy-decision.md` | 未着手（オーナー起案 2026-07-06。B3 = experience 運用方式（案A/案B）の決定 Plan） |
 | 6 | 45 | `.claude/addf/plans-add/0045-language-specific-rules.md` | 未着手（オーナー起案 2026-07-06。B3 = 言語別ルール分離の導入判断 Plan） |
 | 3 | 46 | `.claude/addf/plans-add/0046-delegation-prohibition-boundary.md` | 完了（2026-07-07。DelegationRules.md 新設・境界緩和・lint-template-sync 検査境界明文化＋Test 4b） |

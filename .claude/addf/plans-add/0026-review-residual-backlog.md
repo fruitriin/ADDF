@@ -1,6 +1,6 @@
 # Plan 0026: プロジェクトレビュー残課題バックログ
 
-## 実装状況: 一部完了（2026-07-02。コード品質・ドキュメントの Medium/Low/Info 6件対応済み。セキュリティ Critical/High と experience 方式はオーナー指示待ち）
+## 実装状況: 一部完了（2026-07-02 コード品質・ドキュメントの Medium/Low/Info 6件対応済み。2026-07-07 セキュリティ High と破壊的 git 対策は Plan 0043 で対応済み。**[Critical] settings.json/hooks 自己書き換え保護（Write/Edit の deny）は Plan 0043 対象外 — 別 Plan で回収**）
 
 ## 目的
 
