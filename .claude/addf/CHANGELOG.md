@@ -2,6 +2,33 @@
 
 ADDF フレームワークの変更履歴。`/addf-migrate` 実行時に該当バージョン間のエントリを表示する。
 
+## [Unreleased]
+
+### 追加
+
+- **PreCompact トランスクリプトアーカイブ**（Plan 0042・オプトイン）: compaction 直前の
+  トランスクリプト JSONL を `~/.claude/addf-transcript-archive/<プロジェクトスラグ>/`
+  にコピーする PreCompact フックを新設。`.claude/addf/Behavior.toml` の
+  `[transcript-archive] enable = true` で有効化する（デフォルト無効）。
+  復元手順は `.claude/addf/knowhow/ADDF/transcript-archive-restore.md`
+- **変更ルート判断表**（Plan 0047）: 新規変更・フォローアップに対して
+  「dev 直行 / オーナー問い合わせ / speculate 方式」を変更の性質で選ぶ判断表を
+  `.claude/addf/guides/speculative-development.md` に新設。speculate の用途拡張
+  （オーナー判断待ち案件の隔離実行）も明記。`/addf-dev` `/addf-speculate` から参照
+
+### 変更
+
+- **フォローアップ切り出し粒度の再定義**（Plan 0047・ダウンストリーム影響あり）:
+  Progress 運用ルール7「レビュー指摘・発見への対応」（旧「レビュー指摘への対応」）の判定軸を、
+  クリティカル度から**「主題との関係」一次軸 + クリティカル度二次軸**に変更した。
+  Plan の主題内は修正範囲が広くても同一 Plan で完遂、主題外は別 Plan に切り出す
+  （切り出した Plan の優先度をクリティカル度で決める）。「フェーズ内先送り禁止」の
+  安全性は主題外 Critical/High を TODO 優先度最上位＋次タスク即着手に置くことで維持。
+  同期対象: `ProgressTemplate.addf.md` / `ProgressTemplate.md` / `Progress.md` /
+  `guides/development-process.md`。**ダウンストリーム利用者向け**: `/addf-migrate`
+  実行時に Progress 運用ルールが上書きされる。既存のカスタム運用ルールがある場合は
+  マージを確認すること（addf-migrate Phase 4 のプレビューで差分が表示される）
+
 ## [0.6.1] - 2026-07-07
 
 ### 変更

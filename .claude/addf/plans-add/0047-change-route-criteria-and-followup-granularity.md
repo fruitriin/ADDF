@@ -1,6 +1,14 @@
 # Plan 0047: 変更ルート判断基準（dev 直行 / 問い合わせ / speculate）とフォローアップ切り出し粒度の再定義
 
-## 実装状況: 未着手
+## 実装状況: 完了（2026-07-07）
+
+- 項目1（変更ルート判断表）: `.claude/addf/guides/speculative-development.md` に「変更ルート判断」節を「投機適性」節の直前に新設。冒頭スコープに変更ルート判断も収録する旨を追記。`.claude/commands/addf-dev.md` に「迷ったとき」節の後に参照追加、`.claude/commands/addf-speculate.md` の「投機適性の判定」冒頭に適用順序注記を追加
+- 項目2（フォローアップ切り出し粒度）: 運用ルール7を「主題との関係」一次軸 + クリティカル度二次軸に書き換え。同期ペア3面（ProgressTemplate.addf.md / ProgressTemplate.md / Progress.md）を全同期。development-process.md の完了時4番目の要約も更新
+- 相互参照（doc-review 指摘）: 運用ルール7 → 変更ルート判断表・変更ルート判断表 → 運用ルール7 の両方向の一行参照を追加
+- CHANGELOG に [Unreleased] エントリで Plan 0042/0047 を記載。ダウンストリーム影響（Progress 運用ルール上書き）を addf-migrate Phase 4 プレビューへの誘導と共に明記
+- CLAUDE.repo.example.md の「品質ゲート拡張」セクション（Stage 1/2 分割）の重複した対応方針を運用ルール7参照に置き換え（doc-review Warning 1）
+- project-overview/system-quality.md の対応方針記述とフロー図を Plan 0047 の新軸に patch 更新（doc-review Warning 2）
+- 品質ゲート Stage 1: run-all.sh + lint 全本通過（同期ペア1・2 通過）
 
 > 出典: 2026-07-07 オーナー起案。「投機実行すべきか開発を進めるべきか、あるいは投機実行を
 > 深く掘るべきかの判断基準について」＋「1M コンテキストウィンドウに伴い、フォローアップを
@@ -119,13 +127,13 @@
 
 ## 完了条件
 
-- [ ] 変更ルート判断表を guides に新設し、addf-dev / addf-speculate から参照が張られている
-- [ ] speculate の用途拡張（判断待ち案件の隔離実行）が guides とスキル本文に記載されている
-- [ ] 運用ルール7 の切り出し基準が「主題からの逸脱」一次軸 + クリティカル度二次軸に
+- [x] 変更ルート判断表を guides に新設し、addf-dev / addf-speculate から参照が張られている
+- [x] speculate の用途拡張（判断待ち案件の隔離実行）が guides とスキル本文に記載されている
+- [x] 運用ルール7 の切り出し基準が「主題からの逸脱」一次軸 + クリティカル度二次軸に
       書き換えられ、同期ペア3面（addf テンプレート・ダウンストリームテンプレート・
       development-process.md）が揃っている
-- [ ] `/addf-lint` 全セクション・`run-all.sh` 通過
-- [ ] ダウンストリーム向けマイグレーション注記（addf-migrate の差分案内）が追加されている
+- [x] `/addf-lint` 全セクション・`run-all.sh` 通過
+- [x] ダウンストリーム向けマイグレーション注記（addf-migrate の差分案内）が追加されている
 
 ## AI 実装時間見積もり
 

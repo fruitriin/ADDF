@@ -39,6 +39,7 @@
 ### タスク完了時 — 品質検証
 
 4. プロジェクトのビルド・Lint・テストコマンドを実行する
+   - ADD フレームワークテスト: `bash .claude/addf/tests/run-all.sh`
    - **失敗した場合 → 実装に差し戻す**。原因分析 → 修正 → 再実行
 5. `addf-code-review-agent` でコードレビューを実施する
    - 通常タスクは単体（ペルソナなし）で起動する
@@ -76,18 +77,36 @@
 
 11. `.claude/addf/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
 12. `.claude/addf/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
-13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/addf/templates/ProgressTemplate.md`）の改善案を `.claude/addf/Feedback.md` に記録する
+13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/addf/templates/ProgressTemplate.addf.md`）の改善案を `.claude/addf/Feedback.md` に記録する
 
 #### アーカイブとコミット
 
-14. `.claude/addf/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/addf/templates/ProgressTemplate.md` から新規の Progress.md を作成する
+14. `.claude/addf/Progresses/YYYY-MM-DD-プラン名.md` にリネームして移動し、`.claude/addf/templates/ProgressTemplate.addf.md` から新規の Progress.md を作成する
 15. コミットする
 
 ---
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: Plan 0047 変更ルート判断基準とフォローアップ切り出し粒度の再定義
 
-> 新しいタスク開始時は以下の構造で記録する:
-> `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）
+方針承認済み・文書中心・刻み小・復帰容易性高。goal 指定順 47→46→43 の1本目。
+
+#### サブタスクチェックリスト
+
+- [ ] 項目1a: `.claude/addf/guides/speculative-development.md` に「変更ルート判断表」節を新設（speculate の用途拡張を含む）
+- [ ] 項目1b: `.claude/commands/addf-dev.md` にフォローアップ処理への参照追加
+- [ ] 項目1c: `.claude/commands/addf-speculate.md` に適性判定との接続注記
+- [ ] 項目2a: `.claude/addf/templates/ProgressTemplate.addf.md` の運用ルール7を主題軸に書き換え
+- [ ] 項目2b: 同期ペア `.claude/addf/Progress.md` と `.claude/addf/templates/ProgressTemplate.md` を同期
+- [ ] 項目2c: `.claude/addf/guides/development-process.md` を CLAUDE.md ペアと同期
+- [ ] CHANGELOG に v0.6.2 予定エントリと addf-migrate 差分案内を追記
+- [ ] 品質ゲート: run-all.sh + lint 全本 + doc-review + コミット
+
+#### 日記
+
+##### 2026-07-07 — Plan 0047 着手
+**やったこと**: goal 更新（47/46/43 完了まで）を受けて Plan 0047 選択。Plan 内容確認（文書中心・刻み小・変更対象は guides 2本 + スキル2本 + テンプレート3面 + CHANGELOG）。既存の運用ルール7・development-process.md・speculative-development.md の該当箇所を全て特定済み。
+**今の見立て**: 「主題からの逸脱」軸への一次変更 + 「変更ルート判断表」の新設 + speculate 用途拡張。同期ペア3面が肝（lint ペア2/3/4 で検出される）。実装は素直、確信度 8割。
+**次の自分へ**: guides/speculative-development.md の「投機適性」節の直前に「変更ルート判断表」節を新設（項目1a）。その後スキル本文2本を更新、テンプレ3面同期。同期は変更後に lint-template-sync を回して確認。コンテキスト実測 326k は超過中だが、各サブタスクの刻みが小さくファイル差分に進捗が現れるので継続可（Plan 0041 教義）。
+**気になっていること**: 「変更ルート判断表」を speculative-development.md に置くのが正しいか — Plan は同ファイルを指定するが、変更ルートは speculate に限らないため。development-process.md 側に置く選択肢もあったが、Plan 起案者（オーナー）の指定に従う。ルート表内の判断基準は運用中に更新されうるので、単一ソースを1箇所に固める。

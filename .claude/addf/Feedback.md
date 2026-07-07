@@ -31,6 +31,9 @@
 - B2（cp 上書き副作用の deny ルール Plan 起案・2026-07-06 オーナー判断）: **保留**。「悩みどころ・環境によるノイズは増えてほしくない」との判断。今後、cp の上書きで実害が観測されたら再検討する（実害の実測をトリガーにする）
 - フックで Behavior.toml を読む場合、Python 依存を避けるため bash+awk の簡易パースを選ぶことが正当な選択肢だが、8種の落とし穴（`=` 切り捨て・コメント除去のクオート無視・ヘッダ行末コメント・jq `//` の空文字列素通し・ファイル名サニタイズ不足・秒精度衝突・フォールバック経路のテスト漏れ・macOS bash 3.2 の set -u × basename 相互作用）を伴う。Plan 0042 の code-review が実サンドボックス試行で全て発見し、対策込みで `.claude/addf/knowhow/ADDF/bash-toml-parse-pitfalls.md` に類型化した。次に同型のフックを書くときは同ファイルを参照する
 - Plan 実装時、Progress.md のチェックボックスをサブタスク完了と同期して更新する運用を徹底する（doc-review Warning: 実装済みなのに `- [ ]` のまま残ると、代替わり日記を跨いだ次の代の判断を誤らせるリスク。Plan 0042 レビューで指摘）。日記が「文脈」を残すのに対し、チェックボックスは「事実」を残す — 両方が実態と一致していることが引き継ぎ条件
+- lint-template-sync ペア1（Progress.md ⇔ ProgressTemplate.addf.md）は**厳密なテキスト一致**を要求する ERROR 級検査。Progress.md を新規生成するときは `head -N` で切らず、**テンプレ全文を完全コピー**すること（`cp .claude/addf/templates/ProgressTemplate.addf.md .claude/addf/Progress.md`）。行数固定は本体側の追記でズレる（Plan 0047 完了処理で `head -84` を使い MISSING エラーが出た教訓）
+- 運用ルールで新規に参照リンクを追加する場合、テンプレ側と Progress.md 側で相対パスが異なる（`../guides/...` vs `guides/...`）と ERROR ペア1に引っかかる。**リンク書式は避け、パス直書きの参照文字列に統一**すると同期を維持できる（Plan 0047 の変更ルート判断表参照で実践。「[text](path)」ではなく「`変更ルート判断表`（`.claude/addf/guides/speculative-development.md` の「変更ルート判断」節）」形式）
+- CLAUDE.repo.example.md の「品質ゲート拡張」セクション（Stage 1/2 分割の任意採用テンプレ）に、`ProgressTemplate.addf.md` の運用ルール7と重複した対応方針の記述が独立に存在した。lint-template-sync ペアの追跡対象外だったため Plan 0047 で更新時に取り残された（doc-review が発見）。今後同種のセクション追加時は、運用ルールへの参照に留めることで単一ソース化を保つ
 
 ## 完了済み
 

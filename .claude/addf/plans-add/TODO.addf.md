@@ -3,7 +3,7 @@
 `.claude/addf/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: Plan 0042 完了（2026-07-07）。次サイクルは未着手 Plan（0047/0046/0043 等）から選択
+## 現在のフェーズ: Plan 0047 完了（2026-07-07）。goal 順で次は Plan 0046（委譲境界緩和）
 
 ## バックログ
 
@@ -55,7 +55,7 @@
 | 5 | 44 | `.claude/addf/plans-add/0044-experience-strategy-decision.md` | 未着手（オーナー起案 2026-07-06。B3 = experience 運用方式（案A/案B）の決定 Plan） |
 | 6 | 45 | `.claude/addf/plans-add/0045-language-specific-rules.md` | 未着手（オーナー起案 2026-07-06。B3 = 言語別ルール分離の導入判断 Plan） |
 | 3 | 46 | `.claude/addf/plans-add/0046-delegation-prohibition-boundary.md` | 未着手（オーナー承認 2026-07-06 サイクル13。委譲プロンプトの Progress.md 禁止事項を境界緩和し DelegationRules.md に単一ソース化） |
-| 3 | 47 | `.claude/addf/plans-add/0047-change-route-criteria-and-followup-granularity.md` | 未着手（オーナー起案 2026-07-07・**方針承認済み 2026-07-07**。変更ルート判断基準（dev 直行/問い合わせ/speculate）の明文化＋フォローアップ切り出し一次軸を「主題からの逸脱」へ（クリティカル度は二次軸=優先度に分離）） |
+| 3 | 47 | `.claude/addf/plans-add/0047-change-route-criteria-and-followup-granularity.md` | 完了（2026-07-07。変更ルート判断表新設・運用ルール7 主題軸化・同期ペア3面通過・doc-review Warning 3件と Suggestion 2件全反映） |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
