@@ -52,6 +52,8 @@ Stage 1/Stage 2 の構成はダウンストリームの `.claude/addf/Progress.m
 
 **変更ルート判断**: 新規変更・フォローアップの経路（dev 直行 / オーナー問い合わせ / speculate 方式）は変更の性質で決める。判断表と適用順序は [`.claude/addf/guides/speculative-development.md`](../addf/guides/speculative-development.md) の「変更ルート判断」節が単一ソース。dev 直行が原則で、外部契約変更や利用者影響が読めない場合はオーナー問い合わせ、GUI 変更や見せないと判断できないものは speculate 方式を選ぶ。
 
+**委譲時の禁止事項**: `Agent` tool 経由でサブエージェント（worktree 実装等）に委譲するときは、共通禁止事項テンプレート [`@.claude/addf/templates/DelegationRules.md`](../addf/templates/DelegationRules.md) をプロンプトに含める。Progress.md の境界（タスク欄 vs 運用ルール節）・git 操作・単一ソース・スコープ・ノウハウ記録の5項目が単一ソース化されている。プロジェクト固有の追加ルールは同ファイルの末尾「プロジェクト固有ルール」節に追記する。
+
 ### 4. 完了処理
 
 `.claude/addf/Progress.md` の運用ルールのうち「ノウハウ蓄積」「フィードバック記録」「アーカイブとコミット」（ステップ 9〜15）を全て実行し、コミットする。

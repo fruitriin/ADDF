@@ -114,6 +114,35 @@ assert_exit "運用ルール乖離で ERROR" 1 $?
 assert_contains "ペア1の ERROR" "[1] ERROR" "$output"
 rm -rf "$box"
 
+# テスト 4b: Progress.md の `## タスク` 以降だけ変更しても ペア1 は誤検知しない
+#         （Plan 0046 で明文化した境界: タスク欄は同期対象外・運用ルール節のみ検査）
+echo "Test 4b: `## タスク` 以降の変更でペア1が誤検知しない"
+box="$(make_sandbox)"
+printf '# CLAUDE.repo.md\n\nこのリポジトリは **ADDF 開発プロジェクト**（フレームワーク本体）です。\n' \
+  > "$box/CLAUDE.repo.md"
+# タスク欄に日記・チェックリストを追記（運用ルール節は無変更）
+cat >> "$box/.claude/addf/Progress.md" <<'PATCH'
+
+### 現在のタスク: サンドボックスタスク
+
+#### サブタスクチェックリスト
+- [x] 何かを実装した
+- [ ] まだやってないこと
+
+#### 日記
+
+##### 2026-07-07 — 委譲境界テスト
+**やったこと**: タスク欄だけ追加してペア1 が誤検知しないことを確かめる
+**今の見立て**: 誤検知しないはず
+**次の自分へ**: なし
+**気になっていること**: なし
+PATCH
+output=$(run_lint "$box")
+assert_exit "タスク欄の変更でペア1 は OK" 0 $?
+assert_not_contains "ペア1 の ERROR は出ない" "[1] ERROR" "$output"
+assert_not_contains "ペア1 の WARNING も出ない" "[1] WARNING" "$output"
+rm -rf "$box"
+
 # テスト 5: development-process.md の手順追加ドリフト → WARNING (exit=2)
 echo "Test 5: development-process.md の手順ドリフト"
 box="$(make_sandbox)"

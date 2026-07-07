@@ -188,6 +188,10 @@ python3 .claude/addf/addfTools/speculate-reconcile.py
 3. **silent に捨てない**: 「投機不適合のため Plan 化した（概念名・区分・理由の一行）」を
    Dashboard「気になった点」（unattended 時）と Progress.md の日記に記録する
 
+### 委譲時の禁止事項
+
+`Agent` tool でサブエージェント（worktree 実装等）に委譲するときは、共通禁止事項テンプレート [`@.claude/addf/templates/DelegationRules.md`](../addf/templates/DelegationRules.md) をプロンプトに含める。特に **Progress.md の境界**（タスク欄不可侵・運用ルール節は同期対象として更新可）は本ルールで単一ソース化されている — 委譲側で個別に指定しない。
+
 ### 3. worktree の起動
 
 対象概念ごとに（`slots` の範囲内で）:

@@ -1,8 +1,12 @@
 # Plan 0046: 委譲プロンプトの禁止事項の境界緩和と共通テンプレート化
 
-## 実装状況: 未着手
+## 実装状況: 完了（2026-07-07）
 
-> **粗々の起票**: 設計の方向性と未決事項を出す段階。実装詳細は着手時に詰める。
+- 項目1（境界緩和）: DelegationRules.md の「Progress.md の境界」節で「`## タスク` 以降は触らない・`## 運用ルール` 節はテンプレートに合わせて同期してよい」を明記
+- 項目2（DelegationRules.md 新設）: `.claude/addf/templates/DelegationRules.md` 新設。5項目（Progress.md 境界・git 操作・単一ソース・スコープ・ノウハウ記録）を含む。末尾に「プロジェクト固有ルール」節を用意（ダウンストリーム追記枠）。addf-dev.md / addf-speculate.md から参照追加
+- 項目3（境界の明文化・機械保証）: lint-template-sync.py の check_pair1 docstring に検査境界を明文化。test-template-sync.sh に Test 4b（タスク欄変更で誤検知しない）を追加してドリフト注入 TDD
+- CHANGELOG に [Unreleased] エントリ追記
+- 品質ゲート Stage 1: run-all.sh + lint-template-sync 通過（Test 4b 含む全パス）
 
 > 出典: 2026-07-06 サイクル13（Plan 0041 実装時）に発生した「委譲エージェントが同期ペア対象の Progress.md 運用ルール節を触れず、親エージェントが手動で reproduce する運用ノイズ」への対応。オーナー判断 (b) 採用。
 
@@ -55,15 +59,15 @@
 
 ## 未決事項
 
-- DelegationRules.md の粒度: 汎用禁止事項のみか、Progress.md 境界に特化したものか
-- ダウンストリーム配布時にプロジェクト固有の禁止事項をどう追記させるか（Plan 0039 の doc-review-agent と同じ「本体版＋追記枠」設計を採用するのが自然）
+- ~~DelegationRules.md の粒度~~ → **決定（2026-07-07）**: 汎用禁止事項を5項目にまとめる構造（Progress.md 境界・git 操作・単一ソース・スコープ・ノウハウ記録）。Progress.md 境界特化ではなく汎用委譲ルールとして機能する
+- ~~ダウンストリーム配布時のプロジェクト固有追記~~ → **決定（2026-07-07）**: 「本体版＋追記枠」設計を採用。末尾に「プロジェクト固有ルール」節を用意し、`<!-- addf-migrate は共通禁止事項のみ更新する -->` の注記でマイグレーション境界を明示
 
 ## 完了条件
 
-- [ ] DelegationRules.md 新設・addf-dev/addf-speculate から参照
-- [ ] 委譲プロンプトの Progress.md 禁止事項が境界緩和されている
-- [ ] lint-template-sync ペア1 の検査範囲が明文化されている
-- [ ] `bash .claude/addf/tests/run-all.sh` と `/addf-lint` 全通過
+- [x] DelegationRules.md 新設・addf-dev/addf-speculate から参照
+- [x] 委譲プロンプトの Progress.md 禁止事項が境界緩和されている
+- [x] lint-template-sync ペア1 の検査範囲が明文化されている
+- [x] `bash .claude/addf/tests/run-all.sh` と `/addf-lint` 全通過
 
 ## AI 実装時間見積もり
 
