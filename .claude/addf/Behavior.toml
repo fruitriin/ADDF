@@ -18,6 +18,27 @@ enable = true
 # 同時に「開発中」にできる speculative worktree の上限（採否判断待ちのブランチは数えない）
 max_worktrees = 7
 
+[transcript-archive]
+# true にすると PreCompact フック（pre-compact-archive.sh）が compaction 直前の
+# トランスクリプト JSONL を archive_dir 配下にコピーする（Plan 0042・オプトイン）。
+# 用途: (a) コンテキストの保全・アーカイブ、(b) アーカイブを新 UUID にリネームして
+# `claude --resume` すれば compaction 直前状態への復元（.claude/addf/knowhow/ADDF/
+# transcript-archive-restore.md 参照）。
+#
+# ⚠️ トレードオフ: 有効化するとホームディレクトリ配下にディスク消費が発生する
+# （1セッション数 MB × max_generations の目安）。トランスクリプトには機密が
+# 含まれうるため、ダウンストリーム配布時のデフォルトは無効に保つ方針。
+enable = false
+
+# アーカイブ先のベースディレクトリ。配下に `<プロジェクトスラグ>/` を掘る。
+# リポジトリ外を既定にする理由: サイズが数 MB × 世代数になるため、およびリポジトリ
+# コピー時に機密の副次コピーを発生させないため。
+archive_dir = "~/.claude/addf-transcript-archive"
+
+# 世代数上限。同一プロジェクトスラグ配下でこの数を超えたら古いものから削除する。
+# 保守的に少なめの既定値（Plan 0042 オーナー方針）。0 で無限保存（非推奨）。
+max_generations = 10
+
 [context-reminder]
 # 能動コンパクション促しの発火閾値（実測トークン数）。0 で無効化。
 # 公称ウィンドウではなく「実効コンテキスト」（文脈の取り違えが増え始める手前）基準。

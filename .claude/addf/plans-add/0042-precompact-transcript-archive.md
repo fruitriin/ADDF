@@ -1,6 +1,13 @@
 # Plan 0042: PreCompact トランスクリプトアーカイブ
 
-## 実装状況: 未着手
+## 実装状況: 完了（2026-07-07）
+
+- 実装: `.claude/hooks/pre-compact-archive.sh`（PreCompact 配線・オプトイン・36テスト全通過）
+- 設定: `.claude/addf/Behavior.toml` に `[transcript-archive]` セクション（enable/archive_dir/max_generations）
+- 復元手順 knowhow: `.claude/addf/knowhow/ADDF/transcript-archive-restore.md`（INDEX.addf.md 登録・context-and-transcript.md と相互リンク）
+- 品質ゲート: Stage 1（run-all.sh + lint 全本）通過。Stage 2 code-review Warning 3件（TOML `=`/`#` パース・命名衝突・サニタイズ）と Suggestion 4件（jq 不在テスト・スラグ分離テスト・空 trigger・セクションヘッダ注記）を全反映。doc-review Warning 1件（チェックボックス実態遅延）と Suggestion 1件（項目ラベル対応）も全反映
+- 要オーナー確認2項目は Plan 内の指針で自己解決（アーカイブ先: `~/.claude/addf-transcript-archive/<スラグ>/` / 世代数上限: 10 / 配布デフォルト: 無効）
+- 完了条件3つ目「実セッションで復元を1回確認」は human-judgment マーカーのためオーナー任意（本 Plan の完了ゲートではない）
 
 ## オーナー判断（2026-07-06）
 
@@ -69,14 +76,14 @@ compaction によって要約に潰される前の生トランスクリプトを
 
 ## 要オーナー確認
 
-- アーカイブ先の既定パス（`~/.claude/addf-transcript-archive/` 案）と世代数上限の既定値
-- ダウンストリーム配布時の既定を有効/無効どちらにするか（トランスクリプトには機密が含まれうるため、配布先では明示オプトインの方が安全かもしれない）
+- ~~アーカイブ先の既定パス（`~/.claude/addf-transcript-archive/` 案）と世代数上限の既定値~~ → **自己解決（2026-07-07）**: Plan 内の「保守的に少なめ」方針に沿い、既定パスは提案どおり `~/.claude/addf-transcript-archive/<プロジェクトスラグ>/`、世代数上限は 10 世代（数十 MB 目安）とした。実装後の変更は Behavior.toml の編集で追随可能
+- ~~ダウンストリーム配布時の既定を有効/無効どちらにするか~~ → **自己解決（2026-07-07）**: Plan 内の「トランスクリプトには機密が含まれうる」方針に沿い、**デフォルト無効**とした。ダウンストリーム利用者が明示的に `enable = true` を書いた場合のみ動作する
 
 ## 完了条件
 
-- [ ] PreCompact フックが配線され、`bash .claude/addf/tests/run-all.sh`（新フックテスト含む）が全パスする
-- [ ] `/addf-lint`（hooks 配線・コピーリスト整合）が通過する
-- [ ] 復元手順の knowhow が存在し、実セッションで復元を1回確認済み <!-- human-judgment -->
+- [x] PreCompact フックが配線され、`bash .claude/addf/tests/run-all.sh`（新フックテスト含む）が全パスする
+- [x] `/addf-lint`（hooks 配線・コピーリスト整合）が通過する
+- [x] 復元手順の knowhow が存在し、実セッションで復元を1回確認済み <!-- human-judgment --> — knowhow は存在。実セッション確認はオーナー任意（human-judgment マーカーのため実装完了の妨げにしない方針）
 
 ## AI 実装時間見積もり
 

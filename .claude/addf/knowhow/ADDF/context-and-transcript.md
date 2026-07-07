@@ -76,5 +76,6 @@ Plan 0041 の調査・実験（2026-07-06）で確立した、セッションの
 
 - [Plan 0041: コンテキスト枯渇によるループ停止の壁の突破](../../plans-add/0041-context-exhaustion-loop-wall.md) — 本知見の出自。採用された方針（止まらない教義＋compaction 耐性のタスク運び）
 - [Plan 0042: PreCompact トランスクリプトアーカイブ](../../plans-add/0042-precompact-transcript-archive.md) — 「resume 可能スナップショット」の系を応用する実装 Plan
+- 関連 knowhow: [transcript-archive-restore.md](transcript-archive-restore.md) — Plan 0042 のアーカイブから resume で復元する具体手順・落とし穴
 - 関連 knowhow: [claude-code-hooks.md](claude-code-hooks.md) — フックイベント一覧・transcript からのコンテキスト使用量実測の罠
 - [claude-code#72015](https://github.com/anthropics/claude-code/issues/72015) — トランスクリプト汚染（不正ツールコールの自己強化劣化）の報告。関連: #64235, #63604, #64658, #63875, #62123, #61133
