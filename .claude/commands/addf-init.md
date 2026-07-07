@@ -195,7 +195,7 @@ ADDF ファイルの配置元を決定する:
 - `.claude/addf/addfTools/` — ツール群
 - `.claude/addf/tests/` — テストスイート
 - `.claude/addf/Behavior.toml`
-- `.claude/addf/CHANGELOG.md`（`ADDF-Release.addf.md` は除外規則によりコピーしない）
+- `.claude/addf/CHANGELOG.md`（`Release.addf.md` は除外規則によりコピーしない）
 - `.claude/addf/Questions.example.md`, `.claude/addf/Dashboard.example.md` — CLAUDE.md が書式参照するため必須
 - `CLAUDE.repo.example.md`, `CLAUDE.local.example.md`
 - `AGENTS.md`
