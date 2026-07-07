@@ -2,6 +2,26 @@
 
 ADDF フレームワークの変更履歴。`/addf-migrate` 実行時に該当バージョン間のエントリを表示する。
 
+## [0.6.1] - 2026-07-07
+
+### 変更
+
+- Release.addf.md プレリリースチェック5に「overview full 負債の追跡」を追加 —
+  patch で overview 鮮度を通した場合、full 推奨の申し送りが残るならリリース後タスクとして
+  TODO に積む（full のトリガーはリリースではなく構造変更）
+
+### 修正
+
+- v0.6.0 のファイル改名（`ADDF-Release.addf.md` → `Release.addf.md`）の残存参照を統一 —
+  addf-release / addf-lint / addf-migrate / addf-init のスキル本文4箇所、
+  knowhow 2件（release-skill-separation / existing-project-install-pattern）、Feedback.md、
+  project-overview 2箇所（歴史的記録である CHANGELOG・過去 Plan・Progress アーカイブは温存）
+
+### ドキュメント
+
+- project-overview を v0.6.0 世代へ full 再生成（7概念システム維持・phase-flows に
+  addf-plan-audit を初掲載・interactions に CI / doc-review / 止まらない教義 / migrate Phase 2.5 を反映）
+
 ## [0.6.0] - 2026-07-06
 
 > **⚠️ このバージョンへの移行は、必ず最新版の addf-migrate.md（Phase 2.5 入り）で実行すること。**
