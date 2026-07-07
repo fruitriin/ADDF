@@ -73,8 +73,13 @@ strip_fences() {
 # @メンションの空白扱い: Python 側は行全体を re.match(r'@(\S+\.md)$', s.strip()) 相当で判定し
 # 空白を strip する。bash 側もここで行全体の前後空白を除去してから @xxx.md 判定に入る
 # （多段 @メンションの再帰は行わない — 双方 depth=1 に固定して DoS/循環参照を避ける）。
+#
+# パストラバーサル耐性（Plan 0043 項目4・ペア7 同期契約）: `..` を含むパス・絶対パス・
+# シンボリックリンク経由の脱出は silent に無視する（PROJECT_DIR 配下に realpath で
+# 収まらないものは解決対象にしない）。Python 側の _safe_resolve_mention() と同じガード。
 detect_repo_kind() {
-  local text="" line inc trimmed
+  local text="" line inc trimmed resolved base_real
+  base_real="$(cd "$PROJECT_DIR" 2>/dev/null && pwd -P)"
   if [ -f "$PROJECT_DIR/CLAUDE.repo.md" ]; then
     text="$(strip_fences < "$PROJECT_DIR/CLAUDE.repo.md")"
     # 行全体が @xxx.md の @メンションを1段だけ解決する
@@ -85,10 +90,18 @@ detect_repo_kind() {
       trimmed="${line#"${line%%[![:space:]]*}"}"
       trimmed="${trimmed%"${trimmed##*[![:space:]]}"}"
       inc="${trimmed#@}"
+      # @xxx.md 形式でファイル存在、かつパストラバーサルガード通過のみ解決
       if [ "$trimmed" != "$inc" ] && printf '%s' "$inc" | grep -Eq '^[^[:space:]]+\.md$' \
+         && ! printf '%s' "$inc" | grep -Eq '(^|/)\.\.(/|$)' \
+         && [ "${inc:0:1}" != "/" ] \
          && [ -f "$PROJECT_DIR/$inc" ]; then
-        text="$text
+        # realpath で PROJECT_DIR 配下に収まることを検査（シンボリックリンク脱出防止）
+        resolved="$(cd "$PROJECT_DIR" 2>/dev/null && cd "$(dirname "$inc")" 2>/dev/null && pwd -P)/$(basename "$inc")"
+        if [ -n "$base_real" ] && { [ "$resolved" = "$base_real/$(basename "$inc")" ] \
+             || case "$resolved" in "$base_real"/*) true ;; *) false ;; esac; }; then
+          text="$text
 $(strip_fences < "$PROJECT_DIR/$inc")"
+        fi
       fi
     done <<EOF_LINES
 $text

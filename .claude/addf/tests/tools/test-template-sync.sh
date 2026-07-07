@@ -379,6 +379,44 @@ assert_not_contains "ペア3が ERROR にならない" "[3] ERROR" "$output"
 assert_contains "整備の促しメッセージ" ".claude/addf/lock.json を配置する" "$output"
 rm -rf "$box"
 
+# テスト 20: @メンションのパストラバーサル注入（Plan 0043 項目4）
+# CLAUDE.repo.md に `@../../etc/passwd`・`@/etc/passwd`・シンボリックリンク経由の脱出を
+# 仕掛けたとき、いずれも silent に無視される（宣言としてカウントされない）ことを確認する
+echo "Test 20: @メンションのパストラバーサル耐性"
+box="$(make_sandbox)"
+# 外部ファイル（ADDF 利用プロジェクト宣言を含む）を box の外に配置
+extern_dir="$(mktemp -d)"
+printf 'このリポジトリは **ADDF 利用プロジェクト** です。\n' > "$extern_dir/leak.md"
+# 相対パス .. で外部を参照
+printf '# CLAUDE.repo.md\n\n@../%s/leak.md\n' "$(basename "$extern_dir")" > "$box/CLAUDE.repo.md"
+# lock なし + 有効な種別宣言も無し → 判定不能で WARNING（脱出が成功していれば downstream 判定になり
+# ペア3 SKIP で exit=0 になるため、WARNING/exit=2 を確認すれば脱出失敗の証拠になる）
+output=$(run_lint "$box")
+# 脱出できていれば宣言が読み取れて判定できるが、ガードが効いていれば宣言不能
+assert_not_contains "パストラバーサルで downstream 判定できない" "[1] SKIP: repo_kind=downstream" "$output"
+rm -rf "$box" "$extern_dir"
+
+# 絶対パス指定でも同様に silent に無視
+echo "Test 20b: @メンションの絶対パス指定を silent に無視"
+box="$(make_sandbox)"
+extern_dir="$(mktemp -d)"
+printf 'このリポジトリは **ADDF 利用プロジェクト** です。\n' > "$extern_dir/leak.md"
+printf '# CLAUDE.repo.md\n\n@%s/leak.md\n' "$extern_dir" > "$box/CLAUDE.repo.md"
+output=$(run_lint "$box")
+assert_not_contains "絶対パスで downstream 判定できない" "[1] SKIP: repo_kind=downstream" "$output"
+rm -rf "$box" "$extern_dir"
+
+# シンボリックリンクで box 外を指すファイルへの @メンションも無視される
+echo "Test 20c: @メンションのシンボリックリンク脱出を silent に無視"
+box="$(make_sandbox)"
+extern_dir="$(mktemp -d)"
+printf 'このリポジトリは **ADDF 利用プロジェクト** です。\n' > "$extern_dir/leak.md"
+ln -sf "$extern_dir/leak.md" "$box/link.md"
+printf '# CLAUDE.repo.md\n\n@link.md\n' > "$box/CLAUDE.repo.md"
+output=$(run_lint "$box")
+assert_not_contains "シンボリックリンク脱出で downstream 判定できない" "[1] SKIP: repo_kind=downstream" "$output"
+rm -rf "$box" "$extern_dir"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

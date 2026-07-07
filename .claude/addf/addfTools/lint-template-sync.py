@@ -123,9 +123,14 @@ def _repo_declaration_lines(path, depth=0):
     - @メンションは行全体が `@xxx.md` の形の場合のみ解決する（行中の @ 言及は対象外）
     - インラインコードスパン（単一バッククオート）内の言及は**除外されない**。
       宣言文言をドキュメント内で引用説明するときはコードフェンスで囲う運用とする
+    - パストラバーサル耐性（Plan 0043 項目4）: `..` を含むパス・絶対パスは silent に無視する。
+      同ディレクトリまたは配下のみ許可し、realpath で解決先がベースディレクトリ配下に
+      収まることも検査する（シンボリックリンク経由の脱出防止）。bash 版の verify-checksums.sh
+      detect_repo_kind() と同じガードを持つ契約（ペア7）
     """
     if depth > 1 or not os.path.exists(path):
         return []
+    base_dir = os.path.dirname(os.path.realpath(path)) or os.getcwd()
     with open(path) as f:
         lines = f.read().splitlines()
     out, fence = [], None
@@ -140,10 +145,40 @@ def _repo_declaration_lines(path, depth=0):
             continue
         m = re.match(r'@(\S+\.md)$', s)
         if m:
-            out.extend(_repo_declaration_lines(m.group(1), depth + 1))
+            inc = m.group(1)
+            resolved = _safe_resolve_mention(inc, base_dir)
+            if resolved is not None:
+                out.extend(_repo_declaration_lines(resolved, depth + 1))
             continue
         out.append(line)
     return out
+
+
+def _safe_resolve_mention(inc, base_dir):
+    """@メンションのパストラバーサル耐性ガード（Plan 0043 項目4）
+
+    受け入れ条件（全て満たすこと）:
+      1. 絶対パスでない（`/` 始まり不可）
+      2. パスコンポーネントに `..` を含まない
+      3. realpath 解決後が base_dir 配下に収まる（シンボリックリンク経由の脱出防止）
+      4. ファイルが実在する
+
+    受け入れ拒否時は None を返す（silent — 宣言なしと同じ扱い）。
+    """
+    if not inc or inc.startswith('/'):
+        return None
+    parts = inc.split('/')
+    if '..' in parts:
+        return None
+    candidate = os.path.join(base_dir, inc)
+    if not os.path.isfile(candidate):
+        return None
+    resolved = os.path.realpath(candidate)
+    base_real = os.path.realpath(base_dir)
+    # base_dir/ 配下（末尾セパレータを付与して境界一致を防ぐ）
+    if not (resolved == base_real or resolved.startswith(base_real + os.sep)):
+        return None
+    return resolved
 
 
 # 判定不能（repo_kind=None）時に ERROR を格下げした WARNING に添える促しメッセージ
