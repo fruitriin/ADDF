@@ -46,6 +46,7 @@
 - lint-template-sync ペア1（Progress.md ⇔ ProgressTemplate.addf.md）は**厳密なテキスト一致**を要求する ERROR 級検査。Progress.md を新規生成するときは `head -N` で切らず、**テンプレ全文を完全コピー**すること（`cp .claude/addf/templates/ProgressTemplate.addf.md .claude/addf/Progress.md`）。行数固定は本体側の追記でズレる（Plan 0047 完了処理で `head -84` を使い MISSING エラーが出た教訓）
 - 運用ルールで新規に参照リンクを追加する場合、テンプレ側と Progress.md 側で相対パスが異なる（`../guides/...` vs `guides/...`）と ERROR ペア1に引っかかる。**リンク書式は避け、パス直書きの参照文字列に統一**すると同期を維持できる（Plan 0047 の変更ルート判断表参照で実践。「[text](path)」ではなく「`変更ルート判断表`（`.claude/addf/guides/speculative-development.md` の「変更ルート判断」節）」形式）
 - CLAUDE.repo.example.md の「品質ゲート拡張」セクション（Stage 1/2 分割の任意採用テンプレ）に、`ProgressTemplate.addf.md` の運用ルール7と重複した対応方針の記述が独立に存在した。lint-template-sync ペアの追跡対象外だったため Plan 0047 で更新時に取り残された（doc-review が発見）。今後同種のセクション追加時は、運用ルールへの参照に留めることで単一ソース化を保つ
+- 「実測してから判断する」型 Plan（0044・0045）で、code-review が2件連続で実測データの不備（0044: 算術誤り／0045: 探索条件が狭く反証事例〔taskbar〕を見落とし）を独立に発見した。**実測ベース判断 Plan では、実装者自身の自己レビューでは探索条件のバイアスに気づきにくい**ため、code-review 依頼時に「実測データの数字・除外判断の妥当性を実物と突き合わせて検証してほしい」と明示的に頼むと有効（詳細: `.claude/addf/knowhow/ADDF/measurement-sampling-bias.md`）
 
 ## 完了済み
 

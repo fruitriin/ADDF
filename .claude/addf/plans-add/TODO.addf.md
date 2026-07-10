@@ -3,7 +3,7 @@
 `.claude/addf/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: Plan 0044・0049 完了（2026-07-10。cron 経由 `/loop` 自律サイクルで進行）
+## 現在のフェーズ: Plan 0044・0045・0049 完了（2026-07-10。cron 経由 `/loop` 自律サイクルで進行）
 
 ## バックログ
 
@@ -53,7 +53,7 @@
 | 3 | 42 | `.claude/addf/plans-add/0042-precompact-transcript-archive.md` | 完了（2026-07-07。PreCompact フック・[transcript-archive] 設定・復元手順 knowhow・36テスト。code-review Warning 3件と Suggestion 4件、doc-review 指摘を全反映） |
 | 3 | 43 | `.claude/addf/plans-add/0043-security-recovery.md` | 完了（2026-07-07。4項目とも最小実装: 項目1 deny 11パターン・項目2 addf-init preview・項目3 destructive-git-guard フック 13テスト・項目4 パストラバーサル Test 20 x3。事後観測方式で段階調整） |
 | 5 | 44 | `.claude/addf/plans-add/0044-experience-strategy-decision.md` | 完了（2026-07-10。実測に基づき案A〔現行分離方式〕採用・addf-experience を「参照の自己整合性・書式健全性検証」に再定義） |
-| 6 | 45 | `.claude/addf/plans-add/0045-language-specific-rules.md` | 未着手（オーナー起案 2026-07-06。B3 = 言語別ルール分離の導入判断 Plan） |
+| 6 | 45 | `.claude/addf/plans-add/0045-language-specific-rules.md` | 完了（2026-07-10。EnumaElish・wasurenainder を実測し肥大化の実害ゼロを確認、意図的な不採用として決定） |
 | 3 | 46 | `.claude/addf/plans-add/0046-delegation-prohibition-boundary.md` | 完了（2026-07-07。DelegationRules.md 新設・境界緩和・lint-template-sync 検査境界明文化＋Test 4b） |
 | 3 | 47 | `.claude/addf/plans-add/0047-change-route-criteria-and-followup-granularity.md` | 完了（2026-07-07。変更ルート判断表新設・運用ルール7 主題軸化・同期ペア3面通過・doc-review Warning 3件と Suggestion 2件全反映） |
 | 6 | 48 | `.claude/addf/plans-add/0048-review-agent-emotional-feedback.md`（検討スタブ） | 未着手（オーナー起案 2026-07-09。減点法のレビューに加点方向のフィードバック（感情フィードバック・アイデア報告フェーズ）を追加する構想。全レビューエージェント担当・毎回発動・デフォルト有効(opt-out)の方針は決定済み。残る焦点はフィードバックの設置場所（knowhow でもコードでもない「ブートストラップ層」案）と `Seed.md` 新設案。着手トリガーは `/addf-dev`+`/addf-speculate` 双方への opt-in プロトタイプ導入） |
