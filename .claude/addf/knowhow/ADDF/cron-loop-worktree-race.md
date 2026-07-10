@@ -62,5 +62,11 @@ status: active
 - `.claude/addf/plans-add/0044-experience-strategy-decision.md` — 本知見が生まれたタスク
 - CLAUDE.md「並列実装方針」— git worktree 使用ルール（cron 再入は対象外という現状のギャップ）
 - CronCreate ツール説明「Jobs only fire while the REPL is idle (not mid-query)」
-- [同期 lint の設計](sync-lint-design.md) — 同じタスクで発見した別種の知見（`lint-residual-paths.py` が
-  歴史的引用と現役参照を区別できない罠。並行実行の衝突とは別テーマだが同一 Plan 0044 完了処理中の発見）
+
+## 関連ノウハウ
+
+- [worktree-isolation-cd-persistence.md](worktree-isolation-cd-persistence.md) — 「worktree 隔離が
+  破られる」という結果は似ているが原因が異なる隣接知見（本知見の cron 再入による複数セッションの
+  競合 vs 単一セッション内で自分自身が `cd` により隔離を離脱するケース）
+- [sync-lint-design.md](sync-lint-design.md) — 同じ Plan 0044 完了処理中に発見した別種の知見
+  （`lint-residual-paths.py` が歴史的引用と現役参照を区別できない罠。並行実行の衝突とは別テーマ）

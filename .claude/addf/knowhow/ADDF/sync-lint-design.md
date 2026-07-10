@@ -130,3 +130,7 @@ Plan 0044 完了処理中に自分の Progress 日記が引き金になって発
 - [ドキュメントサイトの単一ソース同期](docs-site-single-source-sync.md) — 「欠如 = SKIP」設計の応用例（VitePress サイト用テストが node 不在のダウンストリームで誤 FAIL しないようにする）
 - [オプトイン式スキルの退避＋有効化コピー設計](optional-skill-optin.md) — SKIP 設計・列挙の陳腐化検査の応用先。gitignore 列挙との突き合わせで孤児コピーを検出する
 - [陳腐化しやすい knowhow 記述パターン](knowhow-obsolescence-patterns.md) — 「列挙を持たない単一ソース化」原則を knowhow 記述側に適用したメタパターン
+- [既存プロジェクトへの導入パターン](existing-project-install-pattern.md) — 「存在≠所有」の判定ロジックを本知見から引用する側
+- [Plan 起票時の詰め方](plan-refinement-pattern.md) — 引用突合・サンドボックステスト作法の供給元として本知見を引用する側
+- [投機統合の設計](speculative-integration-design.md) — exit 3値・欠如=SKIP・ドリフト注入テストの原則を本知見から引用する側
+- [worktree-dotdir-copy.md](worktree-dotdir-copy.md) — サンドボックス再現テストの作法を本知見から引用する側
