@@ -101,7 +101,7 @@ ADDF が提供するスキル（`/コマンド名` で呼び出し）:
 | **addf-knowhow-revise** | 鮮度低下したノウハウの再検証・訂正 |
 | **addf-knowhow-network** | ノウハウ同士を相互リンクして wiki として育てる |
 | **addf-overview** | エコシステム概要ドキュメントを `.claude/addf/project-overview/` に生成 |
-| **addf-experience** | 経験ファイル（`.exp.md`）のメンション書式を検証 |
+| **addf-experience** | 経験ファイル（`.exp.md`）参照の自己整合性・書式健全性を検証 |
 | **addf-gui-test** | GUI テスト実行（macOS オプション） |
 | **addf-annotate-grid** | PNG 画像にグリッド線を描画 |
 | **addf-clip-image** | PNG 画像の領域切り出し |
