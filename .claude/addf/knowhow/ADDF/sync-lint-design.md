@@ -127,5 +127,6 @@ Plan 0044 完了処理中に自分の Progress 日記が引き金になって発
 - [Plan 着手前の実態突合](plan-status-drift-check.md) — ペア5（Plan 0022）の発端となった残差分切り出しの経緯
 - [チェックリスト裏付け lint](checklist-backing-lint.md) — 本設計の直系。手順書の「確認」項目に実行チェック/human-judgment マーカーの裏付けを要求する
 - [cron 経由 /loop の並行実行競合](cron-loop-worktree-race.md) — 同じ Plan 0044 完了処理中に発見した別種の知見（working tree 競合）
+- [ドキュメントサイトの単一ソース同期](docs-site-single-source-sync.md) — 「欠如 = SKIP」設計の応用例（VitePress サイト用テストが node 不在のダウンストリームで誤 FAIL しないようにする）
 - [オプトイン式スキルの退避＋有効化コピー設計](optional-skill-optin.md) — SKIP 設計・列挙の陳腐化検査の応用先。gitignore 列挙との突き合わせで孤児コピーを検出する
 - [陳腐化しやすい knowhow 記述パターン](knowhow-obsolescence-patterns.md) — 「列挙を持たない単一ソース化」原則を knowhow 記述側に適用したメタパターン

@@ -1,8 +1,29 @@
 # Plan 0039: ADDF ドキュメント Web（VitePress）とドキュメントドリフト対策
 
-## 実装状況: 一部完了（フェーズ1 完了。フェーズ2/3 は Plan 0037 完了後）
+## 実装状況: 一部完了（フェーズ1・2 完了。フェーズ3〔公開 CI〕は GitHub Pages 有効化がオーナー操作のため未着手）
 
 ### 実装記録
+
+- **2026-07-10 フェーズ2: VitePress サイト骨格（完了）**
+  - `package.json` 新設（vitepress ^1.6.4 devDependency・`docs:sync`/`docs:dev`/`docs:build`/`docs:preview`）
+  - `docs/.vitepress/config.mts`: root=ja（オーナー確定 2026-07-06 を反映）・`ignoreDeadLinks: false`
+    （EnumaElish と異なりデッドリンク検出を有効のまま維持）・base は `/ADDF/`
+  - `docs/index.md`: README.md の「特徴」セクションをベースにした home レイアウトの
+    ランディングページ（クイックスタートは掲載せず、ガイド導線のみ）
+  - **ソース重複を避ける設計**: `docs/guide/*.md` は `.claude/addf/guides/*.md` から
+    `scripts/sync-docs.mjs` がビルド時に生成する成果物とし、`.gitignore` 対象にした（単一ソースは
+    `.claude/addf/guides/` のまま）。ガイド本文中の相対リンク（`../../../CONTRIBUTING.md` 等、
+    コピー元のディレクトリ深さ前提でリンク切れになるもの）は、他のガイドを指す場合は
+    `docs/guide/` 内の相対パスへ、docs サイトに含まれないリポジトリファイルを指す場合は
+    GitHub blob URL へ、sync スクリプトが自動書き換えする
+  - `npm install` → `npm run docs:build` を実地確認: 初回はガイド内4リンクがデッドリンクとして
+    検出され（意図どおり `ignoreDeadLinks: false` が機能）、sync スクリプトのリンク書き換えを
+    実装後にビルド成功（`build complete in 1.42s`）を確認
+  - `.gitignore` に `docs/.vitepress/dist` / `docs/.vitepress/cache` / `docs/guide/` を追加
+  - addf-init コピーリストへの追加は不要（Plan 0039 の方針どおりダウンストリームに配布しない
+    ADDF 本体固有の基盤のため）
+  - フェーズ3（`deploy-docs.yml`・GitHub Pages 公開）は Pages の有効化というオーナー操作が
+    前提のため本サイクルでは着手せず、要オーナー確認のまま残す
 
 - **2026-07-06 フェーズ1: addf-doc-review-agent の逆輸入（完了）**
   - `.claude/agents/addf-doc-review-agent.md` を新設。EnumaElish 版をベースに、EnumaElish 固有の突合手順（`printUsage()` ⇔ `switch command`・`internal/`・`cmd/` パス参照）は「プロジェクト固有チェック（ダウンストリームで追記）」の**例示**へ降格し、本体版は汎用観点3つ（①実装との乖離 ②モチベーション vs 実装事実 ③日英同期）を主軸にした
@@ -86,8 +107,9 @@
 ## 完了条件
 
 - [x] addf-doc-review-agent が本体に存在し、ドリフト注入テストで3観点の検出が確認できる
-- [ ] `bash .claude/addf/tests/run-all.sh` と `/addf-lint` が全通過（同期ペア・コピーリスト整合を含む）
-- [ ] `npm run docs:build` が成功し、GitHub Pages でサイトが閲覧できる <!-- human-judgment -->
+- [x] `bash .claude/addf/tests/run-all.sh` と `/addf-lint` が全通過（同期ペア・コピーリスト整合を含む）
+- [x] `npm run docs:build` が成功する（フェーズ2完了条件。デッドリンクなし）
+- [ ] GitHub Pages でサイトが閲覧できる（フェーズ3。Pages 有効化はオーナー操作が前提） <!-- human-judgment -->
 - [x] 品質ゲート手順（ProgressTemplate）にドキュメントレビューの起動条件が明文化されている
 
 ## AI 実装時間見積もり
