@@ -28,22 +28,27 @@
 `.exp.md` はローカル生成物で `.gitignore` 対象（`.claude/commands/*.exp.md`）のため git log では
 追えない。ADDF 本体の実ファイルを直接調査した。
 
-**カバレッジ**: `.claude/commands/addf-*.md`（16スキル）のうち、実際に `.exp.md` が生成されているのは
-7スキル（addf-dev / addf-release / addf-knowhow / addf-overview / addf-speculate / addf-gui-test /
-addf-knowhow-index）。残る9スキル（addf-init / addf-lint / addf-migrate / addf-mode /
+**カバレッジ**: `.claude/commands/addf-*.md`（`.exp.md` を除き16スキル）のうち、実際に `.exp.md` が
+生成されているのは6スキル（addf-dev / addf-release / addf-knowhow / addf-overview / addf-speculate /
+addf-knowhow-index）。残る10スキル（addf-init / addf-lint / addf-migrate / addf-mode /
 addf-permission-audit / addf-plan-audit / addf-experience / addf-knowhow-filter /
 addf-knowhow-network / addf-knowhow-revise）は exp 未生成。
+別枠として addf-gui-test は Plan 0029 で `.claude/addf/optional/commands/` へ原本移動済み
+（上記16件の母数には含めない）だが、`.exp.md` 自体は移行前からの生成物として
+`.claude/commands/addf-gui-test.exp.md` に残っている（Plan 0029 の設計どおり、無効化時も
+削除しない扱い）。
 
 **更新頻度（最終更新日）**:
 - 活発（直近1週間以内）: addf-release（07-07）/ addf-overview（07-07）/ addf-knowhow（07-06）/
   addf-dev（07-03）/ addf-speculate（07-03）
-- 停滞（3月から更新なし・約4ヶ月）: addf-gui-test（03-21）/ addf-knowhow-index（03-21）
+- 停滞（3月から更新なし・約4ヶ月）: addf-knowhow-index（03-21・上記16件の1つ）/
+  addf-gui-test（03-21・上記とは別枠の exp 遺物）
 
 **内容の質**: 活発に更新されているものは「うまくいったパターン」「注意すべき落とし穴」に加え
 `addf-speculate.exp.md` は「🔀 分かれ道の目印」形式で具体的な判断根拠まで蓄積されており、
 案A（分離・手動 Read）が**実際に使われているスキルでは機能している**ことを裏付ける実測が得られた。
-停滞している2件（addf-gui-test / addf-knowhow-index）は、GUI テストがオプトイン化（Plan 0029）
-された・INDEX 運用が定常化した、といった**利用頻度自体の低下**が原因と見られ、分離方式そのものの
+停滞している2件（addf-knowhow-index / addf-gui-test）は、INDEX 運用が定常化した・GUI テストが
+オプトイン化（Plan 0029）された、といった**利用頻度自体の低下**が原因と見られ、分離方式そのものの
 欠陥（読み忘れ・乖離）を示す事例は見つからなかった。
 
 **規約の実態確認**: 全スキルで「経験の活用」記述はバッククォート付きファイル名 + 手動 Read 指示
@@ -51,12 +56,14 @@ addf-knowhow-network / addf-knowhow-revise）は exp 未生成。
 形式の @メンション参照は repo 内に **1件も存在しない**（`grep -rn "@[a-zA-Z0-9_-]*\.exp\.md"` で確認）。
 これは Plan 0026 の指摘（「`@`展開はスキルファイルでは効かない」）と整合する。
 
-一方、「経験の活用」の書き方には表記ゆれがあった: 4スキル（addf-knowhow / addf-lint / addf-overview /
+一方、「経験の活用」の書き方には表記ゆれがあった: 3スキル（addf-knowhow / addf-overview /
 addf-release）には独立した「## 経験の活用」見出しがなく、手順の一部（Phase 内の1ステップ）として
 読み/書き指示が埋め込まれている。効果は同じだが検証ロジックが見出し名に依存すると見落とす。
+（addf-lint はこれとは別で、`.exp.md` 参照そのものが1件も存在しない「経験活用の記述なし」スキル
+— 上記カバレッジの「残る10スキル」の1つ）
 
 **案B（本文埋め込み方式）の想定コスト**: 上記の実測から、活発に使われているスキルでは分離方式に
-起因する問題（読み忘れ・スキル本文との乖離）は観測されなかった。案Bへの全面移行は 17 スキル
+起因する問題（読み忘れ・スキル本文との乖離）は観測されなかった。案Bへの全面移行は 16 スキル
 全書き換えのコストに対して得られる利益が実測上小さいと判断した。
 
 ### 項目2: 決定と移行手順（2026-07-10 決定）

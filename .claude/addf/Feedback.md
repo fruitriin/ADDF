@@ -13,6 +13,17 @@
 
 ## 問題の記録
 
+- **cron 経由 `/loop 1h /addf-dev` の並行実行が同一 working tree に競合を起こした**（2026-07-10）:
+  オーナー指示で `/loop 1h` を使い `/addf-dev`/`/addf-speculate` の自律ループを設定したところ、
+  1サイクル目（Plan 0044 実装中）にバックグラウンドで発火した別サイクルが、同じ working tree に
+  対して別の Plan（0049-model-allocation-policy）を無コミットのまま並行実装していた。
+  `.claude/addf/plans-add/TODO.addf.md` の別々の行を両サイクルが同時に編集しており、`git status`
+  の外部変更通知で発覚。行が異なったため実害（データ損失・コミット破壊）はなく、自分の変更だけを
+  含む中間ファイルを作って先にコミットし、相手の保留分を working tree に復元して収束させた
+  （手順の詳細は `.claude/addf/knowhow/ADDF/cron-loop-worktree-race.md`）。CLAUDE.md の
+  「並列実装方針」（git worktree 隔離）は `Agent` ツール経由の委譲を想定しており、cron 発火による
+  `/addf-dev` 再入はこの方針の対象外になっている構造的なギャップ。同じ行・同じ Plan 番号の選択・
+  同時 `git commit` が起きれば次はもっと深刻な衝突になりうる
 - このリポジトリ自体がADDフレームワーク本体のため、`addf-contribution-agent` の検出結果（アップストリームコントリビューション候補）はそのまま自身に適用済み。フレームワーク本体での `addf-contribution-agent` の有用性は限定的。ただし**「ダウンストリーム配布時の安全性」観点の指摘は本体でも有効**（Plan 0021 で lint スクリプトの配布時誤 ERROR を検出し、フェーズ内で SKIP 設計に修正できた）
 
 ## 改善アクション
