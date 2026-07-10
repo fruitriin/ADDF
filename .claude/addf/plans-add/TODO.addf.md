@@ -58,7 +58,7 @@
 | 3 | 47 | `.claude/addf/plans-add/0047-change-route-criteria-and-followup-granularity.md` | 完了（2026-07-07。変更ルート判断表新設・運用ルール7 主題軸化・同期ペア3面通過・doc-review Warning 3件と Suggestion 2件全反映） |
 | 6 | 48 | `.claude/addf/plans-add/0048-review-agent-emotional-feedback.md`（検討スタブ） | 未着手（オーナー起案 2026-07-09。減点法のレビューに加点方向のフィードバック（感情フィードバック・アイデア報告フェーズ）を追加する構想。全レビューエージェント担当・毎回発動・デフォルト有効(opt-out)の方針は決定済み。残る焦点はフィードバックの設置場所（knowhow でもコードでもない「ブートストラップ層」案）と `Seed.md` 新設案。着手トリガーは `/addf-dev`+`/addf-speculate` 双方への opt-in プロトタイプ導入） |
 | 4 | 49 | `.claude/addf/plans-add/0049-model-allocation-policy.md` | 完了（2026-07-07 worktree で実装 → 2026-07-10 main へ回収・採番を 0048→0049 に変更。ダウンストリーム wasurenainder 実運用構想の逆輸入。addf-implementer エージェント新設・model-allocation.md ガイド・CLAUDE.repo.example.md プレースホルダ節） |
-| 7 | 50 | `.claude/addf/plans-add/0050-readme-docs-table-gap.md` | 未着手（Plan 0039 doc-review 由来。README.md/README.en.md の「ドキュメント」テーブルに skills.md・model-allocation.md へのリンクが欠落。軽微・数分で完結） |
+| 7 | 50 | `.claude/addf/plans-add/0050-readme-docs-table-gap.md` | 完了（2026-07-10。README.md/README.en.md に skills.md・model-allocation.md の行を追加） |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください

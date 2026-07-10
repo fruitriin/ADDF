@@ -130,8 +130,10 @@ ADDF が提供するスキル（`/コマンド名` で呼び出し）:
 |---|---|
 | [詳細セットアップ](.claude/addf/guides/setup.md) | 手動セットアップ、設定ファイルの役割、ディレクトリ構成 |
 | [組み込みエージェント](.claude/addf/guides/agents.md) | 品質ゲートで自動起動されるサブエージェントの詳細とカスタマイズ |
+| [フレームワークスキル](.claude/addf/guides/skills.md) | ADDF が提供する全スキル（`/コマンド名`）の一覧 |
 | [開発プロセス](.claude/addf/guides/development-process.md) | ブートシーケンス、品質ゲート、タスクのライフサイクル |
 | [バージョンアップ](.claude/addf/guides/migration.md) | `/addf-migrate` による ADDF のアップグレード手順 |
+| [モデル配分ガイド](.claude/addf/guides/model-allocation.md) | 役割ごとに異なる Claude モデルを使い分ける運用の考え方 |
 | [投機開発](.claude/addf/guides/speculative-development.md) | アイドル時の worktree 投機開発の全体像（2層モデル・昇格・掃除） |
 | [PR 作成の作法](.claude/addf/guides/pr-format.md) | PR 本文の標準フォーマット（対象 Plan リンク・進捗位置欄） |
 | [Codex で使う](.claude/addf/guides/codex-setup.md) | OpenAI Codex CLI での ADDF 利用ガイド |

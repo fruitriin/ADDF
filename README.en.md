@@ -130,8 +130,10 @@ Sub-agents auto-launched during quality gates. Customize or add agents to fit yo
 |---|---|
 | [Detailed Setup](.claude/addf/guides/setup.md) | Manual setup, configuration roles, directory structure |
 | [Built-in Agents](.claude/addf/guides/agents.md) | Sub-agents for quality gates and how to customize them |
+| [Framework Skills](.claude/addf/guides/skills.md) | Full list of skills (`/command-name`) provided by ADDF |
 | [Development Process](.claude/addf/guides/development-process.md) | Boot sequence, quality gates, task lifecycle |
 | [Migration](.claude/addf/guides/migration.md) | Upgrading ADDF with `/addf-migrate` |
+| [Model Allocation Guide](.claude/addf/guides/model-allocation.md) | How to assign different Claude models to different roles |
 | [Speculative Development](.claude/addf/guides/speculative-development.md) | Overview of idle-time worktree speculation (two-layer model, promotion, cleanup) |
 | [PR Format](.claude/addf/guides/pr-format.md) | Standard PR body format (plan links, progress position) |
 | [Codex Setup](.claude/addf/guides/codex-setup.md) | Using ADDF with OpenAI Codex CLI |
