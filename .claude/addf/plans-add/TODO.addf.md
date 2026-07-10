@@ -48,7 +48,7 @@
 | **1** | 37 | `.claude/addf/plans-add/0037-addf-directory-consolidation.md` | 完了（フェーズ1〜3・v0.6.0 メジャーリリース 2026-07-06。オーナー同席の単一セッションで完走） |
 | 3 | 38 | `.claude/addf/plans-add/0038-speculation-fitness.md` | 完了（2026-07-05。投機適性3区分・Plan 化フォールバック・one-shot 定義の guides 単一ソース化・窓検出（手順 1.8）・reconcile check に pending_count 追加） |
 | 5 | 39 | `.claude/addf/plans-add/0039-docs-website.md` | 一部完了（フェーズ1=addf-doc-review-agent 逆輸入・フェーズ2=VitePressサイト骨格 完了 2026-07-10。フェーズ3=GitHub Pages公開はオーナー操作待ち） |
-| 4 | 40 | `.claude/addf/plans-add/0040-ccchain-optin.md` | 未着手（オーナー起案 2026-07-06・**投機的実施承認 2026-07-06**。大きな変更のため後続も並列もなし = 単独投機） |
+| 4 | 40 | `.claude/addf/plans-add/0040-ccchain-optin.md` | 要確認（質問投下済み・Q5 2026-07-10）。オーナー起案 2026-07-06・投機的実施承認済みだが、hook配線がcronループ自身のBash実行をゲートするリスクがあるため cron 経由での着手可否を確認中 |
 | **2** | 41 | `.claude/addf/plans-add/0041-context-exhaustion-loop-wall.md` | 一部完了（フェーズ1・2 完了 2026-07-06。実地検証は別サイクル。止まらない教義＋compaction 耐性のタスク運びを配線） |
 | 3 | 42 | `.claude/addf/plans-add/0042-precompact-transcript-archive.md` | 完了（2026-07-07。PreCompact フック・[transcript-archive] 設定・復元手順 knowhow・36テスト。code-review Warning 3件と Suggestion 4件、doc-review 指摘を全反映） |
 | 3 | 43 | `.claude/addf/plans-add/0043-security-recovery.md` | 完了（2026-07-07。4項目とも最小実装: 項目1 deny 11パターン・項目2 addf-init preview・項目3 destructive-git-guard フック 13テスト・項目4 パストラバーサル Test 20 x3。事後観測方式で段階調整） |
@@ -56,7 +56,7 @@
 | 6 | 45 | `.claude/addf/plans-add/0045-language-specific-rules.md` | 完了（2026-07-10。EnumaElish・wasurenainder を実測し肥大化の実害ゼロを確認、意図的な不採用として決定） |
 | 3 | 46 | `.claude/addf/plans-add/0046-delegation-prohibition-boundary.md` | 完了（2026-07-07。DelegationRules.md 新設・境界緩和・lint-template-sync 検査境界明文化＋Test 4b） |
 | 3 | 47 | `.claude/addf/plans-add/0047-change-route-criteria-and-followup-granularity.md` | 完了（2026-07-07。変更ルート判断表新設・運用ルール7 主題軸化・同期ペア3面通過・doc-review Warning 3件と Suggestion 2件全反映） |
-| 6 | 48 | `.claude/addf/plans-add/0048-review-agent-emotional-feedback.md`（検討スタブ） | 未着手（オーナー起案 2026-07-09。減点法のレビューに加点方向のフィードバック（感情フィードバック・アイデア報告フェーズ）を追加する構想。全レビューエージェント担当・毎回発動・デフォルト有効(opt-out)の方針は決定済み。残る焦点はフィードバックの設置場所（knowhow でもコードでもない「ブートストラップ層」案）と `Seed.md` 新設案。着手トリガーは `/addf-dev`+`/addf-speculate` 双方への opt-in プロトタイプ導入） |
+| 6 | 48 | `.claude/addf/plans-add/0048-review-agent-emotional-feedback.md`（検討スタブ） | 要確認（質問投下済み・Q6 2026-07-10）。着手トリガーは満たすが、美学レイヤーの設計判断が「良い塩梅」を要する性質のため、無人ループでの独断実装を避け小規模プロトタイプの進め方をオーナーに確認中 |
 | 4 | 49 | `.claude/addf/plans-add/0049-model-allocation-policy.md` | 完了（2026-07-07 worktree で実装 → 2026-07-10 main へ回収・採番を 0048→0049 に変更。ダウンストリーム wasurenainder 実運用構想の逆輸入。addf-implementer エージェント新設・model-allocation.md ガイド・CLAUDE.repo.example.md プレースホルダ節） |
 | 7 | 50 | `.claude/addf/plans-add/0050-readme-docs-table-gap.md` | 完了（2026-07-10。README.md/README.en.md に skills.md・model-allocation.md の行を追加） |
 
