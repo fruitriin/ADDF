@@ -13,6 +13,12 @@
 > - レビュー指摘により追加対応: 集約ルールのコアを ProgressTemplate にインライン展開（実行保証）、unattended モードの未導入注記、attacker ペルソナと security-review-agent の分業明記、配布ファイルから内部計画番号を排除
 > - 「judge panel モード」（synthesizer エージェント）は将来 Plan に先送り（設計どおり）
 
+## 関連 Plan
+
+- [Plan 0048: レビューエージェント感情フィードバック構想](0048-review-agent-emotional-feedback.md) — 本 Plan の
+  ペルソナ並列（減点方向の視点ずらし）に対して、称賛・驚き・思いつきという加点方向の出力チャネルを
+  追加する検討スタブ。既存ペルソナが共有する「実装者と同じモデルゆえの盲点」の課題認識を継承する
+
 ## Context
 
 ADDF の品質ゲートでは `addf-code-review-agent` と `addf-security-review-agent` がコードをレビューする。

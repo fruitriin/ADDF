@@ -90,6 +90,8 @@
 
 - [Plan 0037: ADDF ディレクトリ大集約](0037-addf-directory-consolidation.md) — 本 Plan の
   「大改造（一発通し切り）」区分の第1号実例。0037 の実施様式を一般概念に昇華する
+- [Plan 0048: レビューエージェント感情フィードバック構想](0048-review-agent-emotional-feedback.md) — 着手の
+  トリガーとして本 Plan の投機開発（`/addf-speculate`）枠での小規模プロトタイプ検証を指定している
 - [Plan 0035: PR 運用の標準化](0035-pr-standard-format.md) — 投機在庫（採否判断待ち・
   持ち越し・Pending）の状態モデルは 0035 項目2で定義。本 Plan の「窓の検出」はその在庫が
   ゼロになった瞬間を捉える
