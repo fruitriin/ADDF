@@ -1,7 +1,7 @@
 ---
 title: 自分自身を移動させる移行ツールの設計パターン
 created: 2026-07-06
-last_verified: 2026-07-06
+last_verified: 2026-07-11
 depends_on:
   - file: .claude/addf/addfTools/paths.toml
   - file: .claude/addf/addfTools/migrate-paths.py
@@ -65,7 +65,15 @@ run-all 全19スイート中18が移行直後に失敗し、原因は類型1〜3
 
 1. **相対階層参照**: `SCRIPT_DIR/../../..` 等。ディレクトリが深くなると全てのルート算出がずれる
 2. **分割断片**: `os.path.join(dir, '.claude', 'addf-Behavior.toml')`・Swift の `scriptDir + "/../addf-Behavior.toml"`
-   のような組み立て。**コンパイル済みバイナリ内の断片はソース修正＋再ビルド＋checksums 更新まで必要**
+   のような組み立て。**コンパイル済みバイナリ内の断片はソース修正＋再ビルド＋checksums 更新まで必要**。
+   **ダウンストリーム実測（Issue #26・wardrobe-test の v0.5.0→v0.6.1 移行）で質的に重い実害を確認**:
+   `window-info.swift`/`capture-window.swift` の `configPath` 計算が旧パス前提のまま再ビルドされずに
+   残っていたため、`gui-test.enable = false` の disabled 判定に失敗 → フォールバックで実際の GUI 情報
+   取得処理に入り、**画面収録権限ダイアログ待ちで `window-info` プロセスが9時間ハングし続けた**
+   （`test-tools.sh` 経由で一度でも実行すると CI・cron 双方で無期限にプロセスが残るリスク）。
+   単なるテスト失敗と違い**無期限ハング**という質の異なる実害になる点が GUI バイナリの特有の危険度
+   — 対策は `test-tools.sh` の timeout ガード（原因によらない機械的な打ち切り）と、移行手順書
+   （`addf-migrate.md` 6.7）への「再ビルド後は timeout 付きで実際に実行して確認する」明記（Plan 0052）
 3. **書き込み先の親ディレクトリ**: テストのサンドボックス構築（`mkdir -p "$box/.claude"` → 書き込みは
    `.claude/addf/...`）。書き込みパスだけ rewrite され、mkdir/cp の準備側が旧構造のまま残る
 4. **Markdown 相対リンク**: `[CONTRIBUTING.md](../../CONTRIBUTING.md)` 等。移動でファイル自身の階層が
@@ -78,11 +86,35 @@ run-all 全19スイート中18が移行直後に失敗し、原因は類型1〜3
    ガイド・README のツリー図と裸のファイル名参照は移行後に目視で洗うこと（doc-review が実測検出）
 
 補足: git 追跡外のファイル（`settings.local.json` の許可ルール等）も走査対象外で旧パスが残る。
-移行後に permission ルールを確認すること。
+移行後に permission ルールを確認すること。`.gitignore` は git 追跡対象だが、**グロブパターンの
+非対称**という別種の穴がある（下記「`.gitignore` グロブパターンの非対称検知」参照）。
 
 対策: 移行後の run-all を完了ゲートに含める（lint ゼロだけでは足りない）。移行を計画する段階で
 `os.path.join`・`SCRIPT_DIR/..`・Markdown 相対リンクの断片走査をプリフライトに足すと、
 事後デバッグではなく事前修正にできる。
+
+### `.gitignore` グロブパターンの非対称検知（Plan 0052・Issue #26 実測）
+
+`.gitignore` に旧位置ベースの独自パターン（例: `.claude/*.md`）がある場合、リテラル文字列一致の
+rewrite/lint では検出できない非対称が起きる — パターン自体は書き換えられないため、
+「旧位置にはマッチしていたが新位置にはマッチしない」状態のまま残り、ファイルが意図せず
+追跡対象になる（ダウンストリーム実測で Progress.md 等4ファイルが該当）。
+
+対策として `lint-residual-paths.py` に `gitignore_like_match()` を追加した。実装上の落とし穴:
+
+- **素の `fnmatch.fnmatch(old, pattern)` は使えない**: `*` が `/` を跨いでマッチしてしまうため、
+  `.claude/*.md` は `.claude/Progress.md`（旧）にも `.claude/addf/Progress.md`（新）にも <!-- residual-path: allow -->
+  マッチしてしまい、本来検出すべき非対称を見逃す。対策は `/` でセグメント分割し、
+  セグメント数が一致する場合のみ各セグメントを個別に fnmatch する
+- **アンカー情報を lstrip で落とさない**: 先頭 `/` のみ（内部に `/` を含まない）パターンは
+  リポジトリルート限定を意味し、`/foo.md` と `foo.md`（任意階層のベース名一致）は区別が必要。
+  `pattern.lstrip('/')` を呼び出し側で先に行うとこの区別が失われる
+- **末尾 `/`（ディレクトリ限定指定）は比較前に `rstrip('/')` で落とす**: `.claude/addfTools/` の <!-- residual-path: allow -->
+  ような慣用記法が、ディレクトリ単位で移動されるエントリ（`paths.toml` の `dirs`）と
+  型不一致で検出漏れにならないようにする
+- **ワイルドカードなしのリテラルパターンは対象から除外する**: 既存の文字列一致ベースの
+  ERROR 検査と重複するため、同じ行に ERROR と WARNING が両方出て紛らわしくなる。
+  `*`・`?`・`[` のいずれかを含むパターンのみこの検査にかける
 
 ## プロジェクトへの適用
 

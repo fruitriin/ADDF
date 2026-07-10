@@ -1,7 +1,7 @@
 ---
 title: one-shot 実施 Plan にはペルソナ並列レビュー＋実地攻撃が効く
 created: 2026-07-06
-last_verified: 2026-07-06
+last_verified: 2026-07-11
 depends_on:
   - file: .claude/agents/addf-code-review-agent.md
 status: active
@@ -25,6 +25,12 @@ Plan 0037 フェーズ1（一発本番で失敗できない移行ツール）の
   という指摘は、テスト結果をいくら眺めても出てこない（通ったテストの外側にあるため）
 - **コンセンサス補正が機能した**: skeptic と newcomer が独立に「自己移動後のコマンド案内欠如」を
   指摘し、Warning → Critical に昇格。実際、one-shot 実施の現場でオペレーターを即死させる罠だった
+- **コンセンサス効果はペルソナ間だけでなく異なるレビューエージェント種別の間でも成立する**
+  （Plan 0052・通常タスクでの実測）: ペルソナ並列を使わない通常タスクでも、
+  addf-code-review-agent・addf-doc-review-agent・addf-contribution-agent の3体を並列起動したところ、
+  3体が独立に同一箇所（Progress.md の日記行に旧パス lint 除外マーカーが漏れている）を指摘した。
+  観点の異なるエージェント種別（コード品質／ドキュメントドリフト／配布安全性）が独立に
+  同じ箇所へ辿り着いたことは、その指摘の確度が高いシグナルとして扱ってよい
 - newcomer は将来のダウンストリーム利用者（内部構造を知らない人）の代理として、
   エラーメッセージの回復手順欠如を検出した
 

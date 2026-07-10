@@ -18,7 +18,8 @@
 # - 未追跡の動的生成ファイル（Worktrees.md / Dashboard.md）の fs 移動
 # - 拡張子なしテキスト（Makefile）の走査（check/rewrite/lint の対象一致）
 # - apply 後の案内どおり「新位置のツール」で rewrite を実行する経路
-# - 逆流 WARNING・tomllib 欠如の責務別ふるまい（migrate=ERROR / lint=SKIP）
+# - 逆流 WARNING・.gitignore 旧位置グロブパターンの非対称 WARNING・
+#   tomllib 欠如の責務別ふるまい（migrate=ERROR / lint=SKIP）
 # - 射程外候補スキャン（rewrite が書き換えられない4類型を check が WARNING で
 #   事前列挙する。exit code には影響しない・移動対象ゼロの移行済みリポジトリでは出さない）
 
@@ -325,6 +326,21 @@ out="$(runpy "$box" "$LINT")"; code=$?
 check "逆流を WARNING 検出（exit 2）" 2 "$code" "$out" "逆流"
 git_box rm -qf docs/knowhow/reflux.md
 rmdir "$box/docs/knowhow" 2>/dev/null
+
+echo "Test 14.6: ドリフト注入 TDD — .gitignore のグロブパターンが旧位置にのみマッチし新位置にマッチしないと WARNING（Issue #26）"
+cp "$box/.gitignore" "$box/.gitignore.bak"
+printf '.claude/*.md\n' >> "$box/.gitignore"
+# '?' で1文字だけワイルドカード化し、旧パスの完全リテラル出現（既存 ERROR 検査）と
+# 衝突せずにディレクトリ限定（末尾 '/'）パターンの非対称検出だけを単独で確認する
+printf '.claude/addfTool?/\n' >> "$box/.gitignore"
+git_box add .gitignore
+out="$(runpy "$box" "$LINT")"; code=$?
+check ".gitignore 非対称パターンを WARNING 検出（exit 2）" 2 "$code" "$out" "\.gitignore.*パターン.*マッチしない"
+check ".gitignore 末尾スラッシュ（ディレクトリ限定）パターンも WARNING 検出" 2 "$code" "$out" ".claude/addfTool?/\`"
+mv "$box/.gitignore.bak" "$box/.gitignore"
+git_box add .gitignore
+out="$(runpy "$box" "$LINT")"; code=$?
+check ".gitignore を元に戻すと WARNING が消える" 0 "$code" "$out" "OK: 旧パス残存なし"
 
 echo "Test 14.5: サイズ上限 — 5MB 超のファイルは読み込まずスキップし、件数付きで手動確認を案内する"
 { printf '旧パス入りの巨大ファイル: docs/plans/0001-sample.md\n'; head -c 6000000 /dev/zero | tr '\0' 'a'; } > "$box/huge.txt"

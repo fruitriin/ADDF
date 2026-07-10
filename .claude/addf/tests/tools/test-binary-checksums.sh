@@ -12,6 +12,7 @@ TOOLS_DIR="$PROJECT_DIR/.claude/addf/addfTools"
 VERIFY="$TOOLS_DIR/verify-checksums.sh"
 PASS=0
 FAIL=0
+SKIP=0
 
 assert_exit() {
   local test_name="$1" expected_exit="$2" actual_exit="$3"
@@ -189,23 +190,33 @@ bash "$BOX_TOOLS/build.sh" --checksums-only >/dev/null 2>&1
 # 実プロジェクトの CLAUDE.repo.md / CLAUDE.repo.example.md をサンドボックスにコピーして
 # 「@メンション経由の upstream 判定」の疎通を確認する（Plan 0031 H3(d)）
 echo "Test 15: 実プロジェクト構成の CLAUDE.repo.md をコピー → upstream 判定"
-BOX2="$(mktemp -d)"
-mkdir -p "$BOX2/.claude/addf/addfTools"
-for f in window-info capture-window annotate-grid clip-image; do
-  printf 'fake-binary-%s\n' "$f" > "$BOX2/.claude/addf/addfTools/$f"
-done
-cp "$TOOLS_DIR/build.sh" "$TOOLS_DIR/verify-checksums.sh" "$BOX2/.claude/addf/addfTools/"
-# @メンション構造をそのまま再現するため、実プロジェクトの CLAUDE.repo.md と
-# 参照先 CLAUDE.repo.example.md を両方コピー
-cp "$PROJECT_DIR/CLAUDE.repo.md" "$BOX2/CLAUDE.repo.md"
-cp "$PROJECT_DIR/CLAUDE.repo.example.md" "$BOX2/CLAUDE.repo.example.md"
-# checksums 不在 + upstream 判定成立 → ERROR + repo_kind=upstream を出す
-out="$(bash "$BOX2/.claude/addf/addfTools/verify-checksums.sh" 2>&1)"
-exit_code=$?
-assert_exit "実プロジェクト CLAUDE.repo.md コピーで upstream 判定 → ERROR" 1 "$exit_code"
-assert_contains "@メンション解決で upstream 判定" "repo_kind=upstream" "$out"
-rm -rf "$BOX2"
+# CLAUDE.repo.md / CLAUDE.repo.example.md のいずれかを持たない構成（ダウンストリームの一部・
+# Issue #26 実測）では以降の cp が失敗するため、必須ランタイム不在ではなく正当な
+# プロジェクト構成差異として SKIP する（sync-lint-design.md の「addfTools はダウンストリーム
+# 配布を前提に欠如=SKIP で設計する」方針。@メンション先の example.md だけが欠けている構成でも
+# 同様に SKIP しないと cp 失敗を無視したまま後続の assert_exit がスプリアスな FAIL になる）
+if [ ! -f "$PROJECT_DIR/CLAUDE.repo.md" ] || [ ! -f "$PROJECT_DIR/CLAUDE.repo.example.md" ]; then
+  echo "  SKIP: CLAUDE.repo.md or CLAUDE.repo.example.md not found — skipping upstream classification test"
+  SKIP=$((SKIP + 1))
+else
+  BOX2="$(mktemp -d)"
+  mkdir -p "$BOX2/.claude/addf/addfTools"
+  for f in window-info capture-window annotate-grid clip-image; do
+    printf 'fake-binary-%s\n' "$f" > "$BOX2/.claude/addf/addfTools/$f"
+  done
+  cp "$TOOLS_DIR/build.sh" "$TOOLS_DIR/verify-checksums.sh" "$BOX2/.claude/addf/addfTools/"
+  # @メンション構造をそのまま再現するため、実プロジェクトの CLAUDE.repo.md と
+  # 参照先 CLAUDE.repo.example.md を両方コピー
+  cp "$PROJECT_DIR/CLAUDE.repo.md" "$BOX2/CLAUDE.repo.md"
+  cp "$PROJECT_DIR/CLAUDE.repo.example.md" "$BOX2/CLAUDE.repo.example.md"
+  # checksums 不在 + upstream 判定成立 → ERROR + repo_kind=upstream を出す
+  out="$(bash "$BOX2/.claude/addf/addfTools/verify-checksums.sh" 2>&1)"
+  exit_code=$?
+  assert_exit "実プロジェクト CLAUDE.repo.md コピーで upstream 判定 → ERROR" 1 "$exit_code"
+  assert_contains "@メンション解決で upstream 判定" "repo_kind=upstream" "$out"
+  rm -rf "$BOX2"
+fi
 
 echo ""
-echo "Results: $PASS passed, $FAIL failed"
+echo "Results: $PASS passed, $FAIL failed, $SKIP skipped"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1
