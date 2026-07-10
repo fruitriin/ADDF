@@ -62,3 +62,5 @@ status: active
 - `.claude/addf/plans-add/0044-experience-strategy-decision.md` — 本知見が生まれたタスク
 - CLAUDE.md「並列実装方針」— git worktree 使用ルール（cron 再入は対象外という現状のギャップ）
 - CronCreate ツール説明「Jobs only fire while the REPL is idle (not mid-query)」
+- [同期 lint の設計](sync-lint-design.md) — 同じタスクで発見した別種の知見（`lint-residual-paths.py` が
+  歴史的引用と現役参照を区別できない罠。並行実行の衝突とは別テーマだが同一 Plan 0044 完了処理中の発見）

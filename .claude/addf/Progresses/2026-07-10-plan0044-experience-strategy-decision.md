@@ -139,10 +139,12 @@ Plan 0049（model-allocation-policy、ダウンストリーム逆輸入）を無
 補正の対象）。あわせて code-review は addf-experience.md 自身の新ロジックが「コードフェンス内の
 例示」を自己参照として誤検知しうる実装バグを発見。両方を修正し、Test 4（自己適用テスト）を追加。
 並行サイクル（cron 側）は Plan 0049 を無事 commit（a0fbb8b）していたが、その commit に含まれる
-`addf-implementer.md` に旧パス `docs/knowhow` の残存があり、`lint-residual-paths.py` が ERROR を
-出して `run-all.sh` 全体を赤くしていた。主題（Plan 0044）の外だが1行の機械的な修正で全体の
-品質ゲートが復旧するため、この場で直接修正した（最初の修正案は説明文に "docs/knowhow" という
-リテラル文字列を残したため lint が意味を汲まず再度誤検知 — 文字列自体を消す言い回しに変えて解消）。
+`addf-implementer.md` に Plan 0037 移行前の旧パス表記の残存があり、`lint-residual-paths.py` が
+ERROR を出して `run-all.sh` 全体を赤くしていた。主題（Plan 0044）の外だが1行の機械的な修正で
+全体の品質ゲートが復旧するため、この場で直接修正した（最初の修正案は説明文に旧パス文字列その
+ものを残したため lint が意味を汲まず再度誤検知 — この日記のように文字列自体を書かない言い回しに
+変えて解消。lint-residual-paths.py は「歴史を語る引用」と「現役の参照」を区別しないため、
+Progress 日記・knowhow で旧パスの顛末を書くときも同じ罠がある）。
 **今の見立て**: Plan 0044 は完了。品質ゲート（run-all.sh 全通過・主要 lint 通過）・レビュー対応・
 ノウハウ記録・Feedback 記録まで完了条件を満たした。
 **次の自分へ**: 次サイクルでは TODO.addf.md のバックログから次のタスクを選ぶ（オーナー指示は

@@ -1,7 +1,7 @@
 ---
 title: 同期 lint の設計 — 検出はツール、解釈と修復はエージェント
 created: 2026-06-10
-last_verified: 2026-07-03
+last_verified: 2026-07-10
 depends_on:
   - .claude/addf/addfTools/lint-template-sync.py
   - .claude/addf/tests/tools/test-template-sync.sh
@@ -108,11 +108,24 @@ grep -v '^15\. コミットする' ... / sed 's/^4\. /44. /' ... / rm -f "$box/A
 
 サンドボックスは git リポジトリ外になるため、git 呼び出しは `returncode != 0 → '不明'` のフォールバックが必要（`git log` はリポジトリ外でも例外を投げず exit 128 + 空出力になる）。副産物として、このテストがダウンストリーム環境（ADDF 固有ファイルなし）のシミュレーションにもなる。
 
+### 文字列一致 lint は「歴史を語る引用」と「現役の参照」を区別できない
+
+`lint-residual-paths.py`（Plan 0037 移行の完了ゲート。旧パス文字列の単純 grep）は、Progress 日記や
+knowhow で「以前この旧パスの残存バグを直した」と過去形で書いた瞬間にも ERROR を出す。lint 自身は
+文脈を読まないため、修正の顛末を記録した文章が次の ERROR 源になるという再帰的な罠がある（2026-07-10、
+Plan 0044 完了処理中に自分の Progress 日記が引き金になって発覚）。対処は「旧パス文字列そのものを
+書かず、意味だけを説明する」言い回しに倒すこと（旧 `docs/` 配下パスのような具体的な文字列そのものを
+本文に書かない）。lint 側を
+文脈判定に賢くする改修は複雑さに見合わないため、**書く側が気をつける**運用で足りる —
+ただし旧パスの実例を記録する knowhow・障害記録では毎回この罠に当たりうるので、該当箇所を書くときは
+本節を思い出すこと。
+
 ## 関連ノウハウ
 
 - [アップストリーム / ダウンストリーム分離パターン](upstream-downstream-separation.md) — `.addf.md` サフィックス等、本知見の SKIP 設計が前提とする分離規約
 - [スキル設計パターン（Anthropic 社内知見ベース）](skill-design-patterns.md) — スクリプトを `.claude/addf/addfTools/` に同梱する Progressive Disclosure 構成
 - [Plan 着手前の実態突合](plan-status-drift-check.md) — ペア5（Plan 0022）の発端となった残差分切り出しの経緯
 - [チェックリスト裏付け lint](checklist-backing-lint.md) — 本設計の直系。手順書の「確認」項目に実行チェック/human-judgment マーカーの裏付けを要求する
+- [cron 経由 /loop の並行実行競合](cron-loop-worktree-race.md) — 同じ Plan 0044 完了処理中に発見した別種の知見（working tree 競合）
 - [オプトイン式スキルの退避＋有効化コピー設計](optional-skill-optin.md) — SKIP 設計・列挙の陳腐化検査の応用先。gitignore 列挙との突き合わせで孤児コピーを検出する
 - [陳腐化しやすい knowhow 記述パターン](knowhow-obsolescence-patterns.md) — 「列挙を持たない単一ソース化」原則を knowhow 記述側に適用したメタパターン
