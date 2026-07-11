@@ -117,7 +117,9 @@ Sub-agents auto-launched during quality gates. Customize or add agents to fit yo
 | **addf-knowhow-agent** | Filters knowhow relevant to a Plan | — |
 | **addf-code-review-agent** | Reviews code quality and readability | Add your project's coding conventions |
 | **addf-security-review-agent** | Inspects security vulnerabilities (optional) | Add industry-specific security standards |
+| **addf-doc-review-agent** | Detects drift between documentation and implementation | — |
 | **addf-contribution-agent** | Detects framework contribution candidates | — |
+| **addf-implementer** | Dedicated implementation agent that takes a delegation prompt with an explicit Plan, scope, and completion criteria | Use when you want to separate implementation from review/research agents |
 | **addf-ui-test-agent** | Screenshot-based UI verification (optional) | **Rewrite as your project's UI/UX domain expert** |
 
 > **Tester agents should be domain experts for your project.**
