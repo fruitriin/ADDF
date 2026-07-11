@@ -100,6 +100,7 @@ Skills provided by ADDF (invoked via `/command-name`):
 | **addf-knowhow-filter** | Filter knowhow relevant to a Plan |
 | **addf-knowhow-revise** | Re-verify and correct stale knowhow |
 | **addf-knowhow-network** | Cross-link knowhow articles into a wiki |
+| **addf-plan-audit** | Excavate completed-but-incomplete Plans buried in the backlog |
 | **addf-overview** | Generate ecosystem overview docs in `.claude/addf/project-overview/` |
 | **addf-experience** | Validate experience file (`.exp.md`) reference self-consistency and format health |
 | **addf-gui-test** | Run GUI tests (macOS optional) |

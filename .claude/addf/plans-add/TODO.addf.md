@@ -3,7 +3,7 @@
 `.claude/addf/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: Plan 0052 完了（2026-07-11。Issue #26 実測回収）。Plan 0040・0048 は要確認で静観中（Q5・Q6投下済み）。実行可能なバックログは枯渇
+## 現在のフェーズ: Plan 0053 完了・v0.6.2 リリース作業中（2026-07-11。別セッションが着手した Plan 0053 を本セッションが引き継いで完走させた）。Plan 0054（settings.json/hooks自己書き換え保護・検討スタブ）新規起票。Plan 0040・0048 は要確認で静観中（Q5・Q6投下済み）
 
 ## バックログ
 
@@ -61,6 +61,8 @@
 | 7 | 50 | `.claude/addf/plans-add/0050-readme-docs-table-gap.md` | 完了（2026-07-10。README.md/README.en.md に skills.md・model-allocation.md の行を追加） |
 | 2 | 51 | `.claude/addf/plans-add/0051-quality-improvement-worktree-isolation-and-knowhow-links.md` | 完了（2026-07-10。CLAUDE.md「並列実装方針」に worktree 隔離破り〔cd 永続〕の注意事項を追記、knowhow `worktree-isolation-cd-persistence.md` 新設、`cron-loop-worktree-race.md` との相互参照、knowhow 一方向リンク12件+新設分2件＝計14件を解消。doc-review 指摘の重複記載を修正済み） |
 | **2** | 52 | `.claude/addf/plans-add/0052-migrate-runtime-hardening.md` | 完了（2026-07-11。Issue #26〔wardrobe-test での v0.6.1 移行実測レポート〕回収。項目1〜4を全て実装（GUIバイナリtimeoutガード・guides混在確認・gitignore旧位置パターン検知・Test15 SKIPフォールバック）。3体レビュー（code-review Critical1/Warning2/Low1・doc-review Warning3・contribution-agent Medium2/Low1）を全て反映。run-all.sh・/addf-lint 全通過） |
+| 2 | 53 | `.claude/addf/plans-add/0053-changelog-and-skill-listing-completeness.md` | 完了（2026-07-11。別セッションが着手・本セッションが引き継いで完走。CHANGELOG記載漏れ〔Plan 0030・0031・0032・0035・0036・0038・0039・0041・0044・0049・0051・0052〕の回収・READMEスキル一覧の掲載漏れ〔addf-plan-audit〕解消・lint-template-sync.py ペア8新設。3体レビュー指摘計5件を反映、うち1件はPlan 0054として切り出し） |
+| **1** | 54 | `.claude/addf/plans-add/0054-settings-self-write-protection.md`（検討スタブ） | 未着手（2026-07-11 起票。Plan 0053 の doc-review で Plan 0026 の [Critical]「settings.json/hooks 自己書き換え保護」が Plan 0043 で明示的にスコープ外とされたまま独立 Plan 未作成で放置されていたことが判明。Progress 運用ルール7〔主題外Critical最優先切り出し〕に従い起票。設計方向性はオーナー判断待ち） |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください

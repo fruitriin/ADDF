@@ -55,10 +55,12 @@ make_sandbox() {
   box="$(mktemp -d)"
   mkdir -p "$box/.claude/addf/templates" "$box/.claude/commands" "$box/.claude/addf/guides"
   cp "$PROJECT_DIR/CLAUDE.md" "$PROJECT_DIR/AGENTS.md" "$PROJECT_DIR/.gitignore" "$box/"
+  cp "$PROJECT_DIR/README.md" "$PROJECT_DIR/README.en.md" "$box/"
   cp "$PROJECT_DIR/.claude/addf/Progress.md" "$box/.claude/addf/"
   cp "$PROJECT_DIR/.claude/addf/templates/ProgressTemplate.addf.md" \
      "$PROJECT_DIR/.claude/addf/templates/ProgressTemplate.md" "$box/.claude/addf/templates/"
   cp "$PROJECT_DIR/.claude/commands/addf-init.md" "$box/.claude/commands/"
+  cp "$PROJECT_DIR"/.claude/commands/addf-*.md "$box/.claude/commands/"
   cp "$PROJECT_DIR/.claude/addf/guides/development-process.md" "$box/.claude/addf/guides/"
   echo "$box"
 }
@@ -416,6 +418,40 @@ printf '# CLAUDE.repo.md\n\n@link.md\n' > "$box/CLAUDE.repo.md"
 output=$(run_lint "$box")
 assert_not_contains "シンボリックリンク脱出で downstream 判定できない" "[1] SKIP: repo_kind=downstream" "$output"
 rm -rf "$box" "$extern_dir"
+
+# テスト 21: 新設スキルが README に未掲載 → ペア8 WARNING（upstream 宣言下）
+echo "Test 21: 新設スキルの README 掲載漏れ検出"
+box="$(make_sandbox)"
+printf '# CLAUDE.repo.md\n\nこのリポジトリは **ADDF 開発プロジェクト**（フレームワーク本体）です。\n' \
+  > "$box/CLAUDE.repo.md"
+printf -- '---\nname: addf-dummy-skill\n---\n\n# ダミースキル\n' > "$box/.claude/commands/addf-dummy-skill.md"
+output=$(run_lint "$box")
+assert_exit "未掲載スキルで WARNING" 2 $?
+assert_contains "ペア8の WARNING" "[8] WARNING" "$output"
+assert_contains "未掲載スキル名の特定" "MISSING: addf-dummy-skill" "$output"
+rm -rf "$box"
+
+# テスト 22: README から既存スキルの掲載を削除 → ペア8 WARNING（両 README とも検査対象）
+echo "Test 22: README からの既存スキル掲載削除を検出"
+box="$(make_sandbox)"
+printf '# CLAUDE.repo.md\n\nこのリポジトリは **ADDF 開発プロジェクト**（フレームワーク本体）です。\n' \
+  > "$box/CLAUDE.repo.md"
+sed -i.bak '/\*\*addf-plan-audit\*\*/d' "$box/README.md" && rm -f "$box/README.md.bak"
+output=$(run_lint "$box")
+assert_exit "掲載削除で WARNING" 2 $?
+assert_contains "ペア8の WARNING（README.md）" "[8] WARNING: README.md" "$output"
+assert_contains "削除したスキル名の特定" "MISSING: addf-plan-audit" "$output"
+rm -rf "$box"
+
+# テスト 23: downstream 判定では ペア8 が SKIP される（独自 README のため対象外）
+echo "Test 23: downstream 判定でペア8が SKIP される"
+box="$(make_sandbox)"
+printf '# CLAUDE.repo.md\n\nこのリポジトリは **ADDF 利用プロジェクト** です。\n' > "$box/CLAUDE.repo.md"
+printf -- '---\nname: addf-dummy-skill\n---\n\n# ダミースキル\n' > "$box/.claude/commands/addf-dummy-skill.md"
+output=$(run_lint "$box")
+assert_contains "ペア8の SKIP（downstream）" "[8] SKIP" "$output"
+assert_not_contains "downstream では未掲載スキルを検出しない" "[8] WARNING" "$output"
+rm -rf "$box"
 
 echo ""
 echo "Results: $PASS passed, $FAIL failed"

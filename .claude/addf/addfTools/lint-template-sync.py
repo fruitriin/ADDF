@@ -36,7 +36,13 @@
        エージェントが TODO の状態表記を「信用ベース」で扱えるようにする機械検査
        （.claude/addf/knowhow/ADDF/plan-status-drift-check.md 参照）。
 
-ペア2〜6 は対象ファイルが存在しない場合 SKIP する（ADDF 本体固有ファイルは
+ペア8: README.md / README.en.md のスキルテーブル ⇔ .claude/commands/addf-*.md（WARNING）
+       ユーザー起動可能なスキル（`*.exp.md` を除く）が README の掲載から漏れていないかを
+       検査する。新設スキルが README のドキュメント公開から漏れる（Plan 0036 の
+       addf-plan-audit が未掲載のまま埋没した実例）を防ぐ。エージェント（.claude/agents/）は
+       命名規則が不均一なため対象外（Plan 0053）。ダウンストリームは独自 README のため SKIP。
+
+ペア2〜6・8 は対象ファイルが存在しない場合 SKIP する（ADDF 本体固有ファイルは
 ダウンストリームプロジェクトに存在しないため、欠如はドリフトではない）。
 
 upstream/downstream の判定はファイルの存在ではなく明示シグナルで行う（存在≠所有 —
@@ -604,6 +610,45 @@ def check_pair6():
             )
 
 
+def check_pair8(repo_kind):
+    """.claude/commands/addf-*.md（*.exp.md 除く）が README.md / README.en.md の
+    スキルテーブルに掲載されているかを検査する（WARNING）
+
+    新設スキルが README のドキュメント公開から漏れる（Plan 0036 の addf-plan-audit が
+    未掲載のまま埋没した実例）を防ぐ。対象はユーザー起動可能なスキルのみ:
+    - `.claude/agents/` のエージェント定義は対象外（`addf-implementer` が `-agent` 接尾辞を
+      持たない・`addf-ui-test-agent` は README にのみ存在するプレースホルダ等、命名規則が
+      不均一で自動判定の誤検知リスクが高いため。`checklist-backing-lint.md` の
+      「裏付けの弱いチェックは追加しない」方針に沿う判断）
+    - ダウンストリームは独自 README を持つため対象外（SKIP）
+    """
+    if repo_kind != 'upstream':
+        skips.append('[8] SKIP: repo_kind != upstream のため対象外（ダウンストリームは独自 README）')
+        return
+    commands_dir = '.claude/commands'
+    if not os.path.isdir(commands_dir):
+        skips.append(f'[8] SKIP: {commands_dir} が存在しない')
+        return
+    skill_names = sorted(
+        os.path.splitext(os.path.basename(p))[0]
+        for p in glob.glob(f'{commands_dir}/addf-*.md')
+        if not p.endswith('.exp.md')
+    )
+    for readme_path in ('README.md', 'README.en.md'):
+        if not os.path.exists(readme_path):
+            skips.append(f'[8] SKIP: {readme_path} が存在しない')
+            continue
+        with open(readme_path) as f:
+            text = f.read()
+        listed = set(re.findall(r'\*\*(addf-[a-z0-9-]+)\*\*', text))
+        missing = [s for s in skill_names if s not in listed]
+        if missing:
+            msg = [f'[8] WARNING: {readme_path} のスキルテーブルに未掲載のスキルがある'
+                   f'（{commands_dir} には存在するが README のドキュメント公開から漏れている）:']
+            msg += [f'    MISSING: {m}' for m in missing]
+            warnings.append('\n'.join(msg))
+
+
 repo_kind = detect_repo_kind()
 check_pair1(repo_kind)
 check_pair2(repo_kind)
@@ -622,6 +667,7 @@ check_boot_pair(4, 'CLAUDE.md', '## ブートシーケンス',
 check_pair5()
 check_pair6()
 check_pair7()
+check_pair8(repo_kind)
 
 for msg in errors + warnings + skips:
     print(msg)
@@ -630,4 +676,4 @@ if errors:
     sys.exit(1)
 if warnings:
     sys.exit(2)
-print('OK: 同期チェック通過 (1: Progress.md / 2: ProgressTemplate / 3: AGENTS.md / 4: development-process.md / 5: addf-init コピーリスト / 6: TODO⇔Plan 状態 / 7: verify-checksums.sh detect_repo_kind 同期契約)')
+print('OK: 同期チェック通過 (1: Progress.md / 2: ProgressTemplate / 3: AGENTS.md / 4: development-process.md / 5: addf-init コピーリスト / 6: TODO⇔Plan 状態 / 7: verify-checksums.sh detect_repo_kind 同期契約 / 8: README スキルテーブル網羅性)')
