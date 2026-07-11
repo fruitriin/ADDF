@@ -14,11 +14,13 @@
 | ファイル | AGENTS.md | Codex 等の AGENTS.md 互換ツール用（英語。lint ペア3で CLAUDE.md と同期検査） |
 | ファイル | .claude/settings.json | フック定義・権限設定（ダウンストリーム配布） |
 | ファイル | .claude/settings.local.json | ADDF 開発用ローカル権限（配布しない） |
-| ファイル | .claude/addf/Behavior.toml | フレームワーク動作設定（[gui-test] / [speculation] / [context-reminder] / [context-reminder.effective-context]） |
+| ファイル | .claude/addf/Behavior.toml | フレームワーク動作設定（[gui-test] / [speculation] / [transcript-archive] / [context-reminder] / [context-reminder.effective-context]） |
 | スキル | addf-permission-audit | 権限を3パターンに分類し settings ファイルへの配置を提案 |
 | フック | reset-turn-count.sh | SessionStart: ターンカウンター（.claude/.turn-count）をリセット |
 | フック | turn-reminder.sh | UserPromptSubmit: 関心事A（ターン10/15の棚卸しリマインダー）+ 関心事B（context-reminder.py への中継） |
 | フック | post-compact-recovery.sh | SessionStart(compact): コンパクション後の復帰手順（ブートシーケンス再実行）を注入 |
+| フック | pre-compact-archive.sh | PreCompact: `[transcript-archive].enable = true` のときのみ、compaction 直前のトランスクリプト JSONL を archive_dir にコピー（Plan 0042・オプトイン・デフォルト無効）。ファイル名は英数・`_`・`-` のみにサニタイズ（パストラバーサル対策）、同一秒衝突は連番、世代数上限で古いものから削除 |
+| フック | destructive-git-guard.sh | PreToolUse(Bash): 5種の破壊的 git 操作パターンを検出し、ブロックはせず理由をユーザーに提示するのみ（ブロックは settings.json の `permissions.ask` が担う。Plan 0043。→ system-quality と分業） |
 | フック | skill-usage-log.sh | PreToolUse(Skill): スキル呼び出しを .claude/logs/skill-usage.jsonl にロギング |
 | ツール | .claude/addf/addfTools/context-reminder.py | transcript の usage を実測し、閾値超過時に能動コンパクション促しを注入 |
 | 状態 | .claude/.turn-count / .claude/.context-reminder-state | ターン数・前回通知時の実測値（.gitignore 対象） |
@@ -49,13 +51,21 @@ context-reminder.py の設計原則: フックの仕事は事実の注入のみ 
 
 /loop 自走がコンテキスト残量を理由に自主停止する壁への対処。auto-compact の発動点はフェーズ2で実測され（知見: .claude/addf/knowhow/ADDF/context-and-transcript.md — トランスクリプト汚染・自己強化劣化の知見も同記事）、「compaction は harness が受け止める前提で止まらない」ことと「残量少時は復帰容易性の高いタスクを選び、one-shot 級には着手しない」タスク運びが Progress 運用ルール 3.5（→ system-planning）と context-reminder の注入文言に配線された。post-compact-recovery.sh（compaction 後のブートシーケンス再実行注入）と代替わり日記が受け皿になる。
 
+### トランスクリプトアーカイブ — Plan 0042
+
+`[transcript-archive]` はデフォルト無効（オプトイン）。有効化すると `pre-compact-archive.sh` が compaction 直前のトランスクリプト JSONL を `archive_dir`（既定 `~/.claude/addf-transcript-archive` — リポジトリ外。ディスク消費と機密漏洩の副次コピーを避けるため）配下にコピーする。用途は (a) コンテキストの保全・アーカイブ、(b) アーカイブを新 UUID にリネームして `claude --resume` すれば compaction 直前状態への復元（`.claude/addf/knowhow/ADDF/transcript-archive-restore.md`）。`max_generations`（既定10）を超えた世代は古いものから削除する。フックは必須フィールド欠如時に静かに exit 0 で抜ける設計（誤発火より無発火を優先）。
+
+### 破壊的操作ガード — Plan 0043
+
+`settings.json` の `permissions.deny`（11パターン: `rm -rf /` 系・`chmod 777 /` 系・`dd`・`mkfs`・`shutdown`・`reboot`）が極端な破壊操作を常時ブロックし、`permissions.ask`（7パターン: `git push`・`git reset --hard`・`git clean`・`git branch -D`・`git checkout -- .`・`git restore .`/`restore --`）が破壊的 git 操作を確認対象にする。`destructive-git-guard.sh` はこれら5種の git パターンを検出して理由をユーザーに提示するだけで、ブロック自体は行わない（ブロックは permissions.ask の役目 — フックと設定の分業。→ system-quality）。
+
 ### フックの堅牢性
 
-全フックは `CLAUDE_PROJECT_DIR` 未設定時にカレントディレクトリへフォールバックする（未設定のまま展開すると `/.claude/...` への書き込みが静かに失敗するため）。意図的に `set -e` を使わず、失敗してもセッションを妨げず exit 0 で抜ける。skill-usage-log.sh は jq でエントリ全体を生成し JSONL インジェクションを防ぐ。
+全フックは `CLAUDE_PROJECT_DIR` 未設定時にカレントディレクトリへフォールバックする（未設定のまま展開すると `/.claude/...` への書き込みが静かに失敗するため）。意図的に `set -e` を使わず、失敗してもセッションを妨げず exit 0 で抜ける。skill-usage-log.sh は jq でエントリ全体を生成し JSONL インジェクションを防ぐ。pre-compact-archive.sh は bash+awk の手組み TOML パーサーを使う（`.claude/addf/knowhow/ADDF/bash-toml-parse-pitfalls.md` に8種の落とし穴が類型化されている）。
 
 settings.json は2ファイルに分離:
-- `settings.json`: ダウンストリームにも配布される汎用権限（破壊的 git 操作は ask）
-- `settings.local.json`: ADDF 開発プロジェクト固有の権限（addf-permission-audit で分類・配置）
+- `settings.json`: ダウンストリームにも配布される汎用権限（破壊的 git 操作は ask・極端な破壊操作は deny）
+- `settings.local.json`: ADDF 開発プロジェクト固有の権限（addf-permission-audit で分類・配置。hooks 定義は持たない）
 
 ## 主要フロー
 
@@ -67,6 +77,9 @@ settings.json は2ファイルに分離:
   ├─（コンパクション後のみ）
   │  post-compact-recovery.sh → 復帰ガイダンス注入
   │  └─ ブートシーケンス再実行 → Progress/Feedback/TODO 確認 → 会話再開
+  │
+  ├─（PreCompact・[transcript-archive].enable = true のときのみ）
+  │  pre-compact-archive.sh → トランスクリプト JSONL を archive_dir へコピー
   │
   ▼
 CLAUDE.md ブートシーケンス
@@ -85,14 +98,17 @@ CLAUDE.md ブートシーケンス
   │        日記更新を済ませよ。済んでいるなら止まらず続行してよい」と注入
   │        （作業縮小・停止の指示ではない — 止まらない教義）
   │
-  └─ skill-usage-log.sh → スキル使用ログ（PreToolUse: Skill）
+  ├─ skill-usage-log.sh → スキル使用ログ（PreToolUse: Skill）
+  │
+  └─ destructive-git-guard.sh → 破壊的 git パターン検出時に理由を提示（PreToolUse: Bash。
+     ブロックは permissions.ask/deny が担当）
 ```
 
 ## 下流でのカスタマイズ
 
 - `CLAUDE.repo.md` にプロジェクト固有の設定を記述（CLAUDE.md は上書きマイグレーション可能に保つ）
 - `CLAUDE.local.md` で開発者個人の設定・セッションモードを保持
-- `addf-Behavior.toml` で gui-test 有効化（→ sync-optional-skills.py apply）・speculation 有効化と worktree 上限・context-reminder の閾値/実効コンテキスト目安を調整（threshold_tokens = 0 で無効化）
+- `addf-Behavior.toml` で gui-test 有効化（→ sync-optional-skills.py apply）・speculation 有効化と worktree 上限・transcript-archive 有効化（`archive_dir`/`max_generations`）・context-reminder の閾値/実効コンテキスト目安を調整（threshold_tokens = 0 で無効化）
 - `settings.json` の権限ルールを addf-permission-audit で整理
 - turn-reminder のターン閾値はスクリプト編集で調整可能
 

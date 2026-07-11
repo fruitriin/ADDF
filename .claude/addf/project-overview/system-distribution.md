@@ -17,13 +17,14 @@
 | ツール | .claude/addf/addfTools/lint-residual-paths.py | 移行の**完了ゲート**。旧パス残存を ERROR 検査（ゼロになるまで完了扱いしない）。移行後は docs/ への逆流を WARNING で恒久検査。移行前リポジトリは SKIP 明示 |
 | ツール | .claude/addf/addfTools/verify-checksums.sh + checksums.sha256 | 配布バイナリ（Swift ツール）の SHA-256 照合＋allowlist ガード（Plan 0031。→ system-visual-testing） |
 | ディレクトリ | .claude/addf/optional/ | オプトインスキル・エージェントの原本置き場（現在は GUI テスト一式: 3スキル+1エージェント） |
-| ファイル | .claude/addf/lock.json | バージョン追跡（現在 v0.6.0）。`version` / `ref` / `updated_at` / `repository`。プロジェクト種別の明示シグナルの一部。旧位置 `.claude/addf-lock.json` から v0.6.0 で移動 <!-- residual-path: allow --> |
-| ファイル | .claude/addf/CHANGELOG.md | フレームワーク変更履歴。migrate 時に該当バージョン間のエントリを表示 |
+| ファイル | .claude/addf/lock.json | バージョン追跡（現在 v0.6.1）。`version` / `ref` / `updated_at` / `repository`。プロジェクト種別の明示シグナルの一部。旧位置 `.claude/addf-lock.json` から v0.6.0 で移動 <!-- residual-path: allow --> |
+| ファイル | .claude/addf/CHANGELOG.md | フレームワーク変更履歴。migrate 時に該当バージョン間のエントリを表示（2026-07-11 時点で Plan 0053 が進行中の課題として Plan 0030/0031/0032/0035/0036/0038/0039/0041/0049/0051/0052 のエントリ記載漏れを検出・回収作業中） |
 | ファイル | .claude/addf/Release.addf.md | ADDF 本体（upstream）のリリース手順定義。プレリリースチェック5が overview 鮮度を検査し、patch で通した場合の full 負債はリリース後タスクとして TODO に積む（full のトリガーはリリースではなく構造変更） |
 | ファイル | CONTRIBUTING.md | コントリビューションモデル（計画駆動レビュー・きっかけの記載。英語版 CONTRIBUTING.en.md あり） |
 | ファイル | .gitignore の ADDF マーカーブロック | 実行時生成ファイルの除外定義（addf-init がブロックごとコピー — 列挙を持たない単一ソース化） |
 | テンプレート | .claude/addf/templates/Release.md | リリース手順テンプレート |
-| ディレクトリ | .claude/addf/guides/ | セットアップ・運用ガイド群（9本） |
+| ディレクトリ | .claude/addf/guides/ | セットアップ・運用ガイド群（10本） |
+| ディレクトリ | docs/（VitePress サイト） | `.claude/addf/guides/` を単一ソースとする公開ドキュメントサイトの骨格（Plan 0039 フェーズ2）。`scripts/sync-docs.mjs` が guides/ の全 Markdown を `docs/guide/`（生成物・.gitignore 対象）へコピーし、相対リンクをサイト内リンクまたは GitHub blob/raw URL に書き換える。`docs/.vitepress/config.mts` がナビ・サイドライン（はじめに/スキル・エージェント/運用/環境別セットアップの4グループ）を定義。`package.json` の `docs:sync` / `docs:dev` / `docs:build` / `docs:preview` から実行。GitHub Pages への実公開（フェーズ3）はオーナー操作待ち |
 
 ### .claude/addf/guides/ 一覧
 
@@ -37,6 +38,7 @@
 | codex-setup.md | Codex 環境セットアップ |
 | migration.md | マイグレーションガイド |
 | pr-format.md | PR 本文規約の単一ソース（Plan 0035。通常 PR・投機昇格 PR が参照） |
+| model-allocation.md | モデル配分ポリシーガイド（Plan 0049）。役割（メインループ運転手・実装サブエージェント・レビュー・ドキュメント・Plan 起草）別のモデル選定の考え方とエージェント定義 `model:` frontmatter / `/model` / `Agent` ツール呼び出しの使い分けを解説。CLAUDE.repo.example.md の「モデル配分ポリシー」節から参照される |
 | speculative-development.md | 投機開発の概観（2層モデル・オプトイン・clean・昇格・投機適性・one-shot 定義の単一ソース。手順の正はスキル本文 — → system-speculation） |
 
 ## 設計思想
@@ -71,7 +73,11 @@ ADDF 管理ファイルは `.claude/addf/` 占有名前空間に集約され、*
 **リリース**:
 - `addf-release` が upstream（ADDF 本体）と downstream（利用プロジェクト）で手順を自動切替
 - 責務分割: スキル=ルーター、設定ファイル（Release.addf.md）=手順定義、.exp.md=プロジェクト戦略（.claude/addf/knowhow/ADDF/release-skill-separation.md）
-- バージョン履歴: v0.1.0（lock+migrate 基盤）→ v0.2.0（init/release・Codex 対応・guides 分離）→ v0.3.0（迷ったときの作法・日記・knowhow ライフサイクル・ペルソナレビュー・同期 lint・context-reminder）→ v0.4.0（チェックリスト裏付け lint・オプトインスキル機構・投機開発基盤・tomllib 環境ガード）→ v0.5.0（投機開発サイクル完成・投機運用ガイド）→ v0.6.0（ディレクトリ大集約・移行ツール・doc-review・plan-audit・CI 品質ゲート・止まらない教義。2026-07-06 リリース）
+- バージョン履歴: v0.1.0（lock+migrate 基盤）→ v0.2.0（init/release・Codex 対応・guides 分離）→ v0.3.0（迷ったときの作法・日記・knowhow ライフサイクル・ペルソナレビュー・同期 lint・context-reminder）→ v0.4.0（チェックリスト裏付け lint・オプトインスキル機構・投機開発基盤・tomllib 環境ガード）→ v0.5.0（投機開発サイクル完成・投機運用ガイド）→ v0.6.0（ディレクトリ大集約・移行ツール・doc-review・plan-audit・CI 品質ゲート・止まらない教義。2026-07-06 リリース）→ v0.6.1（トランスクリプトアーカイブ・destructive-git-guard・addf-implementer とモデル配分ポリシー・VitePress ドキュメントサイト骨格・移行実行時耐障害性強化。2026-07-07 lock 更新）
+
+### マイグレーション実行時耐障害性 — Plan 0052（GitHub Issue #26 実測回収）
+
+ダウンストリームプロジェクト（wardrobe-test）での実際の `/addf-migrate` v0.5.0→v0.6.1 実行が4件のツール堅牢性ギャップを発見した。最も深刻だったのは `test-tools.sh` の `window-info` バイナリ呼び出しが、初回実行時の画面収録権限ダイアログ待ちで**無期限にハングする**問題（`timeout` ガードで解消）。他に guides/ 混在確認・.gitignore 旧位置パターン検知・Test15 の SKIP フォールバック追加を実装し、`.claude/addf/knowhow/ADDF/map-driven-migration-tool.md` に知見を追記した。3体レビュー（code-review Critical1・doc-review Warning3・contribution-agent Medium2）を反映済み。「マップ駆動移行ツール」の設計は Plan 0037 由来だが、実運用フィードバックによる耐障害性強化は継続的なテーマ。
 
 ## 主要フロー
 
@@ -129,4 +135,5 @@ ADDF 管理ファイルは `.claude/addf/` 占有名前空間に集約され、*
 - **視覚テスト**: オプトインスキル機構の現在唯一の適用対象が GUI テスト一式
 - **投機開発**: speculate-*.py は addfTools として配布対象。[speculation] は Behavior.toml のオプトインフラグ
 - **ノウハウ蓄積**: .claude/addf/knowhow/ADDF/ は配布・マイグレーション対象。プロジェクト固有 knowhow は対象外
-- **全システム**: addf-overview が全システムを横断的にドキュメント化
+- **全システム**: addf-overview が全システムを横断的にドキュメント化。VitePress ドキュメントサイト（docs/）は `.claude/addf/guides/` を単一ソースとするため、guides/ が扱う全システムの運用ガイドが公開ドキュメントとして間接的に配布される
+- **計画駆動**: addf-implementer・DelegationRules.md は並列実装方針（worktree 隔離下の実装委譲）の一部として配布される（本体詳細 → system-planning）

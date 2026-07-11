@@ -14,7 +14,7 @@
 | スキル | addf-knowhow-network | 記事間を GFM リンクで相互接続し wiki 化。双方向リンク担保・📜 プレフィックス・INDEX ハブサマリ |
 | スキル | addf-experience | .exp.md ファイルの @メンション書式検証・修正 |
 | エージェント | addf-knowhow-agent | ブートシーケンス Step 5 で Plan に関連する knowhow を抽出（Haiku）。ライフサイクルフィルタ内蔵 |
-| ディレクトリ | .claude/addf/knowhow/ADDF/ | ADDF 由来ノウハウ（現在21件。近況の追加: マップ駆動移行ツール設計 map-driven-migration-tool / one-shot 向け実地リハーサル型レビュー persona-review-oneshot / コンテキストとトランスクリプトの実測知見 context-and-transcript / ノウハウ陳腐化パターン knowhow-obsolescence-patterns） |
+| ディレクトリ | .claude/addf/knowhow/ADDF/ | ADDF 由来ノウハウ（現在27件。近況の追加: bash+awk での TOML パース落とし穴 bash-toml-parse-pitfalls / cron ループの worktree 競合 cron-loop-worktree-race / ドキュメントサイトの単一ソース同期 docs-site-single-source-sync / 実測サンプリングバイアス measurement-sampling-bias / トランスクリプトアーカイブの復元手順 transcript-archive-restore / worktree 隔離破り（cd 永続）worktree-isolation-cd-persistence） |
 | ファイル | .claude/addf/knowhow/INDEX.addf.md | ADDF 用ノウハウインデックス（鮮度タグ付き） |
 | ファイル | .claude/addf/knowhow/INDEX.md | ダウンストリーム用ノウハウインデックス |
 | ファイル | .claude/addf/knowhow/CLAUDE.md | 読み方の作法（タイトルで推測せず本文で判断する） |
@@ -83,3 +83,4 @@ INDEX は候補発見の地図であり中身の代わりではない（.claude/
 - **品質ゲート**: レビューで得た知見が knowhow に蓄積される。addf-lint の項目5・7・8（INDEX 整合・鮮度・双方向リンク）が knowhow の健全性を機械検査する
 - **セッション管理**: turn-reminder.sh（関心事A）が定期棚卸しを、context-reminder.py がコンパクション前の知見記録を促す
 - **投機開発**: worktree 複製・squash 統合の設計知見（worktree-dotdir-copy / speculative-integration-design）が knowhow に蓄積され、addf-speculate の .exp.md と往復する
+- **配布・導入**: worktree 隔離破り（cd 永続・worktree-isolation-cd-persistence）や cron ループの worktree 競合（cron-loop-worktree-race）など、並列実装方針・投機サイクルの運用で見つかった落とし穴が knowhow 化されている。addf-implementer への委譲時の禁止事項は knowhow ではなく DelegationRules.md に単一ソース化されている（→ system-planning）

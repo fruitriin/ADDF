@@ -1,6 +1,8 @@
 # システム間相互作用
 
-> 生成日: 2026-07-07
+> 生成日: 2026-07-11（full。前回 full: 2026-07-07 — 7システムの境界・relations は変化なし。
+> セッション管理に transcript-archive/destructive-git-guard、配布・導入に VitePress docs サイトと
+> addf-implementer/DelegationRules.md、品質ゲートに sync-lint ペア8（進行中）が追加された）
 > 7つの概念システム間の相互作用をアスキーアートで表現。
 
 ## 1. 全システム関係図
@@ -157,10 +159,11 @@
 │ Stage 1: ゲートキーパー             │
 │                                    │
 │ bash .claude/addf/tests/run-all.sh     │
-│ （フック3 + ツール16。非 macOS は   │
+│ （フック5 + ツール17。非 macOS は   │
 │   バイナリ実行 SKIP）               │
 │ + プロジェクト固有 build/lint/test   │
-│ + /addf-lint（12項目・sync 7ペア）  │
+│ + /addf-lint（12項目・sync 7ペア    │
+│   + ペア8新設中〔Plan 0053〕）      │
 │ ※ ADDF 本体は push/PR 時に CI      │
 │   (test.yml) が同等ゲートを再実行   │
 │                                    │
