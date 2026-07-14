@@ -1,6 +1,12 @@
 # 依存・ビルド成果物
 node_modules
 
+# ccchain（EnumaElish）— Plan 0040 フェーズ1 ドッグフーディング。
+# バイナリはコミットしない（go install で各自取得。Plan 0031 の配布バイナリ検証問題を回避）。
+# .ccchain.conf はプロジェクト共有設定のためコミット対象、.ccchain.local.conf は個人上書きのため対象外
+/ccchain
+.ccchain.local.conf
+
 # VitePress ドキュメントサイト（Plan 0039）
 docs/.vitepress/dist
 docs/.vitepress/cache

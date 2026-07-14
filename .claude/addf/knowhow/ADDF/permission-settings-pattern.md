@@ -1,7 +1,7 @@
 ---
 title: 権限要求パターンと settings ファイルの使い分け
 created: 2026-03-19
-last_verified: 2026-07-06
+last_verified: 2026-07-14
 depends_on: []
 status: active
 ---
@@ -235,6 +235,12 @@ status: active
 - `.claude/settings.json` — プロジェクト共有設定
 - `.claude/settings.local.json` — ローカル設定
 - `.claude/addf/knowhow/ADDF/upstream-downstream-separation.md` — 分離パターンの全体像
+
+## 関連ノウハウ
+
+- [ccchain-dogfooding-phase1.md](ccchain-dogfooding-phase1.md) — ccchain は Claude Code の
+  permission システムとは独立した別レイヤーで動作する。settings.json/settings.local.json の
+  権限配置パターン（本記事）との責務分担を検討する際に参照する
 
 ## 訂正履歴
 

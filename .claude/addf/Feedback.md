@@ -64,6 +64,21 @@
 - knowhow の一方向リンク解消 Plan を起票する時点の「N件」という数え上げは、**その時点で存在するファイル間の走査に限られる**。新設 knowhow ファイル自身が持つ相互参照（新設ファイル→既存ファイル／既存ファイル→新設ファイルの追記）は、Plan 起票時にはまだ存在しないため数に含まれない。実装後の実際の追加行数は「Plan 記載件数 + 新設ファイルとの相互参照分」になりうる（Plan 0051: 記載12件 + 新設分2件 = 実装差分14件）。完了条件の数値は「lint 検出件数（0件化）」を主張の軸にし、追加行数は別途正確に数えて併記すると齟齬がない
 - `lint-residual-paths.py` に新しい残存パス検査（今回は `.gitignore` グロブパターンの非対称検知）を追加するタスクでは、**その検査対象そのものを説明するために書く Plan 本文・Progress.md 日記・knowhow への追記自身が、新設した検査に引っかかる**（Plan 0052 で3回連続発生: Plan 本文2箇所・Progress.md 日記1箇所・knowhow 2箇所、計5箇所で `residual-path: allow` マーカー漏れの ERROR が出た）。対応: 同種の lint 強化タスクでは、実装完了後だけでなく**自分が書いた Plan/Progress/knowhow の文章を書き終えるたびに** `lint-residual-paths.py` を再実行する（最終確認まで溜めない）。レビューエージェント3体（code-review・doc-review・contribution-agent）が独立にこの漏れの一部を指摘したのも実測（詳細: `.claude/addf/knowhow/ADDF/persona-review-oneshot.md` の追記）
 
+- Plan 0040 フェーズ1（ccchain 導入）で、`lint-residual-paths.py`（Plan 0037・0052 で強化した
+  残存パス検査）が**外部リポジトリ（EnumaElish）の `docs/knowhow/ccchain-dogfooding.md` という <!-- residual-path: allow -->
+  パスへの言及**にも誤反応した。ADDF は `docs/knowhow` → `.claude/addf/knowhow` に移行済みのため、 <!-- residual-path: allow -->
+  他リポジトリの同名パスへの言及もリテラル一致で引っかかる。Plan 0052 で発見した「自分の
+  Plan/Progress/knowhow への追記が自分の新設 lint に引っかかる」パターンの亜種として、
+  **外部プロジェクトの旧構造由来のパス名（`docs/knowhow`・`docs/plans` 等の一般的な命名）に <!-- residual-path: allow -->
+  言及する knowhow を書く際も同様の誤検知が起きうる**ことが分かった。対応は同じ
+  （`residual-path: allow` マーカーを都度追加し、コミット前に `lint-residual-paths.py` を通す）
+- ccchain 導入（Plan 0040）で、対話セッション中の「やってみたいな」という一言だけでは、
+  auto mode の権限フィルタが (1) 外部リポジトリのコード取得・ビルド（`go install`）、
+  (2) 自己ゲート的なフック配線（PreToolUse(Bash) への追加）を許可しなかった。
+  いずれも `AskUserQuestion` で一段階ずつ明示確認を取ることで解消した。**「試してみたい」という
+  カジュアルな着手指示は、外部コード実行や自己変更を伴うステップの許可としては扱われない**
+  （cron 自律ループでの懸念〔Q5〕とは別に、対話セッションでも同様の慎重さが必要という実例）
+
 ## 完了済み
 
 - ~~Plan 0004 実施時に `add-Behavier.toml` を `addf-Behavior.toml` にリネームする~~ → Plan 0004 で実施済み

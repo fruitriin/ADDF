@@ -1,6 +1,8 @@
 # Plan 0040: EnumaElish (ccchain) のオプトイン統合とドッグフーディング
 
-## 実装状況: 未着手
+## 実装状況: 一部完了（フェーズ1 完了 2026-07-14。ADDF 本体へ ccchain 導入・`.ccchain.conf` を
+実運用コマンドで調整・`.claude/settings.local.json` に PreToolUse(Bash) フックを配線。
+フェーズ2〔オプトイン配布機構〕は「数タスク分運用してから」の設計のため未着手）
 
 ## オーナー判断（2026-07-06）
 
@@ -35,6 +37,15 @@
   - 既知の危険パターン（`git push --force` 系・migration/ブランチ削除前の不可逆操作）の deny + ヒント
   - `settings.local.json` の既存 Bash 許可のうち、構造を見ないと危険なもの（パイプ・チェーン許可）の移管候補を `/addf-permission-audit` の観点で棚卸しする
 - まず**フェーズ1だけで数タスク分運用**し、誤 deny・ルール表現の知見を `.claude/addf/knowhow/ADDF/` に記録してからフェーズ2へ進む（配布物を実運用知見で固める）
+
+**実施記録（2026-07-14）**: `go install github.com/fruitriin/EnumaElish/cmd/ccchain@latest`
+でインストール（README/本 Plan に記載の import パス `github.com/fruitriin/ccchain/...` は誤り
+— 実リポジトリ名は EnumaElish）。デフォルト `.ccchain.conf` を `ccchain test` で ADDF の実運用
+コマンド群に対して評価し、(1) `git reset --hard` 等の破壊的操作がデフォルトで allow、
+(2) `bash`/`uv run`/`gh 読み取り系` が軒並み ask（fallback）になる、の2点を確認・修正してから
+`.claude/settings.local.json` に PreToolUse(Bash) フックを配線。知見は
+`.claude/addf/knowhow/ADDF/ccchain-dogfooding-phase1.md` に記録。フェーズ1の「数タスク分運用」
+はこれから（次回以降のセッションで観察を継続する）
 
 ### フェーズ2: オプトイン機構の整備（配布側）
 
