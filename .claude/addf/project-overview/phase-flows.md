@@ -15,7 +15,7 @@
 | addf-dev | 5 steps | コンテキスト読込→タスク選択（アイドル時は /addf-speculate へ分岐）→実装→完了処理→ループ継続（コンテキスト満杯時の出口込み） |
 | addf-speculate | 10 steps + 枝番 1.5/1.7/1.8 + clean + 昇格2経路 + 部分昇格/Pending + 深化ブランチ | 発動ガード→再構築と掃除→窓検出→選定（投機適性判定）→worktree 起動→Stage 1→記録→integration 統合→Stage 2→Dashboard→push→完了 |
 | addf-init | 4 phases + 枝番 2.5/2.7 ×3経路 + 部分導入正規化 + check | 状態確認→情報収集→干渉チェック→導入前レビュー→コピー&マージ→完了 |
-| addf-migrate | 6 phases + 枝番 2.5/7.5/14.5/14.6/16.5 | 状態確認（部分導入検出込み）→最新取得→ディレクトリ大移行（v0.6.0 ワンショット）→差分算出→プレビュー→適用→完了（lock 更新・plan-audit ワンショット案内） |
+| addf-migrate | 6 phases + 枝番 2.4/2.5/7.5/14.5/14.6/16.5 | 状態確認（部分導入検出込み）→最新取得→手順書自身の自己点検→ディレクトリ大移行（v0.6.0 ワンショット）→差分算出→プレビュー→適用→完了（lock 更新・plan-audit ワンショット案内） |
 | addf-overview | 8 steps (full) + 4 steps (patch) | 経験読込→データ収集→フロー検出→システム発見→生成→経験記録→.lock→報告 |
 | addf-plan-audit | 3層走査 + 5 steps | 層1構造検査→層2意味読解→層3TODO突合→処置3択の提案→検出一覧の永続化 |
 | addf-release | 4 steps | プロジェクト種別判定→手順ロード→実行→経験更新 |
@@ -99,6 +99,7 @@
 
 - Phase 1: 状態確認（lock の ref 読込 — 旧位置 `.claude/addf-lock.json` フォールバック・旧形式 commit は v&lt;version&gt; タグ読み替え。git clean 確認・URL 検証。lock 不在＋ADDF ファイル検出 → 部分導入の初期正規化モードを提案） <!-- residual-path: allow -->
 - Phase 2: 最新版の取得（mktemp + depth 1 クローン）
+- Phase 2.4: 手順書自身の自己点検（実行中のローカル addf-migrate.md とクローンした最新版を diff 比較。差分ありなら以降 Phase 2.5 の発動判定を含め最新版の記述に従う旨を通知。旧版で開始したケース自体は事後救済〔もう一度実行〕でしか救えず、本フェーズが予防するのは今後のドリフトのみ）
 - Phase 2.5: ディレクトリ大移行（v0.6.0 新構造・ワンショット。構造の差分で発動。枝番 6.1〜6.10: 発動判定→道具の導入→check プリフライト→apply（git mv）単独コミット→rewrite 別コミット→残存参照ゼロ確認→ビルド・テスト（rewrite 射程外4類型の露見点）→射程外の手動確認→失敗時 backup ref 巻き戻し→新構造で続行）
 - Phase 3: 差分算出（対象: addf- 系・templates・addfTools・tests・guides・knowhow/ADDF 等 / 対象外: Progress・Feedback・.exp.md・CLAUDE.repo.md 等。7.5: 旧配布 `*.addf.md` 残留検出）
 - Phase 4: 変更の確認（カテゴリ別プレビュー + CHANGELOG 抽出表示 → 承認）

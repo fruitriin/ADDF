@@ -50,12 +50,65 @@ assert_not_contains() {
   fi
 }
 
+# コードフェンス（``` / ~~~）内を除去する（verify-checksums.sh の strip_fences() と同じ発想。
+# CLAUDE.repo.example.md はダウンストリーム向けの書き換え例をコードフェンス内に持つため、
+# フェンスを除去しないと upstream/downstream 両方のマーカーが地の文にヒットしたと誤認する）
+strip_fences_for_test() {
+  awk '
+    { s = $0; sub(/^[ \t]+/, "", s) }
+    fence != "" { if (index(s, fence) == 1) fence = ""; next }
+    substr(s, 1, 3) == "```" || substr(s, 1, 3) == "~~~" { fence = substr(s, 1, 3); next }
+    { print }
+  '
+}
+
+# 独立オラクル: lint 出力（$output）とは別経路で、実プロジェクトの CLAUDE.repo.md 宣言を
+# 直接判定する。verify-checksums.sh / lint-template-sync.py の detect_repo_kind() と
+# 同じ判定仕様（CLAUDE.repo.md の種別宣言＋@メンション1段解決／フォールバック: lock.json）
+# をテスト専用に簡易再実装したもの（code-review 指摘: 分岐条件と検証が同じ $output に対する
+# 同一の grep 述語だと、判定結果が何であれ両方 PASS する恒真式になり regression guard として
+# 機能しない。宣言と結果の整合を検証するには、宣言そのものを独立に読む必要がある）
+detect_expected_repo_kind() {
+  local dir="$1" text="" line trimmed inc
+  if [ -f "$dir/CLAUDE.repo.md" ]; then
+    text="$(strip_fences_for_test < "$dir/CLAUDE.repo.md")"
+    while IFS= read -r line; do
+      trimmed="$(printf '%s' "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+      case "$trimmed" in
+        @*.md)
+          inc="${trimmed#@}"
+          if [ -f "$dir/$inc" ]; then
+            text="$text
+$(strip_fences_for_test < "$dir/$inc")"
+          fi
+          ;;
+      esac
+    done <<EOF_LINES
+$text
+EOF_LINES
+  fi
+  if printf '%s' "$text" | grep -qF '**ADDF 開発プロジェクト**' \
+     && ! printf '%s' "$text" | grep -qF '**ADDF 利用プロジェクト**'; then
+    echo upstream
+  elif printf '%s' "$text" | grep -qF '**ADDF 利用プロジェクト**' \
+     && ! printf '%s' "$text" | grep -qF '**ADDF 開発プロジェクト**'; then
+    echo downstream
+  elif [ -f "$dir/.claude/addf/lock.json" ]; then
+    echo downstream
+  else
+    echo unknown
+  fi
+}
+
 make_sandbox() {
   local box
   box="$(mktemp -d)"
   mkdir -p "$box/.claude/addf/templates" "$box/.claude/commands" "$box/.claude/addf/guides"
   cp "$PROJECT_DIR/CLAUDE.md" "$PROJECT_DIR/AGENTS.md" "$PROJECT_DIR/.gitignore" "$box/"
-  cp "$PROJECT_DIR/README.md" "$PROJECT_DIR/README.en.md" "$box/"
+  cp "$PROJECT_DIR/README.md" "$box/"
+  # README.en.md は ADDF 本体では必須だが、英語版を持たないダウンストリームプロジェクトでは
+  # 存在しない（Issue #29）。存在するときだけコピーし、無条件 cp によるノイズを避ける
+  [ -f "$PROJECT_DIR/README.en.md" ] && cp "$PROJECT_DIR/README.en.md" "$box/"
   cp "$PROJECT_DIR/.claude/addf/Progress.md" "$box/.claude/addf/"
   cp "$PROJECT_DIR/.claude/addf/templates/ProgressTemplate.addf.md" \
      "$PROJECT_DIR/.claude/addf/templates/ProgressTemplate.md" "$box/.claude/addf/templates/"
@@ -68,18 +121,33 @@ make_sandbox() {
 echo "=== test-template-sync.sh ==="
 
 # テスト 1: 実リポジトリで全ペア同期済み（意図的差分が誤検出されないことの確認を兼ねる）
-# 前提: ADDF 本体リポジトリでの実行を想定（ダウンストリームでは AGENTS.md 等が SKIP され
-# 結果が環境の状態に依存する）。リポジトリがクリーンに同期された状態であること。
+# リポジトリがクリーンに同期された状態であること。
 # ここが FAIL したらテストではなく実ファイルのドリフトを疑い、lint の出力に従って同期する
+#
+# Issue #29: 以前は「ADDF 本体（upstream 宣言）での実行」を前提に pair1〜3 が SKIP
+# されないことを固定でアサートしていたが、ダウンストリームプロジェクト（downstream 宣言）
+# が自身の $PROJECT_DIR で実行すると pair1〜3 が正当に SKIP され、このアサーションは
+# 常に FAIL していた。$PROJECT_DIR の CLAUDE.repo.md 宣言を独立オラクル
+# （detect_expected_repo_kind）で判定し、その宣言と実際の SKIP/非SKIP 挙動が整合しているか
+# を検証する（宣言優先の設計そのものは変えない）
 echo "Test 1: 実リポジトリで OK"
 output=$(run_lint "$PROJECT_DIR")
 assert_exit "実リポジトリ" 0 $?
 assert_contains "OK メッセージ" "OK: 同期チェック通過" "$output"
-# 本体（upstream 宣言あり）で pair1〜3 が SKIP されないこと（宣言優先の設計を固定。
-# 誤って downstream 判定に裏返ると SKIP 表示が出るため、ここで検出できる）
-assert_not_contains "ペア1が SKIP されない" "[1] SKIP" "$output"
-assert_not_contains "ペア2が SKIP されない" "[2] SKIP" "$output"
-assert_not_contains "ペア3が SKIP されない" "[3] SKIP" "$output"
+expected_kind="$(detect_expected_repo_kind "$PROJECT_DIR")"
+for pair in 1 2 3; do
+  case "$expected_kind" in
+    downstream)
+      assert_contains "ペア${pair}が SKIP される（downstream 宣言）" "[$pair] SKIP" "$output"
+      ;;
+    upstream)
+      assert_not_contains "ペア${pair}が SKIP されない（upstream 宣言）" "[$pair] SKIP" "$output"
+      ;;
+    *)
+      echo "  情報: CLAUDE.repo.md から repo_kind を判定できず（宣言なし・lock なし）、ペア${pair}の期待値検証をスキップ"
+      ;;
+  esac
+done
 
 # テスト 2: ProgressTemplate.md のステップ欠落 → WARNING (exit=2)
 echo "Test 2: ダウンストリーム版テンプレートのステップ欠落"

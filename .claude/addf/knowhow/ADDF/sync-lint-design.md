@@ -1,10 +1,12 @@
 ---
 title: 同期 lint の設計 — 検出はツール、解釈と修復はエージェント
 created: 2026-06-10
-last_verified: 2026-07-11
+last_verified: 2026-07-14
 depends_on:
   - .claude/addf/addfTools/lint-template-sync.py
   - .claude/addf/tests/tools/test-template-sync.sh
+  - .claude/addf/tests/tools/test-binary-checksums.sh
+  - .claude/addf/addfTools/verify-checksums.sh
   - .claude/commands/addf-init.md
   - .claude/commands/addf-migrate.md
   - .claude/commands/addf-knowhow-index.md
@@ -116,6 +118,50 @@ grep -v '^15\. コミットする' ... / sed 's/^4\. /44. /' ... / rm -f "$box/A
 ```
 
 サンドボックスは git リポジトリ外になるため、git 呼び出しは `returncode != 0 → '不明'` のフォールバックが必要（`git log` はリポジトリ外でも例外を投げず exit 128 + 空出力になる）。副産物として、このテストがダウンストリーム環境（ADDF 固有ファイルなし）のシミュレーションにもなる。
+
+### 「動的アサーション化」は分岐条件と検証条件が同じ観測対象なら恒真式になる
+
+Issue #29（downstream 宣言のダウンストリームプロジェクトで実行すると必ず FAIL する固定アサーション）
+を Plan 0055 で直した際、最初の修正が別の欠陥を持ち込んだ:
+
+```bash
+# 一見「動的」だが、分岐条件と検証が同じ $output に対する同じ grep 述語 → 恒真式
+if printf '%s' "$output" | grep -qF "[$pair] SKIP"; then
+  assert_contains "SKIP される" "[$pair] SKIP" "$output"
+else
+  assert_not_contains "SKIP されない" "[$pair] SKIP" "$output"
+fi
+```
+
+`$output` の中身が何であれ、分岐した時点で以降のアサートは「grep したら見つかった/見つからなかった」を
+再確認するだけで、`repo_kind` の分類ロジック自体にバグが入っても（例: 誤って downstream を upstream と
+判定する回帰）検出できない。code-review（addf-code-review-agent）がこの構造を Critical として発見した。
+
+**正しい形**: 検証対象（`$output`）とは**独立した経路（オラクル）**で「宣言の真実」を先に判定し、
+その独立した期待値で `$output` を検証する:
+
+```bash
+expected_kind="$(detect_expected_repo_kind "$PROJECT_DIR")"  # $output を一切参照しない別経路
+case "$expected_kind" in
+  downstream) assert_contains "SKIP される（downstream 宣言）" "[$pair] SKIP" "$output" ;;
+  upstream)   assert_not_contains "SKIP されない（upstream 宣言）" "[$pair] SKIP" "$output" ;;
+esac
+```
+
+**教訓を一般化すると**: 「テストを固定値から動的判定に変える」という修正そのものは正しい方向でも、
+分岐条件と検証条件が**同じ観測対象・同じ述語**になっていないか必ず疑うこと。独立オラクルがあって
+初めて regression guard として機能する（この形なら `check_pairN()` が `repo_kind` を無視して常に
+比較する回帰を実際に検出できる）。
+
+**独立オラクルを自作するときの罠**: 上記の `detect_expected_repo_kind()` を実装した際、本家の
+`detect_repo_kind()`（`verify-checksums.sh` / `lint-template-sync.py`）が持つ前処理
+（`strip_fences()` — コードフェンス内の文言を判定対象から除外する）を最初は複製し忘れ、
+オラクル自体が壊れて実際にテストが FAIL した。`CLAUDE.repo.example.md` はダウンストリーム向けの
+書き換え例（`**ADDF 利用プロジェクト**`）をコードフェンス内に持つため、フェンスを除去しないと
+upstream/downstream 両方のマーカーが地の文にヒットしたと誤認する（本ファイルの「存在≠所有」節・
+65行目で既に記録済みの `detect_repo_kind()` 本体の仕様と同じ罠を、簡易再実装で踏み直した形）。
+**独立オラクルは本家ロジックの前処理まで漏れなく複製するか、可能なら本家の関数自体を呼び出す方が
+安全**（今回は bash テストファイルという制約上、関数呼び出しの再利用が難しく簡易再実装を選んだ）。
 
 ### 文字列一致 lint は「歴史を語る引用」と「現役の参照」を区別できない
 

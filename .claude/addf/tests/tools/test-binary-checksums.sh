@@ -47,6 +47,55 @@ assert_not_contains() {
   fi
 }
 
+# コードフェンス（``` / ~~~）内を除去する（verify-checksums.sh の strip_fences() と同じ発想。
+# CLAUDE.repo.example.md はダウンストリーム向けの書き換え例をコードフェンス内に持つため、
+# フェンスを除去しないと upstream/downstream 両方のマーカーが地の文にヒットしたと誤認する）
+strip_fences_for_test() {
+  awk '
+    { s = $0; sub(/^[ \t]+/, "", s) }
+    fence != "" { if (index(s, fence) == 1) fence = ""; next }
+    substr(s, 1, 3) == "```" || substr(s, 1, 3) == "~~~" { fence = substr(s, 1, 3); next }
+    { print }
+  '
+}
+
+# 独立オラクル: verify-checksums.sh の出力（$out）とは別経路で、実プロジェクトの
+# CLAUDE.repo.md 宣言を直接判定する。verify-checksums.sh 内の detect_repo_kind() と
+# 同じ判定仕様（種別宣言＋@メンション1段解決／フォールバック: lock.json）をテスト専用に
+# 簡易再実装したもの（code-review 指摘: Test 15 の分岐条件と検証が同じ $out に対する
+# grep 述語だと保護範囲が狭い。宣言そのものを独立に読むことで regression guard を強める）
+detect_expected_repo_kind() {
+  local dir="$1" text="" line trimmed inc
+  if [ -f "$dir/CLAUDE.repo.md" ]; then
+    text="$(strip_fences_for_test < "$dir/CLAUDE.repo.md")"
+    while IFS= read -r line; do
+      trimmed="$(printf '%s' "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+      case "$trimmed" in
+        @*.md)
+          inc="${trimmed#@}"
+          if [ -f "$dir/$inc" ]; then
+            text="$text
+$(strip_fences_for_test < "$dir/$inc")"
+          fi
+          ;;
+      esac
+    done <<EOF_LINES
+$text
+EOF_LINES
+  fi
+  if printf '%s' "$text" | grep -qF '**ADDF 開発プロジェクト**' \
+     && ! printf '%s' "$text" | grep -qF '**ADDF 利用プロジェクト**'; then
+    echo upstream
+  elif printf '%s' "$text" | grep -qF '**ADDF 利用プロジェクト**' \
+     && ! printf '%s' "$text" | grep -qF '**ADDF 開発プロジェクト**'; then
+    echo downstream
+  elif [ -f "$dir/.claude/addf/lock.json" ]; then
+    echo downstream
+  else
+    echo unknown
+  fi
+}
+
 # サンドボックス: 偽バイナリ4つ + build.sh / verify-checksums.sh のコピーで
 # .claude/addf/addfTools/ の相対レイアウトを再現する（照合はハッシュのみなので偽物で十分）
 BOX="$(mktemp -d)"
@@ -189,14 +238,14 @@ bash "$BOX_TOOLS/build.sh" --checksums-only >/dev/null 2>&1
 # テスト 15: sha256sum / shasum 分岐強制（Plan 0031 S15 — 可能な範囲でカバー）
 # 実プロジェクトの CLAUDE.repo.md / CLAUDE.repo.example.md をサンドボックスにコピーして
 # 「@メンション経由の upstream 判定」の疎通を確認する（Plan 0031 H3(d)）
-echo "Test 15: 実プロジェクト構成の CLAUDE.repo.md をコピー → upstream 判定"
+echo "Test 15: 実プロジェクト構成の CLAUDE.repo.md をコピー → 種別宣言に応じた判定"
 # CLAUDE.repo.md / CLAUDE.repo.example.md のいずれかを持たない構成（ダウンストリームの一部・
 # Issue #26 実測）では以降の cp が失敗するため、必須ランタイム不在ではなく正当な
 # プロジェクト構成差異として SKIP する（sync-lint-design.md の「addfTools はダウンストリーム
 # 配布を前提に欠如=SKIP で設計する」方針。@メンション先の example.md だけが欠けている構成でも
 # 同様に SKIP しないと cp 失敗を無視したまま後続の assert_exit がスプリアスな FAIL になる）
 if [ ! -f "$PROJECT_DIR/CLAUDE.repo.md" ] || [ ! -f "$PROJECT_DIR/CLAUDE.repo.example.md" ]; then
-  echo "  SKIP: CLAUDE.repo.md or CLAUDE.repo.example.md not found — skipping upstream classification test"
+  echo "  SKIP: CLAUDE.repo.md or CLAUDE.repo.example.md not found — skipping classification test"
   SKIP=$((SKIP + 1))
 else
   BOX2="$(mktemp -d)"
@@ -209,11 +258,30 @@ else
   # 参照先 CLAUDE.repo.example.md を両方コピー
   cp "$PROJECT_DIR/CLAUDE.repo.md" "$BOX2/CLAUDE.repo.md"
   cp "$PROJECT_DIR/CLAUDE.repo.example.md" "$BOX2/CLAUDE.repo.example.md"
-  # checksums 不在 + upstream 判定成立 → ERROR + repo_kind=upstream を出す
   out="$(bash "$BOX2/.claude/addf/addfTools/verify-checksums.sh" 2>&1)"
   exit_code=$?
-  assert_exit "実プロジェクト CLAUDE.repo.md コピーで upstream 判定 → ERROR" 1 "$exit_code"
-  assert_contains "@メンション解決で upstream 判定" "repo_kind=upstream" "$out"
+  # Issue #29: 本テストは ADDF 本体（upstream 宣言）で実行される前提で「upstream 判定」を
+  # 固定でアサートしていたが、ダウンストリームプロジェクト（downstream 宣言）が自身の
+  # $PROJECT_DIR/CLAUDE.repo.md をコピーして実行すると常に FAIL していた。本テストの本来の
+  # 目的は「@メンション経由の種別解決が疎通しているか」（upstream/downstream いずれに
+  # 転んでも判定不能に落ちていないか）であり、宣言そのものの分岐（upstream/downstream/
+  # 判定不能の3分岐）は Test 5〜8 が別途カバーしている。実プロジェクトの CLAUDE.repo.md
+  # 宣言を独立オラクル（detect_expected_repo_kind）で判定し、$out の解析とは別経路で
+  # 期待値を決めることで、判定結果が何であれ両方 PASS する恒真式を避ける
+  expected_kind15="$(detect_expected_repo_kind "$PROJECT_DIR")"
+  case "$expected_kind15" in
+    upstream)
+      assert_exit "実プロジェクト宣言(upstream)で ERROR" 1 "$exit_code"
+      assert_contains "@メンション解決で upstream 判定" "repo_kind=upstream" "$out"
+      ;;
+    downstream)
+      assert_exit "実プロジェクト宣言(downstream)で SKIP" 0 "$exit_code"
+      assert_contains "@メンション解決で downstream 判定" "repo_kind=downstream" "$out"
+      ;;
+    *)
+      assert_contains "実プロジェクトの CLAUDE.repo.md から repo_kind を判定できる（判定不能への転落は regression）" "repo_kind=" "$out"
+      ;;
+  esac
   rm -rf "$BOX2"
 fi
 

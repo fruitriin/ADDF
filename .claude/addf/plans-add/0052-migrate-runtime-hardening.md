@@ -9,6 +9,7 @@
 ## 関連 Plan
 
 - [Plan 0037: ADDF ディレクトリ集約](0037-addf-directory-consolidation.md) — 本 Plan が対象とする移行基盤（migrate-paths.py・addf-migrate.md Phase 2.5・lint-residual-paths.py）を実装した Plan。本 Plan はその実運用（初のダウンストリーム実測）で顕在化した穴を回収する
+- [Plan 0055: ダウンストリーム移行フィードバック（taskbar.fm・Issue #27〜#29）回収](0055-downstream-migration-feedback-taskbar.md) — 別ダウンストリーム（taskbar.fm）からの後続実測フィードバックを回収した Plan
 
 ## 目的
 
