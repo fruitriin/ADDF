@@ -104,6 +104,19 @@ Phase 1 の運用期間中に頻度を観察し、あまりに頻発するよう
 - フェーズ2 に進む際は、本 knowhow の「gh の役割重複」を含め、`.claude/settings.local.json` の
   既存 Bash allow リストと ccchain の `.ccchain.conf` のどちらでゲートするかの責務分担を
   再整理すること
+- **フェーズ1とフェーズ2の配線先は意図的に別ファイル**: フェーズ1（本知見・ADDF 本体の
+  ドッグフーディング）は `.claude/settings.local.json` に直接 hook を配線した。フェーズ2で
+  作った `sync-ccchain.py`（オプトイン配布機構）は `.claude/settings.json`（共有・配布対象）
+  だけを検査・操作対象にする設計で、`settings.local.json` 側は一切見ない。そのため
+  `sync-ccchain.py check` は「フェーズ1の手組み配線」の有無を検出できない
+  （`addf-Behavior.toml` の `[ccchain] enable = false` のままでも、フェーズ1の配線が
+  生きていれば実際には hook が稼働し続ける）。これは意図的な設計判断であり、バグではない —
+  フェーズ2完成時点で両方を同時に有効化すると同じ Bash 呼び出しに対して ccchain が二重評価
+  される（実害は小さいが冗長）ため、フェーズ4（「フェーズ1の手組み配線を撤去し、自分の
+  配布物を自分で使う状態にする」）で統合するまでは意図的に分離したまま残す。フェーズ4に
+  進む際は `settings.local.json` の該当エントリを削除し、代わりに ADDF 自身の
+  `addf-Behavior.toml` で `[ccchain] enable = true` にして `sync-ccchain.py apply` に
+  一本化すること
 
 ## 注意点・制約
 

@@ -10,6 +10,24 @@
 enable = false
 machine = "mac" # "mac" | "linux" | "windows" — プラットフォーム固有ツールの選択に使用
 
+[ccchain]
+# true にすると ccchain（EnumaElish — シェルコマンドの構造的パーミッション制御ツール）を
+# PreToolUse(Bash) フックとして配線する（Plan 0040 フェーズ2・オプトイン）。
+# パイプ・チェーン・サブシェル・`-exec` の中身まで含めた構造解析で、settings.json の
+# プレフィックスマッチでは防げない危険なコマンド（例: `find . -exec rm {} \;`・
+# `curl ... | bash`）を検出する。
+#
+# ⚠️ 前提: ccchain バイナリは ADDF が配布しない（各自 `go install
+# github.com/fruitriin/EnumaElish/cmd/ccchain@latest` で取得し、プロジェクトルートに
+# `ccchain` として配置する）。バイナリが無い状態で enable = true にしても
+# `sync-ccchain.py check` が WARNING を出すのみで、Claude Code の動作は妨げない
+# （フック自体は空振りする形になり、フェイルセーフ側＝素通しの設計）。
+#
+# 切り替え後は `uv run --python 3.11 .claude/addf/addfTools/sync-ccchain.py apply` を実行すること
+# （uv が無ければ python3 で直接実行。Python 3.11+ が必要）。詳細は
+# `.claude/addf/knowhow/ADDF/ccchain-dogfooding-phase1.md` 参照
+enable = false
+
 [speculation]
 # true にするとアイドル時（着手可能なタスクがないとき）に /addf-speculate による
 # worktree 投機開発が有効になる（デフォルト無効＝オプトイン）。

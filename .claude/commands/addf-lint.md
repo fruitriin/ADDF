@@ -185,6 +185,26 @@ lint を通すために完了状態を機械的に書き換えない）。
 システム python3 でも動く。対象ディレクトリが無い場合は SKIP、検査対象 0 件の場合は
 `NOTE: 検査対象 0 件 — リポジトリルートで実行しているか確認` が出る（いずれも exit 0）。
 
+## 13. ccchain 同期チェック
+
+`addf-Behavior.toml` の `[ccchain] enable` と、プロジェクトルートの `.ccchain.conf`・
+`.claude/settings.json` の PreToolUse(Bash) フックエントリが整合しているかを検査する
+（Plan 0040 フェーズ2・オプトイン配布機構。ccchain は EnumaElish 由来の外部ツールで、
+パイプ・チェーン・サブシェル・`-exec` の中身まで含めた構造的コマンド判定を行う）:
+
+```bash
+uv run --python 3.11 .claude/addf/addfTools/sync-ccchain.py
+```
+
+exit code: 0 = OK / 1 = ERROR（`enable` が真偽値でない・`settings.json` が壊れている等） /
+2 = WARNING（未配置・未配線・残存・バイナリ不在）。解消は `sync-ccchain.py apply`。
+`.ccchain.conf` は初回配置後は書き換え可能な前提のため、sync-optional-skills.py と異なり
+原本との差分があっても上書きしない（プロジェクト固有のルールチューニングを保護する）。
+`.claude/addf/optional/ccchain/` または Behavior.toml が無い場合、Behavior.toml が
+構文エラーの場合（セクション4の責務）は SKIP される。バイナリ不在は Claude Code の動作を
+妨げない WARNING に留める（フェイルセーフ側＝素通しの設計。詳細:
+`.claude/addf/knowhow/ADDF/ccchain-dogfooding-phase1.md`）。
+
 ## 結果報告
 
 全チェックの結果を以下の形式でまとめる:
@@ -206,4 +226,5 @@ lint を通すために完了状態を機械的に書き換えない）。
 10. オプショナルスキル同期 ✓ / ⚠
 11. Hooks 配線         ✓ / ⚠
 12. Plan 状態整合      ✓ / ⚠ / ✗
+13. ccchain 同期       ✓ / ⚠ / ✗
 ```

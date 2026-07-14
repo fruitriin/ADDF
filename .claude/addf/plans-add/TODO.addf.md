@@ -3,7 +3,7 @@
 `.claude/addf/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: v0.6.2 リリース済み（2026-07-11）。Plan 0040 フェーズ1（ccchain 導入）完了（2026-07-14・オーナー対話セッションで着手・Q5 解消）。Plan 0054（検討スタブ）は最優先で未着手。Plan 0048 は要確認で静観中（Q6投下済み）
+## 現在のフェーズ: v0.6.2 リリース済み（2026-07-11）。Plan 0040 フェーズ1・2（ccchain 導入・オプトイン配布機構）完了（2026-07-14）。フェーズ3〔ガイド・migrate統合〕・フェーズ4〔統合〕は未着手。Plan 0054（検討スタブ）は最優先で未着手。Plan 0048 は要確認で静観中（Q6投下済み）
 
 ## バックログ
 
@@ -48,7 +48,7 @@
 | **1** | 37 | `.claude/addf/plans-add/0037-addf-directory-consolidation.md` | 完了（フェーズ1〜3・v0.6.0 メジャーリリース 2026-07-06。オーナー同席の単一セッションで完走） |
 | 3 | 38 | `.claude/addf/plans-add/0038-speculation-fitness.md` | 完了（2026-07-05。投機適性3区分・Plan 化フォールバック・one-shot 定義の guides 単一ソース化・窓検出（手順 1.8）・reconcile check に pending_count 追加） |
 | 5 | 39 | `.claude/addf/plans-add/0039-docs-website.md` | 一部完了（フェーズ1=addf-doc-review-agent 逆輸入・フェーズ2=VitePressサイト骨格 完了 2026-07-10。フェーズ3=GitHub Pages公開はオーナー操作待ち） |
-| 4 | 40 | `.claude/addf/plans-add/0040-ccchain-optin.md` | 一部完了（フェーズ1 完了 2026-07-14。オーナー対話セッションで直接着手指示・Q5解消。ADDF本体へccchain導入、`.ccchain.conf`を実運用コマンドで調整〔git reset --hard等の破壊的操作をask化・bash/uv run/gh読み取り系をallow化〕、settings.local.jsonにPreToolUse(Bash)フック配線。フェーズ2はしばらく運用してから着手） |
+| 4 | 40 | `.claude/addf/plans-add/0040-ccchain-optin.md` | 一部完了（フェーズ1・2 完了 2026-07-14。フェーズ1: オーナー対話セッションで直接着手指示・Q5解消。ADDF本体へccchain導入、`.ccchain.conf`を実運用コマンドで調整〔git reset --hard等の破壊的操作をask化・bash/uv run/gh読み取り系をallow化〕、settings.local.jsonにPreToolUse(Bash)フック配線。フェーズ2: `[ccchain]`オプトイン・`sync-ccchain.py`・`optional/ccchain/`テンプレート・`/addf-lint`セクション13・テスト23件を新設。フェーズ1/2の配線先は意図的に分離〔統合はフェーズ4〕。フェーズ3〔ガイド・migrate統合〕は未着手） |
 | **2** | 41 | `.claude/addf/plans-add/0041-context-exhaustion-loop-wall.md` | 一部完了（フェーズ1・2 完了 2026-07-06。実地検証は別サイクル。止まらない教義＋compaction 耐性のタスク運びを配線） |
 | 3 | 42 | `.claude/addf/plans-add/0042-precompact-transcript-archive.md` | 完了（2026-07-07。PreCompact フック・[transcript-archive] 設定・復元手順 knowhow・36テスト。code-review Warning 3件と Suggestion 4件、doc-review 指摘を全反映） |
 | 3 | 43 | `.claude/addf/plans-add/0043-security-recovery.md` | 完了（2026-07-07。4項目とも最小実装: 項目1 deny 11パターン・項目2 addf-init preview・項目3 destructive-git-guard フック 13テスト・項目4 パストラバーサル Test 20 x3。事後観測方式で段階調整） |

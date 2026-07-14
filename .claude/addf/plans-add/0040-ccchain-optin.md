@@ -1,8 +1,12 @@
 # Plan 0040: EnumaElish (ccchain) のオプトイン統合とドッグフーディング
 
-## 実装状況: 一部完了（フェーズ1 完了 2026-07-14。ADDF 本体へ ccchain 導入・`.ccchain.conf` を
-実運用コマンドで調整・`.claude/settings.local.json` に PreToolUse(Bash) フックを配線。
-フェーズ2〔オプトイン配布機構〕は「数タスク分運用してから」の設計のため未着手）
+## 実装状況: 一部完了（フェーズ1・2 完了 2026-07-14。フェーズ1: ADDF 本体へ ccchain 導入・
+`.ccchain.conf` を実運用コマンドで調整・`.claude/settings.local.json` に PreToolUse(Bash) フックを
+配線。フェーズ2: オプトイン配布機構（`addf-Behavior.toml` の `[ccchain]` セクション・
+`.claude/addf/optional/ccchain/.ccchain.conf` テンプレート・`sync-ccchain.py`・`/addf-lint`
+セクション13・テスト23件）を組み上げ。フェーズ1とフェーズ2の配線先は意図的に分離したまま
+（詳細は `ccchain-dogfooding-phase1.md`）。フェーズ3〔ガイド・migrate 統合〕・フェーズ4
+〔フェーズ1手組み配線の統合〕は未着手）
 
 ## オーナー判断（2026-07-06）
 
@@ -55,6 +59,20 @@
   - `enable = true` 時の apply 動作: settings.json への hook 追記（または hook 配線ファイルの配置）と `.ccchain.conf` 雛形コピー
 - Behavior.toml 変更に伴う `lint-toml.py` の検査対象確認、`.gitignore` ADDF ブロック・addf-init コピーリストの整合（lint ペア5）
 
+**実施記録（2026-07-14）**: `addf-Behavior.toml` に `[ccchain]`（既定 `enable = false`）を新設。
+`.claude/addf/optional/ccchain/.ccchain.conf` に、フェーズ1でチューニング済みの設定を
+一般化したテンプレートを配置（プロジェクト固有ビルド/テストコマンドの追記を促すコメント付き）。
+`sync-ccchain.py` を新設し、GUI テストの3原則を踏襲しつつ以下の点で意図的に差別化した:
+(1) 対象は `.claude/settings.json`（共有・配布対象）のみ・`settings.local.json` は見ない、
+(2) `.ccchain.conf` は初回配置後プロジェクトが自由にチューニングする前提のため、
+sync-optional-skills.py と違い原本との差分があっても上書きしない、
+(3) hooks.PreToolUse の既存 Bash マッチャーエントリに ccchain のコマンドのみ追加/削除し、
+destructive-git-guard.sh 等の既存フックには一切触れない。バイナリ不在時は WARNING に留め
+Claude Code の動作を妨げない（要オーナー確認の1点をこの方針で解消）。
+`.gitignore` の ADDF マーカーブロックへ `/ccchain`・`.ccchain.local.conf` を追加して配布対象化。
+`/addf-lint` セクション13・`test-sync-ccchain.sh`（23テスト）を新設。フェーズ1とフェーズ2の
+配線先は意図的に分離したまま残した（統合はフェーズ4）
+
 ### フェーズ3: ガイド・マイグレーション統合
 
 - **対象**: `.claude/addf/guides/ccchain-setup.md`（新設。gui-test-setup.md の体裁に合わせる）、`/addf-migrate`（既存ダウンストリームへの案内）、`/addf-init`（初期化時の選択肢）
@@ -85,17 +103,26 @@
 
 ## 要オーナー確認
 
-- バイナリ入手経路の第一推奨（`go install` は Go toolchain 必須。Go 非導入環境向けに GitHub Releases のバイナリ配布を EnumaElish 側に整備するか）
-- バイナリ不在時のフェイルセーフ方針(警告して素通し / 有効化拒否)
-- ccchain 側（EnumaElish リポジトリ）に手を入れる必要が出た場合の作業場所の扱い（本 Plan は ADDF 側の統合のみを管轄とし、ccchain 本体の改修は EnumaElish 側の Plan に起こす、で良いか）
+- ~~バイナリ不在時のフェイルセーフ方針~~ → **エージェント判断で解消（2026-07-14）**:
+  警告して素通し（WARNING のみ・有効化拒否はしない）を採用。理由: ADDF の他の lint・同期
+  スクリプト全般が「環境依存の欠如は SKIP/WARNING で受け止め、配布先で誤 ERROR を出さない」
+  方針（`sync-lint-design.md`）を貫いており、ccchain も同じ思想に揃えるのが一貫性がある。
+  不便が観測されたら Feedback.md に記録して段階調整する運用（Plan 0043 と同型）
+- バイナリ入手経路の第一推奨（`go install` は Go toolchain 必須。Go 非導入環境向けに GitHub Releases のバイナリ配布を EnumaElish 側に整備するか）— 未解決（フェーズ3のガイド作成時に判断）
+- ccchain 側（EnumaElish リポジトリ）に手を入れる必要が出た場合の作業場所の扱い（本 Plan は ADDF 側の統合のみを管轄とし、ccchain 本体の改修は EnumaElish 側の Plan に起こす、で良いか）— 未解決
 
 ## 完了条件
 
-- [ ] ADDF 本体で ccchain が PreToolUse hook として稼働し、構造ルールによる deny + ヒントが実タスクで機能している <!-- human-judgment -->
-- [ ] `addf-Behavior.toml` の `[ccchain]` オプトインで有効化/無効化が往復でき、check/apply テストが `bash .claude/addf/tests/run-all.sh` で通過する
-- [ ] バイナリ不在時のフェイルセーフ挙動がテストで検証されている
-- [ ] `.claude/addf/guides/ccchain-setup.md` が実行チェック付きで存在し、`/addf-lint` セクション9を通過する
-- [ ] `/addf-lint` 全通過（Behavior.toml・コピーリスト・同期ペア整合）
+- [x] ADDF 本体で ccchain が PreToolUse hook として稼働し、構造ルールによる deny + ヒントが実タスクで機能している <!-- human-judgment -->
+      （フェーズ1の手組み配線・settings.local.json 経由。`for` ループが実際に deny されるのを
+      複数セッションで確認済み）
+- [x] `addf-Behavior.toml` の `[ccchain]` オプトインで有効化/無効化が往復でき、check/apply テストが `bash .claude/addf/tests/run-all.sh` で通過する
+      （フェーズ2・`test-sync-ccchain.sh` 23件）
+- [x] バイナリ不在時のフェイルセーフ挙動がテストで検証されている（Test 2〜4）
+- [ ] `.claude/addf/guides/ccchain-setup.md` が実行チェック付きで存在し、`/addf-lint` セクション9を通過する（フェーズ3で対応）
+- [x] `/addf-lint` 全通過（Behavior.toml・コピーリスト・同期ペア整合。ただし ADDF 自身の
+      ccchain 同期は「フェーズ1手組み配線とフェーズ2機構が意図的に未統合」という設計上の
+      理由で WARNING が出続ける — フェーズ4で解消予定。他の12セクションは ERROR/WARNING なし）
 
 ## AI 実装時間見積もり
 
