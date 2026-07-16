@@ -3,7 +3,7 @@
 
 リポジトリの状態（TODO テーブル・Plan の owner_feedback フィールド・Questions.md・
 Progress.md・Progresses/・git 投機ブランチ・gh PR）から、VitePress でサーブできる
-3ページのダッシュボード（要フィードバック / 進行中タスク / 未実施の計画）と
+2ページのダッシュボード（要フィードバック・計画 / 進行中タスク）と
 プランビューア（Plan 本文コピー）を `.claude/addf/dashboard/` に生成する。
 
 - 出力ディレクトリ全体が生成物（.gitignore 対象）。単一ソースは常にリポジトリ側
@@ -486,6 +486,10 @@ def build():
             }
         )
 
+    # 着手可能: FB が済んでいる（済 / 不要）未完了 Plan — フィードバックが済むと
+    # ここが増える（キューと同じページで見せる楽しさの演出 — オーナー要望）
+    ready = [b for b in backlog if b["owner_feedback"] in ("済", "不要")]
+
     # 要フィードバックキュー: owner_feedback=待ち または フィールド未記入。
     # TODO 状態が「進行中」でも待ちなら載せる（進行中×判断待ちの握りつぶし防止）
     queue = []
@@ -539,13 +543,15 @@ def build():
         "",
         "# 要フィードバック",
         "",
-        "あなたの判断・レビュー・回答を待っているもの。待ちが長い順に並んでいます。",
+        "あなたの判断・レビュー・回答を待っているもの（待ちが長い順）と、計画バックログ。",
+        "フィードバックが済むと下の「着手可能」が増えます。",
         "",
         '<div class="stats">',
         f'<div class="stat hot"><div class="label">判断待ち</div><div class="value">{len(queue) + len(orphan_qs)}<small>件</small></div></div>',
         f'<div class="stat"><div class="label">投機ブランチ</div><div class="value">{len(branches)}<small>本</small></div></div>',
         f'<div class="stat"><div class="label">オープン PR</div><div class="value">{len(prs) if prs is not None else "?"}<small>件</small></div></div>',
         f'<div class="stat hot"><div class="label">最長の待ち</div><div class="value">{longest}<small>日</small></div></div>',
+        f'<div class="stat ready"><div class="label">着手可能</div><div class="value">{len(ready)}<small>件</small></div></div>',
         f'<div class="stat{" hot" if dash_comments or crit_comments else ""}"><div class="label">未解決コメント</div><div class="value">{len(dash_comments) + len(crit_comments)}<small>件</small></div></div>',
         "</div>",
         "",
@@ -652,6 +658,34 @@ def build():
             lines.append(f"- [#{pr['number']} {pr['title']}]({pr['url']})")
     lines.append("")
 
+    # ---- 未実施の計画（統合 — 要フィードバックと同じページで「済むと増える」を見せる）----
+    waiting_nums = {b["num"] for b in backlog if b["owner_feedback"] not in ("済", "不要")}
+    lines += [
+        f"## 未実施の計画 — 着手可能 {len(ready)}件 / 判断待ち {len(waiting_nums)}件",
+        "",
+    ]
+    if ready:
+        lines += [f"### ✅ 着手可能（フィードバック済み・不要） — {len(ready)}件", ""]
+        for group in ("未着手", "要確認", "一部完了", "進行中"):
+            for b in (x for x in ready if x["group"] == group):
+                lines += [
+                    f"- `{b['num']}` [{sv(b['title'])}](/plans/{b['stem']}) "
+                    f"{fb_chip(b['owner_feedback'])}",
+                    f"  - 優先度 {b['prio']} / {sv(b['state'])}",
+                ]
+        lines.append("")
+    else:
+        lines += ["> 着手可能な計画はありません — 上のキューへのフィードバックで増えます", ""]
+    if waiting_nums:
+        lines += [
+            f"### ⏳ フィードバック待ち — {len(waiting_nums)}件（詳細は上のキュー）",
+            "",
+        ]
+        for b in backlog:
+            if b["num"] in waiting_nums:
+                lines.append(f"- `{b['num']}` [{sv(b['title'])}](/plans/{b['stem']})")
+        lines.append("")
+
     if answered_qs:
         lines += [
             f"## 回答済み Questions アーカイブ — {len(answered_qs)}件",
@@ -709,31 +743,7 @@ def build():
         lines.append("")
     write_out(OUT_DIR / "active.md", "\n".join(lines))
 
-    # ---- ページ: 未実施の計画（backlog.md）----
-    lines = [
-        "---",
-        "title: 未実施の計画",
-        "---",
-        "",
-        "# 未実施の計画",
-        "",
-        "未着手・一部完了の Plan バックログ。タイトルからプランビューアへ。",
-        "",
-    ]
-    # 「進行中」は進行中タスクページ側に載せる（ページ名「未実施の計画」との整合）
-    for group in ("未着手", "要確認", "一部完了"):
-        items = [b for b in backlog if b["group"] == group]
-        if not items:
-            continue
-        lines += [f"## {group} — {len(items)}件", ""]
-        for b in items:
-            lines += [
-                f"- `{b['num']}` [{sv(b['title'])}](/plans/{b['stem']}) "
-                f"{fb_chip(b['owner_feedback'])}",
-                f"  - 優先度 {b['prio']} / {sv(b['state'])}",
-            ]
-        lines.append("")
-    write_out(OUT_DIR / "backlog.md", "\n".join(lines))
+
 
     # ---- VitePress 設定・テーマ ----
     sidebar_json = json.dumps(plan_sidebar, ensure_ascii=False, indent=2)
@@ -901,7 +911,7 @@ const commentsApi = {
 import fs from 'node:fs'
 {api_ts}
 export default defineConfig({{
-  title: 'ADDF ダッシュボード',
+  title: {json.dumps(REPO_ROOT.name + ' ダッシュボード', ensure_ascii=False)},
   description: 'ローカルレビューダッシュボード（生成物 — 編集しない）',
   lang: 'ja',
   ignoreDeadLinks: true,
@@ -928,9 +938,8 @@ export default defineConfig({{
         {{
           text: 'ダッシュボード',
           items: [
-            {{ text: '要フィードバック', link: '/' }},
+            {{ text: '要フィードバック・計画', link: '/' }},
             {{ text: '進行中タスク', link: '/active' }},
-            {{ text: '未実施の計画', link: '/backlog' }},
           ],
         }},
         {{ text: 'プランビューア', collapsed: true, items: {sidebar_json} }},
@@ -1458,6 +1467,7 @@ watch(
 .stat .value { font-family: var(--vp-font-family-mono); font-size: 24px; font-weight: 600; }
 .stat .value small { font-size: 12px; font-weight: 400; color: var(--vp-c-text-2); }
 .stat.hot .value { color: var(--chip-wait-ink); }
+.stat.ready .value { color: var(--chip-ok-ink); }
 @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
 
 /* サイドバーはページタブの代替 — 通常項目の視認性と現在ページのコントラストを上げる */
