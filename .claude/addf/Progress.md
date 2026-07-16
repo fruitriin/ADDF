@@ -102,9 +102,13 @@
 - [x] テスト test-generate-dashboard.sh（欠如 = SKIP 設計・7 PASS）
 - [x] 動作確認: 生成実行 + npm run dashboard:build 通過（ブラウザ目視はオーナー確認と併合）
 - [ ] Stage 1: bash .claude/addf/tests/run-all.sh・/addf-lint
-- [ ] Stage 2: code-review + doc-review 並列（md 変更を含むため doc-review 必須）
-- [ ] レビュー指摘対応 → Stage 1 再実行
-- [ ] 完了処理（knowhow・Feedback・Progress アーカイブ・コミット）
+- [x] Stage 2: code-review + doc-review + contribution-agent 並列（3体完了）
+- [x] レビュー指摘対応（Critical 3・Warning 7・Suggestion/Low 多数を集約対応）
+  - contribution Critical: テストの実リポジトリ固有コンテンツ依存 → drift-injection 化
+  - code C1: 奇数バッククォートでエスケープ免除 → 先読みマッチング方式に書き換え
+  - code C2: title/ask/state の未エスケープ挿入 → sv() ヘルパーで全挿入点を統一
+  - doc W2: 進行中×待ちの握りつぶし → キュー除外は済/不要のみに変更
+- [ ] Stage 1 再実行 → 完了処理（knowhow・Feedback・Progress アーカイブ・コミット）
 
 #### 日記
 
@@ -136,3 +140,18 @@ lint を即実行して確認する。
 （バッククォート split の偶奇）と Questions パースの正規表現を重点的に見てもらうこと。
 **気になっていること**: gh pr list のタイムアウト10秒が cron 無人実行時に遅い可能性。
 実測で問題が出たら短縮する。
+
+##### 2026-07-16 — contribution-agent が Critical 検出（DS 誤 FAIL の再発）
+
+**やったこと**: Stage 2 レビュー3体を並列起動。contribution-agent が完了し Critical 1件:
+test-generate-dashboard.sh の Test 3（Plan 1件以上）・Test 5 後半（&lt;concept の実在証拠）が
+**実リポジトリの固有コンテンツ依存**で、ダウンストリームでは必ず FAIL（サンドボックス実測済み。
+Issue #29 / Plan 0055 と同型の再発）。他: Medium = DS への閲覧手順案内なし /
+Low = PlanTemplate の Plan 0058 番号露出・Dashboard.md と dashboard/ の命名紛らわしさ。
+**今の見立て**: 修正方針は決定 — generate-dashboard.py に env var `ADDF_DASHBOARD_ROOT` で
+ルート上書きを追加し、テストは mktemp サンドボックスに合成 Plan（裸の <concept> 入り・
+DS 構成 plans/+TODO.md）を作って検証する drift-injection 方式へ書き換え。
+**次の自分へ**: code-review / doc-review の2体がまだ実行中。結果が来たら同一箇所の指摘を
+集約してから修正すること（exp の教訓: 指摘単位の分割委譲は衝突する）。
+**気になっていること**: コンテキスト使用 255k 超の観測あり。compaction が来ても
+このチェックリストと日記で復帰できる状態を維持する。

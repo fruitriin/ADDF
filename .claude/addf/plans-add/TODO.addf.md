@@ -3,7 +3,7 @@
 `.claude/addf/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: v0.6.2 リリース済み（2026-07-11）。Plan 0040 フェーズ1・2（ccchain 導入・オプトイン配布機構）完了（2026-07-14）。フェーズ3〔ガイド・migrate統合〕・フェーズ4〔統合〕は未着手。Plan 0055（taskbar.fm Issue #27〜#29回収）完了（2026-07-14）。Plan 0054（検討スタブ）は最優先で未着手。Plan 0056（検討スタブ・Plan 系統樹）・Plan 0057（検討スタブ・コミットベースラインのプロファイル化）・Plan 0058（検討スタブ・Dashboard HTML 化と crit.md 連携）起票（2026-07-16）。Plan 0048 は要確認で静観中（Q6投下済み）
+## 現在のフェーズ: v0.6.2 リリース済み（2026-07-11）。Plan 0040 フェーズ1・2（ccchain 導入・オプトイン配布機構）完了（2026-07-14）。フェーズ3〔ガイド・migrate統合〕・フェーズ4〔統合〕は未着手。Plan 0055（taskbar.fm Issue #27〜#29回収）完了（2026-07-14）。Plan 0054（検討スタブ）は最優先で未着手。Plan 0056（検討スタブ・Plan 系統樹）・Plan 0057（検討スタブ・コミットベースラインのプロファイル化）起票（2026-07-16）。Plan 0058（Dashboard HTML 化と crit.md 連携）は標準テンプレへ昇格・フェーズA 実装済みで品質ゲート中（2026-07-16）。Plan 0048 は要確認で静観中（Q6投下済み）
 
 ## バックログ
 
@@ -34,7 +34,7 @@
 | 23 | 23 | `.claude/addf/plans-add/0023-turn-reminder-context-split.md` | 完了 |
 | 24 | 24 | `.claude/addf/plans-add/0024-todo-plan-status-lint.md` | 完了 |
 | 25 | 25 | `.claude/addf/plans-add/0025-rename-repo-to-addf.md` | 完了 |
-| 1 | 26 | `.claude/addf/plans-add/0026-review-residual-backlog.md` | 一部完了（残りは Plan 0043 に回収予定・オーナー指示反映 2026-07-06） |
+| 1 | 26 | `.claude/addf/plans-add/0026-review-residual-backlog.md` | 一部完了（セキュリティ High・破壊的 git 対策は Plan 0043 で対応済み。[Critical] settings.json/hooks 自己書き換え保護は Plan 0054 として回収済み〔2026-07-11 起票〕） |
 | 2 | 27 | `.claude/addf/plans-add/0027-executable-checklist-doctrine.md` | 完了 |
 | 3 | 28 | `.claude/addf/plans-add/0028-worktree-speculative-dev.md` | 完了 |
 | 4 | 29 | `.claude/addf/plans-add/0029-gui-test-environment-matrix.md` | 一部完了（フェーズ1 完了。環境マトリクスはフェーズ2以降） |

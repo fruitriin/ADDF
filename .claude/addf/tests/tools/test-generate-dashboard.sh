@@ -1,16 +1,20 @@
 #!/bin/bash
 # test-generate-dashboard.sh
 # generate-dashboard.py（Plan 0058）がリポジトリ状態からローカルダッシュボード
-# （.claude/addf/dashboard/）を生成できることを検証する。
-# python3（または uv）が無い環境では SKIP。vitepress の実ビルド検証は node があり
-# node_modules が整っている場合のみ実施し、無ければ SKIP する（欠如 = SKIP 設計）。
+# を生成できることを検証する。
+#
+# 検証の主体は mktemp サンドボックスに作る合成リポジトリ（drift-injection 方式）。
+# 実リポジトリの固有コンテンツに依存したアサーションを置かない — 依存すると
+# ダウンストリームで必ず FAIL する（Issue #29 / Plan 0055 と同型の再発を
+# contribution-agent がサンドボックス実測で検出した教訓）。
+# python3（または uv）が無い環境では SKIP。vitepress の実ビルド検証は node と
+# node_modules が揃っている場合のみ実施する（欠如 = SKIP 設計）。
 
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 GEN_SCRIPT="$REPO_ROOT/.claude/addf/addfTools/generate-dashboard.py"
-OUT_DIR="$REPO_ROOT/.claude/addf/dashboard"
 PASS=0
 FAIL=0
 SKIP=0
@@ -35,7 +39,6 @@ if [ ! -f "$GEN_SCRIPT" ]; then
   exit 0
 fi
 
-# python3 / uv のどちらかで実行（uv 優先はしない — stdlib のみのため python3 直接で十分）
 if command -v python3 >/dev/null 2>&1; then
   RUN_PY="python3"
 elif command -v uv >/dev/null 2>&1; then
@@ -47,57 +50,113 @@ else
   exit 0
 fi
 
-echo "Test 1: generate-dashboard.py が正常終了する"
-(cd "$REPO_ROOT" && $RUN_PY "$GEN_SCRIPT" >/dev/null 2>&1)
-check "生成スクリプトが exit 0" 0 $?
+# ---- サンドボックス（ダウンストリーム構成: plans/ + TODO.md・git/gh/Questions 無し）----
+SANDBOX="$(mktemp -d)"
+trap 'rm -rf "$SANDBOX"' EXIT
+mkdir -p "$SANDBOX/.claude/addf/plans"
+
+# 合成 Plan 1: FB 待ち + Vue コンパイルを壊す敵対的入力
+#  - 裸の <concept>（英字開始タグ様テキスト — 実際に vitepress build を落とした再現ケース）
+#  - タイトルにも <foo>（本文コピー以外のページへの挿入経路の検証）
+#  - 奇数個のバッククォートを含む行（閉じ無しバッククォートでエスケープが
+#    免除される退行の検証 — code-review C1）
+cat > "$SANDBOX/.claude/addf/plans/0001-sample.md" <<'EOF'
+# Plan 0001: サンプル計画 <foo> のタイトル
+
+## 実装状況: 未着手
+
+owner_feedback: 待ち
+feedback_ask: テスト用の判断ですよ
+feedback_since: 2026-01-01
+
+昇格の定義は speculative/<concept> → main とする。
+出力例`のようになる。閉じ無しバッククォートの後の speculative/<concept> も対象。
+EOF
+
+# 合成 Plan 2: FB 済（キューに出ないことの検証）
+cat > "$SANDBOX/.claude/addf/plans/0002-done-fb.md" <<'EOF'
+# Plan 0002: フィードバック済みの計画
+
+## 実装状況: 一部完了（テスト用）
+
+owner_feedback: 済
+EOF
+
+cat > "$SANDBOX/TODO.md" <<'EOF'
+| 優先度 | Phase | 計画ファイル | 状態 |
+|---|---|---|---|
+| 1 | 1 | `.claude/addf/plans/0001-sample.md` | 未着手（テスト用） |
+| 2 | 2 | `.claude/addf/plans/0002-done-fb.md` | 一部完了（テスト用） |
+EOF
+
+OUT="$SANDBOX/.claude/addf/dashboard"
+
+echo "Test 1: サンドボックス（DS 構成・git/gh/Questions/Progress 無し）で正常終了する"
+(cd "$SANDBOX" && ADDF_DASHBOARD_ROOT="$SANDBOX" $RUN_PY "$GEN_SCRIPT" >/dev/null 2>&1)
+check "生成スクリプトが exit 0（欠如フェイルセーフ）" 0 $?
 
 echo "Test 2: 3ページ + VitePress 設定が生成される"
 missing=0
 for f in index.md active.md backlog.md .vitepress/config.mts .vitepress/theme/custom.css; do
-  if [ ! -f "$OUT_DIR/$f" ]; then
+  if [ ! -f "$OUT/$f" ]; then
     echo "  MISSING: $f"
     missing=$((missing + 1))
   fi
 done
 check "必須生成物が揃っている（欠落 $missing 件）" 0 "$([ "$missing" -eq 0 ]; echo $?)"
 
-echo "Test 3: プランビューア（Plan 本文コピー）が生成される"
-plan_count=$(find "$OUT_DIR/plans" -name "[0-9]*.md" 2>/dev/null | wc -l | tr -d ' ')
-check "plans/ 配下に1件以上コピーされる（実際: $plan_count 件）" 0 "$([ "$plan_count" -ge 1 ]; echo $?)"
+echo "Test 3: プランビューアに合成 Plan がコピーされる"
+check "plans/0001-sample.md が存在する" 0 "$([ -f "$OUT/plans/0001-sample.md" ]; echo $?)"
 
-echo "Test 4: owner_feedback フィールドがキューに反映される"
-# 本体リポジトリでは Plan 0058 起票時点以降、待ち Plan が最低1件は存在する前提だが、
-# 将来ゼロ件になっても壊れないよう「見出しの存在」を主張の軸にする
-if grep -q "^## オーナー判断待ちの Plan" "$OUT_DIR/index.md"; then
-  echo "  PASS: 要フィードバックページに判断待ちセクションがある"
+echo "Test 4: owner_feedback フィールドがキューに反映される（独立オラクル: 待ちは1件）"
+if grep -q "オーナー判断待ちの Plan — 1件" "$OUT/index.md" \
+  && grep -q "テスト用の判断ですよ" "$OUT/index.md"; then
+  echo "  PASS: 待ち1件・feedback_ask がキュー行に表示される"
   PASS=$((PASS + 1))
 else
-  echo "  FAIL: 判断待ちセクションが index.md に無い"
+  echo "  FAIL: キューの件数または feedback_ask の表示が期待と異なる"
   FAIL=$((FAIL + 1))
 fi
-
-echo "Test 5: Vue コンパイルを壊す裸のタグ様テキストがエスケープされている"
-# インラインコード内（バッククォート内）は markdown-it が安全に処理するため対象外。
-# 「バッククォートを含まない行」に裸の <concept> が残っていないことと、
-# エスケープ済みの証拠（&lt;concept）が実在することの両面で検証する
-bare=$(grep -rn 'speculative/<concept>' "$OUT_DIR/plans/" 2>/dev/null | grep -v '\`' || true)
-if [ -n "$bare" ]; then
-  echo "$bare"
-  echo "  FAIL: 既知の再現ケース（バッククォート外の裸 <concept>）が未エスケープで残存"
+if grep -q "0002" "$OUT/index.md"; then
+  echo "  FAIL: owner_feedback: 済 の Plan がキューに出ている"
   FAIL=$((FAIL + 1))
 else
-  echo "  PASS: バッククォート外の裸 <concept> は残っていない"
+  echo "  PASS: owner_feedback: 済 の Plan はキューに出ない"
   PASS=$((PASS + 1))
-fi
-if grep -rq 'speculative/&lt;concept' "$OUT_DIR/plans/" 2>/dev/null; then
-  echo "  PASS: エスケープ済みの証拠（&lt;concept）が実在する"
-  PASS=$((PASS + 1))
-else
-  echo "  FAIL: エスケープ済みの証拠が見つからない（エスケープ関数が機能していない疑い）"
-  FAIL=$((FAIL + 1))
 fi
 
-echo "Test 6: vitepress 実ビルド（node + node_modules がある場合のみ）"
+echo "Test 5: Vue コンパイルを壊す入力がエスケープされている"
+bad=0
+# 5a: 本文コピー — 裸の <concept> が残らず、エスケープ済み証拠がある
+if grep -q 'speculative/<concept>' "$OUT/plans/0001-sample.md"; then
+  echo "  FAIL: 本文コピーに裸の <concept> が残存"
+  bad=$((bad + 1))
+fi
+if ! grep -q 'speculative/&lt;concept' "$OUT/plans/0001-sample.md"; then
+  echo "  FAIL: 本文コピーにエスケープ済み証拠（&lt;concept）が無い"
+  bad=$((bad + 1))
+fi
+# 5b: 奇数バッククォート行の後もエスケープされる（C1 リグレッション）
+if ! grep -q '閉じ無しバッククォートの後の speculative/&lt;concept' "$OUT/plans/0001-sample.md"; then
+  echo "  FAIL: 奇数バッククォート行の後半がエスケープされていない（C1 再発）"
+  bad=$((bad + 1))
+fi
+# 5c: タイトル経由の挿入（index/backlog）もエスケープされる（C2 リグレッション）
+if grep -q '<foo>' "$OUT/index.md" "$OUT/backlog.md" 2>/dev/null; then
+  echo "  FAIL: タイトル由来の <foo> が未エスケープでページに挿入されている（C2 再発）"
+  bad=$((bad + 1))
+fi
+if ! grep -q '&lt;foo&gt;\|&lt;foo>' "$OUT/index.md"; then
+  echo "  FAIL: index.md にタイトルのエスケープ済み証拠（&lt;foo）が無い"
+  bad=$((bad + 1))
+fi
+check "敵対的入力のエスケープ（不備 $bad 件）" 0 "$([ "$bad" -eq 0 ]; echo $?)"
+
+echo "Test 6: 実リポジトリでも生成が正常終了する"
+(cd "$REPO_ROOT" && $RUN_PY "$GEN_SCRIPT" >/dev/null 2>&1)
+check "実リポジトリで exit 0" 0 $?
+
+echo "Test 7: vitepress 実ビルド（node + node_modules がある場合のみ）"
 if command -v node >/dev/null 2>&1 && [ -d "$REPO_ROOT/node_modules/vitepress" ]; then
   (cd "$REPO_ROOT" && ./node_modules/.bin/vitepress build .claude/addf/dashboard >/dev/null 2>&1)
   check "vitepress build が通る" 0 $?

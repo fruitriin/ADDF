@@ -11,12 +11,16 @@ Progress.md・Progresses/・git 投機ブランチ・gh PR）から、VitePress 
 - owner_feedback フィールド未記入の未完了 Plan は「要判断（詳細は Plan 本文参照）」に
   フォールバック表示する（完全性を生成の前提にしない）
 
-実行: uv run .claude/addf/addfTools/generate-dashboard.py
-      （uv が無ければ python3 で直接実行してよい）
+実行: python3 .claude/addf/addfTools/generate-dashboard.py（uv run でも動く）
+閲覧: npm run dashboard:dev（ADDF 本体）。package.json に dashboard:* が無い
+      ダウンストリームでは `npx vitepress dev .claude/addf/dashboard` で閲覧できる
+テスト用: 環境変数 ADDF_DASHBOARD_ROOT でリポジトリルートを上書きできる
+        （テストがサンドボックスに合成リポジトリを作って検証するためのフック）
 """
 
 import datetime
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -26,7 +30,8 @@ from pathlib import Path
 # --- リポジトリ検出 -----------------------------------------------------------
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-REPO_ROOT = SCRIPT_DIR.parent.parent.parent  # .claude/addf/addfTools/ の3階層上
+# .claude/addf/addfTools/ の3階層上。テストは ADDF_DASHBOARD_ROOT で上書きする
+REPO_ROOT = Path(os.environ.get("ADDF_DASHBOARD_ROOT") or SCRIPT_DIR.parent.parent.parent).resolve()
 ADDF_DIR = REPO_ROOT / ".claude" / "addf"
 OUT_DIR = ADDF_DIR / "dashboard"
 
@@ -152,7 +157,11 @@ def parse_progress():
     if not tm:
         return None
     title, body = tm.group(1).strip(), tm.group(2)
-    checklist = re.findall(r"^- \[([ x])\] (.+)$", body, re.M)
+    # チェックリスト集計は「#### サブタスクチェックリスト」節に限定する
+    # （日記本文に例示のチェックボックス記法が書かれても誤集計しない）
+    cm = re.search(r"^#### サブタスクチェックリスト$(.*?)(?=^#### |\Z)", body, re.M | re.S)
+    checklist_src = cm.group(1) if cm else body
+    checklist = re.findall(r"^- \[([ x])\] (.+)$", checklist_src, re.M)
     diaries = re.findall(r"^##### (.+?)$\n(.*?)(?=^##### |\Z)", body, re.M | re.S)
     latest_diary = None
     if diaries:
@@ -177,7 +186,7 @@ def run_cmd(args, timeout=10):
             args, cwd=REPO_ROOT, capture_output=True, text=True, timeout=timeout
         )
         return r.stdout if r.returncode == 0 else None
-    except (OSError, subprocess.TimeoutExpired):
+    except Exception:  # 非UTF-8ロケールの UnicodeDecodeError 等も含めフェイルセーフ
         return None
 
 
@@ -191,8 +200,8 @@ def speculative_branches():
 
 
 def open_prs():
-    """(prリスト, 取得可否) を返す。gh 不在・失敗時は (None, False)。"""
-    out = run_cmd(["gh", "pr", "list", "--state", "open", "--json", "number,title,createdAt,url"])
+    """PR リストを返す。gh 不在・未認証・失敗時は None（呼び出し側で注記表示）。"""
+    out = run_cmd(["gh", "pr", "list", "--state", "open", "--json", "number,title,createdAt,url"], timeout=8)
     if out is None:
         return None
     try:
@@ -211,23 +220,85 @@ def esc_vue(text: str) -> str:
     HTML コメント以外の `<`（例: `<番号>`・`speculative/<concept>`）と
     Vue 展開 `{{` をエスケープする。Plan 原文が意図的に使う生 HTML は
     `<!-- human-judgment -->` 等のコメントのみという前提（原文の忠実表示が目的）。
+
+    - フェンスは CommonMark 準拠で「同じ文字種・同じ長さ以上」でのみ閉じる
+      （``` の中の ~~~ で誤って閉じない）
+    - インラインコードは CommonMark 準拠で「同じ連長の閉じバッククォートが後に
+      実在する場合のみコードスパン」とする先読みマッチング。閉じが無い単発
+      バッククォートはリテラル扱いになり、以降のテキストは通常どおり
+      エスケープされる（奇数バッククォート行でエスケープが免除される事故を防ぐ）。
+      スパンは段落内（空行まで）なら行を跨いでよい
     """
+
+    def esc_text(seg: str) -> str:
+        seg = re.sub(r"<(?!!--)", "&lt;", seg)
+        return seg.replace("{{", "&#123;&#123;")
+
+    def esc_paragraph(para: str) -> str:
+        parts = re.split(r"(`+)", para)
+        out, i = [], 0
+        while i < len(parts):
+            p = parts[i]
+            if p and p == "`" * len(p):
+                # 同じ連長の閉じデリミタを先読み
+                j = i + 1
+                while j < len(parts):
+                    q = parts[j]
+                    if q and q == "`" * len(q) and len(q) == len(p):
+                        break
+                    j += 1
+                if j < len(parts):
+                    out.extend(parts[i : j + 1])  # コードスパン: 不変
+                    i = j + 1
+                else:
+                    out.append(p)  # 閉じ無し: リテラル。後続は通常エスケープ
+                    i += 1
+            else:
+                out.append(esc_text(p))
+                i += 1
+        return "".join(out)
+
     out_lines = []
-    in_fence = False
+    para_buf = []  # フェンス外の段落バッファ（インラインコードスパンは段落内で解決）
+    fence_char, fence_len = None, 0
+
+    def flush_para():
+        if para_buf:
+            out_lines.append(esc_paragraph("\n".join(para_buf)))
+            para_buf.clear()
+
     for line in text.splitlines():
-        if re.match(r"^\s*(```|~~~)", line):
-            in_fence = not in_fence
+        fm = re.match(r"^\s*(`{3,}|~{3,})", line)
+        if fm:
+            delim = fm.group(1)
+            if fence_char is None:
+                flush_para()
+                fence_char, fence_len = delim[0], len(delim)
+                out_lines.append(line)
+                continue
+            if delim[0] == fence_char and len(delim) >= fence_len:
+                fence_char, fence_len = None, 0
+                out_lines.append(line)
+                continue
+        if fence_char is not None:
             out_lines.append(line)
             continue
-        if in_fence:
+        if not line.strip():
+            flush_para()
             out_lines.append(line)
             continue
-        segs = line.split("`")
-        for i in range(0, len(segs), 2):  # 偶数セグメント = インラインコード外
-            segs[i] = re.sub(r"<(?!!--)", "&lt;", segs[i])
-            segs[i] = segs[i].replace("{{", "&#123;&#123;")
-        out_lines.append("`".join(segs))
+        para_buf.append(line)
+    flush_para()
     return "\n".join(out_lines)
+
+
+def sv(value) -> str:
+    """1行の自由記述文字列（タイトル・feedback_ask・状態注記等）用の安全化。
+
+    Plan 本文コピーと同じエスケープ規則を通す — 「本文は escape するが
+    タイトル欄はしない」という非対称を作らないための共通ヘルパー。
+    """
+    return esc_vue(str(value)) if value is not None else ""
 
 
 def chip(kind: str, label: str) -> str:
@@ -286,12 +357,15 @@ def build():
             }
         )
 
-    # 要フィードバックキュー: owner_feedback=待ち または フィールド未記入
+    # 要フィードバックキュー: owner_feedback=待ち または フィールド未記入。
+    # TODO 状態が「進行中」でも待ちなら載せる（進行中×判断待ちの握りつぶし防止）
     queue = []
     plan_nums_in_queue = set()
     for b in backlog:
         fb = b["owner_feedback"]
-        if fb in ("済", "不要") or b["group"] == "進行中":
+        if fb not in ("待ち", "済", "不要", None):
+            print(f"WARN: Plan {b['num']} の owner_feedback が未知の値です: {fb!r}（待ち扱いにします）")
+        if fb in ("済", "不要"):
             continue
         ask = b["feedback_ask"] or "要判断（詳細は Plan 本文参照）"
         queue.append({**b, "ask": ask, "days": wait_days(b["feedback_since"])})
@@ -301,6 +375,8 @@ def build():
     queue.sort(key=lambda e: (-(e["days"] if e["days"] is not None else -1)))
 
     # ---- 出力ディレクトリ再生成 ----
+    # 3階層決め打ちの REPO_ROOT 導出が壊れた場合に無関係のディレクトリを消さない防御
+    assert OUT_DIR.name == "dashboard" and OUT_DIR.parent.name == "addf", OUT_DIR
     if OUT_DIR.exists():
         shutil.rmtree(OUT_DIR)
     (OUT_DIR / "plans").mkdir(parents=True)
@@ -342,10 +418,10 @@ def build():
                 q_note = f"（{q['id']} と同件）"
         lines += [
             f"::: details <span class=\"days\">{days_label(e['feedback_since'])}</span> "
-            f"`{e['num']}` **{e['title']}** — {e['ask']} {fb_chip(e['owner_feedback'])}",
+            f"`{e['num']}` **{sv(e['title'])}** — {sv(e['ask'])} {fb_chip(e['owner_feedback'])}",
             "",
-            f"- 状態: {e['state']}",
-            f"- 待ちの起点: {e['feedback_since'] or '未記入'}{q_note}",
+            f"- 状態: {sv(e['state'])}",
+            f"- 待ちの起点: {e['feedback_since'] or '未記入（起点不明のため末尾に表示）'}{q_note}",
             f"- [Plan 本文を読む](/plans/{e['stem']})",
             "",
             ":::",
@@ -358,7 +434,7 @@ def build():
         lines += [f"## Plan に紐づかない未回答 Question — {len(orphan_qs)}件", ""]
         for q in orphan_qs:
             lines += [
-                f"::: details <span class=\"days\">{days_label(q['since'])}</span> `{q['id']}` **{q['title']}**",
+                f"::: details <span class=\"days\">{days_label(q['since'])}</span> `{q['id']}` **{sv(q['title'])}**",
                 "",
                 esc_vue(q["body"]),
                 "",
@@ -370,11 +446,12 @@ def build():
     if branches:
         for br in branches:
             ahead = br["ahead"]
-            note = (
-                "main との差分 0 コミット（全て回収済み）— ブランチ削除の判断待ち"
-                if ahead == 0
-                else f"main より {ahead} コミット先行（未回収）"
-            )
+            if ahead == 0:
+                note = "main との差分 0 コミット（全て回収済み）— ブランチ削除の判断待ち"
+            elif ahead is None:
+                note = "main との差分を取得できませんでした（main ブランチの有無を確認）"
+            else:
+                note = f"main より {ahead} コミット先行（未回収）"
             lines.append(f"- `{br['name']}` — {note}")
     else:
         lines.append("> 投機ブランチはありません")
@@ -407,7 +484,7 @@ def build():
         done = sum(1 for s, _ in progress["checklist"] if s == "x")
         total = len(progress["checklist"])
         lines += [
-            f"## {progress['title']}",
+            f"## {sv(progress['title'])}",
             "",
             f"**サブタスク {done} / {total}**",
             "",
@@ -428,6 +505,17 @@ def build():
             "> 進行中のタスクはありません — 次の /addf-dev 起動時にバックログから選定されます",
             "",
         ]
+    # TODO 上で「進行中」の Plan（Progress.md の現在タスクと並行しうる）もここに列挙する
+    in_progress_plans = [b for b in backlog if b["group"] == "進行中"]
+    if in_progress_plans:
+        lines += [f"## 進行中の Plan（TODO より） — {len(in_progress_plans)}件", ""]
+        for b in in_progress_plans:
+            lines += [
+                f"- `{b['num']}` [{sv(b['title'])}](/plans/{b['stem']}) "
+                f"{fb_chip(b['owner_feedback'])}",
+                f"  - {sv(b['state'])}",
+            ]
+        lines.append("")
     recents = recent_progresses()
     if recents:
         lines += [f"## 直近の完了タスク — {len(recents)}件", ""]
@@ -447,16 +535,17 @@ def build():
         "未着手・一部完了の Plan バックログ。タイトルからプランビューアへ。",
         "",
     ]
-    for group in ("進行中", "未着手", "要確認", "一部完了"):
+    # 「進行中」は進行中タスクページ側に載せる（ページ名「未実施の計画」との整合）
+    for group in ("未着手", "要確認", "一部完了"):
         items = [b for b in backlog if b["group"] == group]
         if not items:
             continue
         lines += [f"## {group} — {len(items)}件", ""]
         for b in items:
             lines += [
-                f"- `{b['num']}` [{b['title']}](/plans/{b['stem']}) "
+                f"- `{b['num']}` [{sv(b['title'])}](/plans/{b['stem']}) "
                 f"{fb_chip(b['owner_feedback'])}",
-                f"  - 優先度 {b['prio']} / {esc_vue(b['state'])}",
+                f"  - 優先度 {b['prio']} / {sv(b['state'])}",
             ]
         lines.append("")
     (OUT_DIR / "backlog.md").write_text("\n".join(lines), encoding="utf-8")
