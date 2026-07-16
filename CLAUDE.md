@@ -10,6 +10,7 @@
 1. @.claude/addf/Feedback.md を読む — 未対応の改善アクションを確認する。読み終えたら続けて以下を実行する（手順 1 のサブステップ。以降の手順番号は変わらない）:
    - 1.5. @.claude/addf/Questions.md を読む — オーナーの新しい回答があれば Plan に反映し、該当質問を「回答済み」へ移す
    - 1.6. `.claude/addf/Dashboard.md` が存在すれば冒頭で内容を提示する（unattended 自走の差分まとめ）。オーナーの応答を確認してから削除する。確認前にセッションが終わった場合は次回再提示する
+   - 1.7. `.claude/addf/DashboardComments.json` が存在し `status: "unresolved"` のコメントがあれば読む — HTML ダッシュボード上でオーナーが置いたアンカーコメント（オーナー発の文脈付きフィードバック）。対応を決めて実行し、対応内容を `resolution` に書いて `status: "resolved"` へ更新する。コメントが未回答 Question への回答に相当する場合は Questions.md の Answer 欄へ転記してから resolved 化する（正は常に Questions.md 側 — 二重チャンネル化の回避）
 2. @TODO.md を読む — タスクバックログと優先度を把握する
 3. @.claude/addf/Progress.md を読む — 現在進行中のタスクがあれば継続する
    - 進行中タスクに「日記」セクションがあれば末尾3エントリーを読み、前任者の状況・判断・気にしていたことを把握してから着手する（日記の書き方は Progress.md の運用ルール参照）

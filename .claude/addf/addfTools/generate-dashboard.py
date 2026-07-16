@@ -14,6 +14,8 @@ Progress.md・Progresses/・git 投機ブランチ・gh PR）から、VitePress 
 実行: python3 .claude/addf/addfTools/generate-dashboard.py（uv run でも動く）
 閲覧: npm run dashboard:dev（ADDF 本体）。package.json に dashboard:* が無い
       ダウンストリームでは `npx vitepress dev .claude/addf/dashboard` で閲覧できる
+      起動前に既存の dev サーバーが残っていないか確認する（`lsof -i :5180`）—
+      複数プロセスが同じ DashboardComments.json に書き込む状態を避ける
 テスト用: 環境変数 ADDF_DASHBOARD_ROOT でリポジトリルートを上書きできる
         （テストがサンドボックスに合成リポジトリを作って検証するためのフック）
 """
@@ -46,6 +48,12 @@ else:
 QUESTIONS_PATH = ADDF_DIR / "Questions.md"
 PROGRESS_PATH = ADDF_DIR / "Progress.md"
 PROGRESSES_DIR = ADDF_DIR / "Progresses"
+# アンカーコメントの単一ソース（Plan 0058 フェーズC。コミット対象の共有チャンネル）
+COMMENTS_PATH = ADDF_DIR / "DashboardComments.json"
+# crit（https://crit.md/）のレビューファイル置き場。テストは環境変数で上書きする
+CRIT_REVIEWS_DIR = Path(
+    os.environ.get("ADDF_CRIT_REVIEWS_DIR") or Path.home() / ".crit" / "reviews"
+)
 
 TODAY = datetime.date.today()
 
@@ -177,6 +185,61 @@ def recent_progresses(n=5):
     return [f.stem for f in files[:n]]
 
 
+# --- 抽出: アンカーコメント・crit レビュー --------------------------------------
+
+
+def parse_dashboard_comments():
+    """DashboardComments.json の未解決コメントを返す。不在は空、壊れは WARN + 空。"""
+    if not COMMENTS_PATH.exists():
+        return []
+    try:
+        data = json.loads(COMMENTS_PATH.read_text(encoding="utf-8"))
+    except Exception:  # 壊れた JSON だけでなく PermissionError 等の OSError も生成は止めない
+        print(f"WARN: {COMMENTS_PATH.name} が読めません（コメント表示をスキップします）")
+        return []
+    comments = data.get("comments") if isinstance(data, dict) else None
+    if not isinstance(comments, list):
+        return []
+    return [c for c in comments if isinstance(c, dict) and c.get("status") != "resolved"]
+
+
+def parse_crit_reviews():
+    """crit レビューファイル群から未解決コメントを集める。crit 不在・壊れは空リスト。"""
+    items = []
+    if not CRIT_REVIEWS_DIR.is_dir():
+        return items
+    for rj in sorted(CRIT_REVIEWS_DIR.glob("*/review.json")):
+        try:
+            data = json.loads(rj.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        files = data.get("files") if isinstance(data, dict) else None
+        if not isinstance(files, dict):
+            continue
+        for fpath, finfo in files.items():
+            # crit は ADDF が制御しない外部フォーマット — 「有効な JSON だが想定外の形状」
+            # でも単一エントリのスキップに留め、生成全体を落とさない（レビュー2体が独立指摘）
+            if not isinstance(finfo, dict):
+                continue
+            comments = finfo.get("comments")
+            if not isinstance(comments, list):
+                continue
+            for c in comments:
+                if not isinstance(c, dict) or c.get("resolved"):
+                    continue
+                items.append(
+                    {
+                        "session": rj.parent.name,
+                        "file": fpath,
+                        "body": c.get("body", ""),
+                        "anchor": c.get("anchor", ""),
+                        "author": c.get("author", ""),
+                        "created_at": c.get("created_at", ""),
+                    }
+                )
+    return items
+
+
 # --- 抽出: git / gh ------------------------------------------------------------
 
 
@@ -213,13 +276,55 @@ def open_prs():
 # --- ページ生成 -----------------------------------------------------------------
 
 
-def esc_vue(text: str) -> str:
+def _fence_outside_lines(text: str):
+    """コードフェンス外の行だけを yield する（esc_vue と同じ CommonMark 準拠の開閉判定）。"""
+    fence_char, fence_len = None, 0
+    for line in text.splitlines():
+        fm = re.match(r"^\s*(`{3,}|~{3,})", line)
+        if fm:
+            delim = fm.group(1)
+            if fence_char is None:
+                fence_char, fence_len = delim[0], len(delim)
+                continue
+            if delim[0] == fence_char and len(delim) >= fence_len:
+                fence_char, fence_len = None, 0
+                continue
+        if fence_char is None:
+            yield line
+
+
+def _collapse_tags_status(text: str):
+    """フェンス外の <details>/<summary> タグの (出現有無, バランス成立) を返す。
+
+    閉じ忘れの <details> は Vue コンパイルの "Element is missing end tag" で
+    ダッシュボード全体（全ページ・全プランビューア）を巻き込むため、
+    バランスが取れている場合のみパススルーを許可する（不成立時は全エスケープへ
+    フォールバック — 欠如・壊れ＝フェイルセーフの設計に合わせる）。
+    インラインコード内の言及もカウントに含まれるが、不均衡と誤判定された場合も
+    「折りたたみにならず原文表示される」だけで表示は壊れない（安全側）。
+    """
+    opens_d = closes_d = opens_s = closes_s = 0
+    for line in _fence_outside_lines(text):
+        opens_d += len(re.findall(r"<details(?:\s[^<>]*)?>", line))
+        closes_d += len(re.findall(r"</details\s*>", line))
+        opens_s += len(re.findall(r"<summary(?:\s[^<>]*)?>", line))
+        closes_s += len(re.findall(r"</summary\s*>", line))
+    has = bool(opens_d or closes_d or opens_s or closes_s)
+    balanced = opens_d == closes_d and opens_s == closes_s
+    return has, balanced
+
+
+def esc_vue(text: str, src: str = None) -> str:
     """Plan 原文を VitePress（Vue コンパイル）で安全に通すエスケープ。
 
     コードフェンス内は不変。フェンス外では、インラインコード区間を除き
     HTML コメント以外の `<`（例: `<番号>`・`speculative/<concept>`）と
     Vue 展開 `{{` をエスケープする。Plan 原文が意図的に使う生 HTML は
-    `<!-- human-judgment -->` 等のコメントのみという前提（原文の忠実表示が目的）。
+    `<!-- human-judgment -->` 等のコメントと、折りたたみ用の
+    `<details>` / `<summary>`（フェーズC — GitHub 表示と両立する折りたたみ構文。
+    開きタグ・閉じタグをペアで書くこと。閉じ忘れは Vue コンパイルエラーになる）のみ
+    という前提（原文の忠実表示が目的）。VitePress ネイティブの
+    `::: details タイトル` 構文は `<` を含まないためそのまま通る（第一推奨）。
 
     - フェンスは CommonMark 準拠で「同じ文字種・同じ長さ以上」でのみ閉じる
       （``` の中の ~~~ で誤って閉じない）
@@ -230,8 +335,23 @@ def esc_vue(text: str) -> str:
       スパンは段落内（空行まで）なら行を跨いでよい
     """
 
+    has_collapse, collapse_balanced = _collapse_tags_status(text)
+    allow_collapse = has_collapse and collapse_balanced
+    if has_collapse and not collapse_balanced:
+        print(
+            f"WARN: {src or 'テキスト'} の <details>/<summary> が閉じていません — "
+            "折りたたみを無効化して全エスケープしました"
+        )
+
     def esc_text(seg: str) -> str:
-        seg = re.sub(r"<(?!!--)", "&lt;", seg)
+        # <!-- コメント --> と、タグバランスが取れている場合のみ <details>/<summary>
+        # （属性付き・閉じタグ含む）を生 HTML として通す。
+        # 限界（意図的に許容）: 属性値内の生 `>`（<details title="a>b">）は早期マッチで
+        # 素通しする。<details/>（自己終了）・<Details>（大文字）は通さない（安全側）
+        if allow_collapse:
+            seg = re.sub(r"<(?!!--|/?(?:details|summary)(?:\s[^<>]*)?>)", "&lt;", seg)
+        else:
+            seg = re.sub(r"<(?!!--)", "&lt;", seg)
         return seg.replace("{{", "&#123;&#123;")
 
     def esc_paragraph(para: str) -> str:
@@ -338,6 +458,8 @@ def build():
     progress = parse_progress()
     branches = speculative_branches()
     prs = open_prs()
+    dash_comments = parse_dashboard_comments()
+    crit_comments = parse_crit_reviews()
 
     # 未完了 Plan（完了以外）を収集
     backlog = []
@@ -386,7 +508,7 @@ def build():
     plan_sidebar = []
     for f in sorted(PLANS_DIR.glob("[0-9]*.md")):
         (OUT_DIR / "plans" / f.name).write_text(
-            esc_vue(f.read_text(encoding="utf-8")), encoding="utf-8"
+            esc_vue(f.read_text(encoding="utf-8"), src=f.name), encoding="utf-8"
         )
         plan_sidebar.append({"text": f.stem, "link": f"/plans/{f.stem}"})
 
@@ -406,6 +528,7 @@ def build():
         f'<div class="stat"><div class="label">投機ブランチ</div><div class="value">{len(branches)}<small>本</small></div></div>',
         f'<div class="stat"><div class="label">オープン PR</div><div class="value">{len(prs) if prs is not None else "?"}<small>件</small></div></div>',
         f'<div class="stat hot"><div class="label">最長の待ち</div><div class="value">{longest}<small>日</small></div></div>',
+        f'<div class="stat{" hot" if dash_comments or crit_comments else ""}"><div class="label">未解決コメント</div><div class="value">{len(dash_comments) + len(crit_comments)}<small>件</small></div></div>',
         "</div>",
         "",
         f"## オーナー判断待ちの Plan — {len(queue)}件",
@@ -441,6 +564,44 @@ def build():
                 ":::",
                 "",
             ]
+
+    # アンカーコメント（オーナー発 → エージェント対応待ち。方向がキューと逆なので別セクション）
+    if dash_comments:
+        lines += [
+            f"## あなたが置いたコメント（エージェント対応待ち） — {len(dash_comments)}件",
+            "",
+            "次のセッションのブートシーケンスでエージェントが読み、対応後に resolved 化します。",
+            "",
+        ]
+        for c in dash_comments:
+            page = c.get("page") or "?"
+            anchor = (c.get("anchor") or "").strip()
+            if len(anchor) > 80:
+                anchor = anchor[:80] + "…"
+            lines += [
+                f"::: details `{sv(page)}` — {sv(c.get('body', ''))}",
+                "",
+            ]
+            if anchor:
+                lines += [f"> {sv(anchor)}", ""]
+            lines += [
+                f"- 投稿: {sv(c.get('created_at', '?'))} / id: `{sv(c.get('id', '?'))}`",
+                "",
+                ":::",
+                "",
+            ]
+    if crit_comments:
+        lines += [
+            f"## crit レビューの未解決コメント — {len(crit_comments)}件",
+            "",
+            "`~/.crit/reviews/` から集約。`crit --session <id>` で再接続できます。",
+            "",
+        ]
+        for c in crit_comments:
+            lines.append(
+                f"- `{sv(c['file'])}` — {sv(c['body'])}（session `{c['session']}`）"
+            )
+        lines.append("")
 
     lines += [f"## 投機ブランチ — {len(branches)}本", ""]
     if branches:
@@ -552,14 +713,156 @@ def build():
 
     # ---- VitePress 設定・テーマ ----
     sidebar_json = json.dumps(plan_sidebar, ensure_ascii=False, indent=2)
-    config = f"""import {{ defineConfig }} from 'vitepress'
 
+    # アンカーコメント API（Vite dev サーバーミドルウェア — Plan 0058 フェーズC 決定C-1）。
+    # f-string の {} エスケープ地獄を避けるため、JS 部分はプレースホルダ置換で組み立てる
+    api_ts = """
+// ---- アンカーコメント API（generate-dashboard.py が生成 — 編集しない）----
+// dev サーバー専用。静的ビルド（dashboard:build）ではコメント投稿は動かない
+// （レビューは npm run dashboard:dev で行う）。書き込み先は COMMENTS_PATH の
+// 1ファイル固定（クライアント入力からパスを組み立てない）
+const COMMENTS_PATH = __COMMENTS_PATH__
+const PLANS_REL = __PLANS_REL__
+
+function readComments() {
+  try {
+    const d = JSON.parse(fs.readFileSync(COMMENTS_PATH, 'utf-8'))
+    return d && Array.isArray(d.comments) ? d : { comments: [] }
+  } catch { return { comments: [] } }
+}
+
+function writeComments(data) {
+  fs.writeFileSync(COMMENTS_PATH, JSON.stringify(data, null, 2) + '\\n', 'utf-8')
+}
+
+function readReqBody(req) {
+  return new Promise((resolve, reject) => {
+    let buf = ''
+    req.on('data', (c) => { buf += c })
+    req.on('end', () => { try { resolve(JSON.parse(buf || '{}')) } catch (e) { reject(e) } })
+    req.on('error', reject)
+  })
+}
+
+function newId(prefix) {
+  return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
+}
+
+// read-modify-write を直列化するキュー。並行リクエスト（複数タブ・複数 dev サーバー
+// ではなく同一プロセス内の並行）で後勝ち上書きによるコメント消失を防ぐ
+let opQueue = Promise.resolve()
+function enqueue(fn) {
+  const p = opQueue.then(fn)
+  opQueue = p.catch(() => {})
+  return p
+}
+
+const commentsApi = {
+  name: 'addf-comments-api',
+  configureServer(server) {
+    server.middlewares.use('/api/comments', async (req, res) => {
+      res.setHeader('Content-Type', 'application/json')
+      try {
+        if (req.method === 'GET') {
+          res.end(JSON.stringify(readComments()))
+          return
+        }
+        if (req.method === 'POST') {
+          const b = await readReqBody(req)
+          if (!b.body || !b.page) {
+            res.statusCode = 400
+            res.end('{"error":"body and page required"}')
+            return
+          }
+          const page = String(b.page)
+          // source_path はサーバー側で導出する（クライアント入力を信用しない）
+          const m = page.match(/^\\/plans\\/([\\w.-]+)$/)
+          const c = {
+            id: newId('dc'),
+            page,
+            source_path: m ? PLANS_REL + '/' + m[1] + '.md' : null,
+            anchor: String(b.anchor || ''),
+            anchor_occurrence: Math.max(0, Number(b.anchor_occurrence) || 0),
+            body: String(b.body),
+            author: String(b.author || 'owner'),
+            created_at: new Date().toISOString(),
+            status: 'unresolved',
+            resolution: null,
+            replies: [],
+          }
+          await enqueue(() => {
+            const data = readComments()
+            data.comments.push(c)
+            writeComments(data)
+          })
+          res.end(JSON.stringify(c))
+          return
+        }
+        if (req.method === 'PATCH') {
+          const b = await readReqBody(req)
+          const c = await enqueue(() => {
+            const data = readComments()
+            const target = data.comments.find((x) => x.id === b.id)
+            if (!target) return null
+            if (b.status === 'resolved' || b.status === 'unresolved') target.status = b.status
+            if (b.reply) {
+              target.replies = target.replies || []
+              target.replies.push({
+                id: newId('rp'),
+                body: String(b.reply),
+                author: String(b.author || 'owner'),
+                created_at: new Date().toISOString(),
+              })
+            }
+            writeComments(data)
+            return target
+          })
+          if (!c) {
+            res.statusCode = 404
+            res.end('{"error":"comment not found"}')
+            return
+          }
+          res.end(JSON.stringify(c))
+          return
+        }
+        res.statusCode = 405
+        res.end('{"error":"method not allowed"}')
+      } catch (e) {
+        res.statusCode = 500
+        res.end(JSON.stringify({ error: String((e && e.message) || e) }))
+      }
+    })
+  },
+}
+""".replace("__COMMENTS_PATH__", json.dumps(str(COMMENTS_PATH))).replace(
+        "__PLANS_REL__", json.dumps(str(PLANS_DIR.relative_to(REPO_ROOT)))
+    )
+
+    config = f"""import {{ defineConfig }} from 'vitepress'
+import fs from 'node:fs'
+{api_ts}
 export default defineConfig({{
   title: 'ADDF ダッシュボード',
   description: 'ローカルレビューダッシュボード（生成物 — 編集しない）',
   lang: 'ja',
   ignoreDeadLinks: true,
-  vite: {{ server: {{ port: 5180 }} }},
+  markdown: {{
+    config(md) {{
+      // インラインコードに v-pre を付ける。VitePress はフェンスコードにしか
+      // v-pre を付けないため、Plan 原文のインラインコード内 Vue 展開
+      // （例: crit の Go template 変数 `{{{{.review_path}}}}`）が SFC コンパイルで
+      // interpolation 解釈されるのを防ぐ（esc_vue はコードスパン不変ポリシーのため
+      // 生成側ではなくレンダラ側で保護する）
+      md.renderer.rules.code_inline = (tokens, idx) =>
+        '<code v-pre>' + md.utils.escapeHtml(tokens[idx].content) + '</code>'
+    }},
+  }},
+  // config の port は CLI の --port より優先されるため、テスト等の別ポート起動は
+  // 環境変数 ADDF_DASHBOARD_PORT で上書きする
+  vite: {{
+    server: {{ port: Number(process.env.ADDF_DASHBOARD_PORT) || 5180 }},
+    plugins: [commentsApi],
+  }},
   themeConfig: {{
     sidebar: {{
       '/': [
@@ -582,10 +885,297 @@ export default defineConfig({{
     (OUT_DIR / ".vitepress" / "config.mts").write_text(config, encoding="utf-8")
 
     theme = """import DefaultTheme from 'vitepress/theme'
+import Layout from './Layout.vue'
 import './custom.css'
-export default DefaultTheme
+export default { extends: DefaultTheme, Layout }
 """
     (OUT_DIR / ".vitepress" / "theme" / "index.mts").write_text(theme, encoding="utf-8")
+
+    # アンカーコメント UI（Plan 0058 フェーズC 決定C-7）。anchor はブロック原文の
+    # 正規化テキスト（crit の「行原文保持」を踏襲 — 再生成で位置がずれても原文一致で復元）
+    layout_vue = r"""<script setup>
+// generate-dashboard.py が生成 — 編集しない（単一ソースはリポジトリ側）
+import DefaultTheme from 'vitepress/theme'
+import { useRoute, onContentUpdated } from 'vitepress'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+
+const VPLayout = DefaultTheme.Layout
+const route = useRoute()
+
+const available = ref(false) // コメント API が生きているか（dev サーバーのみ true）
+const comments = ref([])
+const panelOpen = ref(false)
+const panelAnchor = ref('')
+const panelThread = ref([])
+const draft = ref('')
+const sending = ref(false)
+const orphans = ref([])
+const btn = ref({ visible: false, top: 0, left: 0 })
+const hoverAnchor = ref('')
+const hoverOcc = ref(0)
+const panelOcc = ref(0)
+
+// tr はコンテンツモデル上 button を直接置けないため td/th 単位にする
+const BLOCK_SEL =
+  '.vp-doc p, .vp-doc li, .vp-doc h1, .vp-doc h2, .vp-doc h3, .vp-doc h4, ' +
+  '.vp-doc pre, .vp-doc td, .vp-doc th, .vp-doc blockquote, .vp-doc summary'
+
+function normText(s) {
+  return (s || '').replace(/\s+/g, ' ').trim()
+}
+
+function pagePath() {
+  let p = route.path.replace(/\.html$/, '')
+  if (p.endsWith('/index')) p = p.slice(0, -('index'.length))
+  return p || '/'
+}
+
+function blockText(block) {
+  if (block.dataset.addfText !== undefined) return block.dataset.addfText
+  const clone = block.cloneNode(true)
+  clone.querySelectorAll('.addf-cbadge').forEach((el) => el.remove())
+  return normText(clone.textContent)
+}
+
+async function fetchComments() {
+  try {
+    const r = await fetch('/api/comments', { headers: { accept: 'application/json' } })
+    if (!r.ok) throw new Error('api unavailable')
+    const d = await r.json()
+    comments.value = Array.isArray(d.comments) ? d.comments : []
+    available.value = true
+  } catch {
+    available.value = false
+    comments.value = []
+  }
+}
+
+function decorate() {
+  if (typeof document === 'undefined') return
+  document.querySelectorAll('.addf-cbadge').forEach((el) => el.remove())
+  document
+    .querySelectorAll('.addf-commented')
+    .forEach((el) => el.classList.remove('addf-commented'))
+  orphans.value = []
+  if (!available.value) return
+  const p = pagePath()
+  const list = comments.value.filter((c) => c.page === p && c.status !== 'resolved')
+  const blocks = Array.from(document.querySelectorAll(BLOCK_SEL))
+  // 同一テキストのブロックが複数ある場合に区別するため出現番号（0始まり）も振る
+  const occCount = {}
+  for (const b of blocks) {
+    const t = normText(b.textContent)
+    b.dataset.addfText = t
+    occCount[t] = (occCount[t] ?? -1) + 1
+    b.dataset.addfOcc = String(occCount[t])
+  }
+  const byAnchor = new Map()
+  for (const c of list) {
+    const key = normText(c.anchor)
+    const occ = Math.max(0, Number(c.anchor_occurrence) || 0)
+    const mapKey = occ + ':' + key
+    if (!byAnchor.has(mapKey)) byAnchor.set(mapKey, [])
+    byAnchor.get(mapKey).push(c)
+  }
+  const matched = new Set()
+  for (const [mapKey, cs] of byAnchor) {
+    const sep = mapKey.indexOf(':')
+    const occ = mapKey.slice(0, sep)
+    const key = mapKey.slice(sep + 1)
+    if (!key) continue
+    const block = blocks.find(
+      (b) => b.dataset.addfText === key && b.dataset.addfOcc === occ
+    )
+    if (!block) continue
+    cs.forEach((c) => matched.add(c.id))
+    block.classList.add('addf-commented')
+    const badge = document.createElement('button')
+    badge.className = 'addf-cbadge'
+    badge.type = 'button'
+    badge.textContent = '💬' + cs.length
+    badge.addEventListener('click', (e) => {
+      e.stopPropagation()
+      openPanel(key, Number(occ))
+    })
+    block.appendChild(badge)
+  }
+  orphans.value = list.filter((c) => !matched.has(c.id))
+}
+
+function refreshThread() {
+  const p = pagePath()
+  panelThread.value = comments.value.filter(
+    (c) =>
+      c.page === p &&
+      normText(c.anchor) === panelAnchor.value &&
+      Math.max(0, Number(c.anchor_occurrence) || 0) === panelOcc.value
+  )
+}
+
+function openPanel(anchorKey, occ) {
+  panelAnchor.value = anchorKey
+  panelOcc.value = Math.max(0, Number(occ) || 0)
+  refreshThread()
+  draft.value = ''
+  panelOpen.value = true
+  btn.value.visible = false
+}
+
+function onMouseOver(e) {
+  if (!available.value || panelOpen.value) return
+  const t = e.target
+  if (!(t instanceof Element)) return
+  if (t.closest('.addf-panel, .addf-hoverbtn, .addf-orphans')) return
+  const block = t.closest(BLOCK_SEL)
+  if (!block) {
+    btn.value.visible = false
+    return
+  }
+  const r = block.getBoundingClientRect()
+  hoverAnchor.value = blockText(block)
+  hoverOcc.value = Number(block.dataset.addfOcc || 0)
+  btn.value = {
+    visible: true,
+    top: r.top + window.scrollY,
+    left: Math.max(6, r.left + window.scrollX - 34),
+  }
+}
+
+async function refreshAll() {
+  await fetchComments()
+  decorate()
+  if (panelOpen.value) refreshThread()
+}
+
+async function submit() {
+  const body = draft.value.trim()
+  if (!body || sending.value) return
+  sending.value = true
+  try {
+    const r = await fetch('/api/comments', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        page: pagePath(),
+        anchor: panelAnchor.value,
+        anchor_occurrence: panelOcc.value,
+        body,
+      }),
+    })
+    if (r.ok) {
+      draft.value = ''
+      await refreshAll()
+    }
+  } finally {
+    sending.value = false
+  }
+}
+
+async function markResolved(id) {
+  await fetch('/api/comments', {
+    method: 'PATCH',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id, status: 'resolved' }),
+  })
+  await refreshAll()
+}
+
+onMounted(async () => {
+  await fetchComments()
+  await nextTick()
+  decorate()
+  document.addEventListener('mouseover', onMouseOver)
+})
+
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.removeEventListener('mouseover', onMouseOver)
+  }
+})
+
+onContentUpdated(() => decorate())
+
+watch(
+  () => route.path,
+  () => {
+    panelOpen.value = false
+    btn.value.visible = false
+  }
+)
+</script>
+
+<template>
+  <VPLayout />
+  <ClientOnly>
+    <button
+      v-if="available && btn.visible"
+      class="addf-hoverbtn"
+      type="button"
+      title="この箇所にコメントする"
+      :style="{ top: btn.top + 'px', left: btn.left + 'px' }"
+      @click="openPanel(hoverAnchor, hoverOcc)"
+    >💬</button>
+
+    <div v-if="panelOpen" class="addf-panel">
+      <div class="addf-panel-head">
+        <strong>アンカーコメント</strong>
+        <button class="addf-x" type="button" @click="panelOpen = false">×</button>
+      </div>
+      <blockquote v-if="panelAnchor" class="addf-anchor">{{ panelAnchor }}</blockquote>
+      <div
+        v-for="c in panelThread"
+        :key="c.id"
+        class="addf-comment"
+        :class="{ 'is-resolved': c.status === 'resolved' }"
+      >
+        <div class="addf-meta">
+          {{ c.author }} · {{ (c.created_at || '').slice(0, 16).replace('T', ' ') }}
+          <span v-if="c.status === 'resolved'" class="addf-resolved-mark">✓ resolved</span>
+        </div>
+        <div class="addf-body">{{ c.body }}</div>
+        <div v-if="c.resolution" class="addf-reply">
+          <div class="addf-meta">resolution</div>
+          <div class="addf-body">{{ c.resolution }}</div>
+        </div>
+        <div v-for="rp in c.replies || []" :key="rp.id" class="addf-reply">
+          <div class="addf-meta">{{ rp.author }}</div>
+          <div class="addf-body">{{ rp.body }}</div>
+        </div>
+        <button
+          v-if="c.status !== 'resolved'"
+          class="addf-resolve"
+          type="button"
+          @click="markResolved(c.id)"
+        >resolve</button>
+      </div>
+      <textarea
+        v-model="draft"
+        class="addf-draft"
+        rows="3"
+        placeholder="コメントを書く — 次のセッションのエージェントに渡ります"
+      ></textarea>
+      <button
+        class="addf-send"
+        type="button"
+        :disabled="sending || !draft.trim()"
+        @click="submit"
+      >送信</button>
+    </div>
+
+    <div v-if="available && orphans.length" class="addf-orphans">
+      <details>
+        <summary>位置を特定できないコメント {{ orphans.length }}件（本文の再生成で対象が変わった可能性）</summary>
+        <div v-for="c in orphans" :key="c.id" class="addf-comment">
+          <blockquote v-if="c.anchor" class="addf-anchor">{{ c.anchor }}</blockquote>
+          <div class="addf-body">{{ c.body }}</div>
+          <button class="addf-resolve" type="button" @click="markResolved(c.id)">resolve</button>
+        </div>
+      </details>
+    </div>
+  </ClientOnly>
+</template>
+"""
+    (OUT_DIR / ".vitepress" / "theme" / "Layout.vue").write_text(layout_vue, encoding="utf-8")
 
     css = """:root {
   --chip-wait-ink: #8a5300; --chip-wait-bg: #f7ecda;
@@ -608,7 +1198,7 @@ export default DefaultTheme
   font-family: var(--vp-font-family-mono); font-variant-numeric: tabular-nums;
   font-weight: 600; color: var(--chip-wait-ink); margin-right: 4px;
 }
-.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0 8px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 16px 0 8px; }
 .stat { border: 1px solid var(--vp-c-divider); border-radius: 8px; padding: 10px 14px; }
 .stat .label { font-size: 12px; color: var(--vp-c-text-2); }
 .stat .value { font-family: var(--vp-font-family-mono); font-size: 24px; font-weight: 600; }
@@ -630,15 +1220,84 @@ export default DefaultTheme
   color: var(--vp-c-brand-1);
   font-weight: 700;
 }
+
+/* ---- アンカーコメント UI（Plan 0058 フェーズC）---- */
+.addf-commented {
+  background: var(--chip-wait-bg);
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px var(--chip-wait-bg);
+}
+.addf-cbadge {
+  display: inline-block; margin-left: 6px; padding: 0 6px;
+  font-size: 11px; line-height: 18px; border-radius: 9px; cursor: pointer;
+  background: var(--chip-wait-ink); color: var(--vp-c-bg); border: none;
+  vertical-align: middle;
+}
+.addf-hoverbtn {
+  position: absolute; z-index: 40; width: 28px; height: 24px;
+  font-size: 13px; line-height: 22px; padding: 0; text-align: center;
+  border: 1px solid var(--vp-c-divider); border-radius: 6px; cursor: pointer;
+  background: var(--vp-c-bg-soft);
+}
+.addf-hoverbtn:hover { background: var(--chip-wait-bg); }
+.addf-panel {
+  position: fixed; right: 16px; bottom: 16px; z-index: 60;
+  width: min(380px, calc(100vw - 32px)); max-height: 70vh; overflow-y: auto;
+  background: var(--vp-c-bg); border: 1px solid var(--vp-c-divider);
+  border-radius: 10px; box-shadow: var(--vp-shadow-3); padding: 12px 14px;
+  font-size: 13px;
+}
+.addf-panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.addf-x { border: none; background: none; font-size: 16px; cursor: pointer; color: var(--vp-c-text-2); }
+.addf-anchor {
+  margin: 0 0 10px; padding: 6px 10px; font-size: 12px;
+  color: var(--vp-c-text-2); border-left: 3px solid var(--chip-wait-ink);
+  background: var(--vp-c-bg-soft); border-radius: 0 6px 6px 0;
+  max-height: 80px; overflow-y: auto;
+}
+.addf-comment { border-top: 1px solid var(--vp-c-divider); padding: 8px 0; }
+.addf-comment.is-resolved { opacity: 0.6; }
+.addf-meta { font-size: 11px; color: var(--vp-c-text-2); margin-bottom: 2px; }
+.addf-resolved-mark { color: var(--chip-ok-ink); }
+.addf-body { white-space: pre-wrap; word-break: break-word; }
+.addf-reply { margin: 6px 0 0 14px; padding-left: 8px; border-left: 2px solid var(--vp-c-divider); }
+.addf-resolve {
+  margin-top: 4px; padding: 1px 8px; font-size: 11px; cursor: pointer;
+  border: 1px solid var(--vp-c-divider); border-radius: 6px;
+  background: var(--vp-c-bg-soft); color: var(--chip-ok-ink);
+}
+.addf-draft {
+  width: 100%; margin-top: 8px; padding: 6px 8px; font-size: 13px;
+  font-family: inherit; border: 1px solid var(--vp-c-divider); border-radius: 6px;
+  background: var(--vp-c-bg); color: var(--vp-c-text-1); resize: vertical;
+}
+.addf-send {
+  margin-top: 6px; padding: 4px 14px; font-size: 13px; cursor: pointer;
+  border: none; border-radius: 6px; background: var(--vp-c-brand-1); color: #fff;
+}
+.addf-send:disabled { opacity: 0.5; cursor: default; }
+.addf-orphans {
+  position: fixed; left: 16px; bottom: 16px; z-index: 50;
+  width: min(420px, calc(100vw - 32px)); max-height: 40vh; overflow-y: auto;
+  background: var(--vp-c-bg); border: 1px solid var(--vp-c-divider);
+  border-radius: 10px; box-shadow: var(--vp-shadow-2); padding: 8px 12px;
+  font-size: 13px;
+}
+.addf-orphans summary { cursor: pointer; color: var(--chip-wait-ink); font-size: 12px; }
 """
     (OUT_DIR / ".vitepress" / "theme" / "custom.css").write_text(css, encoding="utf-8")
+
+    # コメント置き場の初期化（API の書き込み先を確実にする。既存があれば触らない）
+    if not COMMENTS_PATH.exists():
+        COMMENTS_PATH.write_text('{\n  "comments": []\n}\n', encoding="utf-8")
 
     n_q = len(queue) + len(orphan_qs)
     print(f"OK: dashboard generated at {OUT_DIR.relative_to(REPO_ROOT)}")
     print(
         f"    判断待ち {n_q}件 / 投機ブランチ {len(branches)}本 / "
         f"PR {'取得不可' if prs is None else str(len(prs)) + '件'} / "
-        f"バックログ {len(backlog)}件 / Plan コピー {len(plan_sidebar)}件"
+        f"バックログ {len(backlog)}件 / Plan コピー {len(plan_sidebar)}件 / "
+        f"未解決コメント {len(dash_comments) + len(crit_comments)}件"
     )
     return 0
 

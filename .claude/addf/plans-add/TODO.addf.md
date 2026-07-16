@@ -3,7 +3,7 @@
 `.claude/addf/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: v0.6.2 リリース済み（2026-07-11）。Plan 0040 フェーズ1・2（ccchain 導入・オプトイン配布機構）完了（2026-07-14）。フェーズ3〔ガイド・migrate統合〕・フェーズ4〔統合〕は未着手。Plan 0055（taskbar.fm Issue #27〜#29回収）完了（2026-07-14）。Plan 0054（検討スタブ）は最優先で未着手。Plan 0056（検討スタブ・Plan 系統樹）・Plan 0057（検討スタブ・コミットベースラインのプロファイル化）起票（2026-07-16）。Plan 0058（Dashboard HTML 化と crit.md 連携）はフェーズA 完了・オーナー実物確認待ち（2026-07-16。フェーズB=crit ドッグフーディング・フェーズC=二層接続は未着手）。Plan 0048 は要確認で静観中（Q6投下済み）
+## 現在のフェーズ: v0.6.2 リリース済み（2026-07-11）。Plan 0040 フェーズ1・2（ccchain 導入・オプトイン配布機構）完了（2026-07-14）。フェーズ3〔ガイド・migrate統合〕・フェーズ4〔統合〕は未着手。Plan 0055（taskbar.fm Issue #27〜#29回収）完了（2026-07-14）。Plan 0054（検討スタブ）は最優先で未着手。Plan 0056（検討スタブ・Plan 系統樹）・Plan 0057（検討スタブ・コミットベースラインのプロファイル化）起票（2026-07-16）。Plan 0058（Dashboard HTML 化と crit.md 連携）はフェーズA・B・C 完了（2026-07-16。アンカーコメント UI 実装済み・オーナーのブラウザ動線確認待ち）。Plan 0059〜0064（オープン Issue 回収）・0065（README ダッシュボード記載）起票（2026-07-16）。Plan 0048 は要確認で静観中（Q6投下済み）
 
 ## バックログ
 
@@ -65,7 +65,14 @@
 | **1** | 54 | `.claude/addf/plans-add/0054-settings-self-write-protection.md`（検討スタブ） | 未着手（2026-07-11 起票。Plan 0053 の doc-review で Plan 0026 の [Critical]「settings.json/hooks 自己書き換え保護」が Plan 0043 で明示的にスコープ外とされたまま独立 Plan 未作成で放置されていたことが判明。Progress 運用ルール7〔主題外Critical最優先切り出し〕に従い起票。設計方向性はオーナー判断待ち） |
 | 3 | 56 | `.claude/addf/plans-add/0056-plan-genealogy-tree.md`（検討スタブ） | 未着手（2026-07-16 起票。オーナー発案。未完了タスクロードマップを積み上げ式から系統樹表現へ — 剪定・派生・復活をエッジ型で一級データ化し、TODO テーブルを真実源としたまま Mermaid 派生ビューを生成する構想。クリティカルパス〔オーナー判断待ちの可視化〕はオーナー好感触あり。エッジ記録先・初期スコープはオーナー判断待ち） |
 | 3 | 57 | `.claude/addf/plans-add/0057-commit-baseline-profiles.md`（検討スタブ） | 未着手（2026-07-16 起票。オーナー発案。`.gitignore` ADDF ブロック〔何をコミットし何を ignore するか〕を Behavior.toml のプロファイル宣言〔upstream/team/personal 想定〕で切り替える構想。きっかけは .exp.md のコミット要否が開発形態で変わる整理と Claude Code Web 可搬性。exp 先行切り出しはせず1本で扱うことをオーナー決定済み。プロファイル粒度・デフォルト値はオーナー判断待ち） |
-| **1** | 58 | `.claude/addf/plans-add/0058-dashboard-html-review-ui.md` | 一部完了（フェーズA・B 完了 2026-07-16。A: owner_feedback フィールド仕様＋遡及付与11件・generate-dashboard.py〔3ページ＋プランビューア58件〕・VitePress 配線・drift-injection テスト8件・3体レビュー Critical 3件反映・オーナー実物確認済み〔サイドバー化反映〕。B: crit ドッグフーディング一周実測 — files モードは差分ゼロで起動可・レビューループと review.json スキーマ〔anchor 原文保持〕確認・crit ビューアでは VitePress 内部リンクが辿れないことがオーナー実感で確定。フェーズC〔ダッシュボード自前アンカー UI = crit プロトコル模倣・二層接続・配布〕は設計方針確定済み・次サイクルで Plan 詰め） |
+| **1** | 58 | `.claude/addf/plans-add/0058-dashboard-html-review-ui.md` | 一部完了（フェーズA・B・C 完了 2026-07-16。A: ダッシュボード実装・オーナー実物確認済み。B: crit ドッグフーディング一周実測。C: アンカーコメント UI〔Layout.vue＋/api/comments・DashboardComments.json・crit 集約・ブートシーケンス 1.7・折りたたみ構文2系統〕、3体レビュー Critical 2〔crit 型ガード=2体独立指摘・details 閉じ忘れフォールバック〕/High 1〔API 直列化〕等を反映、テスト17件全通過。残: オーナーのブラウザ動線確認のみ〔owner_feedback: 待ち〕。README 記載は Plan 0065 に切り出し） |
+| 4 | 59 | `.claude/addf/plans-add/0059-downstream-test-environment-compat.md` | 未着手（2026-07-16 起票。Issue #30・#31 回収 — upstream 前提テストの SKIP 化と書式受理） |
+| 4 | 60 | `.claude/addf/plans-add/0060-migrate-paths-lookbehind-boundary.md` | 未着手（2026-07-16 起票。Issue #33 回収 — migrate-paths / lint-residual-paths の lookbehind 境界導入） |
+| 5 | 61 | `.claude/addf/plans-add/0061-test-architecture-guide.md` | 未着手（2026-07-16 起票。Issue #32・#6 回収 — テスト設計ガイド新設） |
+| 5 | 62 | `.claude/addf/plans-add/0062-speculation-feedback-proposals.md` | 未着手（2026-07-16 起票。Issue #24・#25 回収 — 投機サイクル完走フィードバックの未回収提案棚卸し） |
+| 6 | 63 | `.claude/addf/plans-add/0063-feedback-md-format.md` | 未着手（2026-07-16 起票。Issue #5 回収 — Feedback.md 記入フォーマットと knowhow 振り分け基準） |
+| 6 | 64 | `.claude/addf/plans-add/0064-plan-numbering-self-cleaning.md`（検討スタブ） | 未着手（2026-07-16 起票。Issue #7 回収 — Plan 採番・残存コメントの自浄機構） |
+| 7 | 65 | `.claude/addf/plans-add/0065-readme-dashboard-gap.md` | 未着手（2026-07-16 起票。Plan 0058 フェーズC の doc-review 検出 — README にローカルダッシュボード機能の記載が無い。Plan 0050 と同種の乖離回収） |
 | 2 | 55 | `.claude/addf/plans-add/0055-downstream-migration-feedback-taskbar.md` | 完了（2026-07-14。GitHub Issue #27〔addf-migrate自己点検〕・#28〔*.addf.md除外規則の説明強化〕・#29〔downstreamで必ずFAILするテストの動的アサーション化〕をtaskbar.fmからのフィードバックとして回収。3体レビュー（code-review Critical1件・doc-review Critical1件等）を反映、Critical指摘の反映過程でテストヘルパーのstrip_fences漏れという実バグも検出・修正。run-all.sh・/addf-lint 全通過） |
 
 オーナーリクエスト:

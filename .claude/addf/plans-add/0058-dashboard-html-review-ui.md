@@ -1,8 +1,10 @@
 # Plan 0058: Dashboard の HTML 化とブラウザレビュー UI
 
-## 実装状況: 一部完了（フェーズA・B 完了 2026-07-16。A: ダッシュボード実装＋3体レビュー Critical 3件反映＋オーナー実物確認済み〔サイドバー化を反映〕。B: crit ドッグフーディング一周〔files モード差分ゼロ起動・コメント→Finish→reply→再接続のループ実測・review.json スキーマ確認〕。フェーズC〔ダッシュボード自前アンカー UI・二層接続・配布〕は未着手 — 設計方針は確定済みで次サイクルの Plan 詰めで扱う。`/crit` プラグイン導入は保留）
+## 実装状況: 一部完了（フェーズA・B・C 完了 2026-07-16。A: ダッシュボード実装＋オーナー実物確認済み。B: crit ドッグフーディング一周実測。C: アンカーコメント UI〔Layout.vue＋/api/comments Vite プラグイン〕・DashboardComments.json・crit 未解決コメント集約・ブートシーケンス 1.7 配線・折りたたみ構文2系統〔::: details 推奨＋details/summary パススルー〕・3体レビュー反映〔Critical 2/High 1/Medium 4 ほか〕・テスト17件全通過。残: オーナーによるブラウザでのアンカーコメント動線確認のみ。`/crit` プラグイン導入は保留）
 
-owner_feedback: 済
+owner_feedback: 待ち
+feedback_ask: フェーズC アンカーコメント UI のブラウザ動線確認（dashboard:dev でホバー→コメント→resolve）
+feedback_since: 2026-07-16
 
 > 出典: オーナー発案（2026-07-16 対話セッション）。Dashboard を md から HTML にしたい。
 > VitePress 的な markdown to html がベースで、折りたたみ・画像・ページ切り替えで
@@ -151,19 +153,64 @@ owner_feedback: 済
   プランビューア）は crit files モードでは機能しない**ことがオーナー実感として確定。
   フェーズC の「ダッシュボード上のコメントは自前 UI（VitePress 側）が必要」を補強
 
-### フェーズC: 二層接続・配布（フェーズB 後に判断）
+### フェーズC: ダッシュボード自前アンカー UI・二層接続（2026-07-16 詰め・実施）
 
-- crit レビューファイル（`~/.crit/reviews/`）の未解決コメントをダッシュボードの
-  キューに集約・ブートシーケンス 1.6 との整合・`optional/` テンプレート化の要否
 - **オーナー構想（2026-07-16 フェーズA 実物確認時）**: ダッシュボード上に適宜
   アンカーポイントを作り、その場でコメントを入れられるようにする。入れたコメントは
   ファイルに書き出し、次のターン（セッション）にコンテキストとして渡す —
   crit 的な非同期レビューループをダッシュボード自体に持たせる方向。
-  静的 VitePress ではコメントの書き出しに小さなローカルサーバ（または crit 本体の
-  流用）が必要になるため、フェーズB の crit 試用結果を見て
-  「crit をそのまま使う（ダッシュボードからの誘導のみ）／ダッシュボードに自前実装」を
-  判断する。自前実装する場合、コメントの置き場は Questions.md の Answer 欄との
-  役割分担を先に決めること（二重チャンネル化を避ける）
+  フェーズB 実測（crit ビューアで VitePress 内部リンクが辿れない＝俯瞰→詳細の導線が
+  機能しない）により「ダッシュボードに自前実装」で確定
+
+**フェーズC の決定事項（plan-refinement-pattern の未決→決定+根拠 変換）**
+
+- **決定C-1: コメント書き出しは VitePress dev サーバーの Vite プラグインで実装する**。
+  `generate-dashboard.py` が `.vitepress/config.mts` に `configureServer` ミドルウェア
+  （`/api/comments` の GET/POST/PATCH、node:fs で JSON 読み書き）を生成する。
+  根拠: `dashboard:dev` にそのまま乗り、追加プロセス・追加依存・追加ポートが不要。
+  crit 本体流用は「ビューアが crit 側に切り替わる」というフェーズB で実測した欠点を
+  再導入するため不採用。静的ビルド（`dashboard:build`）ではコメント投稿は動かない
+  （読み取り表示のみ）— レビューは `dashboard:dev` で行う運用を仕様として明記する
+- **決定C-2: コメント置き場は `.claude/addf/DashboardComments.json`（コミット対象）**。
+  根拠: Questions.md と同じ「オーナーとの共有チャンネル」であり、リポジトリ内に
+  置くことでセッション・マシンを跨いで次ターンのコンテキストに渡せる（crit の
+  `~/.crit/reviews/` はホーム配下のため可搬性がない）。スキーマは crit の review.json を
+  模倣: `comments[]` に `id / page / source_path / anchor`（対象ブロックの原文テキスト —
+  再生成で行番号がずれても原文一致で位置を復元する。フェーズB 実測の踏襲）
+  `/ anchor_occurrence`（同一原文ブロックが複数あるときの出現番号・0始まり — レビュー M1 対応）
+  `/ body / author / created_at / status ("unresolved"|"resolved") / resolution / replies[]`
+- **決定C-3: Questions.md との役割分担は「方向」で分ける**（二重チャンネル化の回避）。
+  Questions.md ＝ エージェント発の構造化質問（正は常にこちら）。
+  DashboardComments.json ＝ オーナー発の文脈付きフィードバック（ページ上の任意箇所）。
+  オーナーのコメントが未回答 Question への回答に相当する場合、エージェントは反映時に
+  Questions.md の Answer 欄へ転記してからコメントを resolved 化する（単一ソース維持）
+- **決定C-4: エージェントへの受け渡しはブートシーケンス手順 1.7 として配線する**。
+  「`.claude/addf/DashboardComments.json` に `status: "unresolved"` のコメントがあれば
+  読み、対応する（対応後に `status: "resolved"` と `resolution` を書き込む）」。
+  1.6（Dashboard.md）が unattended 自走の差分まとめであるのに対し、1.7 は
+  オーナー発フィードバックの受信箱 — どちらも「セッション冒頭にオーナーの声を聞く」枠
+- **決定C-5: 二層接続 — crit 未解決コメントの集約は generate-dashboard.py に追加する**。
+  `~/.crit/reviews/*/review.json` を走査し、unresolved コメントの件数・対象ファイルを
+  「要フィードバック」ページに表示する（crit 不在・ディレクトリ無しは非表示の
+  フェイルセーフ）。ダッシュボードコメントの unresolved も同様に統計へ加える
+- **決定C-6: `optional/` テンプレート化はしない**。
+  根拠: ダッシュボード一式は `generate-dashboard.py` の生成物であり、addfTools ＋ tests の
+  通常配布に既に乗っている。ccchain のような外部バイナリ・ホスト側設定を持たず、
+  使わないダウンストリームでは単に実行しなければよい（optional 機構の保守負担の方が大きい）。
+  復活条件: ダウンストリームから「配布から除外したい」フィードバックが実際に来たら再検討
+- **決定C-7: アンカー UI はテーマ Layout（`.vitepress/theme/Layout.vue` を生成）で実装する**。
+  本文ブロック要素（p / li / 見出し / テーブル行 / pre）のホバーで「💬」ボタンを出し、
+  クリックでコメント入力ポップオーバー → POST。既存コメントは anchor 原文一致で
+  該当ブロックにバッジ表示（クリックでスレッド・返信・resolve）。原文一致しない
+  コメント（orphan — 再生成で本文が変わった等）はページ末尾に一覧表示して握りつぶさない
+- **決定C-8: プランビューアの折りたたみ構文は2系統をサポートする**（2026-07-16
+  オーナー追加要望「人間の注意資源配分をやりやすく」）。第一推奨は VitePress ネイティブの
+  `::: details 見出し`（パーサー追加ゼロ・Plan 原文でも GitHub 上でも邪魔にならない）。
+  GitHub 表示でも折りたたみたい場合は `<details>/<summary>` — `esc_vue()` の生 HTML
+  パススルー対象に追加した（ペアで書く前提。閉じ忘れは Vue コンパイルエラー）。
+  書き方は PlanTemplate.md にコメントで案内。また実ビルドで発覚した「インラインコード内の
+  `{{.go_template}}` が Vue interpolation として解釈されビルドが落ちる」問題は、
+  `markdown.config` の `code_inline` レンダラ差し替え（v-pre 付与）で解決した
 
 ## 影響範囲
 
@@ -195,6 +242,30 @@ owner_feedback: 済
 - [ ] `npm run dashboard:dev` でダッシュボードが閲覧でき、プランビューアで Plan 本文が読める <!-- human-judgment -->
 - [x] `bash .claude/addf/tests/run-all.sh` 全通過
 - [x] lint 一式（plan-status / residual-paths / template-sync / checklist / json / toml / frontmatter）全通過
+
+フェーズC:
+
+- [x] `dashboard:dev` 起動中に `/api/comments` の GET/POST/PATCH（reply・resolve・404・400）が動作する（curl 実測済み）
+- [x] コメントが `.claude/addf/DashboardComments.json` に書き出され、再生成後の「要フィードバック」ページに未解決分が表示される
+- [x] `~/.crit/reviews/` の未解決コメントが「要フィードバック」ページに集約される（実物1件で確認）
+- [x] CLAUDE.md ブートシーケンス 1.7 が配線され、同期ペア lint（3/4/5）が通過する
+- [x] `<details>/<summary>` と `::: details` がプランビューアで折りたたみとして機能し、インラインコード内 `{{...}}` でビルドが落ちない（vitepress build 通過）
+- [ ] ブラウザでアンカーコメントの一連の流れ（ホバー→コメント→バッジ→resolve）をオーナーが確認する <!-- human-judgment -->
+
+### フェーズC Stage 2 レビュー反映記録（2026-07-16・3体並列）
+
+- [Critical×2体] `parse_crit_reviews()` の型ガード不足（crit スキーマドリフトで生成全体クラッシュ・
+  両体が DS/合成サンドボックスで独立に実測再現）→ isinstance ガード追加＋ Test 10
+- [Critical] `<details>` 閉じ忘れで vitepress build 全体クラッシュ（code-review が実測）→
+  `_collapse_tags_status()` のバランスチェックで不均衡時は全エスケープへフォールバック＋ WARN ＋ Test 9
+- [High] `/api/comments` の read-modify-write 競合でコメント消失 → Promise キューで直列化
+- [Medium] anchor 同文重複の誤マッチ → `anchor_occurrence` フィールド新設（クライアント算出・サーバー保存）
+- [Medium] ホバーボタンが余白で残留 → ブロック外で非表示化。[Low] scrollX・tr→td/th・except 拡大も反映
+- [Medium] ブートシーケンス 1.7 の存在ゲート文言（3ファイル）・addf-migrate に DashboardComments.json 補完を追記
+- [Medium] レビュー実測で混入したダミーコメントをコミット前にリセット
+- [Info] README のダッシュボード機能未記載 → 主題外・Plan 0065 に切り出し
+- ポート注意: config.mts の port 指定は CLI `--port` より優先される。テスト・別ポート起動は
+  `ADDF_DASHBOARD_PORT` で上書きする（Test 12 実装時に発見）
 
 ## AI 実装時間見積もり
 

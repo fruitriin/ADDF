@@ -57,7 +57,33 @@ status: active
   （生成テンプレート側の HTML と、データ由来文字列のエスケープを分離する）
 - 紛らわしい名前の共存に注意: `.claude/addf/Dashboard.md`（unattended 自走の
   差分まとめ・一時ファイル）と `.claude/addf/dashboard/`（本 knowhow の生成物
-  ディレクトリ）は別物。grep・ドキュメント参照時に取り違えない
+  ディレクトリ）は別物。Plan 0058 フェーズC で3つ目の
+  `.claude/addf/DashboardComments.json`（アンカーコメント置き場・コミット対象）が
+  加わった。grep・ドキュメント参照時に取り違えない
+
+## フェーズC で追加された落とし穴（2026-07-16）
+
+- **インラインコード内の `{{...}}` は「コードスパン不変」ポリシーでは守れない**。
+  VitePress が v-pre を付けるのはフェンスコードのみで、インラインコードの
+  `{{.go_template}}`（crit の Go template 変数の記述等）は SFC コンパイルで
+  interpolation として解釈され `Error parsing JavaScript expression` でビルドが落ちる。
+  対処はエスケープ側ではなくレンダラ側 — `markdown.config` で `code_inline` を
+  `<code v-pre>` を出す実装に差し替える（`escapeHtml` 併用。原文忠実表示も保たれる）
+- **生 HTML のパススルーを許すなら、タグバランスチェックとフォールバックをセットにする**。
+  `<details>/<summary>` を許可した直後、閉じ忘れ1つで "Element is missing end tag" が
+  ダッシュボード全体（全ページ・全プランビューア）を巻き込むことをレビューが実測した。
+  `_collapse_tags_status()` のように開閉数を数え、不均衡なら全エスケープに戻して WARN を
+  出す（安全側に倒しても「折りたたみにならず原文表示」なだけで壊れない）。
+  この回帰テストのフィクスチャを書くとき、**本文中に閉じタグの文字列を「無い」と
+  説明するために書くとカウンタが均衡してテストにならない**（自己言及の罠 —
+  lint-residual-paths の Plan 0052 と同型）
+- **VitePress の config `vite.server.port` は CLI の `--port` より優先される**。
+  テスト・並行起動用に別ポートを使いたい場合は config 側を
+  `Number(process.env.ADDF_DASHBOARD_PORT) || 5180` のように環境変数対応にする
+- **dev サーバーの `/api/*` ミドルウェアで read-modify-write するなら Promise キューで
+  直列化する**。`await readReqBody()` を挟む素朴な実装は並行 POST で後勝ち上書きになり、
+  ファイル全体を書き戻す設計ではコメント消失＝実害になる（レビュー中に stray な
+  dev サーバーが2つ生き残っている実態も観測されており、並行書き込みは机上の懸念ではない）
 
 ## 関連ノウハウ
 

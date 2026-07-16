@@ -10,6 +10,7 @@ On session start, read these files in order:
 1. `.claude/addf/Feedback.md` — Check for unresolved improvement actions
    - 1.5. `.claude/addf/Questions.md` — If the owner answered pending questions, apply the answers to plans and move them to "answered"
    - 1.6. If `.claude/addf/Dashboard.md` exists, present its contents first (summary of unattended autonomous work). Delete it only after the owner has acknowledged it; re-present next session otherwise
+   - 1.7. If `.claude/addf/DashboardComments.json` exists and contains comments with `status: "unresolved"`, read them — anchor comments the owner left on the HTML dashboard (owner-initiated contextual feedback). Decide and execute a response, write it to `resolution`, and update `status` to `"resolved"`. If a comment amounts to an answer to an open Question, transcribe it to the Answer field in Questions.md before resolving (Questions.md is always the source of truth — avoid dual channels)
 2. `TODO.md` — Review task backlog and priorities
 3. `.claude/addf/Progress.md` — Continue in-progress tasks or select next
    - If the in-progress task has a diary (日記) section, read the last 3 entries to pick up the predecessor's situation, judgments, and concerns before starting (see Progress.md operating rules for the diary format)

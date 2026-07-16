@@ -20,6 +20,7 @@
 1. `.claude/addf/Feedback.md` を読む — 未対応の改善アクションを確認
    - 1.5. `.claude/addf/Questions.md` を読む — オーナーの回答があれば Plan に反映
    - 1.6. `.claude/addf/Dashboard.md` があれば提示 — unattended 自走の差分まとめ
+   - 1.7. `.claude/addf/DashboardComments.json` があれば未解決コメントを読む — HTML ダッシュボードのアンカーコメント（対応後に resolved 化。Question への回答相当は Questions.md へ転記）
 2. `TODO.md` を読む — タスクバックログと優先度を把握
 3. `.claude/addf/Progress.md` を読む — 進行中タスクがあれば、日記の末尾3エントリーで前任者の文脈を引き継いで継続
 4. TODO に未完了タスクがない場合 — オーナーに次のタスクを確認（プロジェクト初回は骨格プランニング。計画の書式は `.claude/addf/templates/PlanTemplate.md`）
