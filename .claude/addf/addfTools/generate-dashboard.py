@@ -1470,6 +1470,20 @@ watch(
 .stat.ready .value { color: var(--chip-ok-ink); }
 @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
 
+/* サイトタイトル（リポジトリ名）はサイドバー幅に閉じ込めず、ヘッダー全幅で表示する
+   （長いリポジトリ名がサイドバー幅からはみ出す — オーナー実測フィードバック） */
+@media (min-width: 960px) {
+  .VPNavBar.has-sidebar .title {
+    width: max-content;
+    max-width: calc(100% - 220px); /* 右端のテーマトグル等と重ねない */
+    background-color: transparent;
+  }
+  .VPNavBarTitle.has-sidebar .title {
+    border-bottom: none;
+  }
+}
+.VPNavBarTitle .title { white-space: nowrap; }
+
 /* サイドバーはページタブの代替 — 通常項目の視認性と現在ページのコントラストを上げる */
 .VPSidebarItem.level-1 .text {
   color: var(--vp-c-text-1);
