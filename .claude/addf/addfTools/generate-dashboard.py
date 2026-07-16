@@ -1081,33 +1081,58 @@ function refreshThread() {
 }
 
 // 入力中テキストの永続化 — 再生成による HMR リロードやパネルの開閉で
-// 入力が消えないよう localStorage に退避する（実測フィードバック）
-const DRAFT_KEY = 'addf-comment-draft'
+// 入力が消えないよう localStorage に退避する（実測フィードバック）。
+// スロットは (page, anchor, occ) 別のマルチスロット: 別のアンカーを開いても
+// 他の書きかけは消えない
+const DRAFTS_KEY = 'addf-comment-drafts'
 
-function persistDraft() {
+function loadDraftSlots() {
   try {
-    if (panelOpen.value && draft.value.trim()) {
-      localStorage.setItem(
-        DRAFT_KEY,
-        JSON.stringify({
-          page: pagePath(),
-          anchor: panelAnchor.value,
-          occ: panelOcc.value,
-          text: draft.value,
-        })
-      )
-    } else if (!draft.value.trim() && panelOpen.value) {
-      localStorage.removeItem(DRAFT_KEY)
-    }
+    const a = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]')
+    return Array.isArray(a) ? a : []
+  } catch {
+    return []
+  }
+}
+
+function saveDraftSlots(list) {
+  try {
+    if (list.length) localStorage.setItem(DRAFTS_KEY, JSON.stringify(list))
+    else localStorage.removeItem(DRAFTS_KEY)
   } catch { /* localStorage 不可の環境では諦める */ }
 }
 
-function readPersistedDraft() {
-  try {
-    const s = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null')
-    if (s && s.page === pagePath()) return s
-  } catch { /* 壊れた保存値は無視 */ }
-  return null
+function slotMatch(d, page, anchor, occ) {
+  return d.page === page && d.anchor === anchor && Number(d.occ) === Number(occ)
+}
+
+function persistDraft() {
+  if (!panelOpen.value) return
+  const page = pagePath()
+  const list = loadDraftSlots().filter(
+    (d) => !slotMatch(d, page, panelAnchor.value, panelOcc.value)
+  )
+  if (draft.value.trim()) {
+    list.push({
+      page,
+      anchor: panelAnchor.value,
+      occ: panelOcc.value,
+      text: draft.value,
+      updated: Date.now(),
+    })
+  }
+  saveDraftSlots(list)
+}
+
+function findDraftSlot(anchor, occ) {
+  return (
+    loadDraftSlots().find((d) => slotMatch(d, pagePath(), anchor, occ)) || null
+  )
+}
+
+function removeDraftSlot(anchor, occ) {
+  const page = pagePath()
+  saveDraftSlots(loadDraftSlots().filter((d) => !slotMatch(d, page, anchor, occ)))
 }
 
 watch(draft, persistDraft)
@@ -1116,9 +1141,8 @@ function openPanel(anchorKey, occ) {
   panelAnchor.value = anchorKey
   panelOcc.value = Math.max(0, Number(occ) || 0)
   refreshThread()
-  const saved = readPersistedDraft()
-  draft.value =
-    saved && saved.anchor === anchorKey && saved.occ === panelOcc.value ? saved.text : ''
+  const saved = findDraftSlot(anchorKey, panelOcc.value)
+  draft.value = saved ? saved.text : ''
   panelOpen.value = true
   btn.value.visible = false
 }
@@ -1189,7 +1213,7 @@ async function submit() {
     })
     if (r.ok) {
       draft.value = ''
-      try { localStorage.removeItem(DRAFT_KEY) } catch { /* noop */ }
+      removeDraftSlot(panelAnchor.value, panelOcc.value)
       await refreshAll()
     }
   } finally {
@@ -1250,10 +1274,24 @@ onMounted(async () => {
   decorate()
   document.addEventListener('mouseover', onMouseOver)
   document.addEventListener('click', onDocClick)
-  // リロード前に入力していたコメントがあればパネルごと復元する
-  const saved = readPersistedDraft()
-  if (saved && saved.text) {
-    openPanel(saved.anchor, saved.occ)
+  // 旧・単一スロットキー（addf-comment-draft）からの移行
+  try {
+    const legacy = JSON.parse(localStorage.getItem('addf-comment-draft') || 'null')
+    if (legacy && legacy.text) {
+      const list = loadDraftSlots().filter(
+        (d) => !slotMatch(d, legacy.page, legacy.anchor, legacy.occ)
+      )
+      list.push({ ...legacy, updated: Date.now() })
+      saveDraftSlots(list)
+    }
+    localStorage.removeItem('addf-comment-draft')
+  } catch { /* noop */ }
+  // リロード前にこのページで入力していたコメントがあればパネルごと復元する
+  // （複数あれば最後に触っていたもの。他のスロットは該当アンカーを開けば復元される）
+  const mine = loadDraftSlots().filter((d) => d.page === pagePath() && d.text)
+  if (mine.length) {
+    const latest = mine.reduce((a, b) => ((a.updated || 0) > (b.updated || 0) ? a : b))
+    openPanel(latest.anchor, latest.occ)
   }
 })
 

@@ -240,6 +240,19 @@
       "status": "draft",
       "resolution": null,
       "replies": []
+    },
+    {
+      "id": "dc_mrnmcpyc51gr",
+      "page": "/plans/0056-plan-genealogy-tree",
+      "source_path": ".claude/addf/plans-add/0056-plan-genealogy-tree.md",
+      "anchor": "エッジ型の最小セットを上記5種で確定してよいか（追加・削減の判断）",
+      "anchor_occurrence": 0,
+      "body": "暫定的にこれでよさそう",
+      "author": "owner",
+      "created_at": "2026-07-16T14:43:20.295Z",
+      "status": "draft",
+      "resolution": null,
+      "replies": []
     }
   ]
 }
