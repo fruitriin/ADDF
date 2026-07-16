@@ -227,6 +227,19 @@
       "status": "resolved",
       "resolution": "Plan 0064 に反映: 判定基準は ADDF 本体での実測ファーストで固める方針を記録",
       "replies": []
+    },
+    {
+      "id": "dc_mrnm9pfzdzc6",
+      "page": "/",
+      "source_path": null,
+      "anchor": "6日 0039 ADDF ドキュメント Web（VitePress）とドキュメントドリフト対策 — GitHub Pages の有効化（リポジトリ設定でのオーナー操作） FB 待ち",
+      "anchor_occurrence": 0,
+      "body": "docs配下は他のリポジトリでも docsとして使いたいだろうから、ここに置くのはまずそう\n.claude/addf/webManual 配下とかがいいんじゃないかな\nどう思う？",
+      "author": "owner",
+      "created_at": "2026-07-16T14:40:59.663Z",
+      "status": "draft",
+      "resolution": null,
+      "replies": []
     }
   ]
 }

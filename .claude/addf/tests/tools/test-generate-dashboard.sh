@@ -325,6 +325,14 @@ else
   echo "  FAIL: 形状ドリフトの巻き添えで正常コメントが消えた"
   FAIL=$((FAIL + 1))
 fi
+# 差分書き込み移行後の掃除検証: Test 9 で消した Plan 0003 のコピーが残骸として残らない
+if [ -f "$OUT/plans/0003-unclosed.md" ]; then
+  echo "  FAIL: 削除済み Plan のコピーが掃除されていない（rmtree 廃止の残骸）"
+  FAIL=$((FAIL + 1))
+else
+  echo "  PASS: 削除済み Plan のコピーは再生成で掃除される"
+  PASS=$((PASS + 1))
+fi
 rm -rf "$CRIT_DIR/sess02"
 
 echo "Test 11: 壊れた DashboardComments.json でも生成は失敗しない（フェイルセーフ）"

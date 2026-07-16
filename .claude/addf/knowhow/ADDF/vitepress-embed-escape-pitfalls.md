@@ -80,6 +80,12 @@ status: active
 - **VitePress の config `vite.server.port` は CLI の `--port` より優先される**。
   テスト・並行起動用に別ポートを使いたい場合は config 側を
   `Number(process.env.ADDF_DASHBOARD_PORT) || 5180` のように環境変数対応にする
+- **生成物ディレクトリを rmtree + 全再生成すると、dev サーバー起動中の再生成が
+  全ファイル HMR → ページリロードになり、ブラウザで入力中のテキストを消す**
+  （オーナー実測）。対処は2段: (1) 生成を差分書き込みにする（既存内容と比較して
+  変わったファイルだけ write。rmtree は dev サーバーの `.vitepress/cache` も
+  巻き込むため廃止し、掃除は自分の管理領域〔トップ md・plans/*.md〕の個別 unlink に
+  限定する）(2) 入力中テキストは localStorage に退避し、マウント時にパネルごと復元する
 - **dev サーバーの `/api/*` ミドルウェアで read-modify-write するなら Promise キューで
   直列化する**。`await readReqBody()` を挟む素朴な実装は並行 POST で後勝ち上書きになり、
   ファイル全体を書き戻す設計ではコメント消失＝実害になる（レビュー中に stray な

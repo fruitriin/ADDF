@@ -24,7 +24,6 @@ import datetime
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -504,19 +503,30 @@ def build():
     orphan_qs = [q for q in unanswered_qs if q["plan"] not in plan_nums_in_queue]
     queue.sort(key=lambda e: (-(e["days"] if e["days"] is not None else -1)))
 
-    # ---- 出力ディレクトリ再生成 ----
-    # 3階層決め打ちの REPO_ROOT 導出が壊れた場合に無関係のディレクトリを消さない防御
+    # ---- 出力ディレクトリ更新 ----
+    # 3階層決め打ちの REPO_ROOT 導出が壊れた場合に無関係のディレクトリを触らない防御
     assert OUT_DIR.name == "dashboard" and OUT_DIR.parent.name == "addf", OUT_DIR
-    if OUT_DIR.exists():
-        shutil.rmtree(OUT_DIR)
-    (OUT_DIR / "plans").mkdir(parents=True)
-    (OUT_DIR / ".vitepress" / "theme").mkdir(parents=True)
+    (OUT_DIR / "plans").mkdir(parents=True, exist_ok=True)
+    (OUT_DIR / ".vitepress" / "theme").mkdir(parents=True, exist_ok=True)
+
+    # 差分書き込み: 内容が変わったファイルだけ書く。dev サーバー起動中の再生成で
+    # 無変更ファイルまで HMR を発火させない（全ファイル書き換えはページリロードになり、
+    # オーナーの入力中コメントを消す — 実測フィードバック）。rmtree もしない
+    # （.vitepress/cache 等 dev サーバーの生成物を巻き込むため）
+    written = set()
+
+    def write_out(path: Path, content: str):
+        written.add(path)
+        if path.exists() and path.read_text(encoding="utf-8") == content:
+            return
+        path.write_text(content, encoding="utf-8")
 
     # Plan 本文コピー（プランビューア。完了 Plan も含む — 番号リンクで辿れるように）
     plan_sidebar = []
     for f in sorted(PLANS_DIR.glob("[0-9]*.md")):
-        (OUT_DIR / "plans" / f.name).write_text(
-            esc_vue(f.read_text(encoding="utf-8"), src=f.name), encoding="utf-8"
+        write_out(
+            OUT_DIR / "plans" / f.name,
+            esc_vue(f.read_text(encoding="utf-8"), src=f.name),
         )
         plan_sidebar.append({"text": f.stem, "link": f"/plans/{f.stem}"})
 
@@ -651,7 +661,7 @@ def build():
             lines.append(f"- `{q['id']}` {q['title']}")
         lines.append("")
 
-    (OUT_DIR / "index.md").write_text("\n".join(lines), encoding="utf-8")
+    write_out(OUT_DIR / "index.md", "\n".join(lines))
 
     # ---- ページ: 進行中タスク（active.md）----
     lines = ["---", "title: 進行中タスク", "---", "", "# 進行中タスク", ""]
@@ -697,7 +707,7 @@ def build():
         for stem in recents:
             lines.append(f"- `{stem}`")
         lines.append("")
-    (OUT_DIR / "active.md").write_text("\n".join(lines), encoding="utf-8")
+    write_out(OUT_DIR / "active.md", "\n".join(lines))
 
     # ---- ページ: 未実施の計画（backlog.md）----
     lines = [
@@ -723,7 +733,7 @@ def build():
                 f"  - 優先度 {b['prio']} / {sv(b['state'])}",
             ]
         lines.append("")
-    (OUT_DIR / "backlog.md").write_text("\n".join(lines), encoding="utf-8")
+    write_out(OUT_DIR / "backlog.md", "\n".join(lines))
 
     # ---- VitePress 設定・テーマ ----
     sidebar_json = json.dumps(plan_sidebar, ensure_ascii=False, indent=2)
@@ -931,14 +941,14 @@ export default defineConfig({{
   }},
 }})
 """
-    (OUT_DIR / ".vitepress" / "config.mts").write_text(config, encoding="utf-8")
+    write_out(OUT_DIR / ".vitepress" / "config.mts", config)
 
     theme = """import DefaultTheme from 'vitepress/theme'
 import Layout from './Layout.vue'
 import './custom.css'
 export default { extends: DefaultTheme, Layout }
 """
-    (OUT_DIR / ".vitepress" / "theme" / "index.mts").write_text(theme, encoding="utf-8")
+    write_out(OUT_DIR / ".vitepress" / "theme" / "index.mts", theme)
 
     # アンカーコメント UI（Plan 0058 フェーズC 決定C-7）。anchor はブロック原文の
     # 正規化テキスト（crit の「行原文保持」を踏襲 — 再生成で位置がずれても原文一致で復元）
@@ -1070,11 +1080,45 @@ function refreshThread() {
   )
 }
 
+// 入力中テキストの永続化 — 再生成による HMR リロードやパネルの開閉で
+// 入力が消えないよう localStorage に退避する（実測フィードバック）
+const DRAFT_KEY = 'addf-comment-draft'
+
+function persistDraft() {
+  try {
+    if (panelOpen.value && draft.value.trim()) {
+      localStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({
+          page: pagePath(),
+          anchor: panelAnchor.value,
+          occ: panelOcc.value,
+          text: draft.value,
+        })
+      )
+    } else if (!draft.value.trim() && panelOpen.value) {
+      localStorage.removeItem(DRAFT_KEY)
+    }
+  } catch { /* localStorage 不可の環境では諦める */ }
+}
+
+function readPersistedDraft() {
+  try {
+    const s = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null')
+    if (s && s.page === pagePath()) return s
+  } catch { /* 壊れた保存値は無視 */ }
+  return null
+}
+
+watch(draft, persistDraft)
+
 function openPanel(anchorKey, occ) {
   panelAnchor.value = anchorKey
   panelOcc.value = Math.max(0, Number(occ) || 0)
   refreshThread()
-  draft.value = ''
+  const saved = readPersistedDraft()
+  draft.value =
+    saved && saved.anchor === anchorKey && saved.occ === panelOcc.value ? saved.text : ''
   panelOpen.value = true
   btn.value.visible = false
 }
@@ -1145,6 +1189,7 @@ async function submit() {
     })
     if (r.ok) {
       draft.value = ''
+      try { localStorage.removeItem(DRAFT_KEY) } catch { /* noop */ }
       await refreshAll()
     }
   } finally {
@@ -1205,6 +1250,11 @@ onMounted(async () => {
   decorate()
   document.addEventListener('mouseover', onMouseOver)
   document.addEventListener('click', onDocClick)
+  // リロード前に入力していたコメントがあればパネルごと復元する
+  const saved = readPersistedDraft()
+  if (saved && saved.text) {
+    openPanel(saved.anchor, saved.occ)
+  }
 })
 
 onUnmounted(() => {
@@ -1341,7 +1391,7 @@ watch(
   </ClientOnly>
 </template>
 """
-    (OUT_DIR / ".vitepress" / "theme" / "Layout.vue").write_text(layout_vue, encoding="utf-8")
+    write_out(OUT_DIR / ".vitepress" / "theme" / "Layout.vue", layout_vue)
 
     css = """:root {
   --chip-wait-ink: #8a5300; --chip-wait-bg: #f7ecda;
@@ -1480,7 +1530,13 @@ watch(
 }
 .addf-stack .addf-meta { font-family: var(--vp-font-family-mono); }
 """
-    (OUT_DIR / ".vitepress" / "theme" / "custom.css").write_text(css, encoding="utf-8")
+    write_out(OUT_DIR / ".vitepress" / "theme" / "custom.css", css)
+
+    # 前回生成の残骸（削除された Plan のコピー等）を掃除する。対象は自分の管理領域
+    # （トップ *.md と plans/*.md）のみ — .vitepress/cache 等 dev サーバーの生成物は触らない
+    for f in list(OUT_DIR.glob("*.md")) + list((OUT_DIR / "plans").glob("*.md")):
+        if f not in written:
+            f.unlink()
 
     # コメント置き場の初期化（API の書き込み先を確実にする。既存があれば触らない）
     if not COMMENTS_PATH.exists():
