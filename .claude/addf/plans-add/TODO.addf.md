@@ -66,8 +66,8 @@
 | 3 | 56 | `.claude/addf/plans-add/0056-plan-genealogy-tree.md`（検討スタブ） | 未着手（2026-07-16 起票。オーナー発案。未完了タスクロードマップを積み上げ式から系統樹表現へ — 剪定・派生・復活をエッジ型で一級データ化し、TODO テーブルを真実源としたまま Mermaid 派生ビューを生成する構想。クリティカルパス〔オーナー判断待ちの可視化〕はオーナー好感触あり。エッジ記録先・初期スコープ等5問は 2026-07-16 アンカーコメントで全回答済み〔5種暫定・pruned のみ必須・併用記録・クリティカルパス初期スコープ入り＝オーナー/その他ブロック区分・全件遡及〕。標準テンプレート化から着手可能） |
 | 3 | 57 | `.claude/addf/plans-add/0057-commit-baseline-profiles.md`（検討スタブ） | 未着手・着手承認済み（2026-07-16 起票 → 同日ダッシュボードのアンカーコメントでオーナー回答5件〔ミドルストリーム概念の検討・既存DSのデフォルトはダウンストリーム扱い・migrate上書きは一時ディレクトリ経由で対処・.exp.local.md ペアは別計画へ・着手承認〕を Plan に反映済み。lint 期待値の単一ソースは案a〔addfTools 内 TOML 定数表〕推奨で Plan 詰め冒頭に擦り合わせ） |
 | **1** | 58 | `.claude/addf/plans-add/0058-dashboard-html-review-ui.md` | 一部完了（フェーズA・B・C 完了 2026-07-16。A: ダッシュボード実装・オーナー実物確認済み。B: crit ドッグフーディング一周実測。C: アンカーコメント UI〔Layout.vue＋/api/comments・DashboardComments.json・crit 集約・ブートシーケンス 1.7・折りたたみ構文2系統〕、3体レビュー Critical 2〔crit 型ガード=2体独立指摘・details 閉じ忘れフォールバック〕/High 1〔API 直列化〕等を反映、テスト17件全通過。残: オーナーのブラウザ動線確認のみ〔owner_feedback: 待ち〕。README 記載は Plan 0065 に切り出し） |
-| 4 | 59 | `.claude/addf/plans-add/0059-downstream-test-environment-compat.md` | 未着手（2026-07-16 起票。Issue #30・#31 回収 — upstream 前提テストの SKIP 化と書式受理） |
-| 4 | 60 | `.claude/addf/plans-add/0060-migrate-paths-lookbehind-boundary.md` | 完了（2026-07-17。Issue #33 回収 — lookbehind 境界を両ツール同期導入・回帰テスト12件。v0.7.0 対象） |
+| 4 | 59 | `.claude/addf/plans-add/0059-downstream-test-environment-compat.md` | 一部完了（実装完了 2026-07-17 — make_sandbox 疑似コピー方式・TODO 両書式受理・DS 分岐カバレッジ Test 16。テスト24件追加。残は Issue #30・#31 返信のみ〔オーナー確認待ち〕。CI downstream 模擬は別 Plan 切り出し推奨。v0.7.0 対象） |
+| 4 | 60 | `.claude/addf/plans-add/0060-migrate-paths-lookbehind-boundary.md` | 一部完了（実装完了 2026-07-17 — lookbehind 境界を両ツール同期導入・回帰テスト12件。残は Issue #33 返信のみ〔オーナー確認待ち〕。v0.7.0 対象） |
 | 5 | 61 | `.claude/addf/plans-add/0061-test-architecture-guide.md` | 未着手（2026-07-16 起票。Issue #32・#6 回収 — テスト設計ガイド新設） |
 | 5 | 62 | `.claude/addf/plans-add/0062-speculation-feedback-proposals.md` | 未着手（2026-07-16 起票。Issue #24・#25 回収 — 投機サイクル完走フィードバックの未回収提案棚卸し） |
 | 6 | 63 | `.claude/addf/plans-add/0063-feedback-md-format.md` | 未着手（2026-07-16 起票。Issue #5 回収 — Feedback.md 記入フォーマットと knowhow 振り分け基準） |

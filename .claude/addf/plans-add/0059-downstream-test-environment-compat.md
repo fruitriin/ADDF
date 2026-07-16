@@ -1,8 +1,6 @@
 # Plan 0059: downstream テスト環境適合 — upstream 前提テストの SKIP 化と書式受理（Issue #30・#31 回収）
 
-## 実装状況: 未着手
-
-owner_feedback: 不要
+## 実装状況: 一部完了（実装完了 2026-07-17 — 残は Issue #30・#31 返信のみ〔オーナー確認待ち〕。addf-implementer worktree 実装 → main へ cherry-pick。項目1: make_sandbox を疑似コピー方式に〔検査能力維持〕・項目2: TODO 両書式受理＋回帰テスト・項目3: 既存の動的アサーションで穴なしを確認し downstream 分岐を明示的に踏む Test 16 のみ追加・項目4: CI downstream 模擬は規模判断で別 Plan 切り出し推奨。テスト24件追加・run-all 全通過）
 
 > 出典: GitHub Issue #30（test-template-sync.sh の make_sandbox() が ProgressTemplate.addf.md を
 > 無条件 cp して downstream で必ず失敗する — MagiaMagica 実測）・Issue #31（v0.6.1 移行後の
@@ -82,9 +80,9 @@ downstream でも機能させる。
 
 ## 完了条件
 
-- [ ] downstream 模擬サンドボックスで `test-template-sync.sh`・`test-binary-checksums.sh` が FAIL しない（新規回帰テストで機械検証）
-- [ ] markdown リンク書式の TODO 行がペア6で誤検出されない回帰テストが PASS する
-- [ ] upstream（本体リポジトリ）での `bash .claude/addf/tests/run-all.sh` 全通過を維持する
+- [x] downstream 模擬サンドボックスで `test-template-sync.sh`・`test-binary-checksums.sh` が FAIL しない（Test 24〜26・Test 16 で機械検証）
+- [x] markdown リンク書式の TODO 行がペア6で誤検出されない回帰テストが PASS する（Test 24/24b/24c）
+- [x] upstream（本体リポジトリ）での `bash .claude/addf/tests/run-all.sh` 全通過を維持する
 - [ ] Issue #30・#31 へ対応内容を返信する <!-- human-judgment: 返信文はオーナー確認後に投稿する -->
 
 ## AI 実装時間見積もり
