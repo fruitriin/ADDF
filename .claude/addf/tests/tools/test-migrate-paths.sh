@@ -318,6 +318,59 @@ out="$(runpy "$box" "$LINT")"; code=$?
 check "マップ外パスは残存扱いしない（exit 0）" 0 "$code" "$out" "OK: 旧パス残存なし"
 git_box rm -qf user-note.md
 
+echo "Test 13.5: 境界（Issue #33）— 外部 URL / 他プロジェクト絶対パスは残存扱いしない・自リポジトリ絶対パスは検出する"
+# Issue #33 の誤検知3パターンと検出漏れ対処のドリフト注入 TDD:
+#   (a) 外部 URL 内の旧パス文字列 → 検出してはならない（Supabase 公式スキル配布物の実例）
+#   (b) 他プロジェクトへの絶対パス言及 → 検出してはならない（knowhow で別リポジトリを参照する例）
+#   (c) `./` 相対の本物の残存 → 引き続き検出する
+#   (d) 自リポジトリ絶対パスの残存 → 検出する（basename マッチの self_prefix）
+#   (e) rewrite が (a)(b) を壊さない（外部 URL を書き換える潜在バグの塞ぎ）
+box_basename="$(basename "$box")"
+cat > "$box/external-refs.md" <<EOF
+外部 URL（Supabase 公式スキル相当・rewrite で書き換えて壊してはならない）:
+- https://supabase.com/docs/plans/getting-started
+- https://example.com/docs/knowhow/faq
+
+他プロジェクトへの絶対パス言及（knowhow で他リポジトリを参照する典型例）:
+- ~/workspace/OTHER_PROJECT/docs/plans/0001.md
+- /Users/dev/repos/AnotherRepo/docs/knowhow/tips.md
+EOF
+cat > "$box/self-abs.md" <<EOF
+自リポジトリの絶対パス言及（本物の残存 — 検出されるべき）:
+- /Users/dev/repos/$box_basename/docs/plans/0001-sample.md
+EOF
+cat > "$box/rel-drift.md" <<'EOF'
+./ 相対の本物の残存（引き続き検出する）: ./docs/plans/0001-sample.md
+EOF
+git_box add external-refs.md self-abs.md rel-drift.md
+out="$(runpy "$box" "$LINT")"; code=$?
+check "本物の残存（./ 相対）を ERROR 検出（exit 1）" 1 "$code" "$out" 'rel-drift.md'
+check "自リポジトリ絶対パス残存も検出（basename マッチの self_prefix）" 1 "$code" "$out" 'self-abs.md'
+if grep -qE 'external-refs\.md' <<<"$out"; then
+  echo "  FAIL: 外部 URL・他プロジェクト絶対パスを誤検出（残存扱いしてはならない）"
+  echo "$out" | grep -E 'external-refs' | sed 's/^/    | /'
+  FAIL=$((FAIL + 1))
+else
+  echo "  PASS: 外部 URL・他プロジェクト絶対パスは残存扱いしない（誤検知なし）"
+  PASS=$((PASS + 1))
+fi
+# 誤検知除外を確認したら、続く rewrite 検査（外部 URL 無傷）のため本物残存は取り除く。
+# external-refs.md（外部URL・他プロジェクト言及）だけ残して rewrite を通し、書き換えられていないことを確認する。
+git_box rm -qf rel-drift.md self-abs.md
+git_box commit -q -m "keep external-refs for rewrite invariance check"
+out="$(runpy "$box" ".claude/addf/addfTools/migrate-paths.py" rewrite)"; code=$?
+check "rewrite が exit 0（外部 URL 混在下でも成功）" 0 "$code" "$out"
+expect "rewrite が外部 URL を書き換えていない（supabase.com/docs/plans 無傷）" \
+  grep -q 'https://supabase.com/docs/plans/getting-started' "$box/external-refs.md"
+expect "rewrite が外部 URL を書き換えていない（example.com/docs/knowhow 無傷）" \
+  grep -q 'https://example.com/docs/knowhow/faq' "$box/external-refs.md"
+expect "rewrite が他プロジェクト絶対パスを書き換えていない（OTHER_PROJECT/docs/plans 無傷）" \
+  grep -q 'workspace/OTHER_PROJECT/docs/plans/0001.md' "$box/external-refs.md"
+expect "rewrite が他プロジェクト絶対パスを書き換えていない（AnotherRepo/docs/knowhow 無傷）" \
+  grep -q 'AnotherRepo/docs/knowhow/tips.md' "$box/external-refs.md"
+git_box rm -qf external-refs.md
+git_box commit -q -m "cleanup Test 13.5"
+
 echo "Test 14: 逆流 — 移行後に docs/ 配下へ ADDF 管理ファイルを再追加すると WARNING"
 mkdir -p "$box/docs/knowhow"
 printf '# 逆流記事\n' > "$box/docs/knowhow/reflux.md"

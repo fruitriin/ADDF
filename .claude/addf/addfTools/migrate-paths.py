@@ -41,6 +41,10 @@
 境界チェック:
   `docs/plans` の置換が `docs/plans-add` に誤マッチしない等のため、長いキーから
   順に置換し、置換対象の前後が英数字・ハイフン・アンダースコアの場合は置換しない。
+  さらに Issue #33 対応で、直前2文字が「英数字 + `/`」の場合（外部 URL
+  `example.com/docs/guides` や他プロジェクト絶対パス `~/workspace/OTHER/docs/knowhow` <!-- residual-path: allow -->
+  の内部）は残存扱いしない — rewrite が URL を書き換えて壊すのを防ぐ。ただし
+  「/ + このリポジトリのディレクトリ名 + /」が直前にある場合は例外として検出する。
   この境界規則は lint-residual-paths.py の検出規則と同一に保つ（同期契約:
   lint-residual-paths.py の compile_pattern() と挙動を同期する）。
 
@@ -153,8 +157,23 @@ def compile_pattern(old):
     前後が英数字・ハイフン・アンダースコアなら別トークンの一部とみなして
     マッチしない（`docs/plans` が `docs/plans-add` や `docs/plans-addendum` の
     内部に誤マッチしない）。`/`・`@`・バッククオート・行頭行末は境界として許容する。
+
+    Issue #33 対応: 直前2文字が「英数字 + `/`」の場合は別のパス階層の内部
+    （外部 URL の `example.com/docs/guides` や他プロジェクト絶対パスの
+    `~/workspace/OTHER/docs/knowhow` 等）とみなしてマッチしない。旧パスは
+    リポジトリルート相対のため、こうした埋め込み位置は本物の残存ではない。
+    ただし例外として「/ + このリポジトリのディレクトリ名 + /」が直前にある場合
+    （自リポジトリへの絶対パス参照）は本物の残存として検出する
+    （検出漏れを避けるための例外 — cwd はリポジトリルート強制済み）。
+    既知の限界: 別名で clone された複製（例: リポジトリ名 `foo` を `bar` として
+    clone した先）への絶対パス参照は検出できない。実運用では巻き添えが少なく、
+    誤検知除去の便益の方が大きいというトレードオフ（Issue #33 の下流実測に基づく）。
+    同期契約: lint-residual-paths.py の compile_pattern() と同一実装に保つ。
     """
-    return re.compile(r'(?<![A-Za-z0-9_-])' + re.escape(old) + r'(?![A-Za-z0-9_-])')
+    self_prefix = r'(?<=/' + re.escape(os.path.basename(os.getcwd())) + r'/)'
+    return re.compile(r'(?<![A-Za-z0-9_-])'
+                      + r'(?:' + self_prefix + r'|(?<![A-Za-z0-9]/))'
+                      + re.escape(old) + r'(?![A-Za-z0-9_-])')
 
 
 def sorted_replacements(cfg):
