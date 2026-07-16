@@ -94,13 +94,13 @@
 
 #### サブタスクチェックリスト
 
-- [ ] D-1: Plan 0059 実装（addf-implementer worktree 委譲 — make_sandbox 条件付き cp / todo_table_rows 両書式受理 / lock.json 下流シグナル SKIP / CI 模擬は切り出し可）
-- [ ] D-2: Plan 0060 実装（addf-implementer worktree 委譲 — migrate-paths / lint-residual-paths の lookbehind 境界・Issue #33）
-- [ ] D-3: 両 worktree の検収と main への統合
-- [ ] D-4: Stage 1 — run-all.sh・lint 一式
-- [ ] D-5: Stage 2 — code-review・contribution-agent（DS サンドボックス実測を明示依頼）
+- [x] D-1: Plan 0059 実装（addf-implementer worktree 委譲 — make_sandbox 条件付き cp / todo_table_rows 両書式受理 / lock.json 下流シグナル SKIP / CI 模擬は切り出し可）
+- [x] D-2: Plan 0060 実装（addf-implementer worktree 委譲 — migrate-paths / lint-residual-paths の lookbehind 境界・Issue #33）
+- [x] D-3: 両 worktree の検収と main への統合（cherry-pick・worktree 掃除済み）
+- [x] D-4: Stage 1 — run-all.sh・lint 一式（統合後・レビュー反映後の2回通過）
+- [x] D-5: Stage 2 — 指摘反映済み（DS 丸ごと実行 FAIL 修正・M-2 排他化・L-1 アサーション・既知の限界 docstring。根治は Plan 0068 切り出し）
 - [x] D-6: Plan 0065 — README/README.en にダッシュボード記載（完了・コミット済み 2026-07-17）
-- [ ] D-7: リリース前ドリフト検査（/addf-lint 相当一式・CHANGELOG 最終化）
+- [x] D-7: リリース前ドリフト検査（lint 全通過・CHANGELOG Unreleased 最終化済み）
 - [ ] D-8: /addf-release で v0.7.0（Issue #30・#31・#33 返信文はオーナー確認待ち）
 
 #### 日記
