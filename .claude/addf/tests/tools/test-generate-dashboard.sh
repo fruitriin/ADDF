@@ -123,6 +123,18 @@ cat > "$SANDBOX/.claude/addf/DashboardComments.json" <<'EOF'
       "status": "resolved",
       "resolution": "対応済み",
       "replies": []
+    },
+    {
+      "id": "dc_test3",
+      "page": "/",
+      "source_path": null,
+      "anchor": "",
+      "body": "下書きコメント（未送信 — 集約に出ない）",
+      "author": "owner",
+      "created_at": "2026-01-02T00:00:00Z",
+      "status": "draft",
+      "resolution": null,
+      "replies": []
     }
   ]
 }
@@ -228,9 +240,17 @@ if ! grep -q "crit 側の未解決コメントですよ" "$OUT/index.md"; then
   echo "  FAIL: crit レビューの未解決コメントが index.md に出ていない"
   bad=$((bad + 1))
 fi
-# 独立オラクル: 未解決は dashboard 1 + crit 1 = 2件
+# 独立オラクル: 未解決は dashboard 1 + crit 1 = 2件（draft は数えない）
 if ! grep -q ">2<small>件</small>" "$OUT/index.md"; then
   echo "  FAIL: 未解決コメント統計が 2件になっていない"
+  bad=$((bad + 1))
+fi
+if grep -q "下書きコメント（未送信 — 集約に出ない）" "$OUT/index.md"; then
+  echo "  FAIL: draft のコメント本文が index.md に表示されている"
+  bad=$((bad + 1))
+fi
+if ! grep -q "未送信の下書きコメントが 1件" "$OUT/index.md"; then
+  echo "  FAIL: draft 件数の注記が index.md に無い"
   bad=$((bad + 1))
 fi
 check "コメント集約（不備 $bad 件）" 0 "$([ "$bad" -eq 0 ]; echo $?)"
@@ -336,8 +356,13 @@ if command -v node >/dev/null 2>&1 && [ -d "$REPO_ROOT/node_modules/vitepress" ]
     resp=$(curl -s -X POST "http://localhost:$SMOKE_PORT/api/comments" \
       -H 'content-type: application/json' \
       -d '{"page":"/plans/0001-sample","anchor":"合成アンカー原文","anchor_occurrence":0,"body":"スモーク投稿ですよ"}')
-    echo "$resp" | grep -q '"status":"unresolved"' || { echo "  FAIL: POST 応答が unresolved でない: $resp"; bad=$((bad + 1)); }
+    echo "$resp" | grep -q '"status":"draft"' || { echo "  FAIL: POST 応答が draft でない: $resp"; bad=$((bad + 1)); }
     grep -q "スモーク投稿ですよ" "$SANDBOX/.claude/addf/DashboardComments.json" || { echo "  FAIL: POST がファイルに書き出されていない"; bad=$((bad + 1)); }
+    submit=$(curl -s -X PATCH "http://localhost:$SMOKE_PORT/api/comments" \
+      -H 'content-type: application/json' \
+      -d '{"action":"submit_all"}')
+    echo "$submit" | grep -q '"submitted":1' || { echo "  FAIL: submit_all が 1件を確定していない: $submit"; bad=$((bad + 1)); }
+    grep -q '"status": "unresolved"' "$SANDBOX/.claude/addf/DashboardComments.json" || { echo "  FAIL: submit_all 後に unresolved がファイルに無い"; bad=$((bad + 1)); }
     cid=$(echo "$resp" | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
     patch=$(curl -s -X PATCH "http://localhost:$SMOKE_PORT/api/comments" \
       -H 'content-type: application/json' \

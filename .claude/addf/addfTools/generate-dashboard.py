@@ -189,18 +189,26 @@ def recent_progresses(n=5):
 
 
 def parse_dashboard_comments():
-    """DashboardComments.json の未解決コメントを返す。不在は空、壊れは WARN + 空。"""
+    """DashboardComments.json から (未解決コメント, 下書き件数) を返す。
+
+    下書き（status: "draft"）は「レビューを送信」前の見直し用ステージング —
+    GitHub の PR レビューと同じメンタルモデルで、送信までエージェントの
+    読み取り・キュー集約の対象にしない。不在は空、壊れは WARN + 空。
+    """
     if not COMMENTS_PATH.exists():
-        return []
+        return [], 0
     try:
         data = json.loads(COMMENTS_PATH.read_text(encoding="utf-8"))
     except Exception:  # 壊れた JSON だけでなく PermissionError 等の OSError も生成は止めない
         print(f"WARN: {COMMENTS_PATH.name} が読めません（コメント表示をスキップします）")
-        return []
+        return [], 0
     comments = data.get("comments") if isinstance(data, dict) else None
     if not isinstance(comments, list):
-        return []
-    return [c for c in comments if isinstance(c, dict) and c.get("status") != "resolved"]
+        return [], 0
+    valid = [c for c in comments if isinstance(c, dict)]
+    unresolved = [c for c in valid if c.get("status") not in ("resolved", "draft")]
+    drafts = sum(1 for c in valid if c.get("status") == "draft")
+    return unresolved, drafts
 
 
 def parse_crit_reviews():
@@ -458,7 +466,7 @@ def build():
     progress = parse_progress()
     branches = speculative_branches()
     prs = open_prs()
-    dash_comments = parse_dashboard_comments()
+    dash_comments, dash_drafts = parse_dashboard_comments()
     crit_comments = parse_crit_reviews()
 
     # 未完了 Plan（完了以外）を収集
@@ -566,6 +574,12 @@ def build():
             ]
 
     # アンカーコメント（オーナー発 → エージェント対応待ち。方向がキューと逆なので別セクション）
+    if dash_drafts:
+        lines += [
+            f"> ✏️ 未送信の下書きコメントが {dash_drafts}件 あります"
+            "（ダッシュボードの「レビューを送信」で確定するまでエージェントは読みません）",
+            "",
+        ]
     if dash_comments:
         lines += [
             f"## あなたが置いたコメント（エージェント対応待ち） — {len(dash_comments)}件",
@@ -786,7 +800,9 @@ const commentsApi = {
             body: String(b.body),
             author: String(b.author || 'owner'),
             created_at: new Date().toISOString(),
-            status: 'unresolved',
+            // GitHub の PR レビューと同じく「Submit まではドラフト」— 全体を見回して
+            // 訂正できるように、送信操作までエージェントの読み取り対象にしない
+            status: 'draft',
             resolution: null,
             replies: [],
           }
@@ -800,6 +816,39 @@ const commentsApi = {
         }
         if (req.method === 'PATCH') {
           const b = await readReqBody(req)
+          if (b.action === 'submit_all') {
+            const n = await enqueue(() => {
+              const data = readComments()
+              let count = 0
+              for (const c of data.comments) {
+                if (c.status === 'draft') {
+                  c.status = 'unresolved'
+                  count++
+                }
+              }
+              if (count) writeComments(data)
+              return count
+            })
+            res.end(JSON.stringify({ submitted: n }))
+            return
+          }
+          if (b.action === 'discard') {
+            const ok = await enqueue(() => {
+              const data = readComments()
+              const i = data.comments.findIndex((x) => x.id === b.id && x.status === 'draft')
+              if (i < 0) return false
+              data.comments.splice(i, 1)
+              writeComments(data)
+              return true
+            })
+            if (!ok) {
+              res.statusCode = 404
+              res.end('{"error":"draft not found"}')
+              return
+            }
+            res.end('{"discarded":true}')
+            return
+          }
           const c = await enqueue(() => {
             const data = readComments()
             const target = data.comments.find((x) => x.id === b.id)
@@ -897,7 +946,7 @@ export default { extends: DefaultTheme, Layout }
 // generate-dashboard.py が生成 — 編集しない（単一ソースはリポジトリ側）
 import DefaultTheme from 'vitepress/theme'
 import { useRoute, onContentUpdated } from 'vitepress'
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 
 const VPLayout = DefaultTheme.Layout
 const route = useRoute()
@@ -914,6 +963,15 @@ const btn = ref({ visible: false, top: 0, left: 0 })
 const hoverAnchor = ref('')
 const hoverOcc = ref(0)
 const panelOcc = ref(0)
+const submitting = ref(false)
+const guidanceOpen = ref(false)
+const submittedCount = ref(0)
+
+// 全ページ横断のドラフト数（送信バーの表示判定）
+const draftCount = computed(
+  () => comments.value.filter((c) => c.status === 'draft').length
+)
+const GUIDANCE_PROMPT = 'ダッシュボードのコメントに対応して'
 
 // tr はコンテンツモデル上 button を直接置けないため td/th 単位にする
 const BLOCK_SEL =
@@ -1103,6 +1161,44 @@ async function markResolved(id) {
   await refreshAll()
 }
 
+async function discardDraft(id) {
+  await fetch('/api/comments', {
+    method: 'PATCH',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id, action: 'discard' }),
+  })
+  await refreshAll()
+}
+
+async function submitReview() {
+  if (submitting.value || !draftCount.value) return
+  submitting.value = true
+  try {
+    const r = await fetch('/api/comments', {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ action: 'submit_all' }),
+    })
+    if (r.ok) {
+      const d = await r.json()
+      submittedCount.value = d.submitted || 0
+      panelOpen.value = false
+      guidanceOpen.value = true
+    }
+  } finally {
+    submitting.value = false
+    await refreshAll()
+  }
+}
+
+async function copyGuidance() {
+  try {
+    await navigator.clipboard.writeText(GUIDANCE_PROMPT)
+  } catch {
+    /* クリップボード不可の環境では手動コピーに任せる */
+  }
+}
+
 onMounted(async () => {
   await fetchComments()
   await nextTick()
@@ -1156,6 +1252,7 @@ watch(
         <div class="addf-meta">
           {{ c.author }} · {{ (c.created_at || '').slice(0, 16).replace('T', ' ') }}
           <span v-if="c.status === 'resolved'" class="addf-resolved-mark">✓ resolved</span>
+          <span v-if="c.status === 'draft'" class="addf-draft-mark">下書き（未送信）</span>
         </div>
         <div class="addf-body">{{ c.body }}</div>
         <div v-if="c.resolution" class="addf-reply">
@@ -1167,7 +1264,13 @@ watch(
           <div class="addf-body">{{ rp.body }}</div>
         </div>
         <button
-          v-if="c.status !== 'resolved'"
+          v-if="c.status === 'draft'"
+          class="addf-resolve"
+          type="button"
+          @click="discardDraft(c.id)"
+        >取り下げ</button>
+        <button
+          v-else-if="c.status !== 'resolved'"
           class="addf-resolve"
           type="button"
           @click="markResolved(c.id)"
@@ -1177,14 +1280,37 @@ watch(
         v-model="draft"
         class="addf-draft"
         rows="3"
-        placeholder="コメントを書く — 次のセッションのエージェントに渡ります"
+        placeholder="コメントを書く — 下書きとして保存され、「レビューを送信」で確定します"
       ></textarea>
       <button
         class="addf-send"
         type="button"
         :disabled="sending || !draft.trim()"
         @click="submit"
-      >送信</button>
+      >下書き追加</button>
+    </div>
+
+    <div v-if="available && draftCount" class="addf-submitbar">
+      <span>下書き {{ draftCount }}件</span>
+      <button class="addf-send" type="button" :disabled="submitting" @click="submitReview">
+        レビューを送信
+      </button>
+    </div>
+
+    <div v-if="guidanceOpen" class="addf-modal-backdrop" @click.self="guidanceOpen = false">
+      <div class="addf-modal">
+        <strong>{{ submittedCount }}件のコメントを送信しました</strong>
+        <p>
+          コメントはリポジトリの <code>DashboardComments.json</code> に確定保存されました。
+          次のセッション開始時に自動で読まれます。すぐ対応してほしい場合は
+          Claude Code にこうプロンプトしてください:
+        </p>
+        <blockquote class="addf-anchor">{{ GUIDANCE_PROMPT }}</blockquote>
+        <div class="addf-modal-actions">
+          <button class="addf-resolve" type="button" @click="copyGuidance">プロンプトをコピー</button>
+          <button class="addf-send" type="button" @click="guidanceOpen = false">閉じる</button>
+        </div>
+      </div>
     </div>
 
     <div v-if="available && orphans.length" class="addf-orphans">
@@ -1309,6 +1435,27 @@ watch(
   font-size: 13px;
 }
 .addf-orphans summary { cursor: pointer; color: var(--chip-wait-ink); font-size: 12px; }
+.addf-draft-mark { color: var(--chip-wait-ink); font-weight: 600; }
+.addf-submitbar {
+  position: fixed; right: 16px; top: 72px; z-index: 55;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--vp-c-bg); border: 1px solid var(--chip-wait-ink);
+  border-radius: 10px; box-shadow: var(--vp-shadow-2); padding: 8px 12px;
+  font-size: 13px; color: var(--chip-wait-ink); font-weight: 600;
+}
+.addf-modal-backdrop {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex; align-items: center; justify-content: center;
+}
+.addf-modal {
+  width: min(460px, calc(100vw - 32px));
+  background: var(--vp-c-bg); border: 1px solid var(--vp-c-divider);
+  border-radius: 12px; box-shadow: var(--vp-shadow-3); padding: 18px 20px;
+  font-size: 14px;
+}
+.addf-modal p { margin: 10px 0; color: var(--vp-c-text-2); font-size: 13px; }
+.addf-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
 """
     (OUT_DIR / ".vitepress" / "theme" / "custom.css").write_text(css, encoding="utf-8")
 

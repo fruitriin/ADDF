@@ -100,14 +100,20 @@
       "body": "着手していいと思う\n懸念点あればどうぞ",
       "author": "owner",
       "created_at": "2026-07-16T13:57:32.540Z",
-      "status": "unresolved",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "対象は Plan 0030（CI 品質ゲート・branch protection）とオーナーがセッションで確定。懸念点1件をエージェントが返答: branch protection を main に有効化すると /addf-dev の「通常コミット直行」フロー（main 直コミット）と cron 自律ループの push が止まるため、「required status check のみ・push 制限なし」の緩い設定から始めるのが現運用と両立する。詳細はセッ-ションの返答参照。設定方針の確定後に次サイクルで着手する",
       "replies": [
         {
           "id": "rp_agent_confirm1",
           "body": "このコメントの対象 Plan が特定できませんでした（anchor「Plan 本文を読む」は判断待ちキューの複数行に共通のリンクテキストのため）。0057 は別コメントで着手承認済みです。どの Plan への着手承認か教えてください（リンク行ではなく Plan タイトル行にコメントすると特定できます — これ自体も UI 改善候補として認識しています）",
           "author": "claude",
           "created_at": "2026-07-16T14:05:33Z"
+        },
+        {
+          "id": "rp_agent_plan30",
+          "body": "懸念点: full な branch protection（PR 必須）は /addf-dev の main 直コミット運用・cron 自律ループと衝突します。「required status check のみ（push 制限なし）」なら現運用のまま CI 失敗コミットの検知だけ強化できるので、まずそちらを推奨します。",
+          "author": "claude",
+          "created_at": "2026-07-16T14:14:43Z"
         }
       ]
     },

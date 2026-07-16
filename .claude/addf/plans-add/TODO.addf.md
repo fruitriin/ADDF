@@ -38,7 +38,7 @@
 | 2 | 27 | `.claude/addf/plans-add/0027-executable-checklist-doctrine.md` | 完了 |
 | 3 | 28 | `.claude/addf/plans-add/0028-worktree-speculative-dev.md` | 完了 |
 | 4 | 29 | `.claude/addf/plans-add/0029-gui-test-environment-matrix.md` | 一部完了（フェーズ1 完了。環境マトリクスはフェーズ2以降） |
-| 5 | 30 | `.claude/addf/plans-add/0030-ci-quality-gate.md` | 一部完了（実装・CI 実地検証済み。branch protection の要否のみオーナー判断待ち） |
+| 5 | 30 | `.claude/addf/plans-add/0030-ci-quality-gate.md` | 一部完了（実装・CI 実地検証済み。2026-07-16 オーナーがアンカーコメントで着手承認 — エージェントは「required status check のみ・push 制限なし」の緩い設定を推奨（full protection は main 直コミット運用・cron 自律ループと衝突）。設定方針の確定後に次サイクルで着手） |
 | 6 | 31 | `.claude/addf/plans-add/0031-binary-verification.md` | 完了 |
 | 7 | 32 | `.claude/addf/plans-add/0032-knowhow-freshness-audit.md` | 完了 |
 | 4 | 33 | `.claude/addf/plans-add/0033-downstream-reported-fixes.md` | 完了（項目4=PlanTemplate は Plan 0035 フェーズA で実施） |
