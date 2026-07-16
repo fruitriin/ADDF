@@ -109,6 +109,32 @@ feedback_since: 2026-07-16
 - `brew install crit` → `crit <file>` で Plan・差分の行コメント運用を試す
 - 外部バイナリ導入のため Plan 0040 フェーズ1 と同じ運び（一段階ずつ明示確認）
 
+### crit ワークフロー調査結果（2026-07-16・GitHub tomasz-tomczyk/crit の README / docs/agent-prompts.md / docs/agent-hooks.md）
+
+- **レビュー対象は4モード**: `files`（`crit plan.md` — **git 差分不要**・単体 md を
+  markdown-it でレンダリングして行コメント可）/ `diff`（引数なし `crit` — git 変更の
+  自動検出。**差分が無ければ対象なし**）/ `live`（URL プロキシ）/ `preview`。
+  「差分がないと何も出ない」のは diff モードの性質で、files モードは差分不要
+- **ワークフローの組み方はフック機構**（レビュー終了時に発火・モード別バリアントあり）:
+  - **エージェントプロンプト**（`prompts`）: `on_finish_unresolved` / `on_finish_approved` で
+    ユーザー定義プロンプトをエージェントに注入。Go text/template 変数
+    （`{{.review_path}}`=レビュー JSON パス・`{{.comments_unresolved_json}}`・
+    `{{.next_round_cmd}}` 等）。プロンプトは by reference（diff をインライン化しない —
+    ファイルアクセスできる agentic CLI が前提）
+  - **コマンドフック**（`hooks`）: 同名イベントでシェルスクリプト実行（LLM なしの決定的
+    副作用用）。env（`CRIT_REVIEW_PATH`・`CRIT_UNRESOLVED_COUNT` 等）+ stdin JSON を受ける。
+    出力はエージェントに届かない
+  - 設定は5階層（プロジェクト `.crit.config.json` → グローバル → `.crit/prompts/` 慣例
+    ファイル → ビルトイン）。プロジェクト由来は初回信頼確認あり
+- **Send to Agent**: コメント本文・引用・パス・行範囲を `agent_cmd` の stdin に渡し、
+  stdout をスレッド返信として自動投稿。スレッドはライブ化し会話履歴ごとエージェントに渡る
+- **コメント取得 CLI**: `crit comments --json` / 追加は `crit comment <file>:<line> '...'`
+- **オーナー構想への含意**: 「コメント→ファイル→次ターンのコンテキスト」のプロトコル部分は
+  crit の files モード＋`on_finish` フック（コメント JSON をリポジトリ内に書き出し→
+  ブートシーケンスで読む）で組める。**自前実装が必要なのは「VitePress ページ上の
+  アンカーコメント UI」のみ**（crit は自分のビューアで開くため、ダッシュボードの
+  レンダリング〔チップ・統計・サイドバー〕上には コメントできない）
+
 ### フェーズC: 二層接続・配布（フェーズB 後に判断）
 
 - crit レビューファイル（`~/.crit/reviews/`）の未解決コメントをダッシュボードの
