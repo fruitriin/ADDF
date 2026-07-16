@@ -2,6 +2,10 @@
 
 ## 実装状況: 一部完了（フェーズ1・2 完了。フェーズ3〔公開 CI〕は GitHub Pages 有効化がオーナー操作のため未着手）
 
+owner_feedback: 待ち
+feedback_ask: GitHub Pages の有効化（リポジトリ設定でのオーナー操作）
+feedback_since: 2026-07-10
+
 ### 実装記録
 
 - **2026-07-10 フェーズ2: VitePress サイト骨格（完了）**

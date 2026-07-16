@@ -88,7 +88,37 @@
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: Plan 0058 — Dashboard の HTML 化とブラウザレビュー UI（フェーズA）
 
-> 新しいタスク開始時は以下の構造で記録する:
-> `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）
+#### サブタスクチェックリスト
+
+- [x] Plan 0058 を標準テンプレートに昇格（フェーズA/B/C・FB フィールド仕様確定）
+- [ ] PlanTemplate.md に owner_feedback / feedback_ask / feedback_since の書式を追記
+- [ ] 未完了 Plan 11件（0026/0029/0030/0039/0040/0041/0048/0054/0056/0057/0058）に遡及付与
+  - 値は TODO 転記ではなく Plan 本文・Questions.md と突合して決める
+- [ ] generate-dashboard.py 実装（stdlib のみ・フォールバック付き）
+- [ ] package.json（dashboard:dev / dashboard:build）・.gitignore（dashboard/ 生成物）・
+      VitePress config 生成（ポートは 4747 回避で明示指定）
+- [ ] テスト test-generate-dashboard.sh（欠如 = SKIP 設計）
+- [ ] 動作確認: 生成実行 + npm run dashboard:build + ブラウザ目視
+- [ ] Stage 1: bash .claude/addf/tests/run-all.sh・/addf-lint
+- [ ] Stage 2: code-review + doc-review 並列（md 変更を含むため doc-review 必須）
+- [ ] レビュー指摘対応 → Stage 1 再実行
+- [ ] 完了処理（knowhow・Feedback・Progress アーカイブ・コミット）
+
+#### 日記
+
+##### 2026-07-16 — フェーズA 着手（検討スタブから昇格）
+
+**やったこと**: 検討スタブ 0058 を標準テンプレートに昇格。オーナー判断は同日の対話で
+全て出揃った（二層構造・ローカル別インスタンス・3ページ・FB 明示フィールド・叩き合意・
+「Plan 本文ビューアは実運用で動く」）。knowhow 4本（docs-site-single-source-sync /
+sync-lint-design / plan-status-drift-check / ignore-file-strategy）を確認済み。
+**今の見立て**: 生成は全ソース決定論で可能（確信度9割）。唯一の設計リスクは
+FB フィールドの書式が将来の lint（ペア6拡張や 0056 系統樹）と噛み合うか — 行頭
+key: value の execution_style 前例に従えば安全側。
+**次の自分へ**: PlanTemplate 追記 → 遡及付与 → スクリプトの順。遡及付与の値は
+Progress.md のこのチェックリスト直下ではなく各 Plan と Questions.md を見て決めること。
+**気になっていること**: dashboard/ を丸ごと gitignore すると lint-residual-paths の
+gitignore 非対称検知に引っかからないか（Plan 0052 の新設検査）。.gitignore 編集時に
+lint を即実行して確認する。

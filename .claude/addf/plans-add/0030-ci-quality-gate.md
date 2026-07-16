@@ -2,6 +2,10 @@
 
 ## 実装状況: 一部完了（実装・CI 実地検証済み 2026-07-05。branch protection の要否のみオーナー判断待ち）
 
+owner_feedback: 待ち
+feedback_ask: main への branch protection（PR 必須化）を有効にするか
+feedback_since: 2026-07-05
+
 > 実装完了・CI 実地検証済み（2026-07-05）: (1) 緑実行=run 28745383490 (2) ERROR 注入 fail=
 > 使い捨て PR #23 で failure 確認 (3) WARNING annotation=ペア6警告の黄色表示を確認
 > (4) ubuntu で macOS 専用テストが「3 skipped」と明示計上。副産物: 初回 CI が

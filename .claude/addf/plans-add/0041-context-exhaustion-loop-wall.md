@@ -2,6 +2,8 @@
 
 ## 実装状況: 一部完了（フェーズ1・2 完了・実地検証は別サイクル）
 
+owner_feedback: 済
+
 - フェーズ1（実測）: 2026-07-06 完了。`compact_boundary` エントリの `compactMetadata.preTokens` を根拠に auto-compact 発動点を測定
 - フェーズ2（教義の実装）: 2026-07-06 完了。context-reminder の注入文言追加・addf-dev.md ステップ5・ProgressTemplate 両方（同期ペア）に「満杯時の出口」教義を配線
 - 実地検証: /loop 自走でコンテキスト枯渇を跨いで継続することの1回以上の観測は別サイクルで実施予定

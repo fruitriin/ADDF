@@ -1,12 +1,8 @@
 # Plan 0040: EnumaElish (ccchain) のオプトイン統合とドッグフーディング
 
-## 実装状況: 一部完了（フェーズ1・2 完了 2026-07-14。フェーズ1: ADDF 本体へ ccchain 導入・
-`.ccchain.conf` を実運用コマンドで調整・`.claude/settings.local.json` に PreToolUse(Bash) フックを
-配線。フェーズ2: オプトイン配布機構（`addf-Behavior.toml` の `[ccchain]` セクション・
-`.claude/addf/optional/ccchain/.ccchain.conf` テンプレート・`sync-ccchain.py`・`/addf-lint`
-セクション13・テスト23件）を組み上げ。フェーズ1とフェーズ2の配線先は意図的に分離したまま
-（詳細は `ccchain-dogfooding-phase1.md`）。フェーズ3〔ガイド・migrate 統合〕・フェーズ4
-〔フェーズ1手組み配線の統合〕は未着手）
+## 実装状況: 一部完了（フェーズ1・2 完了 2026-07-14。フェーズ1: ADDF 本体へ ccchain 導入・`.ccchain.conf` を実運用コマンドで調整・`.claude/settings.local.json` に PreToolUse(Bash) フックを配線。フェーズ2: オプトイン配布機構〔`addf-Behavior.toml` の `[ccchain]` セクション・`.claude/addf/optional/ccchain/.ccchain.conf` テンプレート・`sync-ccchain.py`・`/addf-lint` セクション13・テスト23件〕を組み上げ。フェーズ1とフェーズ2の配線先は意図的に分離したまま〔詳細は `ccchain-dogfooding-phase1.md`〕。フェーズ3〔ガイド・migrate 統合〕・フェーズ4〔フェーズ1手組み配線の統合〕は未着手）
+
+owner_feedback: 済
 
 ## オーナー判断（2026-07-06）
 
