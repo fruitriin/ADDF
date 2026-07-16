@@ -964,11 +964,12 @@ export default { extends: DefaultTheme, Layout }
     layout_vue = r"""<script setup>
 // generate-dashboard.py が生成 — 編集しない（単一ソースはリポジトリ側）
 import DefaultTheme from 'vitepress/theme'
-import { useRoute, onContentUpdated } from 'vitepress'
+import { useRoute, useData, onContentUpdated } from 'vitepress'
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 
 const VPLayout = DefaultTheme.Layout
 const route = useRoute()
+const { site } = useData()
 
 const available = ref(false) // コメント API が生きているか（dev サーバーのみ true）
 const comments = ref([])
@@ -1323,7 +1324,11 @@ watch(
 </script>
 
 <template>
-  <VPLayout />
+  <VPLayout>
+    <template #nav-bar-content-before>
+      <a class="addf-navtitle" href="/" :title="site.title">{{ site.title }}</a>
+    </template>
+  </VPLayout>
   <ClientOnly>
     <button
       v-if="available && btn.visible"
@@ -1470,30 +1475,23 @@ watch(
 .stat.ready .value { color: var(--chip-ok-ink); }
 @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
 
-/* サイトタイトル（リポジトリ名）はサイドバー幅に閉じ込めず、ヘッダー全幅で表示する
-   （長いリポジトリ名がサイドバー幅からはみ出す — オーナー実測フィードバック）。
-   デフォルトの VPNavBar は 960px+ で背景が透明（タイトル背後はサイドバーの色が
-   透ける設計）のため、幅だけ広げると色の境目をまたいで不自然になる —
-   ヘッダー全体を不透明な1枚の帯にする */
-@media (min-width: 960px) {
-  .VPNavBar.has-sidebar {
-    background-color: var(--vp-nav-bg-color);
-    border-bottom: 1px solid var(--vp-c-divider);
-  }
-  .VPNavBar.has-sidebar .title {
-    width: max-content;
-    max-width: calc(100% - 220px); /* 右端のテーマトグル等と重ねない */
-    background-color: transparent;
-  }
-  .VPNavBarTitle.has-sidebar .title {
-    border-bottom: none;
-  }
-  /* ヘッダー自体に下線を引いたので、コンテンツ側だけの divider は消す（二重線防止） */
-  .VPNavBar.has-sidebar .divider {
-    display: none;
-  }
+/* サイトタイトル（リポジトリ名）はヘッダー右側のナビコンテンツ（テーマ切り替えの並び）に
+   置く（Layout.vue の #nav-bar-content-before slot）。サイドバー上のデフォルトタイトルは
+   長いリポジトリ名がはみ出すため非表示にする — ヘッダーの透過構造はデフォルトのまま
+   触らない（不透明化はサイドバーのスクロールバー貫通が露呈する）。
+   ブラウザタブの表示は config.title のままフル表記 */
+.VPNavBarTitle { display: none; }
+.addf-navtitle {
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 40vw;
+  color: var(--vp-c-text-1);
+  margin-right: 16px;
 }
-.VPNavBarTitle .title { white-space: nowrap; }
+.addf-navtitle:hover { color: var(--vp-c-brand-1); }
 
 /* サイドバーはページタブの代替 — 通常項目の視認性と現在ページのコントラストを上げる */
 .VPSidebarItem.level-1 .text {
