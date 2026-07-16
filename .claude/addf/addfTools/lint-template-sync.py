@@ -492,12 +492,27 @@ def plan_nonstandard_header(path):
     return None
 
 
+# TODO テーブル内で Plan ファイルへ言及する記法は2種類ある（Issue #31）:
+#   - バックティック書式: `.claude/addf/plans/xxx.md`（ADDF 本体のデフォルト）
+#   - Markdown リンク書式: [Plan タイトル](.claude/addf/plans/xxx.md)
+#     （clickable リンク化のためダウンストリームで広く採用される。Plan 0006 → v0.6 系 migrate
+#      で上書き失効 → 再適用のループを経て、上流本体でも両書式を受理する方針を採用）
+# 両分岐は `|` で排他的なため `m.group(1) or m.group(2)` は必ず非 None 文字列を返す
+TODO_PLAN_PATH_RE = re.compile(
+    r'`(\.claude/addf/plans[^`]*?\.md)`'
+    r'|\]\((\.claude/addf/plans[^)]*?\.md)\)'
+)
+
+
 def todo_table_rows(path):
     """TODO のテーブル行から (Plan パス, 状態, 行テキスト) のリストを返す
 
     「状態」列の位置はヘッダ行から動的に特定する（バックログとアーカイブで
     列構成が異なり、将来の列追加にも備えるため）。ヘッダ未検出時は末尾セルに
     フォールバックする。
+
+    Plan ファイル参照はバックティック書式と markdown リンク書式の両方を受理する
+    （Issue #31 現象1・下流実装済みの対処を上流反映）。
     """
     with open(path) as f:
         lines = f.read().splitlines()
@@ -510,11 +525,12 @@ def todo_table_rows(path):
         if '状態' in cells:  # ヘッダ行。以降のデータ行にこの列位置を適用する
             status_idx = cells.index('状態')
             continue
-        m = re.search(r'`(.claude/addf/plans[^`]*?\.md)`', line)
+        m = TODO_PLAN_PATH_RE.search(line)
         if not m:
             continue
+        plan_path = m.group(1) or m.group(2)
         status = cells[status_idx] if -1 < status_idx < len(cells) else cells[-1]
-        rows.append((m.group(1), status, line.strip()))
+        rows.append((plan_path, status, line.strip()))
     return rows
 
 

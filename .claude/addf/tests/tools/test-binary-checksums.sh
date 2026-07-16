@@ -285,6 +285,39 @@ else
   rm -rf "$BOX2"
 fi
 
+# テスト 16: downstream 構成の PROJECT_DIR（.addf.md なし・lock.json あり・downstream 宣言）を
+# シミュレートし、Test 15 と同型の照合フローが誤 FAIL しないことを機械検証する（Issue #31 現象2 回帰）
+# Test 15 は実プロジェクトの CLAUDE.repo.md 宣言に応じて分岐するため、host 環境が upstream であれば
+# downstream ケースの分岐は実行時にカバーされない。本テストは downstream シグナルを持つ
+# フェイク PROJECT_DIR を用意して downstream 分岐を明示的に踏む（Plan 0052 Test15 SKIP と重複せず、
+# 独立オラクル分岐の両側を機械検証する残る穴を塞ぐ）
+echo "Test 16: downstream シミュレーション PROJECT_DIR で verify-checksums.sh が SKIP に落ちる"
+FAKE_PROJ="$(mktemp -d)"
+mkdir -p "$FAKE_PROJ/.claude/addf/addfTools" "$FAKE_PROJ/.claude/addf"
+for f in window-info capture-window annotate-grid clip-image; do
+  printf 'fake-binary-%s\n' "$f" > "$FAKE_PROJ/.claude/addf/addfTools/$f"
+done
+cp "$TOOLS_DIR/build.sh" "$TOOLS_DIR/verify-checksums.sh" "$FAKE_PROJ/.claude/addf/addfTools/"
+# downstream 宣言 ＋ lock.json（両方持たせる = 実配布状態を模擬）
+printf 'このリポジトリは **ADDF 利用プロジェクト** です。\n' > "$FAKE_PROJ/CLAUDE.repo.md"
+printf '{"version":"0.6.2","ref":"v0.6.2"}\n' > "$FAKE_PROJ/.claude/addf/lock.json"
+# checksums 不在（downstream ではビルド不要のため）
+# 独立オラクルでも downstream 判定されること
+fake_kind="$(detect_expected_repo_kind "$FAKE_PROJ")"
+if [ "$fake_kind" = "downstream" ]; then
+  echo "  PASS: 独立オラクルが downstream 判定"
+  PASS=$((PASS + 1))
+else
+  echo "  FAIL: 独立オラクルが downstream 判定にならない (got=$fake_kind)"
+  FAIL=$((FAIL + 1))
+fi
+out="$(bash "$FAKE_PROJ/.claude/addf/addfTools/verify-checksums.sh" 2>&1)"
+exit_code=$?
+assert_exit "downstream シミュレーションで exit 0 (SKIP)" 0 "$exit_code"
+assert_contains "downstream 判定の明示" "repo_kind=downstream" "$out"
+assert_contains "SKIP メッセージ" "SKIP" "$out"
+rm -rf "$FAKE_PROJ"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed, $SKIP skipped"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

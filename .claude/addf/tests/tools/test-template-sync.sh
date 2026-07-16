@@ -110,8 +110,20 @@ make_sandbox() {
   # 存在しない（Issue #29）。存在するときだけコピーし、無条件 cp によるノイズを避ける
   [ -f "$PROJECT_DIR/README.en.md" ] && cp "$PROJECT_DIR/README.en.md" "$box/"
   cp "$PROJECT_DIR/.claude/addf/Progress.md" "$box/.claude/addf/"
-  cp "$PROJECT_DIR/.claude/addf/templates/ProgressTemplate.addf.md" \
-     "$PROJECT_DIR/.claude/addf/templates/ProgressTemplate.md" "$box/.claude/addf/templates/"
+  # ProgressTemplate.addf.md は ADDF 本体専用で downstream には配布されない（Issue #30）。
+  # `.md` 版は upstream / downstream ともに存在するため常にコピーし、`.addf.md` 版は
+  # 存在時はそのまま・不在時は `.md` 版を疑似コピーして upstream 環境をシミュレートする
+  # （Issue #31 提案。テストがサンドボックス内で `.addf.md` 経路の検査能力を保つため）。
+  # サンドボックス内で明示的に downstream 環境を再現したいテストは、後段で
+  # `rm -f "$box/.claude/addf/templates/ProgressTemplate.addf.md"` する（テスト 6 参照）
+  cp "$PROJECT_DIR/.claude/addf/templates/ProgressTemplate.md" "$box/.claude/addf/templates/"
+  if [ -f "$PROJECT_DIR/.claude/addf/templates/ProgressTemplate.addf.md" ]; then
+    cp "$PROJECT_DIR/.claude/addf/templates/ProgressTemplate.addf.md" \
+       "$box/.claude/addf/templates/"
+  else
+    cp "$PROJECT_DIR/.claude/addf/templates/ProgressTemplate.md" \
+       "$box/.claude/addf/templates/ProgressTemplate.addf.md"
+  fi
   cp "$PROJECT_DIR/.claude/commands/addf-init.md" "$box/.claude/commands/"
   cp "$PROJECT_DIR"/.claude/commands/addf-*.md "$box/.claude/commands/"
   cp "$PROJECT_DIR/.claude/addf/guides/development-process.md" "$box/.claude/addf/guides/"
@@ -520,6 +532,169 @@ output=$(run_lint "$box")
 assert_contains "ペア8の SKIP（downstream）" "[8] SKIP" "$output"
 assert_not_contains "downstream では未掲載スキルを検出しない" "[8] WARNING" "$output"
 rm -rf "$box"
+
+# テスト 24: markdown リンク書式の TODO 行が pair6 で誤検出されない（Issue #31 現象1 回帰）
+# バックティック書式 `path` に加え、markdown リンク書式 [title](path) も受理する
+# （下流の TODO.md は clickable リンク化のため markdown 書式を採用するケースが多い）
+echo "Test 24: markdown リンク書式の TODO 行を pair6 が受理"
+box="$(make_sandbox)"
+mkdir -p "$box/.claude/addf/plans-add"
+cat > "$box/.claude/addf/plans-add/0001-sample.md" <<'EOF'
+# Plan: サンプル
+
+## 実装状況: 完了（2026-07-16）
+
+本文
+EOF
+# バックティックではなく markdown リンク書式で参照
+cat > "$box/.claude/addf/plans-add/TODO.addf.md" <<'EOF'
+# TODO (ADDF)
+
+| 優先度 | Phase | 計画ファイル | 状態 |
+|---|---|---|---|
+| 1 | 1 | [Sample Plan](.claude/addf/plans-add/0001-sample.md) | 完了 |
+EOF
+output=$(run_lint "$box")
+assert_exit "markdown リンク書式で pair6 が OK" 0 $?
+assert_not_contains "登録漏れ WARNING が出ない" "登録漏れ: .claude/addf/plans-add/0001-sample.md" "$output"
+assert_not_contains "pair6 に WARNING が出ない" "[6] WARNING" "$output"
+rm -rf "$box"
+
+# テスト 24b: markdown リンク書式でも状態の突合が動く（矛盾は検出される）
+echo "Test 24b: markdown リンク書式でも状態矛盾は検出される"
+box="$(make_sandbox)"
+mkdir -p "$box/.claude/addf/plans-add"
+cat > "$box/.claude/addf/plans-add/0001-sample.md" <<'EOF'
+# Plan: サンプル
+
+## 実装状況: 完了（2026-07-16）
+
+本文
+EOF
+cat > "$box/.claude/addf/plans-add/TODO.addf.md" <<'EOF'
+# TODO (ADDF)
+
+| 優先度 | Phase | 計画ファイル | 状態 |
+|---|---|---|---|
+| 1 | 1 | [Sample Plan](.claude/addf/plans-add/0001-sample.md) | 未着手 |
+EOF
+output=$(run_lint "$box")
+assert_exit "リンク書式でも矛盾で WARNING" 2 $?
+assert_contains "矛盾の特定（リンク書式経由）" "矛盾: .claude/addf/plans-add/0001-sample.md" "$output"
+rm -rf "$box"
+
+# テスト 24c: 混在（バックティック + markdown リンク書式）も同一 TODO 内で動く
+echo "Test 24c: 混在書式（バックティック + markdown リンク）で両方認識"
+box="$(make_sandbox)"
+mkdir -p "$box/.claude/addf/plans-add"
+cat > "$box/.claude/addf/plans-add/0001-sample.md" <<'EOF'
+# Plan: サンプルA
+
+## 実装状況: 完了
+EOF
+cat > "$box/.claude/addf/plans-add/0002-sample.md" <<'EOF'
+# Plan: サンプルB
+
+## 実装状況: 完了
+EOF
+cat > "$box/.claude/addf/plans-add/TODO.addf.md" <<'EOF'
+# TODO (ADDF)
+
+| 優先度 | Phase | 計画ファイル | 状態 |
+|---|---|---|---|
+| 1 | 1 | `.claude/addf/plans-add/0001-sample.md` | 完了 |
+| 2 | 2 | [Sample B](.claude/addf/plans-add/0002-sample.md) | 完了 |
+EOF
+output=$(run_lint "$box")
+assert_exit "混在書式で pair6 が OK" 0 $?
+assert_not_contains "0001 が登録漏れ扱いにならない" "登録漏れ: .claude/addf/plans-add/0001-sample.md" "$output"
+assert_not_contains "0002 が登録漏れ扱いにならない" "登録漏れ: .claude/addf/plans-add/0002-sample.md" "$output"
+rm -rf "$box"
+
+# ヘルパー: PROJECT_DIR に相当する downstream シミュレーション ディレクトリを作る
+# （.addf.md 一切なし・lock.json あり・CLAUDE.repo.md で downstream 宣言・Plan 0件）
+# Feedback.md の教訓「このアサーションは Plan が0件の空のダウンストリームリポジトリでも
+# 成立するか？」の検証土台
+make_fake_downstream_project() {
+  local proj
+  proj="$(mktemp -d)"
+  mkdir -p "$proj/.claude/addf/templates" "$proj/.claude/addf/plans" \
+           "$proj/.claude/addf/guides" "$proj/.claude/commands" \
+           "$proj/.claude/addf"
+  # downstream シグナル: 種別宣言 ＋ lock.json（両方を意図的に持たせる）
+  cat > "$proj/CLAUDE.repo.md" <<'EOF'
+# CLAUDE.repo.md
+
+このリポジトリは **ADDF 利用プロジェクト** です。
+EOF
+  printf '{"version":"0.6.2","ref":"v0.6.2"}\n' > "$proj/.claude/addf/lock.json"
+  # 配布される汎用ファイル（.addf.md サフィックス版は含めない — downstream の物理不在を再現）
+  cp "$PROJECT_DIR/CLAUDE.md" "$proj/"
+  cp "$PROJECT_DIR/AGENTS.md" "$proj/"
+  cp "$PROJECT_DIR/.gitignore" "$proj/"
+  cp "$PROJECT_DIR/README.md" "$proj/"
+  cp "$PROJECT_DIR/.claude/addf/templates/ProgressTemplate.md" "$proj/.claude/addf/templates/"
+  # Progress.md はダウンストリーム版テンプレート由来の内容にする
+  sed -e 's/ProgressTemplate\.addf\.md/ProgressTemplate.md/g' \
+      -e '/ADD フレームワークテスト/d' \
+      "$PROJECT_DIR/.claude/addf/Progress.md" > "$proj/.claude/addf/Progress.md"
+  cp "$PROJECT_DIR"/.claude/commands/addf-*.md "$proj/.claude/commands/"
+  cp "$PROJECT_DIR/.claude/addf/guides/development-process.md" "$proj/.claude/addf/guides/"
+  echo "$proj"
+}
+
+# テスト 25: 0件Plan の空ダウンストリームリポジトリで lint が誤検出しない（Issue #30/#31 の主眼）
+# Feedback.md 教訓「Plan が0件の空 DS リポジトリでも成立するか？」を機械検証する
+echo "Test 25: 0件Plan の空 downstream プロジェクトで lint が誤検出しない"
+fake_proj="$(make_fake_downstream_project)"
+output=$(run_lint "$fake_proj")
+assert_exit "空 downstream で lint が OK" 0 $?
+assert_contains "downstream 判定" "OK: 同期チェック通過" "$output"
+# downstream で SKIP されるのは pair2/3/8（upstream 専用ファイル依存）と pair6/7（存在依存）。
+# pair1/4/5 は downstream 側のファイルも検査対象のため実行される（ここでは OK になること）
+assert_contains "ペア2が SKIP" "[2] SKIP" "$output"
+assert_contains "ペア3が SKIP" "[3] SKIP" "$output"
+assert_contains "ペア8が SKIP" "[8] SKIP" "$output"
+assert_not_contains "ペア1に ERROR が出ない" "[1] ERROR" "$output"
+assert_not_contains "ペア1に WARNING が出ない" "[1] WARNING" "$output"
+assert_not_contains "ペア4に WARNING が出ない" "[4] WARNING" "$output"
+assert_not_contains "ペア5に WARNING が出ない" "[5] WARNING" "$output"
+# Plan 0件の空 downstream で pair6 は SKIP（TODO 不在）— 誤 WARNING が出ないことを確認
+assert_not_contains "空Plan で pair6 が WARNING しない" "[6] WARNING" "$output"
+rm -rf "$fake_proj"
+
+# テスト 26: PROJECT_DIR が .addf.md を持たない構成でも make_sandbox が cp エラーで死なない
+# （Issue #30 の中核回帰: 以前は無条件 cp で FAIL していた）
+echo "Test 26: downstream 構成 PROJECT_DIR でも make_sandbox が cp エラーで死なない"
+fake_proj="$(make_fake_downstream_project)"
+saved_project_dir="$PROJECT_DIR"
+PROJECT_DIR="$fake_proj"
+sandbox_out="$(make_sandbox 2>&1)"
+sandbox_rc=$?
+PROJECT_DIR="$saved_project_dir"
+if [ "$sandbox_rc" -eq 0 ] && [ -d "$sandbox_out" ]; then
+  echo "  PASS: make_sandbox が downstream PROJECT_DIR で成功"
+  PASS=$((PASS + 1))
+  # 疑似コピー方針の確認: .addf.md が .md 版内容で埋められている
+  if [ -f "$sandbox_out/.claude/addf/templates/ProgressTemplate.addf.md" ]; then
+    if diff -q "$sandbox_out/.claude/addf/templates/ProgressTemplate.addf.md" \
+              "$sandbox_out/.claude/addf/templates/ProgressTemplate.md" >/dev/null 2>&1; then
+      echo "  PASS: .addf.md が .md 版で疑似コピーされている（upstream 環境シミュレート）"
+      PASS=$((PASS + 1))
+    else
+      echo "  FAIL: .addf.md と .md 版が一致していない（疑似コピーが機能していない）"
+      FAIL=$((FAIL + 1))
+    fi
+  else
+    echo "  FAIL: .addf.md が sandbox に用意されていない（テストの前提が崩れる）"
+    FAIL=$((FAIL + 1))
+  fi
+  rm -rf "$sandbox_out"
+else
+  echo "  FAIL: make_sandbox が downstream PROJECT_DIR で失敗 (rc=$sandbox_rc): $sandbox_out"
+  FAIL=$((FAIL + 1))
+fi
+rm -rf "$fake_proj"
 
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
