@@ -30,6 +30,7 @@ Install ADDF into your project and it provides plan-driven development, knowhow 
 - **Self-Driving** — `/addf-dev` completes one task; `/loop 1h /addf-dev` for continuous execution
 - **Quality Gate** — Automatically runs code review, security review, and contribution detection
 - **Separation of Skills and Experience** — Skill definitions (`.md`) and experience (`.exp.md`) are separated
+- **Local Dashboard** — Generates an HTML dashboard overviewing the owner-decision queue, plan backlog, and in-progress tasks (`python3 .claude/addf/addfTools/generate-dashboard.py`, then `npm run dashboard:dev` to view). Leave anchor comments anywhere on a page and submit — the next session's agent reads them during the boot sequence, closing an async review loop
 
 ## Quick Start
 

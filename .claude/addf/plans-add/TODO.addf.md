@@ -72,7 +72,7 @@
 | 5 | 62 | `.claude/addf/plans-add/0062-speculation-feedback-proposals.md` | 未着手（2026-07-16 起票。Issue #24・#25 回収 — 投機サイクル完走フィードバックの未回収提案棚卸し） |
 | 6 | 63 | `.claude/addf/plans-add/0063-feedback-md-format.md` | 未着手（2026-07-16 起票。Issue #5 回収 — Feedback.md 記入フォーマットと knowhow 振り分け基準） |
 | 6 | 64 | `.claude/addf/plans-add/0064-plan-numbering-self-cleaning.md`（検討スタブ） | 未着手・方式確定済み（2026-07-16 起票。Issue #7 回収 — Plan 採番・残存コメントの自浄機構。同日アンカーコメントでオーナー回答3件: DEPRECATED.md 集約〔📜 方式は否定指示ごとコンテキストに載るバイアス問題〕× ハイブリッド駆動〔lint+棚卸し・Plan 10個ごと/migrate ごと〕× 判定基準は本体実測ファースト。標準テンプレート化から着手可能） |
-| 7 | 65 | `.claude/addf/plans-add/0065-readme-dashboard-gap.md` | 未着手（2026-07-16 起票。Plan 0058 フェーズC の doc-review 検出 — README にローカルダッシュボード機能の記載が無い。Plan 0050 と同種の乖離回収） |
+| 7 | 65 | `.claude/addf/plans-add/0065-readme-dashboard-gap.md` | 完了（2026-07-17。README.md / README.en.md 特徴セクションにローカルダッシュボード＋アンカーコメント項目を追加。v0.7.0 リリース前作業） |
 | 4 | 66 | `.claude/addf/plans-add/0066-dashboard-behavior-settings-page.md` | 未着手（2026-07-16 起票。オーナー発案 — Behavior.toml の現在値と有効値をダッシュボードの設定ページに表示する。核心は有効値の単一ソース設計〔案1: 行末コメント正 / 案2: スキーマ定義新設+lint 同期〕。Plan 0057 の lint 期待値表と置き場を共有できる可能性あり） |
 | 2 | 55 | `.claude/addf/plans-add/0055-downstream-migration-feedback-taskbar.md` | 完了（2026-07-14。GitHub Issue #27〔addf-migrate自己点検〕・#28〔*.addf.md除外規則の説明強化〕・#29〔downstreamで必ずFAILするテストの動的アサーション化〕をtaskbar.fmからのフィードバックとして回収。3体レビュー（code-review Critical1件・doc-review Critical1件等）を反映、Critical指摘の反映過程でテストヘルパーのstrip_fences漏れという実バグも検出・修正。run-all.sh・/addf-lint 全通過） |
 | 5 | 67 | `.claude/addf/plans-add/0067-plan-brainstorm-skill.md`（検討スタブ） | 未着手（2026-07-16 起票。オーナー発案 — Plan ブレインストーミングのスキル化。AI 起票案は人間の採否判断が要るため領域を既存 Plan と分離。Plan 0056〔系統樹〕の基盤完成後に着手） |

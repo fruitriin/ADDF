@@ -1,8 +1,6 @@
 # Plan 0065: README にローカルダッシュボード機能の記載を追加する
 
-## 実装状況: 未着手
-
-owner_feedback: 不要
+## 実装状況: 完了（2026-07-17。README.md / README.en.md の特徴セクションにローカルダッシュボード＋アンカーコメントの項目を追加。v0.7.0 リリース前作業として実施）
 
 > 出典: Plan 0058 フェーズC の doc-review が検出（README.md / README.en.md に
 > `npm run dashboard:dev` を含むローカルダッシュボード機能が一切登場しない）。

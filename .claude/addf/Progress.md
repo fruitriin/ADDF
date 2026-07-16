@@ -88,7 +88,28 @@
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: v0.7.0 リリースに向けた DS フィードバック対応（Plan 0059・0060）＋リリース前作業
+
+採番 v0.7.0 はオーナー承認済み（2026-07-17）。スコープ: DS 実害系（0059・0060）＋ 0065（README）＋ドリフト検査＋ CHANGELOG → /addf-release。0061〜0063 は次リリースへ。
+
+#### サブタスクチェックリスト
+
+- [ ] D-1: Plan 0059 実装（addf-implementer worktree 委譲 — make_sandbox 条件付き cp / todo_table_rows 両書式受理 / lock.json 下流シグナル SKIP / CI 模擬は切り出し可）
+- [ ] D-2: Plan 0060 実装（addf-implementer worktree 委譲 — migrate-paths / lint-residual-paths の lookbehind 境界・Issue #33）
+- [ ] D-3: 両 worktree の検収と main への統合
+- [ ] D-4: Stage 1 — run-all.sh・lint 一式
+- [ ] D-5: Stage 2 — code-review・contribution-agent（DS サンドボックス実測を明示依頼）
+- [ ] D-6: Plan 0065 — README/README.en にダッシュボード記載
+- [ ] D-7: リリース前ドリフト検査（/addf-lint 相当一式・CHANGELOG 最終化）
+- [ ] D-8: /addf-release で v0.7.0（Issue #30・#31・#33 返信文はオーナー確認待ち）
+
+#### 日記
+
+##### 2026-07-17 — Plan 0059 着手（ゴール: リリースに向けた DS フィードバック対応）
+**やったこと**: /goal でダウンストリームフィードバック対応の指示を受け、優先度・若番から Plan 0059 を選定。実装は addf-implementer に worktree 委譲する判断（メインのコンテキストが 400k 超で compaction 間近のため、復帰容易性を優先）。
+**今の見立て**: Plan 0059 は Issue #30・#31 に下流実測・実装済みの対処が揃っており確信度9割。項目4（CI downstream 模擬）だけ規模次第で切り出し。
+**次の自分へ**: compaction 後に再開する場合 — addf-implementer の worktree ブランチ（plan-0059 系の名前）の有無を `git branch -a` で確認し、完了していれば D-2 の検収から。未完なら TaskOutput で状況確認。
+**気になっていること**: このセッションで Plan 0058 関連の UI 修正が多数 main に入っている。worktree は分岐時点の main を基にするので競合は無いはずだが、統合時に generate-dashboard.py 等に触っていないか diff を確認すること。
 
 > 新しいタスク開始時は以下の構造で記録する:
 > `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）
