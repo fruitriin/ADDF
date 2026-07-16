@@ -249,7 +249,7 @@ if grep -q "下書きコメント（未送信 — 集約に出ない）" "$OUT/i
   echo "  FAIL: draft のコメント本文が index.md に表示されている"
   bad=$((bad + 1))
 fi
-if ! grep -q "未送信の下書きコメントが 1件" "$OUT/index.md"; then
+if ! grep -q "送信待ちのコメントが 1件" "$OUT/index.md"; then
   echo "  FAIL: draft 件数の注記が index.md に無い"
   bad=$((bad + 1))
 fi

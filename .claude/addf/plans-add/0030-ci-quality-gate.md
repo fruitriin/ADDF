@@ -1,10 +1,6 @@
 # Plan 0030: CI 品質ゲート（GitHub Actions で run-all.sh + lint 一式を自動実行）
 
-## 実装状況: 一部完了（実装・CI 実地検証済み 2026-07-05。branch protection の要否のみオーナー判断待ち）
-
-owner_feedback: 待ち
-feedback_ask: main への branch protection（PR 必須化）を有効にするか
-feedback_since: 2026-07-05
+## 実装状況: 完了（実装・CI 実地検証済み 2026-07-05。branch protection は2026-07-16 オーナー判断で「しない」と確定〔アンカーコメント dc_mrnlhqz74yrf「めんどくさいから。Lint はいいと思う」〕— CI の run-all.sh + lint 自動実行は維持・protection 設定は意図的に非採用）
 
 > 実装完了・CI 実地検証済み（2026-07-05）: (1) 緑実行=run 28745383490 (2) ERROR 注入 fail=
 > 使い捨て PR #23 で failure 確認 (3) WARNING annotation=ペア6警告の黄色表示を確認

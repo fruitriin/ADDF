@@ -129,6 +129,58 @@
       "status": "resolved",
       "resolution": "UI 改善として実装済み: パネル外クリックで閉じるようにした（バッジ・ホバーボタンのクリックは除外）。ブラウザをリロードして確認してください",
       "replies": []
+    },
+    {
+      "id": "dc_mrnlhqz74yrf",
+      "page": "/",
+      "source_path": null,
+      "anchor": "11日 0030 CI 品質ゲート（GitHub Actions で run-all.sh + lint 一式を自動実行） — main への branch protection（PR 必須化）を有効にするか FB 待ち",
+      "anchor_occurrence": 0,
+      "body": "ブランチプロテクションはしない（めんどくさいから）\nLintはいいと思う",
+      "author": "owner",
+      "created_at": "2026-07-16T14:19:15.283Z",
+      "status": "resolved",
+      "resolution": "Plan 0030 を完了化: branch protection は「しない」とオーナー判断確定・CI の run-all.sh + lint 自動実行は維持。ヘッダ・TODO 反映済み",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnlk0cvcwqw",
+      "page": "/plans/0054-settings-self-write-protection",
+      "source_path": ".claude/addf/plans-add/0054-settings-self-write-protection.md",
+      "anchor": "上記の整理を踏まえ、D 軸（ask ベース）を本線とする方向でよいか。その場合: 本体側は F（現状維持）のままにするか、本体にも D を入れて ask の煩雑さを実測するかDS 向けに B（hooks deny）をオプションとして重ねるか",
+      "anchor_occurrence": 0,
+      "body": "良さそう\n（ただし、AutoModeでもAskに入ってるとそこで作業が止まってしまうのでそこが気がかりではあり、留意する必要がある）",
+      "author": "owner",
+      "created_at": "2026-07-16T14:21:00.751Z",
+      "status": "resolved",
+      "resolution": "Plan 0054 に反映: D 軸（ask ベース）本線を承認として記録。留意点「AutoMode でも ask で作業が止まる」を実装時の観測対象（ask が自律ループを停止させる頻度・段階調整）として明記",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnll3egcfnd",
+      "page": "/plans/0058-dashboard-html-review-ui",
+      "source_path": ".claude/addf/plans-add/0058-dashboard-html-review-ui.md",
+      "anchor": "[ ] npm run dashboard:dev でダッシュボードが閲覧でき、プランビューアで Plan 本文が読める",
+      "anchor_occurrence": 0,
+      "body": "読めてる！",
+      "author": "owner",
+      "created_at": "2026-07-16T14:21:51.352Z",
+      "status": "resolved",
+      "resolution": "Plan 0058 完了条件「dashboard:dev で閲覧・プランビューアで Plan 本文が読める」をチェック済みに更新",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnlnuvc57ns",
+      "page": "/plans/0058-dashboard-html-review-ui",
+      "source_path": ".claude/addf/plans-add/0058-dashboard-html-review-ui.md",
+      "anchor": "[ ] ブラウザでアンカーコメントの一連の流れ（ホバー→コメント→バッジ→resolve）をオーナーが確認する",
+      "anchor_occurrence": 0,
+      "body": "1. 下書きになっているものを一覧したいかも\n2. ダッシュボードの処理上はdraftという扱いで正解なのだが、UI上下書き　という表示だとレビューを送信したときに送信されないみたいなのでそこは表現を変えたい\n下書きは別の領域で、送信前に溜まっているものはスタックみたいなイメージなんだけど、伝わるかな",
+      "author": "owner",
+      "created_at": "2026-07-16T14:24:00.264Z",
+      "status": "resolved",
+      "resolution": "動線確認をチェック済みに更新。UI 改善2点を実装: (1)「下書き」表現を「送信待ち」に変更（送信バー・パネル内マーク・ボタン・注記）(2) 送信バーの「送信待ち N件」クリックで送信待ちコメントの一覧パネル（page・anchor・本文・取り下げ）を表示。ブラウザをリロードして確認してください",
+      "replies": []
     }
   ]
 }

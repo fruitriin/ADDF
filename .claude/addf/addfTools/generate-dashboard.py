@@ -576,7 +576,7 @@ def build():
     # アンカーコメント（オーナー発 → エージェント対応待ち。方向がキューと逆なので別セクション）
     if dash_drafts:
         lines += [
-            f"> ✏️ 未送信の下書きコメントが {dash_drafts}件 あります"
+            f"> ✏️ 送信待ちのコメントが {dash_drafts}件 あります"
             "（ダッシュボードの「レビューを送信」で確定するまでエージェントは読みません）",
             "",
         ]
@@ -968,9 +968,9 @@ const guidanceOpen = ref(false)
 const submittedCount = ref(0)
 
 // 全ページ横断のドラフト数（送信バーの表示判定）
-const draftCount = computed(
-  () => comments.value.filter((c) => c.status === 'draft').length
-)
+const stackList = computed(() => comments.value.filter((c) => c.status === 'draft'))
+const draftCount = computed(() => stackList.value.length)
+const stackOpen = ref(false)
 const GUIDANCE_PROMPT = 'ダッシュボードのコメントに対応して'
 
 // tr はコンテンツモデル上 button を直接置けないため td/th 単位にする
@@ -1118,7 +1118,7 @@ function onMouseOver(e) {
 function onDocClick(e) {
   if (!panelOpen.value) return
   const t = e.target
-  if (t instanceof Element && t.closest('.addf-panel, .addf-cbadge, .addf-hoverbtn')) return
+  if (t instanceof Element && t.closest('.addf-panel, .addf-cbadge, .addf-hoverbtn, .addf-stack, .addf-submitbar')) return
   panelOpen.value = false
 }
 
@@ -1252,7 +1252,7 @@ watch(
         <div class="addf-meta">
           {{ c.author }} · {{ (c.created_at || '').slice(0, 16).replace('T', ' ') }}
           <span v-if="c.status === 'resolved'" class="addf-resolved-mark">✓ resolved</span>
-          <span v-if="c.status === 'draft'" class="addf-draft-mark">下書き（未送信）</span>
+          <span v-if="c.status === 'draft'" class="addf-draft-mark">送信待ち</span>
         </div>
         <div class="addf-body">{{ c.body }}</div>
         <div v-if="c.resolution" class="addf-reply">
@@ -1280,21 +1280,36 @@ watch(
         v-model="draft"
         class="addf-draft"
         rows="3"
-        placeholder="コメントを書く — 下書きとして保存され、「レビューを送信」で確定します"
+        placeholder="コメントを書く — 送信待ちに積まれ、「レビューを送信」で確定します"
       ></textarea>
       <button
         class="addf-send"
         type="button"
         :disabled="sending || !draft.trim()"
         @click="submit"
-      >下書き追加</button>
+      >送信待ちに積む</button>
     </div>
 
     <div v-if="available && draftCount" class="addf-submitbar">
-      <span>下書き {{ draftCount }}件</span>
+      <button class="addf-resolve" type="button" @click="stackOpen = !stackOpen">
+        送信待ち {{ draftCount }}件
+      </button>
       <button class="addf-send" type="button" :disabled="submitting" @click="submitReview">
         レビューを送信
       </button>
+    </div>
+
+    <div v-if="stackOpen && stackList.length" class="addf-stack">
+      <div class="addf-panel-head">
+        <strong>送信待ちのコメント {{ stackList.length }}件</strong>
+        <button class="addf-x" type="button" @click="stackOpen = false">×</button>
+      </div>
+      <div v-for="c in stackList" :key="c.id" class="addf-comment">
+        <div class="addf-meta">{{ c.page }}</div>
+        <blockquote v-if="c.anchor" class="addf-anchor">{{ c.anchor }}</blockquote>
+        <div class="addf-body">{{ c.body }}</div>
+        <button class="addf-resolve" type="button" @click="discardDraft(c.id)">取り下げ</button>
+      </div>
     </div>
 
     <div v-if="guidanceOpen" class="addf-modal-backdrop" @click.self="guidanceOpen = false">
@@ -1456,6 +1471,14 @@ watch(
 }
 .addf-modal p { margin: 10px 0; color: var(--vp-c-text-2); font-size: 13px; }
 .addf-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+.addf-stack {
+  position: fixed; right: 16px; top: 120px; z-index: 55;
+  width: min(400px, calc(100vw - 32px)); max-height: 60vh; overflow-y: auto;
+  background: var(--vp-c-bg); border: 1px solid var(--vp-c-divider);
+  border-radius: 10px; box-shadow: var(--vp-shadow-3); padding: 10px 14px;
+  font-size: 13px;
+}
+.addf-stack .addf-meta { font-family: var(--vp-font-family-mono); }
 """
     (OUT_DIR / ".vitepress" / "theme" / "custom.css").write_text(css, encoding="utf-8")
 

@@ -1,10 +1,8 @@
 # Plan 0058: Dashboard の HTML 化とブラウザレビュー UI
 
-## 実装状況: 一部完了（フェーズA・B・C 完了 2026-07-16。A: ダッシュボード実装＋オーナー実物確認済み。B: crit ドッグフーディング一周実測。C: アンカーコメント UI〔Layout.vue＋/api/comments Vite プラグイン〕・DashboardComments.json・crit 未解決コメント集約・ブートシーケンス 1.7 配線・折りたたみ構文2系統〔::: details 推奨＋details/summary パススルー〕・3体レビュー反映〔Critical 2/High 1/Medium 4 ほか〕・テスト17件全通過。残: オーナーによるブラウザでのアンカーコメント動線確認のみ。`/crit` プラグイン導入は保留）
+## 実装状況: 一部完了（フェーズA・B・C 完了 2026-07-16。A: ダッシュボード実装＋オーナー実物確認済み。B: crit ドッグフーディング一周実測。C: アンカーコメント UI〔Layout.vue＋/api/comments Vite プラグイン〕・DashboardComments.json・crit 未解決コメント集約・ブートシーケンス 1.7 配線・折りたたみ構文2系統〔::: details 推奨＋details/summary パススルー〕・3体レビュー反映〔Critical 2/High 1/Medium 4 ほか〕・テスト17件全通過。オーナー動線確認済み 2026-07-16〔コメント13件が UI 経由で往復。追加フィードバックで draft モデル・送信待ちスタック一覧・ガイダンスモーダルを実装〕。`/crit` プラグイン導入は保留）
 
-owner_feedback: 待ち
-feedback_ask: フェーズC アンカーコメント UI のブラウザ動線確認（dashboard:dev でホバー→コメント→resolve）
-feedback_since: 2026-07-16
+owner_feedback: 済
 
 > 出典: オーナー発案（2026-07-16 対話セッション）。Dashboard を md から HTML にしたい。
 > VitePress 的な markdown to html がベースで、折りたたみ・画像・ページ切り替えで
@@ -246,7 +244,7 @@ feedback_since: 2026-07-16
 - [x] PlanTemplate.md に FB フィールド書式が記載されている
 - [x] 未完了 Plan 11件に owner_feedback フィールドが付与されている
 - [x] `python3 .claude/addf/addfTools/generate-dashboard.py` が dashboard/ を生成する
-- [ ] `npm run dashboard:dev` でダッシュボードが閲覧でき、プランビューアで Plan 本文が読める <!-- human-judgment -->
+- [x] `npm run dashboard:dev` でダッシュボードが閲覧でき、プランビューアで Plan 本文が読める（2026-07-16 オーナー確認「読めてる！」dc_mrnll3egcfnd） <!-- human-judgment -->
 - [x] `bash .claude/addf/tests/run-all.sh` 全通過
 - [x] lint 一式（plan-status / residual-paths / template-sync / checklist / json / toml / frontmatter）全通過
 
@@ -257,7 +255,7 @@ feedback_since: 2026-07-16
 - [x] `~/.crit/reviews/` の未解決コメントが「要フィードバック」ページに集約される（実物1件で確認）
 - [x] CLAUDE.md ブートシーケンス 1.7 が配線され、同期ペア lint（3/4/5）が通過する
 - [x] `<details>/<summary>` と `::: details` がプランビューアで折りたたみとして機能し、インラインコード内 `{{...}}` でビルドが落ちない（vitepress build 通過）
-- [ ] ブラウザでアンカーコメントの一連の流れ（ホバー→コメント→バッジ→resolve）をオーナーが確認する <!-- human-judgment -->
+- [x] ブラウザでアンカーコメントの一連の流れ（ホバー→コメント→バッジ→resolve）をオーナーが確認する（2026-07-16 実運用で確認済み — 13件のコメントが UI 経由で往復。dc_mrnlnuvc57ns） <!-- human-judgment -->
 
 ### フェーズC Stage 2 レビュー反映記録（2026-07-16・3体並列）
 

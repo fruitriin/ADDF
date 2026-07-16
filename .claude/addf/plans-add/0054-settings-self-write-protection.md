@@ -2,9 +2,7 @@
 
 ## 実装状況: 未着手
 
-owner_feedback: 待ち
-feedback_ask: 設計方向 A〜F の選択（推し: DS = D＋任意で B / 本体 = F または D）
-feedback_since: 2026-07-11
+owner_feedback: 済
 
 > 出典: Plan 0026 のレビューで検出された [Critical]「settings.json / hooks 自己書き換え保護
 > （`Write`/`Edit` に対する deny）」。Plan 0043（セキュリティ回収）本文92行目で「本 Plan では
@@ -101,6 +99,11 @@ sync-ccchain.py・/addf-permission-audit の提案反映）であり、書き換
 - 上記の整理を踏まえ、**D 軸（ask ベース）を本線とする**方向でよいか。その場合:
   - 本体側は F（現状維持）のままにするか、本体にも D を入れて ask の煩雑さを実測するか
   - DS 向けに B（hooks deny）をオプションとして重ねるか
+  - **オーナー回答（2026-07-16 アンカーコメント dc_mrnlk0cvcwqw）**: 「良さそう」—
+    D 軸本線で承認。**ただし留意点: AutoMode でも Ask に入るとそこで作業が止まってしまう
+    のが気がかり** — 実装時は「ask が自律ループ（cron / unattended）を停止させる頻度」を
+    観測対象にし、止まりすぎるなら ask 対象の絞り込みで段階調整すること（Plan 0043 の
+    事後観測方式と同じ運び）
 - 配布方式を Behavior.toml オプトイン（ccchain パターン）とするか、デフォルト有効
   （オプトアウト）とするか
 - 「不便のない範囲で」との両立をどう測るか（Plan 0043 の Q3 解消時と同様、事後観測方式で
