@@ -181,6 +181,52 @@
       "status": "resolved",
       "resolution": "動線確認をチェック済みに更新。UI 改善2点を実装: (1)「下書き」表現を「送信待ち」に変更（送信バー・パネル内マーク・ボタン・注記）(2) 送信バーの「送信待ち N件」クリックで送信待ちコメントの一覧パネル（page・anchor・本文・取り下げ）を表示。ブラウザをリロードして確認してください",
       "replies": []
+    },
+    {
+      "id": "dc_mrnm0kl6odif",
+      "page": "/plans/0064-plan-numbering-self-cleaning",
+      "source_path": ".claude/addf/plans-add/0064-plan-numbering-self-cleaning.md",
+      "anchor": "DEPRECATED.md（退避先を1ファイルに集約）と、knowhow の 📜 superseded 方式（その場で マーク）のどちらに寄せるか。両立か",
+      "anchor_occurrence": 0,
+      "body": "来歴が見えることの嬉しさがある一方で、ノウハウを読んだときに必要のないコンテキストが入り込むことで後続のタスク実行に必要のないバイアスがかかってしまう（LLMは否定系の扱いがそれほどうまくないはず）なので、必要のないコンテキストはあまり積みたくないがゆえにDeprecatedにしたい判断\nこの辺りの意見はどう？",
+      "author": "owner",
+      "created_at": "2026-07-16T14:33:53.467Z",
+      "status": "resolved",
+      "resolution": "Plan 0064 に反映: DEPRECATED.md 集約方式で確定。エージェントも同意（📜 方式は knowhow-filter/grep が否定指示ごと拾う構造問題があり、DEPRECATED.md は「読まない自由」を構造で保証する）。留意点としてリンク切れ掃除も自浄機構の仕事に含めることを追記",
+      "replies": [
+        {
+          "id": "rp_agent_0064dep",
+          "body": "同意です。📜 superseded の構造的な弱点はまさにその点で、ファイルが knowhow/ に残る限り knowhow-filter や grep が拾い、「これは古い・使うな」という否定指示ごとコンテキストに載ります。DEPRECATED.md 集約なら通常フローで読まれず、来歴が必要なとき（考古学）だけ明示的に開く——「読まない自由」が構造で保証されます。git 履歴だけに頼るより発見可能性も高い。実装時の留意点は、退避で生じるリンク切れ（双方向リンク lint の検査対象）の掃除まで自浄機構に含めることです。",
+          "author": "claude",
+          "created_at": "2026-07-16T14:37:30Z"
+        }
+      ]
+    },
+    {
+      "id": "dc_mrnm1wcpdd13",
+      "page": "/plans/0064-plan-numbering-self-cleaning",
+      "source_path": ".claude/addf/plans-add/0064-plan-numbering-self-cleaning.md",
+      "anchor": "自浄の駆動方式: lint（機械検出）／定期棚卸しスキル（/addf-plan-audit 型）／リリース時 チェックリスト（Release.addf.md）のどれに載せるか",
+      "anchor_occurrence": 0,
+      "body": "機械検出と棚卸しスキルのハイブリッド\nプラン１０個ごとに実施とか\nあとマイグレーション処理ごとに一回とか\nそういうのがあると良さそう",
+      "author": "owner",
+      "created_at": "2026-07-16T14:34:55.369Z",
+      "status": "resolved",
+      "resolution": "Plan 0064 に反映: ハイブリッド駆動（lint + 棚卸しスキル）・周期トリガー（Plan 10個ごと / migrate ごと）で確定",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnm2hvjsg53",
+      "page": "/plans/0064-plan-numbering-self-cleaning",
+      "source_path": ".claude/addf/plans-add/0064-plan-numbering-self-cleaning.md",
+      "anchor": "「消すべき残存」の判定基準: 単なる採番言及は無害（来歴）で、「現在の挙動の説明として 読むと誤る記述」だけが有害では？ 機械検出できる境界があるか",
+      "anchor_occurrence": 0,
+      "body": "ADDFプロジェクトで実施してみて検出できるかどうか試すのがよさそう",
+      "author": "owner",
+      "created_at": "2026-07-16T14:35:23.263Z",
+      "status": "resolved",
+      "resolution": "Plan 0064 に反映: 判定基準は ADDF 本体での実測ファーストで固める方針を記録",
+      "replies": []
     }
   ]
 }
