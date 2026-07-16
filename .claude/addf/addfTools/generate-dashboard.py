@@ -561,13 +561,18 @@ export default defineConfig({{
   ignoreDeadLinks: true,
   vite: {{ server: {{ port: 5180 }} }},
   themeConfig: {{
-    nav: [
-      {{ text: '要フィードバック', link: '/' }},
-      {{ text: '進行中タスク', link: '/active' }},
-      {{ text: '未実施の計画', link: '/backlog' }},
-    ],
     sidebar: {{
-      '/plans/': [{{ text: 'プランビューア', items: {sidebar_json} }}],
+      '/': [
+        {{
+          text: 'ダッシュボード',
+          items: [
+            {{ text: '要フィードバック', link: '/' }},
+            {{ text: '進行中タスク', link: '/active' }},
+            {{ text: '未実施の計画', link: '/backlog' }},
+          ],
+        }},
+        {{ text: 'プランビューア', collapsed: true, items: {sidebar_json} }},
+      ],
     }},
     outline: {{ label: 'このページ' }},
     footer: {{ message: '生成: {TODAY.isoformat()} · generate-dashboard.py（Plan 0058）' }},
@@ -610,6 +615,21 @@ export default DefaultTheme
 .stat .value small { font-size: 12px; font-weight: 400; color: var(--vp-c-text-2); }
 .stat.hot .value { color: var(--chip-wait-ink); }
 @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+
+/* サイドバーはページタブの代替 — 通常項目の視認性と現在ページのコントラストを上げる */
+.VPSidebarItem.level-1 .text {
+  color: var(--vp-c-text-1);
+  font-size: 14px;
+}
+.VPSidebarItem.level-1.is-active > .item {
+  background: var(--vp-c-brand-soft);
+  border-radius: 6px;
+}
+.VPSidebarItem.level-1.is-active > .item .link { padding-left: 8px; }
+.VPSidebarItem.level-1.is-active > .item .text {
+  color: var(--vp-c-brand-1);
+  font-weight: 700;
+}
 """
     (OUT_DIR / ".vitepress" / "theme" / "custom.css").write_text(css, encoding="utf-8")
 
