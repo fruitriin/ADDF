@@ -3,7 +3,7 @@
 `.claude/addf/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: v0.6.2 リリース済み（2026-07-11）。Plan 0040 フェーズ1・2（ccchain 導入・オプトイン配布機構）完了（2026-07-14）。フェーズ3〔ガイド・migrate統合〕・フェーズ4〔統合〕は未着手。Plan 0055（taskbar.fm Issue #27〜#29回収）完了（2026-07-14）。Plan 0054（検討スタブ）は最優先で未着手。Plan 0056（検討スタブ・Plan 系統樹）・Plan 0057（検討スタブ・コミットベースラインのプロファイル化）起票（2026-07-16）。Plan 0058（Dashboard HTML 化と crit.md 連携）は標準テンプレへ昇格・フェーズA 実装済みで品質ゲート中（2026-07-16）。Plan 0048 は要確認で静観中（Q6投下済み）
+## 現在のフェーズ: v0.6.2 リリース済み（2026-07-11）。Plan 0040 フェーズ1・2（ccchain 導入・オプトイン配布機構）完了（2026-07-14）。フェーズ3〔ガイド・migrate統合〕・フェーズ4〔統合〕は未着手。Plan 0055（taskbar.fm Issue #27〜#29回収）完了（2026-07-14）。Plan 0054（検討スタブ）は最優先で未着手。Plan 0056（検討スタブ・Plan 系統樹）・Plan 0057（検討スタブ・コミットベースラインのプロファイル化）起票（2026-07-16）。Plan 0058（Dashboard HTML 化と crit.md 連携）はフェーズA 完了・オーナー実物確認待ち（2026-07-16。フェーズB=crit ドッグフーディング・フェーズC=二層接続は未着手）。Plan 0048 は要確認で静観中（Q6投下済み）
 
 ## バックログ
 
@@ -65,7 +65,7 @@
 | **1** | 54 | `.claude/addf/plans-add/0054-settings-self-write-protection.md`（検討スタブ） | 未着手（2026-07-11 起票。Plan 0053 の doc-review で Plan 0026 の [Critical]「settings.json/hooks 自己書き換え保護」が Plan 0043 で明示的にスコープ外とされたまま独立 Plan 未作成で放置されていたことが判明。Progress 運用ルール7〔主題外Critical最優先切り出し〕に従い起票。設計方向性はオーナー判断待ち） |
 | 3 | 56 | `.claude/addf/plans-add/0056-plan-genealogy-tree.md`（検討スタブ） | 未着手（2026-07-16 起票。オーナー発案。未完了タスクロードマップを積み上げ式から系統樹表現へ — 剪定・派生・復活をエッジ型で一級データ化し、TODO テーブルを真実源としたまま Mermaid 派生ビューを生成する構想。クリティカルパス〔オーナー判断待ちの可視化〕はオーナー好感触あり。エッジ記録先・初期スコープはオーナー判断待ち） |
 | 3 | 57 | `.claude/addf/plans-add/0057-commit-baseline-profiles.md`（検討スタブ） | 未着手（2026-07-16 起票。オーナー発案。`.gitignore` ADDF ブロック〔何をコミットし何を ignore するか〕を Behavior.toml のプロファイル宣言〔upstream/team/personal 想定〕で切り替える構想。きっかけは .exp.md のコミット要否が開発形態で変わる整理と Claude Code Web 可搬性。exp 先行切り出しはせず1本で扱うことをオーナー決定済み。プロファイル粒度・デフォルト値はオーナー判断待ち） |
-| **1** | 58 | `.claude/addf/plans-add/0058-dashboard-html-review-ui.md` | 進行中（2026-07-16 検討スタブから標準テンプレへ昇格・フェーズA 着手。二層構造〔ミクロ = crit / マクロ = VitePress ローカル専用〕・3ページ構成〔要フィードバック（Questions 統合）／進行中タスク／未実施計画〕・FB 明示フィールド方式。叩き合意済み。フェーズA = FB フィールド遡及付与・generate-dashboard.py・VitePress 配線・テスト。フェーズB = crit ドッグフーディング〔オーナー同席〕・フェーズC = 二層接続は未着手） |
+| **1** | 58 | `.claude/addf/plans-add/0058-dashboard-html-review-ui.md` | 一部完了（フェーズA 完了 2026-07-16。owner_feedback フィールド仕様＋遡及付与11件・generate-dashboard.py〔3ページ＋プランビューア58件〕・VitePress ローカルインスタンス配線〔dashboard:dev / port 5180〕・drift-injection テスト8件。3体レビューの Critical 3件〔DS 誤 FAIL テスト・奇数バッククォート・title 未エスケープ〕を全反映。オーナーの実物確認待ち。フェーズB〔crit ドッグフーディング・オーナー同席〕・フェーズC〔二層接続・配布〕は未着手） |
 | 2 | 55 | `.claude/addf/plans-add/0055-downstream-migration-feedback-taskbar.md` | 完了（2026-07-14。GitHub Issue #27〔addf-migrate自己点検〕・#28〔*.addf.md除外規則の説明強化〕・#29〔downstreamで必ずFAILするテストの動的アサーション化〕をtaskbar.fmからのフィードバックとして回収。3体レビュー（code-review Critical1件・doc-review Critical1件等）を反映、Critical指摘の反映過程でテストヘルパーのstrip_fences漏れという実バグも検出・修正。run-all.sh・/addf-lint 全通過） |
 
 オーナーリクエスト:

@@ -1,8 +1,10 @@
 # Plan 0058: Dashboard の HTML 化とブラウザレビュー UI
 
-## 実装状況: 進行中（フェーズA 着手 2026-07-16）
+## 実装状況: 一部完了（フェーズA 完了 2026-07-16。3体レビューの Critical 3件〔DS 誤 FAIL テスト・奇数バッククォートのエスケープ免除・title 経由の未エスケープ挿入〕を全て反映。フェーズB〔crit ドッグフーディング・オーナー同席〕・フェーズC〔二層接続・配布〕は未着手）
 
-owner_feedback: 済
+owner_feedback: 待ち
+feedback_ask: ダッシュボード実物の確認（npm run dashboard:dev）— 叩きとの乖離チェックとフェーズB 着手可否
+feedback_since: 2026-07-16
 
 > 出典: オーナー発案（2026-07-16 対話セッション）。Dashboard を md から HTML にしたい。
 > VitePress 的な markdown to html がベースで、折りたたみ・画像・ページ切り替えで
@@ -136,12 +138,12 @@ owner_feedback: 済
 
 ## 完了条件
 
-- [ ] PlanTemplate.md に FB フィールド書式が記載されている
-- [ ] 未完了 Plan 11件に owner_feedback フィールドが付与されている
-- [ ] `uv run .claude/addf/addfTools/generate-dashboard.py` が dashboard/ を生成する
+- [x] PlanTemplate.md に FB フィールド書式が記載されている
+- [x] 未完了 Plan 11件に owner_feedback フィールドが付与されている
+- [x] `python3 .claude/addf/addfTools/generate-dashboard.py` が dashboard/ を生成する
 - [ ] `npm run dashboard:dev` でダッシュボードが閲覧でき、プランビューアで Plan 本文が読める <!-- human-judgment -->
-- [ ] `bash .claude/addf/tests/run-all.sh` 全通過
-- [ ] `/addf-lint` 全通過
+- [x] `bash .claude/addf/tests/run-all.sh` 全通過
+- [x] lint 一式（plan-status / residual-paths / template-sync / checklist / json / toml / frontmatter）全通過
 
 ## AI 実装時間見積もり
 

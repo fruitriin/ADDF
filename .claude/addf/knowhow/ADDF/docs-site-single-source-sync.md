@@ -68,9 +68,13 @@ status: active
   いない（`.claude/addf/tests/tools/test-sync-docs-links.sh` にも画像/アンカーのテストケースは
   未追加）。将来ガイドに画像やアンカー付きリンクが増えたら、その時点で実例ベースのテストを足す
 
+## 関連ノウハウ
+
+- [同期 lint の設計](sync-lint-design.md) — 単一ソース化・「欠如 = SKIP」設計思想の親knowhow
+- [VitePress 埋め込みのエスケープ落とし穴](vitepress-embed-escape-pitfalls.md) — 同じ「ビルド時生成」パターンをローカルダッシュボード（Plan 0058）に適用した際の Vue コンパイル安全化の知見
+
 ## 参照
 
 - `scripts/sync-docs.mjs` — 実装本体
 - `.claude/addf/tests/tools/test-sync-docs-links.sh` — 軽量回帰テスト
-- [同期 lint の設計](sync-lint-design.md) — 単一ソース化・「欠如 = SKIP」設計思想の親knowhow
 - `.claude/addf/plans-add/0039-docs-website.md` — 本知見が生まれた Plan

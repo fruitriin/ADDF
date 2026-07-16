@@ -88,7 +88,86 @@
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: Plan 0058 — Dashboard の HTML 化とブラウザレビュー UI（フェーズA）
 
-> 新しいタスク開始時は以下の構造で記録する:
-> `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）
+#### サブタスクチェックリスト
+
+- [x] Plan 0058 を標準テンプレートに昇格（フェーズA/B/C・FB フィールド仕様確定）
+- [x] PlanTemplate.md に owner_feedback / feedback_ask / feedback_since の書式を追記
+- [x] 未完了 Plan 11件（0026/0029/0030/0039/0040/0041/0048/0054/0056/0057/0058）に遡及付与
+  - 値は TODO 転記ではなく Plan 本文・Questions.md と突合して決めた（待ち6・済4・不要1）
+- [x] generate-dashboard.py 実装（stdlib のみ・フォールバック付き）
+- [x] package.json（dashboard:sync / dashboard:dev / dashboard:build）・
+      .gitignore（dashboard/ 生成物）・VitePress config 生成（port 5180 明示）
+- [x] テスト test-generate-dashboard.sh（欠如 = SKIP 設計・7 PASS）
+- [x] 動作確認: 生成実行 + npm run dashboard:build 通過（ブラウザ目視はオーナー確認と併合）
+- [ ] Stage 1: bash .claude/addf/tests/run-all.sh・/addf-lint
+- [x] Stage 2: code-review + doc-review + contribution-agent 並列（3体完了）
+- [x] レビュー指摘対応（Critical 3・Warning 7・Suggestion/Low 多数を集約対応）
+  - contribution Critical: テストの実リポジトリ固有コンテンツ依存 → drift-injection 化
+  - code C1: 奇数バッククォートでエスケープ免除 → 先読みマッチング方式に書き換え
+  - code C2: title/ask/state の未エスケープ挿入 → sv() ヘルパーで全挿入点を統一
+  - doc W2: 進行中×待ちの握りつぶし → キュー除外は済/不要のみに変更
+- [ ] Stage 1 再実行 → 完了処理（knowhow・Feedback・Progress アーカイブ・コミット）
+
+#### 日記
+
+##### 2026-07-16 — フェーズA 着手（検討スタブから昇格）
+
+**やったこと**: 検討スタブ 0058 を標準テンプレートに昇格。オーナー判断は同日の対話で
+全て出揃った（二層構造・ローカル別インスタンス・3ページ・FB 明示フィールド・叩き合意・
+「Plan 本文ビューアは実運用で動く」）。knowhow 4本（docs-site-single-source-sync /
+sync-lint-design / plan-status-drift-check / ignore-file-strategy）を確認済み。
+**今の見立て**: 生成は全ソース決定論で可能（確信度9割）。唯一の設計リスクは
+FB フィールドの書式が将来の lint（ペア6拡張や 0056 系統樹）と噛み合うか — 行頭
+key: value の execution_style 前例に従えば安全側。
+**次の自分へ**: PlanTemplate 追記 → 遡及付与 → スクリプトの順。遡及付与の値は
+Progress.md のこのチェックリスト直下ではなく各 Plan と Questions.md を見て決めること。
+**気になっていること**: dashboard/ を丸ごと gitignore すると lint-residual-paths の
+gitignore 非対称検知に引っかからないか（Plan 0052 の新設検査）。.gitignore 編集時に
+lint を即実行して確認する。
+
+##### 2026-07-16 — 実装完了・品質ゲートへ
+
+**やったこと**: 遡及付与11件（0040 の複数行ヘッダ違反も1行化）→ generate-dashboard.py
+（stdlib のみ・約450行）→ package.json / .gitignore 配線 → テスト7件 → 実ビルド通過。
+実装中に2つのバグを実測検出: (1) タイトル抽出の正規表現が line[2:] 適用後なのに
+`^# Plan` を期待（重複表示）、(2) Vue コンパイルが裸の `<concept>`（英字開始）で死ぬ —
+エスケープ方針を「HTML コメント以外の `<` は全て &lt;」に強化して解決。
+**今の見立て**: フェーズA の実装は完了。Stage 1（run-all.sh・lint）→ Stage 2
+（code-review + doc-review 並列）が残り。
+**次の自分へ**: Stage 2 のレビュー依頼時、esc_vue のインラインコード分割
+（バッククォート split の偶奇）と Questions パースの正規表現を重点的に見てもらうこと。
+**気になっていること**: gh pr list のタイムアウト10秒が cron 無人実行時に遅い可能性。
+実測で問題が出たら短縮する。
+
+##### 2026-07-16 — contribution-agent が Critical 検出（DS 誤 FAIL の再発）
+
+**やったこと**: Stage 2 レビュー3体を並列起動。contribution-agent が完了し Critical 1件:
+test-generate-dashboard.sh の Test 3（Plan 1件以上）・Test 5 後半（&lt;concept の実在証拠）が
+**実リポジトリの固有コンテンツ依存**で、ダウンストリームでは必ず FAIL（サンドボックス実測済み。
+Issue #29 / Plan 0055 と同型の再発）。他: Medium = DS への閲覧手順案内なし /
+Low = PlanTemplate の Plan 0058 番号露出・Dashboard.md と dashboard/ の命名紛らわしさ。
+**今の見立て**: 修正方針は決定 — generate-dashboard.py に env var `ADDF_DASHBOARD_ROOT` で
+ルート上書きを追加し、テストは mktemp サンドボックスに合成 Plan（裸の <concept> 入り・
+DS 構成 plans/+TODO.md）を作って検証する drift-injection 方式へ書き換え。
+**次の自分へ**: code-review / doc-review の2体がまだ実行中。結果が来たら同一箇所の指摘を
+集約してから修正すること（exp の教訓: 指摘単位の分割委譲は衝突する）。
+**気になっていること**: コンテキスト使用 255k 超の観測あり。compaction が来ても
+このチェックリストと日記で復帰できる状態を維持する。
+
+##### 2026-07-16 — フェーズA 完走・完了処理
+
+**やったこと**: 3体レビューの指摘を集約して一括修正（Critical 3・Warning 7・
+Suggestion/Low 多数）。esc_vue を CommonMark 準拠の先読みマッチングに書き換え、
+sv() で挿入点を統一、テストを drift-injection 方式に全面書き換え（8 PASS）。
+knowhow 新設（vitepress-embed-escape-pitfalls.md）＋ sync-lint-design.md に
+「実リポジトリ固有コンテンツ依存テスト」の一般化を追記、Feedback.md に再発記録。
+Plan 0058 を一部完了（フェーズA 完了）へ更新し、owner_feedback: 待ち
+（実物確認）を自身に設定 — ダッシュボードが自分自身を要フィードバックキューに
+表示するドッグフーディング状態にした。
+**今の見立て**: フェーズA は品質ゲート込みで完了。残りはオーナーの実物確認と
+フェーズB（crit・オーナー同席）・フェーズC（二層接続）。
+**次の自分へ**: オーナーが実物を見て乖離指摘があれば、それはフェーズA の手直し
+（主題内）として扱う。crit 導入はオーナー同席セッションでのみ着手すること。
+**気になっていること**: なし。
