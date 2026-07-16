@@ -168,6 +168,12 @@ def compile_pattern(old):
     既知の限界: 別名で clone された複製（例: リポジトリ名 `foo` を `bar` として
     clone した先）への絶対パス参照は検出できない。実運用では巻き添えが少なく、
     誤検知除去の便益の方が大きいというトレードオフ（Issue #33 の下流実測に基づく）。
+    既知の限界2（Plan 0059/0060 レビューで検出・根治は Plan 0068）:
+    (a) GitHub blob/raw URL 形式の自リポジトリ自己参照（.../blob/<branch>/<path>）は
+    直前セグメントがブランチ名のため検出できない（検出漏れ側）。
+    (b) リポジトリディレクトリ名が外部 URL のパスセグメントと偶然一致すると
+    その URL 内パスを誤検知しうる（例: ディレクトリ名 ADDF と github.com/owner/ADDF/...）。
+    いずれも URL スキーム検出を持たない basename 文字列一致の構造的限界。
     同期契約: lint-residual-paths.py の compile_pattern() と同一実装に保つ。
     """
     self_prefix = r'(?<=/' + re.escape(os.path.basename(os.getcwd())) + r'/)'

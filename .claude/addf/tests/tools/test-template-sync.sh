@@ -150,6 +150,14 @@ expected_kind="$(detect_expected_repo_kind "$PROJECT_DIR")"
 for pair in 1 2 3; do
   case "$expected_kind" in
     downstream)
+      # pair1 は非対称: .addf.md が物理残存する場合のみ SKIP メッセージを出し、
+      # 不在（真のダウンストリーム）では SKIP せず ProgressTemplate.md との実比較に
+      # 静かに切り替わる（check_pair1 の設計）。SKIP を無条件に期待すると
+      # 真の DS リポジトリで必ず FAIL する（contribution-agent の DS 実測で検出）
+      if [ "$pair" = "1" ] && [ ! -f "$PROJECT_DIR/.claude/addf/templates/ProgressTemplate.addf.md" ]; then
+        echo "  情報: ペア1は .addf.md 不在（真の downstream）のため SKIP せず実比較 — exit 0 で検証済み"
+        continue
+      fi
       assert_contains "ペア${pair}が SKIP される（downstream 宣言）" "[$pair] SKIP" "$output"
       ;;
     upstream)
@@ -450,8 +458,13 @@ rm -rf "$box"
 echo "Test 19: シグナル無し環境では ERROR ではなく WARNING ＋整備の促し"
 box="$(make_sandbox)"
 printf '# AGENTS.md\n\n独自規約のみ。\n' > "$box/AGENTS.md"
-sed -i.bak -e 's/ProgressTemplate\.addf\.md/ProgressTemplate.md/g' \
-  -e '/ADD フレームワークテスト/d' "$box/.claude/addf/Progress.md" && rm -f "$box/.claude/addf/Progress.md.bak"
+# pair1 のドリフトはテンプレ側「## 運用ルール」節内への合成行挿入で注入する
+# （スキーム非依存。末尾 >> では「## タスク」以降＝検査範囲外に落ちる）。
+# 旧方式（Progress.md への sed）は host の Progress.md が upstream 由来の文言を
+# 含む前提で、真の downstream（無印テンプレ由来）では no-op になり FAIL していた
+awk '1; /^## 運用ルール$/ { print "- ドリフト注入用の合成ルール行ですよ" }' \
+  "$box/.claude/addf/templates/ProgressTemplate.addf.md" > "$box/.claude/addf/templates/ProgressTemplate.addf.md.tmp" \
+  && mv "$box/.claude/addf/templates/ProgressTemplate.addf.md.tmp" "$box/.claude/addf/templates/ProgressTemplate.addf.md"
 output=$(run_lint "$box")
 assert_exit "判定不能は WARNING 止まり" 2 $?
 assert_contains "ペア1の WARNING 格下げ" "[1] WARNING" "$output"
@@ -611,6 +624,26 @@ assert_not_contains "0001 が登録漏れ扱いにならない" "登録漏れ: .
 assert_not_contains "0002 が登録漏れ扱いにならない" "登録漏れ: .claude/addf/plans-add/0002-sample.md" "$output"
 rm -rf "$box"
 
+# テスト 24d: リンクタイトルにバックティックでパスを併記した行は href 側を採用する
+# （code-review M-2 回帰: re.search の左優先でタイトル側の古いパスを拾っていた）
+echo "Test 24d: [\`旧path\`](新path) 形式でリンク href 側が採用される"
+box="$(make_sandbox)"
+cat > "$box/.claude/addf/plans-add/0001-new.md" <<'EOF'
+# Plan 0001: リネーム後の計画
+
+## 実装状況: 未着手
+EOF
+cat > "$box/.claude/addf/plans-add/TODO.addf.md" <<'EOF'
+# TODO (ADDF)
+
+| 優先度 | Phase | 計画ファイル | 状態 |
+|---|---|---|---|
+| 1 | 1 | [`.claude/addf/plans-add/0001-old.md`](.claude/addf/plans-add/0001-new.md) | 未着手 |
+EOF
+output=$(run_lint "$box")
+assert_not_contains "タイトル側の旧パスを不在扱いしない" "0001-old.md" "$output"
+rm -rf "$box"
+
 # ヘルパー: PROJECT_DIR に相当する downstream シミュレーション ディレクトリを作る
 # （.addf.md 一切なし・lock.json あり・CLAUDE.repo.md で downstream 宣言・Plan 0件）
 # Feedback.md の教訓「このアサーションは Plan が0件の空のダウンストリームリポジトリでも
@@ -683,6 +716,19 @@ if [ "$sandbox_rc" -eq 0 ] && [ -d "$sandbox_out" ]; then
       PASS=$((PASS + 1))
     else
       echo "  FAIL: .addf.md と .md 版が一致していない（疑似コピーが機能していない）"
+      FAIL=$((FAIL + 1))
+    fi
+    # 疑似コピー後もドリフト検出能力が落ちていないこと（code-review L-1 の実験手順を固定化）:
+    # コピー直後は pair2 が恒真（完全一致）だが、片側だけ変更すれば WARNING が出る
+    sed -i.bak 's/^15\. コミットする$/15. コミットしてタグを打つ/' \
+      "$sandbox_out/.claude/addf/templates/ProgressTemplate.md" 2>/dev/null
+    rm -f "$sandbox_out/.claude/addf/templates/ProgressTemplate.md.bak"
+    drift_out="$(run_lint "$sandbox_out")"
+    if echo "$drift_out" | grep -q '\[2\] WARNING'; then
+      echo "  PASS: 疑似コピー後の post-copy ドリフトを pair2 が検出する"
+      PASS=$((PASS + 1))
+    else
+      echo "  FAIL: 疑似コピー後のドリフトが pair2 で検出されない（恒真化の懸念が顕在化）"
       FAIL=$((FAIL + 1))
     fi
   else

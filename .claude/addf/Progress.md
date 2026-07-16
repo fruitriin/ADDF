@@ -117,5 +117,11 @@
 **次の自分へ**: (1) `git cherry-pick 018b124` → run-all → lint → TODO の 0060 行を完了に・Plan 0060 ヘッダ完了化 → worktree 掃除（`git worktree remove .claude/worktrees/agent-a35a02b1f25b8feac` とブランチ削除）。(2) 0059 の完了通知が来たら同様に検収・統合。(3) その後 Stage 2（code-review + contribution-agent・DS 実測依頼）→ CHANGELOG に 0059/0060/0065 追記 → /addf-release v0.7.0（オーナー承認済み採番）。Issue #30/#31/#33 返信文はオーナー確認待ち。
 **気になっていること**: コンテキスト 477k で compaction 濃厚。この日記が引き継ぎ線。impl-0060 の knowhow 候補3件（lookbehind alternation の幅独立固定・誤検知除去へのドリフト注入 TDD 適用・cwd 依存動的パターンは cwd 固定契約とセット）は完了処理で knowhow 化する。
 
+##### 2026-07-17 — Stage 2 レビュー2体完了・指摘集約と対応方針
+**やったこと**: 0059/0060 を main へ統合し Stage 1 通過。レビュー2体の指摘を集約した。
+**今の見立て・対応方針**: (1) [High] 真の DS リポジトリでの test-template-sync.sh 丸ごと実行で Test 1（pair1 は .addf.md 不在時 SKIP を出さず silent に実比較へ切替わるが、テストは SKIP を期待）・Test 19（sed 注入が DS の Progress.md では no-op）が FAIL — フェーズ内修正。(2) [High 昇格・2体同根] compile_pattern の self_prefix 設計: blob/raw URL 自己参照の検出漏れ回帰＋basename 衝突誤検知 — 根治はスキーム検出設計でオーナー判断も絡むため docstring 既知の限界追記＋Plan 0068 切り出し。(3) M-2 TODO 正規表現の左優先はフェーズ内で排他化。(4) M-3 compile_pattern 同期契約の lint ペア9 新設は addf-lint 表更新義務も伴うため 0068 に同梱。(5) L-1 Test 26 post-copy ドリフトアサーション追加。
+**次の自分へ**: 修正順: Test 1 → Test 19 → M-2 → L-1 → docstring → Plan 0068 起票 → Stage 1 再実行 → knowhow → CHANGELOG 微修正不要確認 → /addf-release v0.7.0（オーナー承認済み採番）。Issue #30/#31/#33 返信文はリリース報告と一緒にオーナー確認へ。
+**気になっていること**: compaction 後はこのエントリーが最初の道標。修正対象: test-template-sync.sh:145-161（Test 1）・450-462（Test 19）・lint-template-sync.py:501-505（TODO_PLAN_PATH_RE）・migrate-paths.py:154-176 と lint-residual-paths.py:83-101（docstring）。
+
 > 新しいタスク開始時は以下の構造で記録する:
 > `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）

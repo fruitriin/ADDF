@@ -497,9 +497,12 @@ def plan_nonstandard_header(path):
 #   - Markdown リンク書式: [Plan タイトル](.claude/addf/plans/xxx.md)
 #     （clickable リンク化のためダウンストリームで広く採用される。Plan 0006 → v0.6 系 migrate
 #      で上書き失効 → 再適用のループを経て、上流本体でも両書式を受理する方針を採用）
-# 両分岐は `|` で排他的なため `m.group(1) or m.group(2)` は必ず非 None 文字列を返す
+# 両分岐は `|` で排他的なため `m.group(1) or m.group(2)` は必ず非 None 文字列を返す。
+# バックティック分岐の (?!\]\() は「[`path`](href) のようにリンクタイトル内へパスを
+# 併記した行」でタイトル側（古い表記でありうる）を拾わず href 側を採用するための除外
+# （code-review M-2: re.search の左優先でタイトル側が勝ってしまう問題への対処）
 TODO_PLAN_PATH_RE = re.compile(
-    r'`(\.claude/addf/plans[^`]*?\.md)`'
+    r'`(\.claude/addf/plans[^`]*?\.md)`(?!\]\()'
     r'|\]\((\.claude/addf/plans[^)]*?\.md)\)'
 )
 
