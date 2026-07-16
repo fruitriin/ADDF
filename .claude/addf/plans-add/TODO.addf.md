@@ -3,7 +3,7 @@
 `.claude/addf/plans-add/` の完了状態・優先度をトラックする。
 計画ファイルと TODO が一致しなければ TODO を編集する。
 
-## 現在のフェーズ: v0.6.2 リリース済み（2026-07-11）。Plan 0040 フェーズ1・2（ccchain 導入・オプトイン配布機構）完了（2026-07-14）。フェーズ3〔ガイド・migrate統合〕・フェーズ4〔統合〕は未着手。Plan 0055（taskbar.fm Issue #27〜#29回収）完了（2026-07-14）。Plan 0054（検討スタブ）は最優先で未着手。Plan 0048 は要確認で静観中（Q6投下済み）
+## 現在のフェーズ: v0.6.2 リリース済み（2026-07-11）。Plan 0040 フェーズ1・2（ccchain 導入・オプトイン配布機構）完了（2026-07-14）。フェーズ3〔ガイド・migrate統合〕・フェーズ4〔統合〕は未着手。Plan 0055（taskbar.fm Issue #27〜#29回収）完了（2026-07-14）。Plan 0054（検討スタブ）は最優先で未着手。Plan 0056（検討スタブ・Plan 系統樹）起票（2026-07-16）。Plan 0048 は要確認で静観中（Q6投下済み）
 
 ## バックログ
 
@@ -63,6 +63,7 @@
 | **2** | 52 | `.claude/addf/plans-add/0052-migrate-runtime-hardening.md` | 完了（2026-07-11。Issue #26〔wardrobe-test での v0.6.1 移行実測レポート〕回収。項目1〜4を全て実装（GUIバイナリtimeoutガード・guides混在確認・gitignore旧位置パターン検知・Test15 SKIPフォールバック）。3体レビュー（code-review Critical1/Warning2/Low1・doc-review Warning3・contribution-agent Medium2/Low1）を全て反映。run-all.sh・/addf-lint 全通過） |
 | 2 | 53 | `.claude/addf/plans-add/0053-changelog-and-skill-listing-completeness.md` | 完了（2026-07-11。別セッションが着手・本セッションが引き継いで完走。CHANGELOG記載漏れ〔Plan 0030・0031・0032・0035・0036・0038・0039・0041・0044・0049・0051・0052〕の回収・READMEスキル一覧の掲載漏れ〔addf-plan-audit〕解消・lint-template-sync.py ペア8新設。3体レビュー指摘計5件を反映、うち1件はPlan 0054として切り出し） |
 | **1** | 54 | `.claude/addf/plans-add/0054-settings-self-write-protection.md`（検討スタブ） | 未着手（2026-07-11 起票。Plan 0053 の doc-review で Plan 0026 の [Critical]「settings.json/hooks 自己書き換え保護」が Plan 0043 で明示的にスコープ外とされたまま独立 Plan 未作成で放置されていたことが判明。Progress 運用ルール7〔主題外Critical最優先切り出し〕に従い起票。設計方向性はオーナー判断待ち） |
+| 3 | 56 | `.claude/addf/plans-add/0056-plan-genealogy-tree.md`（検討スタブ） | 未着手（2026-07-16 起票。オーナー発案。未完了タスクロードマップを積み上げ式から系統樹表現へ — 剪定・派生・復活をエッジ型で一級データ化し、TODO テーブルを真実源としたまま Mermaid 派生ビューを生成する構想。クリティカルパス〔オーナー判断待ちの可視化〕はオーナー好感触あり。エッジ記録先・初期スコープはオーナー判断待ち） |
 | 2 | 55 | `.claude/addf/plans-add/0055-downstream-migration-feedback-taskbar.md` | 完了（2026-07-14。GitHub Issue #27〔addf-migrate自己点検〕・#28〔*.addf.md除外規則の説明強化〕・#29〔downstreamで必ずFAILするテストの動的アサーション化〕をtaskbar.fmからのフィードバックとして回収。3体レビュー（code-review Critical1件・doc-review Critical1件等）を反映、Critical指摘の反映過程でテストヘルパーのstrip_fences漏れという実バグも検出・修正。run-all.sh・/addf-lint 全通過） |
 
 オーナーリクエスト:
