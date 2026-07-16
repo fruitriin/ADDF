@@ -1021,16 +1021,30 @@ function openPanel(anchorKey, occ) {
   btn.value.visible = false
 }
 
+// ブロック→ボタン間の隙間を渡る途中で消えないよう、消灯は遅延させる
+// （即時消灯だとボタンに到達できない — オーナー実測フィードバック dc_mrnkj871vbru）
+let hideTimer = null
+function scheduleHide() {
+  clearTimeout(hideTimer)
+  hideTimer = setTimeout(() => {
+    btn.value.visible = false
+  }, 300)
+}
+
 function onMouseOver(e) {
   if (!available.value || panelOpen.value) return
   const t = e.target
   if (!(t instanceof Element)) return
-  if (t.closest('.addf-panel, .addf-hoverbtn, .addf-orphans')) return
-  const block = t.closest(BLOCK_SEL)
-  if (!block) {
-    btn.value.visible = false
+  if (t.closest('.addf-panel, .addf-hoverbtn, .addf-orphans')) {
+    clearTimeout(hideTimer)
     return
   }
+  const block = t.closest(BLOCK_SEL)
+  if (!block) {
+    scheduleHide()
+    return
+  }
+  clearTimeout(hideTimer)
   const r = block.getBoundingClientRect()
   hoverAnchor.value = blockText(block)
   hoverOcc.value = Number(block.dataset.addfOcc || 0)
@@ -1039,6 +1053,15 @@ function onMouseOver(e) {
     top: r.top + window.scrollY,
     left: Math.max(6, r.left + window.scrollX - 34),
   }
+}
+
+// パネル外クリックで閉じる（閉じないと他のアンカーコメントを開けない —
+// オーナー実測フィードバック dc_mrnkr91zqhy5）
+function onDocClick(e) {
+  if (!panelOpen.value) return
+  const t = e.target
+  if (t instanceof Element && t.closest('.addf-panel, .addf-cbadge, .addf-hoverbtn')) return
+  panelOpen.value = false
 }
 
 async function refreshAll() {
@@ -1085,11 +1108,13 @@ onMounted(async () => {
   await nextTick()
   decorate()
   document.addEventListener('mouseover', onMouseOver)
+  document.addEventListener('click', onDocClick)
 })
 
 onUnmounted(() => {
   if (typeof document !== 'undefined') {
     document.removeEventListener('mouseover', onMouseOver)
+    document.removeEventListener('click', onDocClick)
   }
 })
 

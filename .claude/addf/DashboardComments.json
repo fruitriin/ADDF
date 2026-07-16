@@ -1,3 +1,128 @@
 {
-  "comments": []
+  "comments": [
+    {
+      "id": "dc_mrnkj871vbru",
+      "page": "/",
+      "source_path": null,
+      "anchor": "Plan 本文を読む",
+      "anchor_occurrence": 6,
+      "body": "オーナー判断待ちのPlan　のタイトル、見出しにコメントを入れられるホバーが出るが折りたたみに吸われてクリックできない",
+      "author": "owner",
+      "created_at": "2026-07-16T13:52:24.638Z",
+      "status": "resolved",
+      "resolution": "UI バグとして修正済み: ホバーボタンの即時消灯が原因でボタンに到達できなかった。消灯を300ms遅延に変更（generate-dashboard.py 再生成済み）。ブラウザをリロードして確認してください",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnklasnx2ag",
+      "page": "/plans/0057-commit-baseline-profiles",
+      "source_path": ".claude/addf/plans-add/0057-commit-baseline-profiles.md",
+      "anchor": "プロファイルの粒度: 3値（upstream/team/personal）で足りるか。team と personal の 差分は「exp をコミットするか」以外に何があるか（ファイル別の個別オーバーライドを 許すか、それは複雑化しすぎか）",
+      "anchor_occurrence": 0,
+      "body": "EmbodiedClaudeWardrobeのように、ミドルストリーム的な概念が必要かもしれない\nすなわち、ミドルストリームはさらにダウンストリームを持つ、フレームワーク的なリポジトリを扱う",
+      "author": "owner",
+      "created_at": "2026-07-16T13:54:01.319Z",
+      "status": "resolved",
+      "resolution": "Plan 0057 の「未解決の問い」に反映: プロファイル粒度の検討にミドルストリーム（さらにダウンストリームを持つフレームワーク的リポジトリ）区分を含めることを記載",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnkmbpkimut",
+      "page": "/plans/0057-commit-baseline-profiles",
+      "source_path": ".claude/addf/plans-add/0057-commit-baseline-profiles.md",
+      "anchor": ".gitignore ADDF ブロックは Plan 0052 で lint（非対称検知）の検査対象になった。 ベースラインを可変にする場合、lint がプロファイルを読んで期待値を切り替える必要が ある — ここが実装上最も絡む箇所。lint 側の期待値表をどこに単一ソース化するか",
+      "anchor_occurrence": 0,
+      "body": "候補を教えて",
+      "author": "owner",
+      "created_at": "2026-07-16T13:54:49.160Z",
+      "status": "resolved",
+      "resolution": "Plan 0057 に候補3案を記載: 案a=addfTools 内 TOML 定数表（推奨）/ 案b=optional/ テンプレートファイル / 案c=階層差分。詳細は Plan 本文の「lint がプロファイルを読んで期待値を切り替える実装」節を参照",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnkn6wi6ilc",
+      "page": "/plans/0057-commit-baseline-profiles",
+      "source_path": ".claude/addf/plans-add/0057-commit-baseline-profiles.md",
+      "anchor": "既存ダウンストリーム（taskbar.fm・wardrobe-test 等）のマイグレーション: プロファイル未宣言の既存プロジェクトのデフォルトをどれにするか （現状維持 = upstream 相当が安全側だが、DS にとっては不便側でもある）",
+      "anchor_occurrence": 0,
+      "body": "基本的には一度ダウンストリーム扱いにするのが正解\nADDF以外はアップストリームではない（少なくとも）",
+      "author": "owner",
+      "created_at": "2026-07-16T13:55:29.586Z",
+      "status": "resolved",
+      "resolution": "Plan 0057 に反映: プロファイル未宣言の既存プロジェクトのデフォルトはダウンストリーム扱い（ADDF 以外はアップストリームではない）と記録",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnko3qxcuz3",
+      "page": "/plans/0057-commit-baseline-profiles",
+      "source_path": ".claude/addf/plans-add/0057-commit-baseline-profiles.md",
+      "anchor": "exp.md をコミット対象にした場合、addf-migrate のスキル更新が DS ローカルの exp 蓄積を上書きしないか（スキル本体と exp の分離が守られているかの確認）",
+      "anchor_occurrence": 0,
+      "body": "もっとも問題になる点。\nADDFのマイグレーション操作は一時ディレクトリで行うので、そこから誤ってコピーしなければ大丈夫なはずなんだけど",
+      "author": "owner",
+      "created_at": "2026-07-16T13:56:12.153Z",
+      "status": "resolved",
+      "resolution": "Plan 0057 に反映: migrate は一時ディレクトリ経由のため誤コピーしなければ安全 — 実装時に「コピー対象へ exp が混入しない」テストで固定する方針を記載",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnkovkv8135",
+      "page": "/plans/0057-commit-baseline-profiles",
+      "source_path": ".claude/addf/plans-add/0057-commit-baseline-profiles.md",
+      "anchor": "チーム文脈の .exp.local.md ペアを初期スコープに含めるか、必要が観測されてから 追加するか（B2 判断と同型: 実害・実需の実測をトリガーにする選択肢）",
+      "anchor_occurrence": 0,
+      "body": "必要は必要だけど、別の計画でいいかもね",
+      "author": "owner",
+      "created_at": "2026-07-16T13:56:48.223Z",
+      "status": "resolved",
+      "resolution": "Plan 0057 に反映: .exp.local.md ペアは初期スコープから外し別 Plan として起票する方針に変更",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnkp6ltuu6g",
+      "page": "/plans/0057-commit-baseline-profiles",
+      "source_path": ".claude/addf/plans-add/0057-commit-baseline-profiles.md",
+      "anchor": "オーナーがプロファイルの粒度とデフォルト値の方針を選択したとき",
+      "anchor_occurrence": 0,
+      "body": "着手していいと思う",
+      "author": "owner",
+      "created_at": "2026-07-16T13:57:02.513Z",
+      "status": "resolved",
+      "resolution": "Plan 0057 の着手トリガーを「着手承認済み」に更新。TODO.addf.md にも反映。次サイクル以降の /addf-dev で着手可能",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnkptrw1vz7",
+      "page": "/",
+      "source_path": null,
+      "anchor": "Plan 本文を読む",
+      "anchor_occurrence": 0,
+      "body": "着手していいと思う\n懸念点あればどうぞ",
+      "author": "owner",
+      "created_at": "2026-07-16T13:57:32.540Z",
+      "status": "unresolved",
+      "resolution": null,
+      "replies": [
+        {
+          "id": "rp_agent_confirm1",
+          "body": "このコメントの対象 Plan が特定できませんでした（anchor「Plan 本文を読む」は判断待ちキューの複数行に共通のリンクテキストのため）。0057 は別コメントで着手承認済みです。どの Plan への着手承認か教えてください（リンク行ではなく Plan タイトル行にコメントすると特定できます — これ自体も UI 改善候補として認識しています）",
+          "author": "claude",
+          "created_at": "2026-07-16T14:05:33Z"
+        }
+      ]
+    },
+    {
+      "id": "dc_mrnkr91zqhy5",
+      "page": "/",
+      "source_path": null,
+      "anchor": "Plan 本文を読む",
+      "anchor_occurrence": 6,
+      "body": "アンカーコメントのホバーの範囲外をクリックしたときに、アンカーコメントのホバーを閉じたい\n（そうでないと、他のアンカーコメントを開けない）",
+      "author": "owner",
+      "created_at": "2026-07-16T13:58:38.999Z",
+      "status": "resolved",
+      "resolution": "UI 改善として実装済み: パネル外クリックで閉じるようにした（バッジ・ホバーボタンのクリックは除外）。ブラウザをリロードして確認してください",
+      "replies": []
+    }
+  ]
 }
