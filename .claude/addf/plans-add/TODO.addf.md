@@ -47,7 +47,7 @@
 | 3 | 36 | `.claude/addf/plans-add/0036-plan-audit-skill.md` | 完了（2026-07-05。/addf-plan-audit 新設・migrate ワンショット統合。ドッグフーディング検出10件は処置提案としてオーナー判断待ち） |
 | **1** | 37 | `.claude/addf/plans-add/0037-addf-directory-consolidation.md` | 完了（フェーズ1〜3・v0.6.0 メジャーリリース 2026-07-06。オーナー同席の単一セッションで完走） |
 | 3 | 38 | `.claude/addf/plans-add/0038-speculation-fitness.md` | 完了（2026-07-05。投機適性3区分・Plan 化フォールバック・one-shot 定義の guides 単一ソース化・窓検出（手順 1.8）・reconcile check に pending_count 追加） |
-| 5 | 39 | `.claude/addf/plans-add/0039-docs-website.md` | 一部完了（フェーズ1=addf-doc-review-agent 逆輸入・フェーズ2=VitePressサイト骨格 完了 2026-07-10。フェーズ3=GitHub Pages公開はオーナー操作待ち） |
+| 5 | 39 | `.claude/addf/plans-add/0039-docs-website.md` | 一部完了（フェーズ1=addf-doc-review-agent 逆輸入・フェーズ2=VitePressサイト骨格 完了 2026-07-10。フェーズ3=GitHub Pages公開はオーナー操作待ち。2026-07-16 サイト置き場を docs/ → .claude/addf/webManual/ へ移動することが確定〔次サイクルで移動実施〕） |
 | 4 | 40 | `.claude/addf/plans-add/0040-ccchain-optin.md` | 一部完了（フェーズ1・2 完了 2026-07-14。フェーズ1: オーナー対話セッションで直接着手指示・Q5解消。ADDF本体へccchain導入、`.ccchain.conf`を実運用コマンドで調整〔git reset --hard等の破壊的操作をask化・bash/uv run/gh読み取り系をallow化〕、settings.local.jsonにPreToolUse(Bash)フック配線。フェーズ2: `[ccchain]`オプトイン・`sync-ccchain.py`・`optional/ccchain/`テンプレート・`/addf-lint`セクション13・テスト23件を新設。フェーズ1/2の配線先は意図的に分離〔統合はフェーズ4〕。フェーズ3〔ガイド・migrate統合〕は未着手） |
 | **2** | 41 | `.claude/addf/plans-add/0041-context-exhaustion-loop-wall.md` | 一部完了（フェーズ1・2 完了 2026-07-06。実地検証は別サイクル。止まらない教義＋compaction 耐性のタスク運びを配線） |
 | 3 | 42 | `.claude/addf/plans-add/0042-precompact-transcript-archive.md` | 完了（2026-07-07。PreCompact フック・[transcript-archive] 設定・復元手順 knowhow・36テスト。code-review Warning 3件と Suggestion 4件、doc-review 指摘を全反映） |
@@ -63,7 +63,7 @@
 | **2** | 52 | `.claude/addf/plans-add/0052-migrate-runtime-hardening.md` | 完了（2026-07-11。Issue #26〔wardrobe-test での v0.6.1 移行実測レポート〕回収。項目1〜4を全て実装（GUIバイナリtimeoutガード・guides混在確認・gitignore旧位置パターン検知・Test15 SKIPフォールバック）。3体レビュー（code-review Critical1/Warning2/Low1・doc-review Warning3・contribution-agent Medium2/Low1）を全て反映。run-all.sh・/addf-lint 全通過） |
 | 2 | 53 | `.claude/addf/plans-add/0053-changelog-and-skill-listing-completeness.md` | 完了（2026-07-11。別セッションが着手・本セッションが引き継いで完走。CHANGELOG記載漏れ〔Plan 0030・0031・0032・0035・0036・0038・0039・0041・0044・0049・0051・0052〕の回収・READMEスキル一覧の掲載漏れ〔addf-plan-audit〕解消・lint-template-sync.py ペア8新設。3体レビュー指摘計5件を反映、うち1件はPlan 0054として切り出し） |
 | **1** | 54 | `.claude/addf/plans-add/0054-settings-self-write-protection.md`（検討スタブ） | 未着手（2026-07-11 起票。Plan 0053 の doc-review で Plan 0026 の [Critical]「settings.json/hooks 自己書き換え保護」が Plan 0043 で明示的にスコープ外とされたまま独立 Plan 未作成で放置されていたことが判明。Progress 運用ルール7〔主題外Critical最優先切り出し〕に従い起票。設計方向性は 2026-07-16 アンカーコメントで D 軸〔ask ベース〕本線が承認済み。留意点: AutoMode でも ask で自律ループが止まる懸念 — 実装時に停止頻度を観測して段階調整） |
-| 3 | 56 | `.claude/addf/plans-add/0056-plan-genealogy-tree.md`（検討スタブ） | 未着手（2026-07-16 起票。オーナー発案。未完了タスクロードマップを積み上げ式から系統樹表現へ — 剪定・派生・復活をエッジ型で一級データ化し、TODO テーブルを真実源としたまま Mermaid 派生ビューを生成する構想。クリティカルパス〔オーナー判断待ちの可視化〕はオーナー好感触あり。エッジ記録先・初期スコープはオーナー判断待ち） |
+| 3 | 56 | `.claude/addf/plans-add/0056-plan-genealogy-tree.md`（検討スタブ） | 未着手（2026-07-16 起票。オーナー発案。未完了タスクロードマップを積み上げ式から系統樹表現へ — 剪定・派生・復活をエッジ型で一級データ化し、TODO テーブルを真実源としたまま Mermaid 派生ビューを生成する構想。クリティカルパス〔オーナー判断待ちの可視化〕はオーナー好感触あり。エッジ記録先・初期スコープ等5問は 2026-07-16 アンカーコメントで全回答済み〔5種暫定・pruned のみ必須・併用記録・クリティカルパス初期スコープ入り＝オーナー/その他ブロック区分・全件遡及〕。標準テンプレート化から着手可能） |
 | 3 | 57 | `.claude/addf/plans-add/0057-commit-baseline-profiles.md`（検討スタブ） | 未着手・着手承認済み（2026-07-16 起票 → 同日ダッシュボードのアンカーコメントでオーナー回答5件〔ミドルストリーム概念の検討・既存DSのデフォルトはダウンストリーム扱い・migrate上書きは一時ディレクトリ経由で対処・.exp.local.md ペアは別計画へ・着手承認〕を Plan に反映済み。lint 期待値の単一ソースは案a〔addfTools 内 TOML 定数表〕推奨で Plan 詰め冒頭に擦り合わせ） |
 | **1** | 58 | `.claude/addf/plans-add/0058-dashboard-html-review-ui.md` | 一部完了（フェーズA・B・C 完了 2026-07-16。A: ダッシュボード実装・オーナー実物確認済み。B: crit ドッグフーディング一周実測。C: アンカーコメント UI〔Layout.vue＋/api/comments・DashboardComments.json・crit 集約・ブートシーケンス 1.7・折りたたみ構文2系統〕、3体レビュー Critical 2〔crit 型ガード=2体独立指摘・details 閉じ忘れフォールバック〕/High 1〔API 直列化〕等を反映、テスト17件全通過。残: オーナーのブラウザ動線確認のみ〔owner_feedback: 待ち〕。README 記載は Plan 0065 に切り出し） |
 | 4 | 59 | `.claude/addf/plans-add/0059-downstream-test-environment-compat.md` | 未着手（2026-07-16 起票。Issue #30・#31 回収 — upstream 前提テストの SKIP 化と書式受理） |
@@ -75,6 +75,7 @@
 | 7 | 65 | `.claude/addf/plans-add/0065-readme-dashboard-gap.md` | 未着手（2026-07-16 起票。Plan 0058 フェーズC の doc-review 検出 — README にローカルダッシュボード機能の記載が無い。Plan 0050 と同種の乖離回収） |
 | 4 | 66 | `.claude/addf/plans-add/0066-dashboard-behavior-settings-page.md` | 未着手（2026-07-16 起票。オーナー発案 — Behavior.toml の現在値と有効値をダッシュボードの設定ページに表示する。核心は有効値の単一ソース設計〔案1: 行末コメント正 / 案2: スキーマ定義新設+lint 同期〕。Plan 0057 の lint 期待値表と置き場を共有できる可能性あり） |
 | 2 | 55 | `.claude/addf/plans-add/0055-downstream-migration-feedback-taskbar.md` | 完了（2026-07-14。GitHub Issue #27〔addf-migrate自己点検〕・#28〔*.addf.md除外規則の説明強化〕・#29〔downstreamで必ずFAILするテストの動的アサーション化〕をtaskbar.fmからのフィードバックとして回収。3体レビュー（code-review Critical1件・doc-review Critical1件等）を反映、Critical指摘の反映過程でテストヘルパーのstrip_fences漏れという実バグも検出・修正。run-all.sh・/addf-lint 全通過） |
+| 5 | 67 | `.claude/addf/plans-add/0067-plan-brainstorm-skill.md`（検討スタブ） | 未着手（2026-07-16 起票。オーナー発案 — Plan ブレインストーミングのスキル化。AI 起票案は人間の採否判断が要るため領域を既存 Plan と分離。Plan 0056〔系統樹〕の基盤完成後に着手） |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください

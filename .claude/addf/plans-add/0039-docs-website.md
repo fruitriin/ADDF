@@ -1,9 +1,9 @@
 # Plan 0039: ADDF ドキュメント Web（VitePress）とドキュメントドリフト対策
 
-## 実装状況: 一部完了（フェーズ1・2 完了。フェーズ3〔公開 CI〕は GitHub Pages 有効化がオーナー操作のため未着手）
+## 実装状況: 一部完了（フェーズ1・2 完了。フェーズ3〔公開 CI〕は GitHub Pages 有効化がオーナー操作のため未着手。2026-07-16 オーナー判断でサイト置き場を docs/ から .claude/addf/webManual/ へ移動することが確定 — 移動は次サイクルで実施）
 
 owner_feedback: 待ち
-feedback_ask: GitHub Pages の有効化（リポジトリ設定でのオーナー操作）
+feedback_ask: GitHub Pages の有効化（リポジトリ設定でのオーナー操作。webManual/ への移動実施後）
 feedback_since: 2026-07-10
 
 ### 実装記録
@@ -119,3 +119,15 @@ feedback_since: 2026-07-10
 ## AI 実装時間見積もり
 
 フェーズ1: 1セッション。フェーズ2＋3: 1セッション（0037 完了後）。フェーズ4: 需要確認後に別途
+
+## 置き場変更の決定（2026-07-16 アンカーコメント dc_mrnm9pfzdzc6）
+
+- **オーナー提案**: `docs/` はダウンストリームの各リポジトリが自分の docs として使いたい
+  はずなので、ADDF のサイトがここを占有するのはまずい。`.claude/addf/webManual/` 配下へ
+- **エージェント同意（返信済み）**: CLAUDE.repo の哲学「ADD 由来のファイルはプロジェクト
+  ルート配下になるべく置かない」とも一致する。GitHub Pages は Actions デプロイのため
+  任意パスでビルドでき技術的制約なし（VitePress の対象ディレクトリ変更と
+  `docs:dev` / `docs:build` スクリプト・CI ワークフローのパス更新で対応可）
+- 移動時の注意: `lint-residual-paths.py` に docs/ 関連の検査があれば paths.toml の
+  マップ更新もセットで行う。sync-docs 系スクリプトの出力先も追従
+- 移動作業は次サイクルの /addf-dev で実施（フェーズ3 の前提作業になる）

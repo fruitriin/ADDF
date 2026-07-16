@@ -237,9 +237,16 @@
       "body": "docs配下は他のリポジトリでも docsとして使いたいだろうから、ここに置くのはまずそう\n.claude/addf/webManual 配下とかがいいんじゃないかな\nどう思う？",
       "author": "owner",
       "created_at": "2026-07-16T14:40:59.663Z",
-      "status": "draft",
-      "resolution": null,
-      "replies": []
+      "status": "resolved",
+      "resolution": "Plan 0039 に決定として記録: docs/ → .claude/addf/webManual/ へ移動（エージェントも同意 — ADD 由来ファイルをルート配下に置かない哲学と一致。Pages は Actions デプロイなので任意パスで技術的制約なし）。移動は次サイクルで実施",
+      "replies": [
+        {
+          "id": "rp_agent_0039docs",
+          "body": "同意です。CLAUDE.repo の哲学「ADD 由来のファイルはプロジェクトルート配下になるべく置かない」とも一致していて、docs/ を DS プロジェクト自身のために空けておくのが筋です。GitHub Pages は Actions デプロイなので .claude/addf/webManual/ でも技術的制約はありません。移動は次サイクルで実施します（residual-paths の paths.toml 更新もセットで）。",
+          "author": "claude",
+          "created_at": "2026-07-16T14:52:29Z"
+        }
+      ]
     },
     {
       "id": "dc_mrnmcpyc51gr",
@@ -250,8 +257,60 @@
       "body": "暫定的にこれでよさそう",
       "author": "owner",
       "created_at": "2026-07-16T14:43:20.295Z",
-      "status": "draft",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "Plan 0056 に反映: エッジ型5種を暫定確定",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnmgc32vjlq",
+      "page": "/plans/0056-plan-genealogy-tree",
+      "source_path": ".claude/addf/plans-add/0056-plan-genealogy-tree.md",
+      "anchor": "剪定メタデータ（理由・証拠・復活条件）をどこまで必須にするか （pruned エッジのみ必須・他は任意、が現時点のエージェントの推し）",
+      "anchor_occurrence": 0,
+      "body": "おまかせ\n例えば「Plan100までADDFを良いものになるように色々考えて、何ターンかけてもいいよ」　ってプロンプトしたときに、様々なノードを広げたり深めたりつなげたりできるかどうかがイメージできるといいと思う\nこういうプランのブレインストーミングをスキル化してもいいかもね\nAI起票のブレインストーミングはどれが採用でどれを採用しないかみたいなものは人間が都度判断しないと行けないから、領域は既存のプランとはわけないといけないけど",
+      "author": "owner",
+      "created_at": "2026-07-16T14:46:08.942Z",
+      "status": "resolved",
+      "resolution": "Plan 0056 に反映: 剪定メタデータは pruned のみ必須で確定（おまかせ→エージェント推し採用）。ブレインストーミングのスキル化構想は Plan 0067 として起票（採否判断の領域分離を制約として明記）",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnmgq3qak3d",
+      "page": "/plans/0056-plan-genealogy-tree",
+      "source_path": ".claude/addf/plans-add/0056-plan-genealogy-tree.md",
+      "anchor": "エッジの記録先: Plan frontmatter（機械可読性が高い）か「関連 Plan」セクションの リンク注記（人間可読性が高い・既存書式の延長）か、その併用か",
+      "anchor_occurrence": 0,
+      "body": "併用がいいんじゃない？",
+      "author": "owner",
+      "created_at": "2026-07-16T14:46:27.110Z",
+      "status": "resolved",
+      "resolution": "Plan 0056 に反映: エッジ記録先は frontmatter＋関連 Plan セクションの併用で確定",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnmhs1gliki",
+      "page": "/plans/0056-plan-genealogy-tree",
+      "source_path": ".claude/addf/plans-add/0056-plan-genealogy-tree.md",
+      "anchor": "クリティカルパス表示（blocked-by: owner の強調）を初期スコープに含めるか、 まず系譜エッジ＋Mermaid 生成だけの最小構成で始めるか （起票直後にオーナーから「クリティカルパスがオーナーのレビュー待ちというのは現実に 即していていい」と好感触あり〔2026-07-16〕— 初期スコープに含める方向の材料）",
+      "anchor_occurrence": 0,
+      "body": "オーナーブロックと　それ以外の理由によるブロックを分けて出すとよさそう？",
+      "author": "owner",
+      "created_at": "2026-07-16T14:47:16.276Z",
+      "status": "resolved",
+      "resolution": "Plan 0056 に反映: クリティカルパスは初期スコープ入り・オーナーブロックとそれ以外のブロックを区分表示する方針で確定",
+      "replies": []
+    },
+    {
+      "id": "dc_mrnmigin4pys",
+      "page": "/plans/0056-plan-genealogy-tree",
+      "source_path": ".claude/addf/plans-add/0056-plan-genealogy-tree.md",
+      "anchor": "過去 Plan（0001〜0055）への遡及付与の範囲: 全件遡及するか、実例として挙がった 系譜（0026/0043/0044/0045/0049/0053/0054）のみ先行付与して様子を見るか",
+      "anchor_occurrence": 0,
+      "body": "動作確認も兼ねて遡及するとよさそう",
+      "author": "owner",
+      "created_at": "2026-07-16T14:47:47.999Z",
+      "status": "resolved",
+      "resolution": "Plan 0056 に反映: 動作確認を兼ねて全件遡及で確定",
       "replies": []
     }
   ]
