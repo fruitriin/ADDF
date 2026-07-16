@@ -1,8 +1,6 @@
 # Plan 0060: migrate-paths / lint-residual-paths の誤検知根本対処 — lookbehind 境界の導入（Issue #33 回収）
 
-## 実装状況: 未着手
-
-owner_feedback: 不要
+## 実装状況: 完了（2026-07-17。addf-implementer worktree 実装 → main へ cherry-pick。compile_pattern に lookbehind 境界〔1文字境界維持＋(?<![A-Za-z0-9]/)＋自リポジトリ絶対パスの正 lookbehind 例外〕を両ファイル同期導入・Test 13.5〔12件・ドリフト注入 TDD〕。既知の限界〔別名 clone 先の絶対パス〕は docstring 明記で受容。run-all 全通過）
 
 > 出典: GitHub Issue #33（外部 URL・他プロジェクトパスへの lint/rewrite 誤検知 — 下流で
 > 根本対処を実装・テスト済みの上流反映提案。次回 `/addf-migrate` で下流修正が上書き消失する

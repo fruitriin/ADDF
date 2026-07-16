@@ -99,7 +99,7 @@
 - [ ] D-3: 両 worktree の検収と main への統合
 - [ ] D-4: Stage 1 — run-all.sh・lint 一式
 - [ ] D-5: Stage 2 — code-review・contribution-agent（DS サンドボックス実測を明示依頼）
-- [ ] D-6: Plan 0065 — README/README.en にダッシュボード記載
+- [x] D-6: Plan 0065 — README/README.en にダッシュボード記載（完了・コミット済み 2026-07-17）
 - [ ] D-7: リリース前ドリフト検査（/addf-lint 相当一式・CHANGELOG 最終化）
 - [ ] D-8: /addf-release で v0.7.0（Issue #30・#31・#33 返信文はオーナー確認待ち）
 
@@ -110,6 +110,12 @@
 **今の見立て**: Plan 0059 は Issue #30・#31 に下流実測・実装済みの対処が揃っており確信度9割。項目4（CI downstream 模擬）だけ規模次第で切り出し。
 **次の自分へ**: compaction 後に再開する場合 — addf-implementer の worktree ブランチ（plan-0059 系の名前）の有無を `git branch -a` で確認し、完了していれば D-2 の検収から。未完なら TaskOutput で状況確認。
 **気になっていること**: このセッションで Plan 0058 関連の UI 修正が多数 main に入っている。worktree は分岐時点の main を基にするので競合は無いはずだが、統合時に generate-dashboard.py 等に触っていないか diff を確認すること。
+
+##### 2026-07-17 — Plan 0060 実装完了（worktree）・0065 完了・0059 実行中
+**やったこと**: Plan 0065（README ダッシュボード記載・日英）を完了しコミット。impl-0060 が完了報告 — worktree ブランチ worktree-agent-a35a02b1f25b8feac のコミット 018b124 に migrate-paths.py / lint-residual-paths.py の lookbehind 境界（1文字境界維持＋`(?<![A-Za-z0-9]/)` ＋自リポジトリ絶対パスの正 lookbehind 例外）と Test 13.5（12件）が入っている。run-all 全通過・Issue #33 提案準拠。ベースは古い（fc52037）が変更対象ファイルは main と同一と報告あり → cherry-pick で統合可。
+**今の見立て**: 0060 は cherry-pick → main で run-all 再実行 → TODO/Plan 反映で閉じられる。0059（impl-0059）はまだ実行中。
+**次の自分へ**: (1) `git cherry-pick 018b124` → run-all → lint → TODO の 0060 行を完了に・Plan 0060 ヘッダ完了化 → worktree 掃除（`git worktree remove .claude/worktrees/agent-a35a02b1f25b8feac` とブランチ削除）。(2) 0059 の完了通知が来たら同様に検収・統合。(3) その後 Stage 2（code-review + contribution-agent・DS 実測依頼）→ CHANGELOG に 0059/0060/0065 追記 → /addf-release v0.7.0（オーナー承認済み採番）。Issue #30/#31/#33 返信文はオーナー確認待ち。
+**気になっていること**: コンテキスト 477k で compaction 濃厚。この日記が引き継ぎ線。impl-0060 の knowhow 候補3件（lookbehind alternation の幅独立固定・誤検知除去へのドリフト注入 TDD 適用・cwd 依存動的パターンは cwd 固定契約とセット）は完了処理で knowhow 化する。
 
 > 新しいタスク開始時は以下の構造で記録する:
 > `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）

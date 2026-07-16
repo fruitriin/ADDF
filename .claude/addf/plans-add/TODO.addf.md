@@ -67,7 +67,7 @@
 | 3 | 57 | `.claude/addf/plans-add/0057-commit-baseline-profiles.md`（検討スタブ） | 未着手・着手承認済み（2026-07-16 起票 → 同日ダッシュボードのアンカーコメントでオーナー回答5件〔ミドルストリーム概念の検討・既存DSのデフォルトはダウンストリーム扱い・migrate上書きは一時ディレクトリ経由で対処・.exp.local.md ペアは別計画へ・着手承認〕を Plan に反映済み。lint 期待値の単一ソースは案a〔addfTools 内 TOML 定数表〕推奨で Plan 詰め冒頭に擦り合わせ） |
 | **1** | 58 | `.claude/addf/plans-add/0058-dashboard-html-review-ui.md` | 一部完了（フェーズA・B・C 完了 2026-07-16。A: ダッシュボード実装・オーナー実物確認済み。B: crit ドッグフーディング一周実測。C: アンカーコメント UI〔Layout.vue＋/api/comments・DashboardComments.json・crit 集約・ブートシーケンス 1.7・折りたたみ構文2系統〕、3体レビュー Critical 2〔crit 型ガード=2体独立指摘・details 閉じ忘れフォールバック〕/High 1〔API 直列化〕等を反映、テスト17件全通過。残: オーナーのブラウザ動線確認のみ〔owner_feedback: 待ち〕。README 記載は Plan 0065 に切り出し） |
 | 4 | 59 | `.claude/addf/plans-add/0059-downstream-test-environment-compat.md` | 未着手（2026-07-16 起票。Issue #30・#31 回収 — upstream 前提テストの SKIP 化と書式受理） |
-| 4 | 60 | `.claude/addf/plans-add/0060-migrate-paths-lookbehind-boundary.md` | 未着手（2026-07-16 起票。Issue #33 回収 — migrate-paths / lint-residual-paths の lookbehind 境界導入） |
+| 4 | 60 | `.claude/addf/plans-add/0060-migrate-paths-lookbehind-boundary.md` | 完了（2026-07-17。Issue #33 回収 — lookbehind 境界を両ツール同期導入・回帰テスト12件。v0.7.0 対象） |
 | 5 | 61 | `.claude/addf/plans-add/0061-test-architecture-guide.md` | 未着手（2026-07-16 起票。Issue #32・#6 回収 — テスト設計ガイド新設） |
 | 5 | 62 | `.claude/addf/plans-add/0062-speculation-feedback-proposals.md` | 未着手（2026-07-16 起票。Issue #24・#25 回収 — 投機サイクル完走フィードバックの未回収提案棚卸し） |
 | 6 | 63 | `.claude/addf/plans-add/0063-feedback-md-format.md` | 未着手（2026-07-16 起票。Issue #5 回収 — Feedback.md 記入フォーマットと knowhow 振り分け基準） |
