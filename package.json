@@ -10,7 +10,10 @@
     "docs:sync": "node scripts/sync-docs.mjs",
     "docs:dev": "npm run docs:sync && vitepress dev docs",
     "docs:build": "npm run docs:sync && vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "dashboard:sync": "python3 .claude/addf/addfTools/generate-dashboard.py",
+    "dashboard:dev": "npm run dashboard:sync && vitepress dev .claude/addf/dashboard",
+    "dashboard:build": "npm run dashboard:sync && vitepress build .claude/addf/dashboard"
   },
   "repository": {
     "type": "git",

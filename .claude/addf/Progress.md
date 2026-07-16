@@ -93,14 +93,14 @@
 #### サブタスクチェックリスト
 
 - [x] Plan 0058 を標準テンプレートに昇格（フェーズA/B/C・FB フィールド仕様確定）
-- [ ] PlanTemplate.md に owner_feedback / feedback_ask / feedback_since の書式を追記
-- [ ] 未完了 Plan 11件（0026/0029/0030/0039/0040/0041/0048/0054/0056/0057/0058）に遡及付与
-  - 値は TODO 転記ではなく Plan 本文・Questions.md と突合して決める
-- [ ] generate-dashboard.py 実装（stdlib のみ・フォールバック付き）
-- [ ] package.json（dashboard:dev / dashboard:build）・.gitignore（dashboard/ 生成物）・
-      VitePress config 生成（ポートは 4747 回避で明示指定）
-- [ ] テスト test-generate-dashboard.sh（欠如 = SKIP 設計）
-- [ ] 動作確認: 生成実行 + npm run dashboard:build + ブラウザ目視
+- [x] PlanTemplate.md に owner_feedback / feedback_ask / feedback_since の書式を追記
+- [x] 未完了 Plan 11件（0026/0029/0030/0039/0040/0041/0048/0054/0056/0057/0058）に遡及付与
+  - 値は TODO 転記ではなく Plan 本文・Questions.md と突合して決めた（待ち6・済4・不要1）
+- [x] generate-dashboard.py 実装（stdlib のみ・フォールバック付き）
+- [x] package.json（dashboard:sync / dashboard:dev / dashboard:build）・
+      .gitignore（dashboard/ 生成物）・VitePress config 生成（port 5180 明示）
+- [x] テスト test-generate-dashboard.sh（欠如 = SKIP 設計・7 PASS）
+- [x] 動作確認: 生成実行 + npm run dashboard:build 通過（ブラウザ目視はオーナー確認と併合）
 - [ ] Stage 1: bash .claude/addf/tests/run-all.sh・/addf-lint
 - [ ] Stage 2: code-review + doc-review 並列（md 変更を含むため doc-review 必須）
 - [ ] レビュー指摘対応 → Stage 1 再実行
@@ -122,3 +122,17 @@ Progress.md のこのチェックリスト直下ではなく各 Plan と Questio
 **気になっていること**: dashboard/ を丸ごと gitignore すると lint-residual-paths の
 gitignore 非対称検知に引っかからないか（Plan 0052 の新設検査）。.gitignore 編集時に
 lint を即実行して確認する。
+
+##### 2026-07-16 — 実装完了・品質ゲートへ
+
+**やったこと**: 遡及付与11件（0040 の複数行ヘッダ違反も1行化）→ generate-dashboard.py
+（stdlib のみ・約450行）→ package.json / .gitignore 配線 → テスト7件 → 実ビルド通過。
+実装中に2つのバグを実測検出: (1) タイトル抽出の正規表現が line[2:] 適用後なのに
+`^# Plan` を期待（重複表示）、(2) Vue コンパイルが裸の `<concept>`（英字開始）で死ぬ —
+エスケープ方針を「HTML コメント以外の `<` は全て &lt;」に強化して解決。
+**今の見立て**: フェーズA の実装は完了。Stage 1（run-all.sh・lint）→ Stage 2
+（code-review + doc-review 並列）が残り。
+**次の自分へ**: Stage 2 のレビュー依頼時、esc_vue のインラインコード分割
+（バッククォート split の偶奇）と Questions パースの正規表現を重点的に見てもらうこと。
+**気になっていること**: gh pr list のタイムアウト10秒が cron 無人実行時に遅い可能性。
+実測で問題が出たら短縮する。
