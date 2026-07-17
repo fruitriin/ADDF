@@ -103,6 +103,14 @@ Phase 1 の運用期間中に頻度を観察し、あまりに頻発するよう
   復旧手段はメッセージ内に案内される（対話セッションで再実行 / オーナーが
   `ccchain approve --last`）。**複合コマンドは全体が実行前評価されるため、push を含む
   チェーンは push だけ分離する**運用が要る
+- **挙動変化3（ロールバック要因）: 旧 `.ccchain.conf` のルールマッチングが v0.2.0 で
+  効かなくなる**。`ccchain check` は「31 rules OK」を返すが実マッチングは別物で、
+  `sed` のような基本 allow コマンドまで「no matching rule (fallback)」→ ask → auto mode
+  即ブロックに落ちた（構文互換 ≠ セマンティクス互換）。**`ccchain check` 通過を移行完了の
+  根拠にしない — `ccchain test` を allow 済み代表コマンド全種で回し、旧版と同じ結果に
+  なることを確認してから入れ替える**。今回は旧バイナリ（dev）へ即ロールバックで復旧。
+  v0.2.0 への本移行は .ccchain.conf の書式移行（EnumaElish 側のマイグレーションガイド確認）
+  とセットで別途行う
 - 入れ替え手順: 旧バイナリをバックアップ → cp → `ccchain check`（config 互換）→
   `ccchain test`（実運用コマンド回帰）→ 次の Bash 実行が実フック疎通確認を兼ねる
 
