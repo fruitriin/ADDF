@@ -14,7 +14,7 @@
 | スキル | addf-knowhow-network | 記事間を GFM リンクで相互接続し wiki 化。双方向リンク担保・📜 プレフィックス・INDEX ハブサマリ |
 | スキル | addf-experience | .exp.md ファイルの @メンション書式検証・修正 |
 | エージェント | addf-knowhow-agent | ブートシーケンス Step 5 で Plan に関連する knowhow を抽出（Haiku）。ライフサイクルフィルタ内蔵 |
-| ディレクトリ | .claude/addf/knowhow/ADDF/ | ADDF 由来ノウハウ（現在27件。近況の追加: bash+awk での TOML パース落とし穴 bash-toml-parse-pitfalls / cron ループの worktree 競合 cron-loop-worktree-race / ドキュメントサイトの単一ソース同期 docs-site-single-source-sync / 実測サンプリングバイアス measurement-sampling-bias / トランスクリプトアーカイブの復元手順 transcript-archive-restore / worktree 隔離破り（cd 永続）worktree-isolation-cd-persistence） |
+| ディレクトリ | .claude/addf/knowhow/ADDF/ | ADDF 由来ノウハウ（現在29件。近況の追加: ccchain ドッグフーディング導入 ccchain-dogfooding-phase1 / VitePress 埋め込みエスケープの落とし穴 vitepress-embed-escape-pitfalls〔Plan 0058 ダッシュボード実装で獲得〕。既存の sync-lint-design には動的アサーション化（downstream 誤 FAIL 対策）の一般化、docs-site-single-source-sync にはダッシュボード側の知見が追記された） |
 | ファイル | .claude/addf/knowhow/INDEX.addf.md | ADDF 用ノウハウインデックス（鮮度タグ付き） |
 | ファイル | .claude/addf/knowhow/INDEX.md | ダウンストリーム用ノウハウインデックス |
 | ファイル | .claude/addf/knowhow/CLAUDE.md | 読み方の作法（タイトルで推測せず本文で判断する） |

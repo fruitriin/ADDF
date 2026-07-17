@@ -8,23 +8,24 @@
 | 種別 | 名前 | 役割 |
 |---|---|---|
 | スキル | addf-init | 新規/既存プロジェクトへの ADDF 導入（外部起動・テンプレート・既存プロジェクトの3経路）＋「部分導入からの正規化」＋ `check` 構造検証 |
-| スキル | addf-migrate | addf-lock.json の ref（タグ）基準でフレームワークを最新版にアップグレード（6フェーズ＋Phase 2.5 ディレクトリ大移行ワンショット）。lock 不在＋ADDF ファイル検出時は部分導入正規化へ誘導 |
+| スキル | addf-migrate | addf-lock.json の ref（タグ）基準でフレームワークを最新版にアップグレード（6フェーズ＋Phase 2.4 手順書自己点検＋Phase 2.5 ディレクトリ大移行ワンショット）。lock 不在＋ADDF ファイル検出時は部分導入正規化へ誘導 |
 | スキル | addf-release | リリースワークフロー（upstream/downstream 自動切替） |
 | スキル | addf-overview | エコシステム概要ドキュメントの生成（本ドキュメント。full/patch モード + .lock） |
 | ツール | .claude/addf/addfTools/sync-optional-skills.py | オプトインスキル機構の同期（check / apply）。.claude/addf/optional/ の原本と有効化コピーを [gui-test] enable と整合させる |
+| ツール | .claude/addf/addfTools/sync-ccchain.py | ccchain オプトインの同期（check / apply — Plan 0040 フェーズ2）。[ccchain] enable に応じて `.ccchain.conf`（optional/ccchain/ 原本から初回配置。**以降の追従は強制しない** — プロジェクトが自由にチューニングする前提）と settings.json の PreToolUse(Bash) フックエントリを配置・撤去する。ccchain 由来エントリだけをコマンド文字列で識別し他フックには触れない。check は addf-lint セクション13 |
 | ツール | .claude/addf/addfTools/paths.toml | **旧→新パスマップの単一ソース**（Plan 0037）。migrate-paths / lint-residual-paths / テストが全てこれを参照する。[meta].new_root（移行済み判定アンカー）と backup_ref を定義 |
 | ツール | .claude/addf/addfTools/migrate-paths.py | ディレクトリ大移行の3モード: check（実在・衝突・旧参照の全数提示＋射程外候補プリフライトスキャン）/ apply（backup ref 作成→git mv 一括。コミットは呼び出し側の責務）/ rewrite（全 git 追跡テキストの旧パス参照を新パスへ書き換え） |
 | ツール | .claude/addf/addfTools/lint-residual-paths.py | 移行の**完了ゲート**。旧パス残存を ERROR 検査（ゼロになるまで完了扱いしない）。移行後は docs/ への逆流を WARNING で恒久検査。移行前リポジトリは SKIP 明示 |
 | ツール | .claude/addf/addfTools/verify-checksums.sh + checksums.sha256 | 配布バイナリ（Swift ツール）の SHA-256 照合＋allowlist ガード（Plan 0031。→ system-visual-testing） |
-| ディレクトリ | .claude/addf/optional/ | オプトインスキル・エージェントの原本置き場（現在は GUI テスト一式: 3スキル+1エージェント） |
-| ファイル | .claude/addf/lock.json | バージョン追跡（現在 v0.6.1）。`version` / `ref` / `updated_at` / `repository`。プロジェクト種別の明示シグナルの一部。旧位置 `.claude/addf-lock.json` から v0.6.0 で移動 <!-- residual-path: allow --> |
-| ファイル | .claude/addf/CHANGELOG.md | フレームワーク変更履歴。migrate 時に該当バージョン間のエントリを表示（2026-07-11 時点で Plan 0053 が進行中の課題として Plan 0030/0031/0032/0035/0036/0038/0039/0041/0049/0051/0052 のエントリ記載漏れを検出・回収作業中） |
+| ディレクトリ | .claude/addf/optional/ | オプトイン式スキル・エージェント・設定の原本置き場（GUI テスト一式: 3スキル+1エージェント → sync-optional-skills.py / ccchain 設定: `.ccchain.conf` テンプレート → sync-ccchain.py） |
+| ファイル | .claude/addf/lock.json | バージョン追跡（現在 v0.6.2）。`version` / `ref` / `updated_at` / `repository`。プロジェクト種別の明示シグナルの一部。旧位置 `.claude/addf-lock.json` から v0.6.0 で移動 <!-- residual-path: allow --> |
+| ファイル | .claude/addf/CHANGELOG.md | フレームワーク変更履歴。migrate 時に該当バージョン間のエントリを表示（v0.6.2 で記載漏れ11 Plan 分を回収済み — 再発防止は lint ペア8。Unreleased には v0.7.0 予定分〔Plan 0058・0040・0055・0059・0060・0065〕が最終化済み） |
 | ファイル | .claude/addf/Release.addf.md | ADDF 本体（upstream）のリリース手順定義。プレリリースチェック5が overview 鮮度を検査し、patch で通した場合の full 負債はリリース後タスクとして TODO に積む（full のトリガーはリリースではなく構造変更） |
 | ファイル | CONTRIBUTING.md | コントリビューションモデル（計画駆動レビュー・きっかけの記載。英語版 CONTRIBUTING.en.md あり） |
 | ファイル | .gitignore の ADDF マーカーブロック | 実行時生成ファイルの除外定義（addf-init がブロックごとコピー — 列挙を持たない単一ソース化） |
 | テンプレート | .claude/addf/templates/Release.md | リリース手順テンプレート |
 | ディレクトリ | .claude/addf/guides/ | セットアップ・運用ガイド群（10本） |
-| ディレクトリ | docs/（VitePress サイト） | `.claude/addf/guides/` を単一ソースとする公開ドキュメントサイトの骨格（Plan 0039 フェーズ2）。`scripts/sync-docs.mjs` が guides/ の全 Markdown を `docs/guide/`（生成物・.gitignore 対象）へコピーし、相対リンクをサイト内リンクまたは GitHub blob/raw URL に書き換える。`docs/.vitepress/config.mts` がナビ・サイドライン（はじめに/スキル・エージェント/運用/環境別セットアップの4グループ）を定義。`package.json` の `docs:sync` / `docs:dev` / `docs:build` / `docs:preview` から実行。GitHub Pages への実公開（フェーズ3）はオーナー操作待ち |
+| ディレクトリ | docs/（VitePress サイト） | `.claude/addf/guides/` を単一ソースとする公開ドキュメントサイトの骨格（Plan 0039 フェーズ2）。`scripts/sync-docs.mjs` が guides/ の全 Markdown を `docs/guide/`（生成物・.gitignore 対象）へコピーし、相対リンクをサイト内リンクまたは GitHub blob/raw URL に書き換える。`docs/.vitepress/config.mts` がナビ・サイドライン（はじめに/スキル・エージェント/運用/環境別セットアップの4グループ）を定義。`package.json` の `docs:sync` / `docs:dev` / `docs:build` / `docs:preview` から実行。GitHub Pages への実公開（フェーズ3）はオーナー操作待ち。ローカルダッシュボード（`.claude/addf/dashboard/`・`dashboard:*` スクリプト — Plan 0058）は guides サイトとは**別の VitePress インスタンス**（公開ドキュメントではなくオーナー向けローカル UI → system-planning） |
 
 ### .claude/addf/guides/ 一覧
 
@@ -63,17 +64,22 @@ ADDF 管理ファイルは `.claude/addf/` 占有名前空間に集約され、*
 
 **バージョン管理**:
 - `addf-lock.json` は **ref（`vX.Y.Z` タグ名）を記録する**。旧形式（`commit` ハッシュ）はリリースプロセスの都合で実在しないハッシュになりうるため、`v<version>` タグに読み替える後方互換を addf-init / addf-migrate / addf-init check が持つ
-- `addf-migrate` がロックファイルの ref と最新版の差分を算出し、対象ファイル（addf- プレフィックス・.claude 配下・guides・knowhow/ADDF/）だけを安全にアップグレード。プロジェクト固有ファイル（Progress/Feedback/.exp.md/CLAUDE.repo.md/TODO 等）はスキップ。`.claude/addf/optional/` に変更があれば `sync-optional-skills.py apply` を再実行し、旧配布の `*.addf.md` 残留も検出して削除提案する
+- `addf-migrate` がロックファイルの ref と最新版の差分を算出し、対象ファイル（addf- プレフィックス・.claude 配下・guides・knowhow/ADDF/）だけを安全にアップグレード。プロジェクト固有ファイル（Progress/Feedback/.exp.md/CLAUDE.repo.md/TODO/DashboardComments.json 等）はスキップ（DashboardComments.json は**不在時のみ** `{"comments": []}` で補完 — ブートシーケンス 1.7 が参照する新設ファイルのため）。`.claude/addf/optional/` に変更があれば `sync-optional-skills.py apply`・`sync-ccchain.py apply` を再実行し、旧配布の `*.addf.md` 残留も検出して削除提案する（`.addf.md` は**例外なく**配布対象外 — `Release.addf.md` 含む。Issue #28 で説明強化）
+- **Phase 2.4 手順書自己点検**（Issue #27・Plan 0055）: 最新版クローン直後、実行中のローカル `addf-migrate.md` とクローン側を `diff -q` で比較し、古い版のまま実行していれば以降はクローンした最新版の記述に読み替える（手順書自体が実行中に古くなる構造的リスクの事前検知）
 - CLAUDE.md / CLAUDE.repo.md の分離設計により、マイグレーション時の衝突を最小化
 
 **分離パターン（配布の前提）**: `.addf.md` サフィックス並置 / `ADDF/` サブディレクトリ隔離 / `addf-` プレフィックス識別の3パターン（.claude/addf/knowhow/ADDF/upstream-downstream-separation.md）。lint・テストは対象ファイル欠如を SKIP 扱いにしてダウンストリームでの誤 ERROR を防ぐ。**upstream/downstream の判定はファイルの存在ではなく明示シグナル（CLAUDE.repo.md の種別宣言＋addf-lock.json）で行い、配布から `*.addf.md` を除外する**（Plan 0033。「存在≠所有」— 配布物として物理存在しても所有の証明にならない）。
 
-**オプトインスキル機構**（Plan 0029）: 全プロジェクトが使うとは限らない機能（現在は GUI テスト一式）は `.claude/addf/optional/` に原本を退避し、`addf-Behavior.toml` のフラグ＋ `sync-optional-skills.py apply` で有効化コピーを配置する。原本が真実源・コピーは使い捨て・改変コピーは触らず WARNING（.claude/addf/knowhow/ADDF/optional-skill-optin.md）。
+**オプトインスキル機構**（Plan 0029・Plan 0040 で第2カテゴリ追加）: 全プロジェクトが使うとは限らない機能は `.claude/addf/optional/` に原本を退避し、`addf-Behavior.toml` のフラグ＋同期スクリプトの apply で有効化する。適用対象は2カテゴリで同期セマンティクスが異なる:
+- **GUI テスト一式**（[gui-test] → sync-optional-skills.py）: 原本が真実源・コピーは使い捨て・改変コピーは触らず WARNING（.claude/addf/knowhow/ADDF/optional-skill-optin.md）
+- **ccchain 設定**（[ccchain] → sync-ccchain.py）: `.ccchain.conf` は初回配置のみ原本から。以降はプロジェクトが自由にチューニングする前提のため原本追従を強制しない（差分があっても上書きしない）。settings.json への PreToolUse(Bash) フックエントリ配置・撤去も担う。ccchain バイナリ自体は配布しない（各自 `go install` — Plan 0031 の配布バイナリ検証問題の回避）
+
+オプトイン対象が2カテゴリに増えたため、「オプトイン機構」の独立システム昇格は次回 full の再検討事項（.exp.md 申し送りの継続案件）。
 
 **リリース**:
 - `addf-release` が upstream（ADDF 本体）と downstream（利用プロジェクト）で手順を自動切替
 - 責務分割: スキル=ルーター、設定ファイル（Release.addf.md）=手順定義、.exp.md=プロジェクト戦略（.claude/addf/knowhow/ADDF/release-skill-separation.md）
-- バージョン履歴: v0.1.0（lock+migrate 基盤）→ v0.2.0（init/release・Codex 対応・guides 分離）→ v0.3.0（迷ったときの作法・日記・knowhow ライフサイクル・ペルソナレビュー・同期 lint・context-reminder）→ v0.4.0（チェックリスト裏付け lint・オプトインスキル機構・投機開発基盤・tomllib 環境ガード）→ v0.5.0（投機開発サイクル完成・投機運用ガイド）→ v0.6.0（ディレクトリ大集約・移行ツール・doc-review・plan-audit・CI 品質ゲート・止まらない教義。2026-07-06 リリース）→ v0.6.1（トランスクリプトアーカイブ・destructive-git-guard・addf-implementer とモデル配分ポリシー・VitePress ドキュメントサイト骨格・移行実行時耐障害性強化。2026-07-07 lock 更新）
+- バージョン履歴: v0.1.0（lock+migrate 基盤）→ v0.2.0（init/release・Codex 対応・guides 分離）→ v0.3.0（迷ったときの作法・日記・knowhow ライフサイクル・ペルソナレビュー・同期 lint・context-reminder）→ v0.4.0（チェックリスト裏付け lint・オプトインスキル機構・投機開発基盤・tomllib 環境ガード）→ v0.5.0（投機開発サイクル完成・投機運用ガイド）→ v0.6.0（ディレクトリ大集約・移行ツール・doc-review・plan-audit・CI 品質ゲート・止まらない教義。2026-07-06 リリース）→ v0.6.1（トランスクリプトアーカイブ・destructive-git-guard・addf-implementer とモデル配分ポリシー・VitePress ドキュメントサイト骨格・移行実行時耐障害性強化。2026-07-07 lock 更新）→ v0.6.2（CHANGELOG・README 網羅性回収と lint ペア8 新設〔Plan 0053〕・移行実行時耐障害性強化の収録〔Plan 0052〕。2026-07-11 リリース）→ v0.7.0 準備中（ローカルダッシュボード＋アンカーコメント〔Plan 0058〕・ccchain オプトイン〔Plan 0040 フェーズ1・2〕・downstream 環境適合〔Issue #27〜#31・#33 回収 = Plan 0055/0059/0060〕。2026-07-17 時点で CHANGELOG Unreleased 最終化済み・リリース実行はオーナー判断待ち）
 
 ### マイグレーション実行時耐障害性 — Plan 0052（GitHub Issue #26 実測回収）
 
@@ -97,6 +103,8 @@ ADDF 管理ファイルは `.claude/addf/` 占有名前空間に集約され、*
   ├─ Phase 1: lock 読み込み（旧形式 commit → v<version> タグに読み替え）・クリーン確認・URL 検証
   │           lock 不在＋ADDF ファイル検出 → 部分導入正規化を提案
   ├─ Phase 2: 最新版クローン
+  ├─ Phase 2.4: 手順書自己点検（ローカル addf-migrate.md とクローン側を diff —
+  │           古ければ最新版の記述に読み替えて続行。Issue #27）
   ├─ Phase 2.5: ディレクトリ大移行（v0.6.0 ワンショット。構造差分で発動 —
   │           ターゲットが新構造 ∧ ローカル未移行。部分適用はセカンダリチェックで検出）
   │           道具導入（migrate-paths 一式を単独コミット）→ check → apply →
@@ -106,7 +114,8 @@ ADDF 管理ファイルは `.claude/addf/` 占有名前空間に集約され、*
   ├─ Phase 3: ref（タグ）基準で差分算出（対象/対象外の区別。旧 *.addf.md 残留検出）
   ├─ Phase 4: 変更プレビュー + CHANGELOG 表示 → ユーザー確認
   ├─ Phase 5: 適用（settings.json ユニオンマージ、CLAUDE.md はテンプレート部分のみ更新、
-  │           optional/ 変更時は sync-optional-skills.py apply）
+  │           optional/ 変更時は sync-optional-skills.py / sync-ccchain.py apply、
+  │           DashboardComments.json 不在時は空生成で補完）
   └─ Phase 6: lock 更新（ref = v<new-version>）・tmp 削除
 
 リリース:
@@ -126,7 +135,7 @@ ADDF 管理ファイルは `.claude/addf/` 占有名前空間に集約され、*
 - `.claude/addf/guides/` にプロジェクト固有のガイドを追加可能
 - `addf-release` は downstream で初回実行時に対話的にリリース戦略を構築し、.exp.md に保存
 - `addf-lock.json` の `repository` を差し替えれば fork した ADDF からのマイグレーションも可能（デフォルト URL と異なる場合は警告）
-- オプトイン機能（GUI テスト等）は addf-Behavior.toml のフラグで各プロジェクトが選択する
+- オプトイン機能（GUI テスト・ccchain）は addf-Behavior.toml のフラグで各プロジェクトが選択する。ccchain の `.ccchain.conf` は初回配置後、プロジェクトの実運用コマンドに合わせて自由にチューニングする
 
 ## 関連するシステム
 
@@ -136,4 +145,5 @@ ADDF 管理ファイルは `.claude/addf/` 占有名前空間に集約され、*
 - **投機開発**: speculate-*.py は addfTools として配布対象。[speculation] は Behavior.toml のオプトインフラグ
 - **ノウハウ蓄積**: .claude/addf/knowhow/ADDF/ は配布・マイグレーション対象。プロジェクト固有 knowhow は対象外
 - **全システム**: addf-overview が全システムを横断的にドキュメント化。VitePress ドキュメントサイト（docs/）は `.claude/addf/guides/` を単一ソースとするため、guides/ が扱う全システムの運用ガイドが公開ドキュメントとして間接的に配布される
-- **計画駆動**: addf-implementer・DelegationRules.md は並列実装方針（worktree 隔離下の実装委譲）の一部として配布される（本体詳細 → system-planning）
+- **計画駆動**: addf-implementer・DelegationRules.md は並列実装方針（worktree 隔離下の実装委譲）の一部として配布される（本体詳細 → system-planning）。ローカルダッシュボード（generate-dashboard.py・DashboardComments.json — Plan 0058）も addfTools として配布され、addf-init が DashboardComments.json を空生成・addf-migrate が不在時補完する（本体詳細 → system-planning）
+- **セッション管理**: ccchain オプトイン（optional/ccchain/ + sync-ccchain.py）は PreToolUse(Bash) コマンドゲートの配布機構（フックとしての動作 → system-session）

@@ -14,7 +14,7 @@
 | ファイル | AGENTS.md | Codex 等の AGENTS.md 互換ツール用（英語。lint ペア3で CLAUDE.md と同期検査） |
 | ファイル | .claude/settings.json | フック定義・権限設定（ダウンストリーム配布） |
 | ファイル | .claude/settings.local.json | ADDF 開発用ローカル権限（配布しない） |
-| ファイル | .claude/addf/Behavior.toml | フレームワーク動作設定（[gui-test] / [speculation] / [transcript-archive] / [context-reminder] / [context-reminder.effective-context]） |
+| ファイル | .claude/addf/Behavior.toml | フレームワーク動作設定（[gui-test] / [ccchain] / [speculation] / [transcript-archive] / [context-reminder] / [context-reminder.effective-context]） |
 | スキル | addf-permission-audit | 権限を3パターンに分類し settings ファイルへの配置を提案 |
 | フック | reset-turn-count.sh | SessionStart: ターンカウンター（.claude/.turn-count）をリセット |
 | フック | turn-reminder.sh | UserPromptSubmit: 関心事A（ターン10/15の棚卸しリマインダー）+ 関心事B（context-reminder.py への中継） |
@@ -22,6 +22,7 @@
 | フック | pre-compact-archive.sh | PreCompact: `[transcript-archive].enable = true` のときのみ、compaction 直前のトランスクリプト JSONL を archive_dir にコピー（Plan 0042・オプトイン・デフォルト無効）。ファイル名は英数・`_`・`-` のみにサニタイズ（パストラバーサル対策）、同一秒衝突は連番、世代数上限で古いものから削除 |
 | フック | destructive-git-guard.sh | PreToolUse(Bash): 5種の破壊的 git 操作パターンを検出し、ブロックはせず理由をユーザーに提示するのみ（ブロックは settings.json の `permissions.ask` が担う。Plan 0043。→ system-quality と分業） |
 | フック | skill-usage-log.sh | PreToolUse(Skill): スキル呼び出しを .claude/logs/skill-usage.jsonl にロギング |
+| フック（オプトイン） | ccchain hook pre | PreToolUse(Bash): ccchain（EnumaElish）バイナリによる構造的コマンドパーミッション制御（Plan 0040）。`[ccchain] enable = true` + `sync-ccchain.py apply` で settings.json に配線される。パイプ・チェーン・サブシェル・`-exec` の中身まで構造解析し、プレフィックスマッチでは防げない危険コマンド（`find . -exec rm {} \;`・`curl ... \| bash` 等）を検出。バイナリは ADDF が配布しない（各自 `go install`）— 不在時はフックが空振りするフェイルセーフ（素通し）設計 |
 | ツール | .claude/addf/addfTools/context-reminder.py | transcript の usage を実測し、閾値超過時に能動コンパクション促しを注入 |
 | 状態 | .claude/.turn-count / .claude/.context-reminder-state | ターン数・前回通知時の実測値（.gitignore 対象） |
 
@@ -59,6 +60,10 @@ context-reminder.py の設計原則: フックの仕事は事実の注入のみ 
 
 `settings.json` の `permissions.deny`（11パターン: `rm -rf /` 系・`chmod 777 /` 系・`dd`・`mkfs`・`shutdown`・`reboot`）が極端な破壊操作を常時ブロックし、`permissions.ask`（7パターン: `git push`・`git reset --hard`・`git clean`・`git branch -D`・`git checkout -- .`・`git restore .`/`restore --`）が破壊的 git 操作を確認対象にする。`destructive-git-guard.sh` はこれら5種の git パターンを検出して理由をユーザーに提示するだけで、ブロック自体は行わない（ブロックは permissions.ask の役目 — フックと設定の分業。→ system-quality）。
 
+### ccchain コマンドゲート（オプトイン）— Plan 0040 フェーズ1・2
+
+settings.json のプレフィックスマッチ（deny/ask）と destructive-git-guard.sh（advisory 提示）を補完する第3のレイヤー。ccchain（外部 Go バイナリ・EnumaElish）が PreToolUse(Bash) でコマンドを構造解析し、許可リストベースで評価する。ルールは `.ccchain.conf`（初回配置後はプロジェクトが自由にチューニングする前提 — 原本追従を強制しない点が sync-optional-skills と異なる）。ADDF 本体はフェーズ1でドッグフーディング導入済み（実運用コマンド群で `ccchain test` により調整してから配線 — 誤ルールで自セッションの Bash が使えなくなるリスクへの対処）。**フェーズ1の配線先（settings.local.json）とフェーズ2の sync-ccchain.py の対象（settings.json）は意図的に分離されており、統合はフェーズ4**（Feedback.md 記録済み）。知見は `.claude/addf/knowhow/ADDF/ccchain-dogfooding-phase1.md`。
+
 ### フックの堅牢性
 
 全フックは `CLAUDE_PROJECT_DIR` 未設定時にカレントディレクトリへフォールバックする（未設定のまま展開すると `/.claude/...` への書き込みが静かに失敗するため）。意図的に `set -e` を使わず、失敗してもセッションを妨げず exit 0 で抜ける。skill-usage-log.sh は jq でエントリ全体を生成し JSONL インジェクションを防ぐ。pre-compact-archive.sh は bash+awk の手組み TOML パーサーを使う（`.claude/addf/knowhow/ADDF/bash-toml-parse-pitfalls.md` に8種の落とし穴が類型化されている）。
@@ -83,7 +88,8 @@ settings.json は2ファイルに分離:
   │
   ▼
 CLAUDE.md ブートシーケンス
-  ├─ 1. Feedback.md（1.5 Questions.md / 1.6 Dashboard.md）
+  ├─ 1. Feedback.md（1.5 Questions.md / 1.6 Dashboard.md / 1.7 DashboardComments.json —
+  │      HTML ダッシュボードのアンカーコメント。対応後 resolved 化 → system-planning）
   ├─ 2. TODO.md（ADDF: + TODO.addf.md）
   ├─ 3. Progress.md（日記の末尾3エントリーで引き継ぎ）
   ├─ 4. タスクなし → 骨格プランニング or オーナーに確認
@@ -100,15 +106,18 @@ CLAUDE.md ブートシーケンス
   │
   ├─ skill-usage-log.sh → スキル使用ログ（PreToolUse: Skill）
   │
-  └─ destructive-git-guard.sh → 破壊的 git パターン検出時に理由を提示（PreToolUse: Bash。
-     ブロックは permissions.ask/deny が担当）
+  ├─ destructive-git-guard.sh → 破壊的 git パターン検出時に理由を提示（PreToolUse: Bash。
+  │  ブロックは permissions.ask/deny が担当）
+  │
+  └─（[ccchain] オプトイン有効時のみ）
+     ccchain hook pre → Bash コマンドを構造解析し許可リストで評価（PreToolUse: Bash）
 ```
 
 ## 下流でのカスタマイズ
 
 - `CLAUDE.repo.md` にプロジェクト固有の設定を記述（CLAUDE.md は上書きマイグレーション可能に保つ）
 - `CLAUDE.local.md` で開発者個人の設定・セッションモードを保持
-- `addf-Behavior.toml` で gui-test 有効化（→ sync-optional-skills.py apply）・speculation 有効化と worktree 上限・transcript-archive 有効化（`archive_dir`/`max_generations`）・context-reminder の閾値/実効コンテキスト目安を調整（threshold_tokens = 0 で無効化）
+- `addf-Behavior.toml` で gui-test 有効化（→ sync-optional-skills.py apply）・ccchain 有効化（→ sync-ccchain.py apply。`.ccchain.conf` は配置後に自由チューニング可）・speculation 有効化と worktree 上限・transcript-archive 有効化（`archive_dir`/`max_generations`）・context-reminder の閾値/実効コンテキスト目安を調整（threshold_tokens = 0 で無効化）
 - `settings.json` の権限ルールを addf-permission-audit で整理
 - turn-reminder のターン閾値はスクリプト編集で調整可能
 
@@ -116,6 +125,6 @@ CLAUDE.md ブートシーケンス
 
 - **計画駆動**: ブートシーケンスが計画駆動システムの起点。/addf-mode の状態を CLAUDE.local.md に保存。コンパクション復帰・context-reminder は日記（代替わり）と連動
 - **ノウハウ蓄積**: turn-reminder（関心事A）と context-reminder（関心事B）がともに知見記録を促す
-- **配布・導入**: settings.json / CLAUDE.md / hooks / addf-Behavior.toml は配布対象。マイグレーション時に更新される
+- **配布・導入**: settings.json / CLAUDE.md / hooks / addf-Behavior.toml は配布対象。マイグレーション時に更新される。ccchain のオプトイン配布（optional/ccchain/ 原本 + sync-ccchain.py）はオプトイン機構の第2の適用対象（→ system-distribution）
 - **品質ゲート**: フックは .claude/addf/tests/hooks/（reset-turn-count・turn-reminder・context-reminder）で自動テストされ、実行権限（lint 項目2）と settings への配線（lint 項目11）も機械検査される
 - **投機開発**: [speculation] は Behavior.toml のオプトインフラグ。addf-speculate は CLAUDE.local.md の /addf-mode 状態（responsiveness）を参照して事前確認の要否を決める

@@ -11,16 +11,17 @@
 | エージェント | addf-security-review-agent | ペネトレーションテスター人格で脆弱性検出・修正案提示（Sonnet。実装はしない） |
 | エージェント | addf-contribution-agent | ADDF / プロジェクト固有コードの識別、分離パターン違反検出、アップストリーム貢献候補検出（Sonnet） |
 | エージェント | addf-doc-review-agent | ドキュメントドリフト（実装との乖離）とモチベーション/実装事実の混同を検出（Sonnet。Plan 0039 フェーズ1で EnumaElish から逆輸入・汎用化）。**ドキュメントに触れた変更のときのみ起動**（起動判定はメインエージェント側） |
-| スキル | addf-lint | フレームワーク整合性チェック（12項目: JSON構文・hooks実行権限・frontmatter・Behavior.toml・INDEX整合・テンプレート同期・knowhow鮮度・knowhow双方向リンク・チェックリスト裏付け・オプショナルスキル同期・hooks配線・Plan状態整合） |
-| テスト | .claude/addf/tests/run-all.sh | フレームワーク自動テスト（フック5本・ツール17本。スキルシナリオ8本は手動）。非 macOS ではバイナリ実行テストを SKIP。ランタイム不在を SKIP=成功として扱わない（silent 無効化の禁止）。Plan 0052（Issue #26）で GUI バイナリの画面収録権限ダイアログ待ちによる無限ハングを timeout ガードで解消し、Test の SKIP フォールバックを追加 |
+| スキル | addf-lint | フレームワーク整合性チェック（13項目: JSON構文・hooks実行権限・frontmatter・Behavior.toml・INDEX整合・テンプレート同期・knowhow鮮度・knowhow双方向リンク・チェックリスト裏付け・オプショナルスキル同期・hooks配線・Plan状態整合・ccchain同期〔セクション13 — Plan 0040 フェーズ2〕） |
+| テスト | .claude/addf/tests/run-all.sh | フレームワーク自動テスト（フック5本・ツール19本。スキルシナリオ8本は手動）。非 macOS ではバイナリ実行テストを SKIP。ランタイム不在を SKIP=成功として扱わない（silent 無効化の禁止）。Plan 0052（Issue #26）で GUI バイナリの画面収録権限ダイアログ待ちによる無限ハングを timeout ガードで解消し、Test の SKIP フォールバックを追加。Plan 0059（Issue #30・#31）で downstream 環境適合を強化 — `make_sandbox()` の `*.addf.md` 疑似コピー方式・TODO テーブルのリンク書式両対応・downstream 分岐を明示的に踏む回帰テスト24件 |
 | CI | .github/workflows/test.yml + .github/scripts/run-lint.sh | GitHub Actions 品質ゲート（Plan 0030）。PR / main push ごとに run-all.sh と lint 一式を自動実行。lint の3値 exit を run-lint.sh がマッピング（1=ジョブ失敗 / 2=通過+warning annotation）。ADDF 本体固有（配布対象外・ダウンストリームの雛形） |
 | ツール | .claude/addf/addfTools/lint-json.py / lint-frontmatter.py / lint-toml.py | 構文 Lint スクリプト（uv run --python 3.11 で実行。uv が無ければ python3 直接実行） |
 | ツール | .claude/addf/addfTools/lint-hooks-exec.py | hooks の実行権限検査（実行権限のないフックは settings 登録済みでも静かに失敗する問題の防止） |
 | ツール | .claude/addf/addfTools/lint-hooks-wiring.py | hooks ファイル名と settings.json / settings.local.json の配線突合（`# hooks-wiring: indirect` エスケープハッチあり） |
-| ツール | .claude/addf/addfTools/lint-template-sync.py | テンプレート同期チェック（7ペア）。exit 0=全一致 / 1=ERROR / 2=WARNING のみ |
+| ツール | .claude/addf/addfTools/lint-template-sync.py | テンプレート同期チェック（8ペア）。exit 0=全一致 / 1=ERROR / 2=WARNING のみ |
 | ツール | .claude/addf/addfTools/lint-checklist.py | 手順書の「確認/検証」ステップの裏付け検査（実行チェック or human-judgment マーカー。WARNING のみ） |
 | ツール | .claude/addf/addfTools/lint-plan-status.py | Plan の `## 実装状況:` ヘッダ「完了」×完了条件の未チェック `- [ ]` 残存の矛盾検出（誤完了防止・Plan 0035 フェーズC。addf-lint セクション12） |
-| ツール | .claude/addf/addfTools/lint-residual-paths.py | 旧パス残存の検査（Plan 0037 移行完了ゲート＋docs/ 逆流 WARNING。→ system-distribution と共有） |
+| ツール | .claude/addf/addfTools/lint-residual-paths.py | 旧パス残存の検査（Plan 0037 移行完了ゲート＋docs/ 逆流 WARNING。→ system-distribution と共有）。Plan 0060（Issue #33）で `compile_pattern()` に lookbehind 境界を導入 — 外部 URL・他プロジェクト絶対パスの言及を誤検知しない（migrate-paths.py と同期契約。既知の限界と根治は Plan 0068） |
+| ツール | .claude/addf/addfTools/sync-ccchain.py（check モード） | ccchain 同期検査（addf-lint セクション13。[ccchain] enable と `.ccchain.conf`・settings.json フックエントリの整合。enable=true でバイナリ不在は WARNING — フェイルセーフ素通し設計。→ system-distribution / system-session と共有） |
 | ツール | .claude/addf/addfTools/verify-checksums.sh | 配布バイナリの SHA-256 照合＋allowlist ガード（Plan 0031。→ system-visual-testing と共有。repo_kind 判定は lint-template-sync の detect_repo_kind() と同期契約 — ペア7が契約文言を機械検査） |
 | ツール | .claude/addf/addfTools/sync-optional-skills.py（check モード） | オプトインスキルの同期検査（孤児コピー・enable の型。→ system-distribution / system-visual-testing と共有） |
 
@@ -70,7 +71,7 @@ ADDF の第三の柱。「人間がレビューするのは計画の方向性、
 | 7. verify-checksums.sh ⇔ lint-template-sync.py | `detect_repo_kind()` Python⇔Bash 実装の同期契約文言の存在チェック | WARNING |
 | 8. README.md/README.en.md ⇔ .claude/commands/addf-*.md | スキルテーブルへの掲載漏れ検出。upstream 限定（downstream は SKIP） | WARNING |
 
-**ペア8は 2026-07-11 時点で Plan 0053（進行中・作業ツリーに未コミット）で追加作業中**。Plan 0053 は自己点検で CHANGELOG.md の記載漏れ（Plan 0030/0031/0032/0035/0036/0038/0039/0041/0049/0051/0052）と README のスキル一覧掲載漏れ（addf-plan-audit）を発見し、再発防止としてこのペアを新設している。
+ペア8は Plan 0053（2026-07-11 完了・v0.6.2 収録）で新設された。Plan 0053 は自己点検で CHANGELOG.md の記載漏れ（11 Plan 分）と README のスキル一覧掲載漏れ（addf-plan-audit）を発見・回収し、再発防止としてこのペアを追加した。ペア6の TODO テーブル解析は Plan 0059（Issue #31）で markdown リンク書式 `[title](path)` とバックティック書式の両対応になった（downstream で広く使われるリンク書式が「TODO 登録漏れ」誤 WARNING になっていた）。
 
 ペア2〜6はダウンストリームで対象ファイルが無ければ SKIP（欠如はドリフトではない — 配布時誤 ERROR の防止。ただし SKIP は明示出力して件数計上する — silent 無効化の禁止）。WARNING には git log の最終更新日ヒントが併記され、どちらを正とするかはエージェントが文脈で判断する。upstream/downstream の判定は**存在ではなく明示シグナル**（CLAUDE.repo.md の種別宣言＋addf-lock.json）で行う（Plan 0033。「存在≠所有」— 配布で *.addf.md が物理存在しうるため）。新たな同期ペアが生まれたら lint と addf-lint.md セクション6の表を同時更新する（Feedback.md 記録済み）。
 
@@ -89,6 +90,10 @@ GitHub Actions（test.yml）が PR / main push ごとに run-all.sh と lint 一
 ### セキュリティ回収（deny/ask リスト・破壊的操作ガード）— Plan 0043
 
 品質ゲートの一部として、破壊的操作は「常時ブロック（deny）」「理由提示のうえ確認（ask + hook の advisory 注意）」の2段構えで防ぐ。`settings.json` の `permissions.deny` に極端な破壊操作11パターン（`rm -rf /` 系・`chmod 777 /` 系・`dd`・`mkfs`・`shutdown`・`reboot`）を常時ブロックし、`permissions.ask` に5種の破壊的 git 操作（`reset --hard`・`push --force`・`clean -f`・`branch -D`・`checkout -- .`/`restore .`）を置く。フック `destructive-git-guard.sh`（PreToolUse: Bash）はこれらのパターンを検出して**理由をユーザーに提示するだけ**で、ブロック自体は `permissions.ask` に委ねる分業設計（フック詳細は → system-session）。事後観測方式で段階調整する方針（Feedback.md Q3 参照）。
+
+### ダウンストリーム環境適合テスト（合成フィクスチャと drift-injection）— Plan 0055/0058/0059
+
+「実リポジトリ固有コンテンツ依存のテストアサーション」（実在 Plan がたまたま含む文字列への grep・Plan 1件以上の前提など）は、downstream の空リポジトリで必ず FAIL する再発性の欠陥クラス（Issue #29 → Plan 0055 で初回修正、Plan 0058 のダッシュボードテスト初版で同型が再発 — Feedback.md 記録済み）。対処の型は**合成フィクスチャの drift-injection 方式**: テストがサンドボックスに合成リポジトリを作り、意図的なドリフトを注入して検出能力自体を検証する（test-generate-dashboard.sh・test-template-sync.sh の `make_sandbox()` 疑似コピー方式〔Issue #30・Plan 0059〕）。テスト新設時の自問は「このアサーションは Plan が0件の空のダウンストリームリポジトリでも成立するか？」。
 
 ### 実行環境ガードの3類型
 
@@ -139,4 +144,4 @@ Stage 2: 品質検証チーム（並列起動）
 - **投機開発**: 投機の Stage 1 は feature worktree 単位で、Stage 2（ペルソナ並列）は integration ブランチで一括実行される。speculate ツールのテスト3本も run-all.sh に組み込み
 - **ノウハウ蓄積**: レビューで得た知見が knowhow に、差し戻しは .exp.md「分かれ道の目印」に蓄積される。addf-lint の項目5・7・8が knowhow の整合・鮮度・リンクを検査
 - **視覚テスト**: addf-ui-test-agent が Stage 2 に参加可能（オプトイン有効時）。addf-lint 項目10がオプトイン同期を検査
-- **配布・導入**: addf-lint と run-all.sh は配布物の品質保証でもある（SKIP 設計・明示シグナルによる種別判定はダウンストリーム配布前提の機構）。lint-residual-paths はディレクトリ大移行（Plan 0037）の完了ゲート、verify-checksums は配布バイナリの検証
+- **配布・導入**: addf-lint と run-all.sh は配布物の品質保証でもある（SKIP 設計・明示シグナルによる種別判定・downstream 環境適合テストはダウンストリーム配布前提の機構）。lint-residual-paths はディレクトリ大移行（Plan 0037）の完了ゲート、verify-checksums は配布バイナリの検証、sync-ccchain check（項目13）は ccchain オプトインの同期検査
