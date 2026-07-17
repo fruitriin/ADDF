@@ -42,8 +42,18 @@
        addf-plan-audit が未掲載のまま埋没した実例）を防ぐ。エージェント（.claude/agents/）は
        命名規則が不均一なため対象外（Plan 0053）。ダウンストリームは独自 README のため SKIP。
 
+ペア9: migrate-paths.py ⇔ lint-residual-paths.py の compile_pattern 同期ブロック（WARNING）
+       Plan 0068 で URL スキーム検出設計へ移行した際、両ファイルの compile_pattern と
+       関連ヘルパ（BoundaryPattern クラス・_self_url_prefixes・_URL_RE 等）は文字通り同一
+       実装に保つ契約になった（挙動比較は困難なため、ソーステキストそのものを機械保証する）。
+       両ファイルの `# --- BEGIN sync: compile_pattern (Plan 0068) ---` 〜
+       `# --- END sync: compile_pattern (Plan 0068) ---` 区間を抽出し、trailing whitespace と
+       空行を除去した Counter で相互比較する。片方だけの改変を WARNING で検出する
+       （どちらも配布対象のため upstream/downstream の別なく検査する）。
+
 ペア2〜6・8 は対象ファイルが存在しない場合 SKIP する（ADDF 本体固有ファイルは
 ダウンストリームプロジェクトに存在しないため、欠如はドリフトではない）。
+ペア9 は両ファイルとも配布対象のため通常は SKIP しないが、どちらか一方が欠けた場合は SKIP する。
 
 upstream/downstream の判定はファイルの存在ではなく明示シグナルで行う（存在≠所有 —
 配布によって `.addf.md` はダウンストリームにも物理存在しうる）:
@@ -629,6 +639,75 @@ def check_pair6():
             )
 
 
+def _extract_sync_block(path, begin_marker, end_marker):
+    """指定ファイルから BEGIN..END マーカーで囲われた行のリストを返す（マーカー行は含めない）。
+    見つからなければ None を返す。マーカーは**行頭のコメント記号（`#`）に直接続く形**の
+    行だけを認識する — ドキュメント本文（docstring や説明文）内でマーカー文字列を
+    引用しても誤マッチしないための境界規則。"""
+    if not os.path.exists(path):
+        return None
+    with open(path) as f:
+        lines = f.read().splitlines()
+    out, inside = [], False
+    for line in lines:
+        stripped = line.lstrip()
+        if not inside:
+            if stripped.startswith('#') and begin_marker in line:
+                inside = True
+            continue
+        if stripped.startswith('#') and end_marker in line:
+            return out
+        out.append(line)
+    return None  # END マーカーが見つからなかった = 破損とみなす
+
+
+def _normalize_sync_lines(lines):
+    """trailing whitespace と全空行を除去した行リスト（同期比較用の正規化）"""
+    return [line.rstrip() for line in lines if line.strip()]
+
+
+def check_pair9():
+    """migrate-paths.py ⇔ lint-residual-paths.py の compile_pattern 同期ブロックのテキスト一致（WARNING）
+
+    両ファイルの `# --- BEGIN sync: compile_pattern (Plan 0068) ---` 〜 END 区間を抽出し、
+    正規化テキスト（trailing whitespace / 空行除去）で相互比較する。片方だけの改変は
+    Plan 0068 で導入した URL スキーム検出の同期契約破りとして WARNING。
+    """
+    migrate_path = '.claude/addf/addfTools/migrate-paths.py'
+    lint_path = '.claude/addf/addfTools/lint-residual-paths.py'
+    # マーカー識別子は行頭コメント `# --- BEGIN/END sync: compile_pattern` の
+    # 部分文字列で一致させる（BEGIN 行の括弧内は説明文を含みうるため）
+    begin = 'BEGIN sync: compile_pattern'
+    end = 'END sync: compile_pattern'
+    if not os.path.exists(migrate_path) or not os.path.exists(lint_path):
+        missing = migrate_path if not os.path.exists(migrate_path) else lint_path
+        skips.append(f'[9] SKIP: {missing} が存在しない')
+        return
+    a = _extract_sync_block(migrate_path, begin, end)
+    b = _extract_sync_block(lint_path, begin, end)
+    if a is None or b is None:
+        missing_file = migrate_path if a is None else lint_path
+        warnings.append(
+            f'[9] WARNING: {missing_file} に compile_pattern の同期ブロックマーカー'
+            f'（`{begin}` 〜 `{end}`）が見つからない — 両ファイルとも同期ブロックで囲う必要がある'
+        )
+        return
+    a_norm = _normalize_sync_lines(a)
+    b_norm = _normalize_sync_lines(b)
+    if a_norm == b_norm:
+        return
+    a_count = Counter(a_norm)
+    b_count = Counter(b_norm)
+    only_a = list((a_count - b_count).elements())
+    only_b = list((b_count - a_count).elements())
+    msg = [f'[9] WARNING: {migrate_path} と {lint_path} の compile_pattern 同期ブロックが乖離'
+           f'（Plan 0068 で導入した URL スキーム検出は両ファイルで文字通り同一実装に保つ契約）:']
+    msg += [f'    {migrate_path} 側のみ: {s}' for s in only_a]
+    msg += [f'    {lint_path} 側のみ: {s}' for s in only_b]
+    msg.append(git_hint(migrate_path, lint_path))
+    warnings.append('\n'.join(msg))
+
+
 def check_pair8(repo_kind):
     """.claude/commands/addf-*.md（*.exp.md 除く）が README.md / README.en.md の
     スキルテーブルに掲載されているかを検査する（WARNING）
@@ -687,6 +766,7 @@ check_pair5()
 check_pair6()
 check_pair7()
 check_pair8(repo_kind)
+check_pair9()
 
 for msg in errors + warnings + skips:
     print(msg)
@@ -695,4 +775,4 @@ if errors:
     sys.exit(1)
 if warnings:
     sys.exit(2)
-print('OK: 同期チェック通過 (1: Progress.md / 2: ProgressTemplate / 3: AGENTS.md / 4: development-process.md / 5: addf-init コピーリスト / 6: TODO⇔Plan 状態 / 7: verify-checksums.sh detect_repo_kind 同期契約 / 8: README スキルテーブル網羅性)')
+print('OK: 同期チェック通過 (1: Progress.md / 2: ProgressTemplate / 3: AGENTS.md / 4: development-process.md / 5: addf-init コピーリスト / 6: TODO⇔Plan 状態 / 7: verify-checksums.sh detect_repo_kind 同期契約 / 8: README スキルテーブル網羅性 / 9: compile_pattern 同期ブロック)')

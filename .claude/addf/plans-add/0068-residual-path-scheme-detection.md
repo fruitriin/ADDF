@@ -1,6 +1,6 @@
 # Plan 0068: compile_pattern の URL スキーム検出設計と同期契約 lint 化（Plan 0059/0060 レビュー残件回収）
 
-## 実装状況: 未着手
+## 実装状況: 一部完了（2026-07-18。項目1・2・3 は完了。項目4〔CI downstream 模擬 run-all.sh〕は本 Plan スコープ内では実施せず切り出し推奨と判断 — 実測で hook テスト等多数が DS 非対応で FAIL するため、DS 対応化には Plan 0059 の延長として本格的な取り組みが必要）
 
 owner_feedback: 不要
 edge: derived-from 0059
@@ -51,3 +51,59 @@ edge: derived-from 0060
 ## AI 実装時間見積もり
 
 1セッション（項目4 の CI を含めると1.5セッション）
+
+## 実装記録（2026-07-18）
+
+### 変更ファイル
+
+- `.claude/addf/addfTools/migrate-paths.py` — compile_pattern を `BoundaryPattern` クラスに構造変更。
+  同期ブロック `# --- BEGIN/END sync: compile_pattern (Plan 0068) ---` で囲う
+- `.claude/addf/addfTools/lint-residual-paths.py` — 同上（両ファイルは文字通り同一実装に保つ契約）
+- `.claude/addf/addfTools/lint-template-sync.py` — ペア9（`check_pair9`）追加。同期ブロックの
+  正規化テキスト一致を Counter で検査（ヘルパ `_extract_sync_block`・`_normalize_sync_lines`）
+- `.claude/commands/addf-lint.md` — セクション6のペア表に9行目を追加
+- `.claude/addf/tests/tools/test-migrate-paths.sh` — Test 13.6（blob/raw 自リポジトリ URL 検出・
+  basename 衝突誤検知なし・外部 URL 書き換え不可）と Test 13.7（remote 不在フェイルセーフ）を追加。
+  drift-injection TDD で検証（合成フィクスチャの sandbox に remote を追加/削除して分岐を踏む）
+- `.claude/addf/tests/tools/test-template-sync.sh` — Test 27〜30（pair9 の正常系・片側注入検出・
+  マーカー欠如検出・docstring 内引用の誤認識防止）を追加
+
+### データフローと判定順序（BoundaryPattern._keep）
+
+1. マッチ位置を含む `https?://...` URL を先に走査
+   - 内側なら:
+     - `_self_url_prefixes()` が空 → False（remote 不在フェイルセーフ）
+     - 該当プレフィックス（`<host>/<owner>/<repo>` に一致・末尾 `/` 直後で境界）→ True（自リポジトリ URL 内自己参照 = blob/raw 自己参照残存）
+     - それ以外の URL → False（外部 URL）
+2. URL 外なら、直前2文字を検査
+   - `[A-Za-z0-9]/` の場合:
+     - 直前が `/<self_basename>/` → True（自リポジトリ絶対パス）
+     - それ以外 → False（他プロジェクト絶対パス）
+   - それ以外 → True（相対パス・行頭裸パス）
+
+### remote 不在時の挙動
+
+`_self_url_prefixes()` が空リストを返した時点で、URL 内マッチは全て「外部扱い」として除外される。
+理由: 自リポジトリを名乗れない状況で「これは自分」の判定は原理的に不可能なため、安全側
+（rewrite が外部 URL を絶対に壊さない）に倒す。lint での検出漏れは受容可能なトレードオフ（残存
+検出が本題であって、自リポジトリの blob URL 自己参照は remote 設定して再スキャンできる）。
+
+### GitHub raw URL のエイリアス
+
+`git remote get-url origin` の host が `github.com` の場合、`_self_url_prefixes()` は
+`raw.githubusercontent.com/<owner>/<repo>` も併記する。これで `github.com/owner/repo/blob/branch/path`
+と `raw.githubusercontent.com/owner/repo/branch/path` の両形式が自己参照として検出できる。
+
+### CI downstream 模擬（項目4）の取り扱い
+
+実測評価（scratchpad で DS 相当ディレクトリを構築して `bash .claude/addf/tests/run-all.sh` を
+実行）で、hook テスト（`test-context-reminder`・`test-destructive-git-guard`・
+`test-pre-compact-archive` 等）が DS 環境で多数 FAIL することを確認した。これらはリアルな
+hooks 配線・upstream 特有の環境前提を要するため、DS 対応化には Plan 0059 の延長として
+本格的な取り組みが必要。本 Plan では「切り出し推奨」の報告に留める（Plan 本文の
+「規模が大きすぎると判断したら」条項の適用）。
+
+**切り出し候補**: 新 Plan「run-all.sh の DS 環境対応化と CI での downstream 模擬ジョブ追加」。
+着手時は (1) 各 hook テストの DS 対応化 or SKIP 化を先行、(2) 合成 DS ディレクトリ生成の
+共通ヘルパ（`.github/scripts/make-fake-downstream.sh` 等）を新設、(3) `.github/workflows/test.yml`
+に downstream 模擬ジョブを追加、の順が妥当。

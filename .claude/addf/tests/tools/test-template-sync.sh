@@ -742,6 +742,63 @@ else
 fi
 rm -rf "$fake_proj"
 
+# ペア9用ヘルパー: migrate-paths.py と lint-residual-paths.py を含む最小サンドボックスを作る。
+# 同期ブロック（`# --- BEGIN sync: compile_pattern (Plan 0068) ---` 〜 END）の
+# ドリフト検出を検証するため、両ファイルを配置してから片方だけ改変する
+make_sync_block_sandbox() {
+  local box
+  box="$(make_sandbox)"
+  mkdir -p "$box/.claude/addf/addfTools"
+  cp "$PROJECT_DIR/.claude/addf/addfTools/migrate-paths.py" \
+     "$PROJECT_DIR/.claude/addf/addfTools/lint-residual-paths.py" \
+     "$box/.claude/addf/addfTools/"
+  echo "$box"
+}
+
+# テスト 27: ペア9 — compile_pattern 同期ブロックの一致（正常系）
+echo "Test 27: 同期ブロックが一致していれば pair9 が OK"
+box="$(make_sync_block_sandbox)"
+output=$(run_lint "$box")
+assert_not_contains "pair9 に WARNING が出ない" "[9] WARNING" "$output"
+rm -rf "$box"
+
+# テスト 28: ペア9 — 片方に1行注入 → WARNING (exit=2)
+# ドリフト注入 TDD: 同期ブロック内に片方だけコメント行を注入すると必ず検出されること
+echo "Test 28: 同期ブロック内への片側注入で pair9 が WARNING"
+box="$(make_sync_block_sandbox)"
+awk 'p==0 && /^# --- BEGIN sync: compile_pattern/ { print; print "# INJECTED DRIFT ONLY IN MIGRATE"; p=1; next } { print }' \
+  "$box/.claude/addf/addfTools/migrate-paths.py" > "$box/.claude/addf/addfTools/migrate-paths.py.tmp" \
+  && mv "$box/.claude/addf/addfTools/migrate-paths.py.tmp" "$box/.claude/addf/addfTools/migrate-paths.py"
+output=$(run_lint "$box")
+assert_exit "同期ブロック乖離で WARNING" 2 $?
+assert_contains "pair9 の WARNING" "[9] WARNING" "$output"
+assert_contains "片側乖離行の特定" "INJECTED DRIFT ONLY IN MIGRATE" "$output"
+rm -rf "$box"
+
+# テスト 29: ペア9 — BEGIN/END マーカー欠如も検出する（同期契約の破損）
+echo "Test 29: 同期ブロックマーカー欠如で pair9 が WARNING"
+box="$(make_sync_block_sandbox)"
+# END マーカー行を削除して同期ブロックを破損させる
+grep -v 'END sync: compile_pattern' "$box/.claude/addf/addfTools/lint-residual-paths.py" \
+  > "$box/.claude/addf/addfTools/lint-residual-paths.py.tmp" \
+  && mv "$box/.claude/addf/addfTools/lint-residual-paths.py.tmp" \
+        "$box/.claude/addf/addfTools/lint-residual-paths.py"
+output=$(run_lint "$box")
+assert_exit "マーカー欠如で WARNING" 2 $?
+assert_contains "pair9 のマーカー欠如警告" "同期ブロックマーカー" "$output"
+rm -rf "$box"
+
+# テスト 30: ペア9 — マーカー文字列を docstring 内で引用してもマーカー行として誤認しない
+# （行頭 `#` コメント直続き形のみをマーカーとして認識する境界規則の回帰テスト）
+echo "Test 30: docstring 内のマーカー文字列引用は誤認識しない"
+box="$(make_sync_block_sandbox)"
+# migrate-paths.py の docstring に既に BEGIN 文字列が引用されている（本体の実装済み）。
+# 本テストは「両ファイルとも変更しない状態で pair9 が OK であること」= 誤認識していないこと
+# を再確認する（Test 27 と重複するが、docstring 誤認識の回帰を意識した明示テスト）
+output=$(run_lint "$box")
+assert_not_contains "docstring 内引用でも pair9 が誤警告しない" "[9] WARNING" "$output"
+rm -rf "$box"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

@@ -38,15 +38,23 @@
   行内に EXCLUSION_MARKER（residual-path: allow）を含む行は集計・書き換え・
   検査の全てでスキップする（移行手順書等の正当な旧パス言及行の行単位除外）。
 
-境界チェック:
+境界チェック（Plan 0068 で URL スキーム検出に構造変更）:
   `docs/plans` の置換が `docs/plans-add` に誤マッチしない等のため、長いキーから
   順に置換し、置換対象の前後が英数字・ハイフン・アンダースコアの場合は置換しない。
-  さらに Issue #33 対応で、直前2文字が「英数字 + `/`」の場合（外部 URL
-  `example.com/docs/guides` や他プロジェクト絶対パス `~/workspace/OTHER/docs/knowhow` <!-- residual-path: allow -->
-  の内部）は残存扱いしない — rewrite が URL を書き換えて壊すのを防ぐ。ただし
-  「/ + このリポジトリのディレクトリ名 + /」が直前にある場合は例外として検出する。
+  URL 文脈判定は正規表現の可変長 lookbehind では実装できないため、正規表現マッチ後の
+  前方文脈判定に置き換えた: 行内 `https?://...` の内側にマッチが入った場合は URL 全体を
+  外部とみなして除外し、ただし `git remote get-url origin` から得た
+  `<host>/<owner>/<repo>` に一致する URL（`blob/<branch>/` や
+  `raw.githubusercontent.com/` 経由の raw URL 含む）は自己参照として検出する。
+  remote 不在時は URL 全除外のフェイルセーフ（自リポジトリを名乗れないため
+  外部/内部を区別できない）。URL 外の裸のパス言及（相対・絶対）は従来の1文字境界に加え、
+  直前2文字が「英数字 + `/`」で始まる他プロジェクト絶対パス
+  （`~/workspace/OTHER/docs/knowhow` 等）は残存扱いしない。ただし  <!-- residual-path: allow -->
+  「/ + このリポジトリのディレクトリ名 + /」が直前にある場合は自リポジトリ絶対パスとして
+  検出する（既知の限界: 別名で clone された複製の絶対パス言及は検出できない）。
   この境界規則は lint-residual-paths.py の検出規則と同一に保つ（同期契約:
-  lint-residual-paths.py の compile_pattern() と挙動を同期する）。
+  compile_pattern の同期ブロック `--- BEGIN sync: compile_pattern (Plan 0068) ---` は
+  lint-template-sync.py ペア9 が両ファイルのテキスト一致を機械検証する）。
 
 存在≠所有:
   docs/ は paths.toml の ADDF 管理サブディレクトリ単位でのみ移動する。
@@ -151,35 +159,160 @@ def load_map():
     sys.exit(1)
 
 
-def compile_pattern(old):
-    """境界チェック付きの置換パターン。
+# --- BEGIN sync: compile_pattern (Plan 0068 — migrate-paths.py と lint-residual-paths.py の compile_pattern 実装は文字通り同一に保つ。ペア9 の lint-template-sync.py が両ファイルの本ブロックを正規化テキスト一致で検証する) ---
+_URL_RE = re.compile(r'https?://[^\s\'"`<>)\]}]+')
+_ASCII_ALNUM = frozenset('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+_SELF_URL_PREFIXES_CACHE = None
 
-    前後が英数字・ハイフン・アンダースコアなら別トークンの一部とみなして
-    マッチしない（`docs/plans` が `docs/plans-add` や `docs/plans-addendum` の
-    内部に誤マッチしない）。`/`・`@`・バッククオート・行頭行末は境界として許容する。
 
-    Issue #33 対応: 直前2文字が「英数字 + `/`」の場合は別のパス階層の内部
-    （外部 URL の `example.com/docs/guides` や他プロジェクト絶対パスの
-    `~/workspace/OTHER/docs/knowhow` 等）とみなしてマッチしない。旧パスは
-    リポジトリルート相対のため、こうした埋め込み位置は本物の残存ではない。
-    ただし例外として「/ + このリポジトリのディレクトリ名 + /」が直前にある場合
-    （自リポジトリへの絶対パス参照）は本物の残存として検出する
-    （検出漏れを避けるための例外 — cwd はリポジトリルート強制済み）。
-    既知の限界: 別名で clone された複製（例: リポジトリ名 `foo` を `bar` として
-    clone した先）への絶対パス参照は検出できない。実運用では巻き添えが少なく、
-    誤検知除去の便益の方が大きいというトレードオフ（Issue #33 の下流実測に基づく）。
-    既知の限界2（Plan 0059/0060 レビューで検出・根治は Plan 0068）:
-    (a) GitHub blob/raw URL 形式の自リポジトリ自己参照（.../blob/<branch>/<path>）は
-    直前セグメントがブランチ名のため検出できない（検出漏れ側）。
-    (b) リポジトリディレクトリ名が外部 URL のパスセグメントと偶然一致すると
-    その URL 内パスを誤検知しうる（例: ディレクトリ名 ADDF と github.com/owner/ADDF/...）。
-    いずれも URL スキーム検出を持たない basename 文字列一致の構造的限界。
-    同期契約: lint-residual-paths.py の compile_pattern() と同一実装に保つ。
+def _self_url_prefixes():
+    """`git remote get-url origin` から自己参照 URL の判定用プレフィックス集合を返す。
+
+    戻り値: `<host>/<owner>/<repo>` 形式のプレフィックス（末尾スラッシュなし）のリスト。
+    remote 不在・解析不能なら空リスト（呼び出し側では「URL 内マッチを全て外部扱いする
+    フェイルセーフ」として解釈する — 自リポジトリを名乗れないなら外部/内部を区別できない）。
+
+    - GitHub 対応: HTTPS/SSH の両形式を解析し `.git` 拡張と末尾スラッシュを剥がす。
+      host が `github.com` のときは `raw.githubusercontent.com/<owner>/<repo>` も併記して
+      raw URL 経由の自己参照も検出する。
+    - モジュールスコープにキャッシュ（コスト削減）— スクリプトは一度実行して終了するため
+      キャッシュ寿命 = プロセス寿命で問題ない
     """
-    self_prefix = r'(?<=/' + re.escape(os.path.basename(os.getcwd())) + r'/)'
-    return re.compile(r'(?<![A-Za-z0-9_-])'
-                      + r'(?:' + self_prefix + r'|(?<![A-Za-z0-9]/))'
-                      + re.escape(old) + r'(?![A-Za-z0-9_-])')
+    global _SELF_URL_PREFIXES_CACHE
+    if _SELF_URL_PREFIXES_CACHE is not None:
+        return _SELF_URL_PREFIXES_CACHE
+    prefixes = []
+    try:
+        r = subprocess.run(['git', 'remote', 'get-url', 'origin'],
+                           capture_output=True, text=True, timeout=5)
+    except Exception:
+        _SELF_URL_PREFIXES_CACHE = prefixes
+        return prefixes
+    if r.returncode != 0:
+        _SELF_URL_PREFIXES_CACHE = prefixes
+        return prefixes
+    url = r.stdout.strip()
+    host, path = None, None
+    m = re.match(r'^git@([^:]+):(.+?)(?:\.git)?/?$', url)
+    if m:
+        host, path = m.group(1), m.group(2)
+    else:
+        m = re.match(r'^https?://(?:[^@/]+@)?([^/]+)/(.+?)(?:\.git)?/?$', url)
+        if m:
+            host, path = m.group(1), m.group(2)
+    if host and path:
+        prefixes.append(f'{host}/{path}')
+        if host == 'github.com':
+            prefixes.append(f'raw.githubusercontent.com/{path}')
+    _SELF_URL_PREFIXES_CACHE = prefixes
+    return prefixes
+
+
+class BoundaryPattern:
+    """URL スキーム検出付きの置換/検出パターン（Plan 0068 で導入）。
+
+    Python `re` は可変長 lookbehind を許さないため、URL 文脈判定を正規表現1本では
+    表現できない。そのため:
+    - ベース正規表現は「前後が英数字・ハイフン・アンダースコアでない」1文字境界のみ
+    - マッチごとに前方文脈（line 上の位置と含まれる URL 区間）で採否を判定する
+
+    採否ロジック（`_keep`）:
+    - マッチが `https?://...` URL の内側にある場合:
+        - `_self_url_prefixes()` に一致する URL（`<host>/<owner>/<repo>/...`）→ 検出
+          （blob/raw 形式の自己参照残存を拾う）
+        - それ以外の URL → 除外（外部 URL）
+        - remote 不在（`_self_url_prefixes()` が空）→ URL 内マッチは全て除外
+          （自リポジトリを名乗れないなら安全側 — フェイルセーフ）
+    - マッチが URL 外にある場合:
+        - 直前2文字が `[A-Za-z0-9]/` で、かつ `/<self_basename>/` が直前にない
+          → 除外（他プロジェクト絶対パス。例: `~/workspace/OTHER/docs/knowhow`） <!-- residual-path: allow -->
+        - それ以外 → 検出（相対パス・自リポジトリ絶対パス・行頭）
+
+    既知の限界: 別名で clone された複製（リポジトリ名 `foo` を `bar` として clone）への
+    絶対パス言及は `/<basename>/` セルフマーカーがマッチしないため検出できない。
+    実運用では巻き添えが少なく、誤検知除去の便益の方が大きいというトレードオフ
+    （Issue #33 の下流実測 + Plan 0068 の URL スキーム設計）。
+
+    互換 API: `search` / `findall` / `sub` / `subn` を最小提供する（呼び出し側の
+    `pattern.findall(remaining)` / `pattern.sub(repl, line)` / `pattern.subn(repl, line)` /
+    `pattern.search(remaining)` を全てそのまま置き換えられるように）
+    """
+
+    def __init__(self, base_re, self_url_prefixes, self_basename):
+        self._re = base_re
+        self._urls = list(self_url_prefixes)
+        self._self_marker = f'/{self_basename}/'
+
+    def _in_url(self, line, pos):
+        """`pos` を含む URL 区間があれば (start, url_body_from_scheme_end) を返す。無ければ None"""
+        for um in _URL_RE.finditer(line):
+            if um.start() <= pos < um.end():
+                scheme_end = um.group(0).find('//')
+                body = um.group(0)[scheme_end + 2:] if scheme_end >= 0 else um.group(0)
+                return um.start(), body
+        return None
+
+    def _keep(self, line, m):
+        """マッチを検出対象として採用するかどうかを返す（True = 検出 / False = 除外）"""
+        info = self._in_url(line, m.start())
+        if info is not None:
+            # URL 内マッチ: 自リポジトリ URL のみ検出
+            if not self._urls:
+                return False  # フェイルセーフ: remote 不在
+            _, body = info
+            return any(body.startswith(p + '/') for p in self._urls)
+        # URL 外マッチ: 他プロジェクト絶対パスの除外（+ 自リポジトリ絶対パスの例外）
+        start = m.start()
+        if start >= 2 and line[start - 1] == '/' and line[start - 2] in _ASCII_ALNUM:
+            marker = self._self_marker
+            if start >= len(marker) and line[start - len(marker):start] == marker:
+                return True
+            return False
+        return True
+
+    def _kept(self, line):
+        return [m for m in self._re.finditer(line) if self._keep(line, m)]
+
+    def findall(self, line):
+        return [m.group(0) for m in self._kept(line)]
+
+    def search(self, line):
+        for m in self._re.finditer(line):
+            if self._keep(line, m):
+                return m
+        return None
+
+    def sub(self, repl, line):
+        out, last = [], 0
+        for m in self._kept(line):
+            out.append(line[last:m.start()])
+            out.append(repl(m) if callable(repl) else repl)
+            last = m.end()
+        out.append(line[last:])
+        return ''.join(out)
+
+    def subn(self, repl, line):
+        n = 0
+        out, last = [], 0
+        for m in self._kept(line):
+            out.append(line[last:m.start()])
+            out.append(repl(m) if callable(repl) else repl)
+            last = m.end()
+            n += 1
+        out.append(line[last:])
+        return ''.join(out), n
+
+
+def compile_pattern(old):
+    """境界チェック付きの置換/検出パターンを返す（Plan 0068 で URL スキーム検出に構造変更）。
+
+    ベース正規表現は英数字・ハイフン・アンダースコアの1文字境界のみ。
+    URL 文脈判定と他プロジェクト絶対パス除外は BoundaryPattern が担う。
+    詳細は BoundaryPattern の docstring を参照。
+    """
+    base = re.compile(r'(?<![A-Za-z0-9_-])' + re.escape(old) + r'(?![A-Za-z0-9_-])')
+    return BoundaryPattern(base, _self_url_prefixes(), os.path.basename(os.getcwd()))
+# --- END sync: compile_pattern (Plan 0068) ---
 
 
 def sorted_replacements(cfg):
