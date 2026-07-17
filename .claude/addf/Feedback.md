@@ -65,7 +65,7 @@
   message 付きで正しく機能している。**追記（同日）: v0.2.0 へ更新。(1) の主因だった for ループが静的解析対象になった
   （中身にルール適用 — for 内の rm -rf は ask）。一方で新挙動として auto mode では
   ask が確認ダイアログにならず即ブロックされる（git push を含む複合コマンドが実行前に
-  丸ごと停止 — 詳細と運用は ccchain-dogfooding-phase1.md の「v0.2.0 への更新」節）**
+  丸ごと停止 — 詳細と運用は ccchain-dogfooding-phase1.md の「v0.2.0 への更新」節）**。**再追記（同日）: Issue #15〜#17 起票 → オーナーが v0.2.1 を即日リリース（check 警告＋preset 拡張＋移行ガイド）→ 本移行完了。conf は read-only 17種 allow 追記・git push allow 化（force は ask 維持）・npx 限定 allow。args ルールは後勝ちに注意（ccchain-dogfooding-phase1.md 参照）**
 
 ## 改善アクション
 

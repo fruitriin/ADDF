@@ -114,6 +114,25 @@ Phase 1 の運用期間中に頻度を観察し、あまりに頻発するよう
 - 入れ替え手順: 旧バイナリをバックアップ → cp → `ccchain check`（config 互換）→
   `ccchain test`（実運用コマンド回帰）→ 次の Bash 実行が実フック疎通確認を兼ねる
 
+### v0.2.1 への本移行（2026-07-17・Issue #15 対応リリース）
+
+- v0.2.0 ロールバックの真因が判明: conf マッチング非互換ではなく **Phase 2 仕様
+  （auto/dontAsk モードで ask→deny 降格 = ask_strategy: degrade 既定）× fallback: ask** の
+  組み合わせ。明示ルール未カバーのコマンド全てが非対話で deny 化していた
+- 移行はガイドの選択肢2（read-only ユーティリティの allow 列挙）を採用: v0.2.1 の
+  default preset 相当17コマンド（sed/awk/cut/date/printf 等）を conf に追記。
+  ask_strategy は degrade（既定・安全側）のまま
+- あわせて実運用整合の調整: `git push` を allow 化（force は ask 維持 — settings.json ask
+  ＋ destructive-git-guard.sh の多層は従来どおり）、`npx` は既定 ask で
+  playwright/vitepress のみ allow
+- **args ルールは後勝ち（last-match-wins）**: `^push\b: allow` の**後**に
+  `^push\b.*--force: ask` を書く。先に specific を書くと汎用ルールに上書きされる
+  （v0.2.1 test で実測 — 最初は逆順に書いて force が allow に素通りした）
+- リリース資産（ccchain-darwin-arm64）を gh release download で直接取得できるようになり
+  go install 不要に。リリースビルドは version 表示も正しい（v0.2.1）
+- 入れ替え検証は28コマンドの広域 test（sed 漏れの反省を反映）→ eval 単体確認 → cp →
+  次の Bash 実行で実フック疎通、の順
+
 ### 権限フィルタが「一言の着手指示」では外部バイナリ導入・自己ゲートフック配線を通さない
 
 対話セッションでオーナーが「cchain やってみたいな」と発言しただけでは、(1) `go install` に
