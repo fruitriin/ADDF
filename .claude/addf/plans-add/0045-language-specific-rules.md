@@ -4,7 +4,7 @@
 肥大化は観測されず、意図的な不採用として決定）
 
 edge: derived-from 0005
-edge: pruned language-specific-rules
+edge: pruned
 
 > 出典: Plan 0036 ドッグフーディング検出 #7「0005 の High 推奨『言語別ルール分離』後続 Plan 不在」— オーナー指示「B3 = 起票と実施でよさそう」に基づき回収。ただし埋没監査の提案は「回収計画に起こす（不要ならその旨の明記を提案）」— 実施可否も含めて判断する Plan。
 

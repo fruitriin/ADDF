@@ -650,10 +650,13 @@ def build_genealogy_page(plan_info_map: dict) -> str:
             "  classDef blockedExternal fill:#ffffff,stroke:#d4a017,stroke-width:3px,color:#8a5300;",
             "  classDef pruned fill:#f5f5f5,stroke:#999,stroke-dasharray:5 4,color:#777;",
         ]
+        # <pre> で包む — 生テキストの div 直下は markdown レンダリングで改行が
+        # 失われ Mermaid が "Expecting NEWLINE" でパース死する（実測）。
+        # <pre> 開始の HTML ブロックは markdown-it が無加工で通し textContent も改行保持
         lines += [
-            '<div class="addf-mermaid" v-pre>',
+            '<div class="addf-mermaid" v-pre><pre>',
             "\n".join(m),
-            "</div>",
+            "</pre></div>",
             "",
         ]
 
@@ -1930,6 +1933,9 @@ onMounted(async () => {
   font-size: 13px;
 }
 .addf-orphans summary { cursor: pointer; color: var(--chip-wait-ink); font-size: 12px; }
+/* 系統樹グラフ: 横長 SVG は潰さずスクロールさせる */
+.addf-mermaid { overflow-x: auto; padding: 8px 0; }
+.addf-mermaid svg { min-width: 1100px; height: auto; }
 .addf-draft-mark { color: var(--chip-wait-ink); font-weight: 600; }
 .addf-submitbar {
   position: fixed; right: 16px; top: 72px; z-index: 55;

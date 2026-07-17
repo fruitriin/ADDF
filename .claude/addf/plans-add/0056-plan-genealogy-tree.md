@@ -17,7 +17,7 @@ Plan の既存慣習（`## 実装状況:` ヘッダ直後の行頭 key:value —
 ```
 edge: derived-from 0053
 edge: absorbed-into 0043
-edge: pruned 0044
+edge: pruned
 edge: revives 0026
 edge: blocked-by owner
 edge: blocked-by external gh-pages-setting
@@ -27,7 +27,7 @@ edge: blocked-by 0040
 - 1エッジ1行・複数可。値は `<型> <対象>`。対象は Plan 4桁番号、blocked-by のみ
   `owner` / `external <一言>` / Plan 番号を許す（オーナー回答: オーナーブロックと
   それ以外のブロックを分けて表示）
-- **pruned はメタデータ必須**（オーナー回答: pruned のみ必須・他は任意）。詳細は
+- **pruned は自己マーカー（target を取らない — 本 Plan 自体が剪定されたことを表す。案レベルの剪定は「関連 Plan」節の記録のみ）でメタデータ必須**（オーナー回答: pruned のみ必須・他は任意）。詳細は
   「関連 Plan」セクション側に `理由: / 証拠: / 復活条件:` を書く（1行に収まらないため）。
   lint は pruned エッジを持つ Plan の「関連 Plan」節に3項目の存在を要求する
 - **併用の同期**（オーナー回答: frontmatter 相当＋セクションの併用）: `edge:` 行に Plan 番号を
