@@ -77,6 +77,7 @@
 | 2 | 55 | `.claude/addf/plans-add/0055-downstream-migration-feedback-taskbar.md` | 完了（2026-07-14。GitHub Issue #27〔addf-migrate自己点検〕・#28〔*.addf.md除外規則の説明強化〕・#29〔downstreamで必ずFAILするテストの動的アサーション化〕をtaskbar.fmからのフィードバックとして回収。3体レビュー（code-review Critical1件・doc-review Critical1件等）を反映、Critical指摘の反映過程でテストヘルパーのstrip_fences漏れという実バグも検出・修正。run-all.sh・/addf-lint 全通過） |
 | 5 | 67 | `.claude/addf/plans-add/0067-plan-brainstorm-skill.md`（検討スタブ） | 未着手（2026-07-16 起票。オーナー発案 — Plan ブレインストーミングのスキル化。AI 起票案は人間の採否判断が要るため領域を既存 Plan と分離。Plan 0056〔系統樹〕の基盤完成後に着手） |
 | 3 | 68 | `.claude/addf/plans-add/0068-residual-path-scheme-detection.md` | 一部完了（2026-07-18。項目1〔blob/raw URL 自己参照検出〕・項目2〔basename 衝突誤検知の解消〕・項目3〔ペア9 lint 化・addf-lint.md 表更新〕を完了。compile_pattern を BoundaryPattern クラスに構造変更・同期ブロックマーカーで両ファイル同一実装を保証。テスト追加: 13.6/13.7〔migrate-paths〕・27〜30〔template-sync〕。項目4〔CI downstream 模擬 run-all.sh〕は実測で hook テスト多数が DS 非対応で FAIL することを確認し、Plan 0059 の延長として切り出し推奨と判断） |
+| 5 | 69 | `.claude/addf/plans-add/0069-ci-downstream-simulation.md`（検討スタブ） | 未着手（2026-07-18 起票。Plan 0068 項目4 の切り出し — hook テスト7スイートの DS 対応化が前提と実測判明。CI downstream 模擬ジョブ・共通ヘルパ新設） |
 
 オーナーリクエスト:
 タスクが無くなったら以下に取り組んでください
