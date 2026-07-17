@@ -88,7 +88,22 @@
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: Plan 0068 — compile_pattern の URL スキーム検出設計と同期契約 lint 化
+
+#### サブタスクチェックリスト
+
+- [ ] R-1: 実装（implementer worktree 委譲 — スキーム検出設計・blob URL 自己参照検出・basename 衝突解消・ペア9 lint・CI downstream 模擬・Test 13.5 拡張）
+- [ ] R-2: 検収・main 統合・Stage 1
+- [ ] R-3: Stage 2（code-review — 正規表現/文脈判定の反証攻撃を明示依頼）
+- [ ] R-4: 完了処理
+
+#### 日記
+
+##### 2026-07-17 — 0068 着手（worktree 委譲）
+**やったこと**: /addf-dev 自律選択。0061/0063 は blocked owner・0057 は擦り合わせ前提のため、複利効果で 0068 を選定。実装は worktree 委譲（メインは compaction 目前のため）。
+**今の見立て**: Plan 0068 にレビュー2体の実測反証・設計方向（スキーム検出・remote 由来の自己 URL 判定・フェイルセーフ）が揃っており確信度8割。可変長 lookbehind 不可のため「マッチ後の前方文脈判定」への構造変更が本丸。
+**次の自分へ**: compaction 後は git branch -a で worktree の有無 → 完了していれば検収から。CI downstream 模擬（0059 項目4 同梱）は規模次第で implementer が切り出し提案してよいと伝えてある。
+**気になっていること**: migrate-paths と lint-residual-paths の同期契約 — 構造変更後も2ファイル同一実装を保てるか。ペア9 lint 新設時は addf-lint.md セクション表の同時更新（Feedback 既録の漏れ実績）。
 
 > 新しいタスク開始時は以下の構造で記録する:
 > `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）
