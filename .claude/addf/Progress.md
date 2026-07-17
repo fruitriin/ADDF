@@ -94,10 +94,10 @@
 
 #### サブタスクチェックリスト
 
-- [ ] G-1: Plan 0056 を標準テンプレートへ書き直し（エッジ行書式の確定・フェーズ分割・完了条件）
-- [ ] G-2: 実装A（implementer worktree 委譲）— edge パース・系統樹ページ生成（Mermaid・オーナー/その他ブロック区分）・lint 同期検査・テスト
-- [ ] G-3: 実装B（implementer 委譲・A と並列）— 全 Plan（0001〜0068）への edge 行遡及付与
-- [ ] G-4: 統合・Stage 1・Stage 2（code-review + doc-review）
+- [x] G-1: Plan 0056 を標準テンプレートへ書き直し（edge 行書式確定）
+- [x] G-2: 実装A 完了・統合（edge パース・系統樹ページ・lint-genealogy・テスト14件・mermaid devDep）
+- [x] G-3: 実装B 完了・統合（31 Plan へ遡及。pruned 自己マーカー整合を統合時に修正）
+- [ ] G-4: Stage 2 — code-review 実行中（Stage 1 は通過済み。Mermaid 改行問題を実測修正・Playwright 描画確認済み）
 - [ ] G-5: 完了処理（Plan/TODO/knowhow・コミット）
 
 #### 日記
