@@ -429,6 +429,57 @@ expect "rewrite が外部 blob URL（fruitriin/OtherRepo）を書き換えてい
 git_box rm -qf other-blob.md
 git_box commit -q -m "cleanup Test 13.6"
 
+echo "Test 13.6b: 自リポジトリ blob URL の rewrite 正方向検証（L-1）— 自己参照 URL 内の旧パスは新パスへ書き換わる"
+# L-1: 検出だけでなく、self URL 内 `docs/plans` が rewrite で新パスへ正しく置換されること。
+# Test 13.6 は「検出」と「外部 URL は書き換えない」の invariance を確認する構成で、
+# self URL の正方向 rewrite は暗黙前提のまま検証されていなかった（code-review Low）。
+git_box remote add origin https://github.com/fruitriin/ADDF.git 2>/dev/null \
+  || git_box remote set-url origin https://github.com/fruitriin/ADDF.git
+cat > "$box/self-blob-rewrite.md" <<'EOF'
+自リポジトリ blob URL は rewrite で新パスへ書き換わる:
+https://github.com/fruitriin/ADDF/blob/main/docs/plans/0001-sample.md
+自リポジトリ raw URL も同様に書き換わる:
+https://raw.githubusercontent.com/fruitriin/ADDF/main/docs/plans/0001-sample.md
+EOF
+git_box add self-blob-rewrite.md
+git_box commit -q -m "add self-blob-rewrite fixture"
+out="$(runpy "$box" ".claude/addf/addfTools/migrate-paths.py" rewrite)"; code=$?
+check "rewrite が exit 0（self blob URL 混在下でも成功）" 0 "$code" "$out"
+expect "self blob URL の docs/plans が新パスへ書き換わっている" \
+  grep -qF 'github.com/fruitriin/ADDF/blob/main/.claude/addf/plans/0001-sample.md' \
+    "$box/self-blob-rewrite.md"
+expect "self raw URL の docs/plans が新パスへ書き換わっている" \
+  grep -qF 'raw.githubusercontent.com/fruitriin/ADDF/main/.claude/addf/plans/0001-sample.md' \
+    "$box/self-blob-rewrite.md"
+if grep -qE 'docs/plans/0001-sample\.md' "$box/self-blob-rewrite.md"; then
+  echo "  FAIL: 旧パス docs/plans/0001-sample.md が self URL 内に残存（rewrite 未反映）"
+  FAIL=$((FAIL + 1))
+else
+  echo "  PASS: 旧パス docs/plans/0001-sample.md が self URL 内に残存していない"
+  PASS=$((PASS + 1))
+fi
+git_box rm -qf self-blob-rewrite.md
+git_box commit -q -m "cleanup Test 13.6b"
+
+echo "Test 13.6c: host 大小文字不変性（M-2）— GitHub.com と github.com を同一 host として扱う"
+# M-2: DNS ホスト名は大小文字を区別しない（RFC 4343）。remote が https://GitHub.com/... の
+# ケースと、URL 本文側で GitHub.com と書かれるケースの両方を self として検出する。
+git_box remote set-url origin https://GitHub.com/fruitriin/ADDF.git  # 大文字 host の remote
+cat > "$box/mixed-case-host.md" <<'EOF'
+本文側に小文字 host の self URL が現れる（remote 側は大文字）:
+https://github.com/fruitriin/ADDF/blob/main/docs/plans/0002-sample.md
+本文側に大文字 host の self URL が現れる:
+https://GitHub.com/fruitriin/ADDF/blob/main/docs/plans/0003-sample.md
+EOF
+git_box add mixed-case-host.md
+git_box commit -q -m "add mixed-case-host fixture"
+out="$(runpy "$box" "$LINT")"; code=$?
+check "小文字 host の self URL を検出（M-2）" 1 "$code" "$out" 'mixed-case-host.md:2'
+check "大文字 host の self URL も検出（M-2）" 1 "$code" "$out" 'mixed-case-host.md:4'
+git_box rm -qf mixed-case-host.md
+git_box commit -q -m "cleanup Test 13.6c"
+git_box remote set-url origin https://github.com/fruitriin/ADDF.git  # 続くテストのため戻す
+
 echo "Test 13.7: remote 不在フェイルセーフ — URL 内マッチは全て外部扱いで書き換えない"
 git_box remote remove origin
 cat > "$box/no-remote-urls.md" <<'EOF'
@@ -455,6 +506,38 @@ expect "rewrite が外部 URL を書き換えていない（example.com）" \
   grep -q 'example.com/docs/plans/getting-started' "$box/no-remote-urls.md"
 git_box rm -qf no-remote-urls.md
 git_box commit -q -m "cleanup Test 13.7"
+
+echo "Test 13.8: ssh:// 形式 remote での self URL 検出（M-1）— ssh:// スキームも自リポジトリ判定に使う"
+# M-1: _self_url_prefixes は git@host: 形式（SCP 風）と https?:// 形式に加えて、
+# ssh://[user@]host[:port]/owner/repo 形式にも対応する。remote が ssh:// で登録されていても
+# HTTPS blob URL 側の self 検出が機能することを確認する。
+git_box remote add origin ssh://git@github.com/fruitriin/ADDF.git 2>/dev/null \
+  || git_box remote set-url origin ssh://git@github.com/fruitriin/ADDF.git
+cat > "$box/ssh-remote-refs.md" <<'EOF'
+ssh:// remote 下でも HTTPS blob URL の self 検出が機能する:
+https://github.com/fruitriin/ADDF/blob/main/docs/plans/0004-sample.md
+外部 URL（otheruser）は依然として誤検知しない:
+https://github.com/otheruser/ADDF/blob/main/docs/plans/other.md
+EOF
+git_box add ssh-remote-refs.md
+git_box commit -q -m "add ssh-remote-refs fixture"
+out="$(runpy "$box" "$LINT")"; code=$?
+check "ssh:// remote 下でも self blob URL を検出（exit 1）" 1 "$code" "$out" 'ssh-remote-refs.md:2'
+if grep -qE 'ssh-remote-refs\.md:4' <<<"$out"; then
+  echo "  FAIL: ssh:// remote 下で外部 URL（otheruser）を誤検出"
+  echo "$out" | grep -E 'ssh-remote-refs\.md:4' | sed 's/^/    | /'
+  FAIL=$((FAIL + 1))
+else
+  echo "  PASS: ssh:// remote 下で外部 URL は誤検知しない"
+  PASS=$((PASS + 1))
+fi
+# ssh://[user@]host:port/owner/repo 形式（port 明示・SSH URL の変種）も同様に扱われる
+git_box remote set-url origin ssh://git@github.com:22/fruitriin/ADDF.git
+out="$(runpy "$box" "$LINT")"; code=$?
+check "ssh://host:port/ 形式でも self 検出が機能する" 1 "$code" "$out" 'ssh-remote-refs.md:2'
+git_box rm -qf ssh-remote-refs.md
+git_box commit -q -m "cleanup Test 13.8"
+git_box remote set-url origin https://github.com/fruitriin/ADDF.git  # 続くテストのため戻す
 
 echo "Test 14: 逆流 — 移行後に docs/ 配下へ ADDF 管理ファイルを再追加すると WARNING"
 mkdir -p "$box/docs/knowhow"

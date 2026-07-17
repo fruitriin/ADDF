@@ -799,6 +799,81 @@ output=$(run_lint "$box")
 assert_not_contains "docstring 内引用でも pair9 が誤警告しない" "[9] WARNING" "$output"
 rm -rf "$box"
 
+# テスト 32: ペア9 — 行順序のみのドリフトでも WARNING を出し「順序のみ」を明示する（M-3）
+# ドリフト注入 TDD: 片方の同期ブロック内で2行を入れ替えると、Counter 比較は一致
+# （only_a / only_b はどちらも空）だが a_norm != b_norm。従来は空の乖離メッセージのみで
+# 「差分なし」に見える誤解を生んだ。順序ドリフトを明示するメッセージが出ることを固定する。
+echo "Test 32: 行順序のみのドリフトで pair9 が WARNING して順序ドリフトを明示（M-3）"
+box="$(make_sync_block_sandbox)"
+# lint-residual-paths.py の同期ブロック内で「_URL_RE = ...」行と「_ASCII_ALNUM = ...」行を
+# 入れ替える（両行とも同期ブロック内に存在するモジュール変数の定義 — swap しても
+# 型・パース上は動くが行順は変わる）。migrate-paths.py は無変更のため同一集合・
+# 順序のみ違う状態になる。
+python3 - "$box/.claude/addf/addfTools/lint-residual-paths.py" <<'PY'
+import sys, re
+p = sys.argv[1]
+with open(p) as f:
+    text = f.read()
+lines = text.splitlines(keepends=True)
+begin = None
+url_idx = ascii_idx = None
+for i, line in enumerate(lines):
+    if begin is None and '--- BEGIN sync: compile_pattern' in line and line.lstrip().startswith('#'):
+        begin = i
+        continue
+    if begin is None:
+        continue
+    if '--- END sync: compile_pattern' in line and line.lstrip().startswith('#'):
+        break
+    if url_idx is None and line.startswith('_URL_RE = '):
+        url_idx = i
+    elif ascii_idx is None and line.startswith('_ASCII_ALNUM = '):
+        ascii_idx = i
+assert url_idx is not None and ascii_idx is not None, 'sync-block anchors not found'
+lines[url_idx], lines[ascii_idx] = lines[ascii_idx], lines[url_idx]
+with open(p, 'w') as f:
+    f.writelines(lines)
+PY
+output=$(run_lint "$box")
+assert_exit "順序のみドリフトで WARNING" 2 $?
+assert_contains "pair9 の WARNING（順序のみ）" "[9] WARNING" "$output"
+assert_contains "順序ドリフトの明示" "順序のみ" "$output"
+# Counter 比較は空になるはず（only_a / only_b メッセージが出ないこと）
+assert_not_contains "Counter 差分メッセージ（migrate 側のみ）は出さない" \
+  "migrate-paths.py 側のみ:" "$output"
+assert_not_contains "Counter 差分メッセージ（lint 側のみ）は出さない" \
+  "lint-residual-paths.py 側のみ:" "$output"
+rm -rf "$box"
+
+# テスト 31: ペア9 — 両ファイル対称にマーカーを縮めて必須シンボルを外へ追い出すと WARNING（H-1）
+# ドリフト注入 TDD: 「両側同時にマーカーを内側へ縮める」骨抜きは Counter 比較の乖離検査では
+# 検出できない（両側ブロックが同一のまま = 一致扱い）。必須シンボル存在検査でのみ捕捉できる。
+echo "Test 31: 対称マーカー移動での必須シンボル欠如を pair9 が WARNING（H-1）"
+box="$(make_sync_block_sandbox)"
+# migrate-paths.py と lint-residual-paths.py の同期ブロックを対称に潰す:
+# 「BEGIN 直後に END を配置する」= 中身空の同期ブロックにする（Counter 比較は一致・
+#   必須シンボル（compile_pattern / BoundaryPattern / _self_url_prefixes）は全欠如）
+shrink_sync_block() {
+  local path="$1"
+  awk '
+    /^# --- BEGIN sync: compile_pattern/ { print; skip=1; next }
+    /^# --- END sync: compile_pattern/   { skip=0 }
+    skip==1 { next }
+    { print }
+  ' "$path" > "$path.shrink" && mv "$path.shrink" "$path"
+}
+shrink_sync_block "$box/.claude/addf/addfTools/migrate-paths.py"
+shrink_sync_block "$box/.claude/addf/addfTools/lint-residual-paths.py"
+output=$(run_lint "$box")
+assert_exit "対称縮小で WARNING" 2 $?
+assert_contains "pair9 の WARNING 出力" "[9] WARNING" "$output"
+assert_contains "必須シンボル欠如の指摘 compile_pattern" "compile_pattern(old):" "$output"
+assert_contains "必須シンボル欠如の指摘 BoundaryPattern" "BoundaryPattern" "$output"
+assert_contains "必須シンボル欠如の指摘 _self_url_prefixes" "_self_url_prefixes" "$output"
+# Counter 比較のみだと乖離検出は出ないはず（両側ブロックは対称に空 = 一致）
+assert_not_contains "Counter 比較の乖離メッセージは出さない（両側対称のため）" "側のみ:" "$output"
+rm -rf "$box"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

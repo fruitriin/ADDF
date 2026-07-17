@@ -666,12 +666,29 @@ def _normalize_sync_lines(lines):
     return [line.rstrip() for line in lines if line.strip()]
 
 
+#: check_pair9 が両ブロックに必ず含まれることを検査する必須シンボル
+# （Plan 0068 の URL スキーム検出設計を構成する核。両ファイルとも同期を保ちながらも
+#  対称的にマーカーを縮めて BoundaryPattern クラスなどを外へ追い出してしまうと、
+#  ブロック単位の Counter 比較は「一致」のまま骨抜きの同期契約になる — H-1 の穴を
+#  埋めるためのシンボル存在検査）
+_PAIR9_REQUIRED_SYMBOLS = (
+    'def compile_pattern(old):',
+    'class BoundaryPattern',
+    'def _self_url_prefixes',
+)
+
+
 def check_pair9():
     """migrate-paths.py ⇔ lint-residual-paths.py の compile_pattern 同期ブロックのテキスト一致（WARNING）
 
     両ファイルの `# --- BEGIN sync: compile_pattern (Plan 0068) ---` 〜 END 区間を抽出し、
     正規化テキスト（trailing whitespace / 空行除去）で相互比較する。片方だけの改変は
     Plan 0068 で導入した URL スキーム検出の同期契約破りとして WARNING。
+
+    加えて、両ブロックが「対称にマーカーを縮められて必須シンボル（compile_pattern /
+    BoundaryPattern / _self_url_prefixes）を外へ追い出す」骨抜きの同期に落ちる
+    ケースを、必須シンボルの存在検査で捕捉する（テキスト一致は温存されるため、
+    Counter 比較だけでは検出できない H-1 の穴を塞ぐ）。
     """
     migrate_path = '.claude/addf/addfTools/migrate-paths.py'
     lint_path = '.claude/addf/addfTools/lint-residual-paths.py'
@@ -679,19 +696,46 @@ def check_pair9():
     # 部分文字列で一致させる（BEGIN 行の括弧内は説明文を含みうるため）
     begin = 'BEGIN sync: compile_pattern'
     end = 'END sync: compile_pattern'
-    if not os.path.exists(migrate_path) or not os.path.exists(lint_path):
-        missing = migrate_path if not os.path.exists(migrate_path) else lint_path
-        skips.append(f'[9] SKIP: {missing} が存在しない')
+    missing_files = [p for p in (migrate_path, lint_path) if not os.path.exists(p)]
+    if missing_files:
+        # L-2: 両方欠如でも片方だけ列挙しないように missing 全件を提示する
+        skips.append(f'[9] SKIP: {", ".join(missing_files)} が存在しない')
         return
     a = _extract_sync_block(migrate_path, begin, end)
     b = _extract_sync_block(lint_path, begin, end)
     if a is None or b is None:
-        missing_file = migrate_path if a is None else lint_path
+        # L-2: 両方欠如も適切に列挙する（片方だけの表示にしない）
+        missing = []
+        if a is None:
+            missing.append(migrate_path)
+        if b is None:
+            missing.append(lint_path)
         warnings.append(
-            f'[9] WARNING: {missing_file} に compile_pattern の同期ブロックマーカー'
+            f'[9] WARNING: {", ".join(missing)} に compile_pattern の同期ブロックマーカー'
             f'（`{begin}` 〜 `{end}`）が見つからない — 両ファイルとも同期ブロックで囲う必要がある'
         )
         return
+
+    # H-1: 対称マーカー移動での骨抜き検出（必須シンボルの存在検査）
+    a_text = '\n'.join(a)
+    b_text = '\n'.join(b)
+    sym_issues = []
+    for sym in _PAIR9_REQUIRED_SYMBOLS:
+        if sym not in a_text:
+            sym_issues.append(f'    {migrate_path} の同期ブロック内に必須シンボル `{sym}` が見当たらない')
+        if sym not in b_text:
+            sym_issues.append(f'    {lint_path} の同期ブロック内に必須シンボル `{sym}` が見当たらない')
+    if sym_issues:
+        msg = [
+            f'[9] WARNING: {migrate_path} / {lint_path} の compile_pattern 同期ブロックから'
+            f' Plan 0068 の URL スキーム検出核（compile_pattern / BoundaryPattern / '
+            f'_self_url_prefixes）が外れている（両側同時なら Counter 比較は「一致」のまま '
+            f'骨抜きになる — H-1）:'
+        ]
+        msg += sym_issues
+        msg.append(git_hint(migrate_path, lint_path))
+        warnings.append('\n'.join(msg))
+
     a_norm = _normalize_sync_lines(a)
     b_norm = _normalize_sync_lines(b)
     if a_norm == b_norm:
@@ -702,8 +746,14 @@ def check_pair9():
     only_b = list((b_count - a_count).elements())
     msg = [f'[9] WARNING: {migrate_path} と {lint_path} の compile_pattern 同期ブロックが乖離'
            f'（Plan 0068 で導入した URL スキーム検出は両ファイルで文字通り同一実装に保つ契約）:']
-    msg += [f'    {migrate_path} 側のみ: {s}' for s in only_a]
-    msg += [f'    {lint_path} 側のみ: {s}' for s in only_b]
+    if not only_a and not only_b:
+        # M-3: 集合として一致しているが順序のみ異なる場合、only_a/only_b は空になり
+        # 「差分なし」のように見える誤解を生む。順序も同一に保つ契約であることを明示する
+        msg.append('    差分: 行の集合は一致するが順序のみ異なる'
+                   '（同期ブロックは順序も含めて同一に保つ契約 — 片側だけの行入れ替えも WARNING）')
+    else:
+        msg += [f'    {migrate_path} 側のみ: {s}' for s in only_a]
+        msg += [f'    {lint_path} 側のみ: {s}' for s in only_b]
     msg.append(git_hint(migrate_path, lint_path))
     warnings.append('\n'.join(msg))
 

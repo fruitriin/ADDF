@@ -89,13 +89,17 @@ _SELF_URL_PREFIXES_CACHE = None
 def _self_url_prefixes():
     """`git remote get-url origin` から自己参照 URL の判定用プレフィックス集合を返す。
 
-    戻り値: `<host>/<owner>/<repo>` 形式のプレフィックス（末尾スラッシュなし）のリスト。
-    remote 不在・解析不能なら空リスト（呼び出し側では「URL 内マッチを全て外部扱いする
+    戻り値: `<host>/<owner>/<repo>` 形式のプレフィックス（末尾スラッシュなし、host は小文字）
+    のリスト。remote 不在・解析不能なら空リスト（呼び出し側では「URL 内マッチを全て外部扱いする
     フェイルセーフ」として解釈する — 自リポジトリを名乗れないなら外部/内部を区別できない）。
 
-    - GitHub 対応: HTTPS/SSH の両形式を解析し `.git` 拡張と末尾スラッシュを剥がす。
-      host が `github.com` のときは `raw.githubusercontent.com/<owner>/<repo>` も併記して
+    - 対応形式（M-1: ssh:// を追加）: HTTPS / SCP 風（`git@host:owner/repo`）/ SSH URL
+      （`ssh://[user@]host[:port]/owner/repo`）。いずれも `.git` 拡張と末尾スラッシュを剥がす。
+    - host が `github.com` のときは `raw.githubusercontent.com/<owner>/<repo>` も併記して
       raw URL 経由の自己参照も検出する。
+    - M-2: host は小文字化して格納する（DNS ホスト名は大小文字を区別しないため、
+      `GitHub.com` と `github.com` を同一とみなす）。owner/repo 側は case-preserving の
+      情報を壊さないため保持する。
     - モジュールスコープにキャッシュ（コスト削減）— スクリプトは一度実行して終了するため
       キャッシュ寿命 = プロセス寿命で問題ない
     """
@@ -114,14 +118,21 @@ def _self_url_prefixes():
         return prefixes
     url = r.stdout.strip()
     host, path = None, None
+    # SCP 風: git@host:owner/repo(.git)
     m = re.match(r'^git@([^:]+):(.+?)(?:\.git)?/?$', url)
     if m:
         host, path = m.group(1), m.group(2)
     else:
-        m = re.match(r'^https?://(?:[^@/]+@)?([^/]+)/(.+?)(?:\.git)?/?$', url)
+        # ssh://[user@]host[:port]/owner/repo(.git) — M-1
+        m = re.match(r'^ssh://(?:[^@/]+@)?([^:/]+)(?::\d+)?/(.+?)(?:\.git)?/?$', url)
         if m:
             host, path = m.group(1), m.group(2)
+        else:
+            m = re.match(r'^https?://(?:[^@/]+@)?([^/]+)/(.+?)(?:\.git)?/?$', url)
+            if m:
+                host, path = m.group(1), m.group(2)
     if host and path:
+        host = host.lower()  # M-2: host は小文字化して格納
         prefixes.append(f'{host}/{path}')
         if host == 'github.com':
             prefixes.append(f'raw.githubusercontent.com/{path}')
@@ -165,11 +176,28 @@ class BoundaryPattern:
         self._self_marker = f'/{self_basename}/'
 
     def _in_url(self, line, pos):
-        """`pos` を含む URL 区間があれば (start, url_body_from_scheme_end) を返す。無ければ None"""
+        """`pos` を含む URL 区間があれば (start, url_body_from_scheme_end) を返す。無ければ None。
+
+        M-2: body 先頭の host 部分（最初の '/' より前）は小文字化して返す。self URL
+        prefix と case-insensitive に比較するため（`GitHub.com` を `github.com` と同一視）。
+        `user@` プレフィックス（HTTPS 認証形式）は self prefix と揃えて剥がす。
+        """
         for um in _URL_RE.finditer(line):
             if um.start() <= pos < um.end():
-                scheme_end = um.group(0).find('//')
-                body = um.group(0)[scheme_end + 2:] if scheme_end >= 0 else um.group(0)
+                text = um.group(0)
+                scheme_end = text.find('//')
+                body = text[scheme_end + 2:] if scheme_end >= 0 else text
+                # `user@` を剥がす（self prefix にも入らないため揃える）
+                at = body.find('@')
+                slash = body.find('/')
+                if at != -1 and (slash == -1 or at < slash):
+                    body = body[at + 1:]
+                # host（最初の '/' より前）を小文字化する
+                slash = body.find('/')
+                if slash > 0:
+                    body = body[:slash].lower() + body[slash:]
+                else:
+                    body = body.lower()
                 return um.start(), body
         return None
 
