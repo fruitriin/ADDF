@@ -67,6 +67,16 @@
   ask が確認ダイアログにならず即ブロックされる（git push を含む複合コマンドが実行前に
   丸ごと停止 — 詳細と運用は ccchain-dogfooding-phase1.md の「v0.2.0 への更新」節）**。**再追記（同日）: Issue #15〜#17 起票 → オーナーが v0.2.1 を即日リリース（check 警告＋preset 拡張＋移行ガイド）→ 本移行完了。conf は read-only 17種 allow 追記・git push allow 化（force は ask 維持）・npx 限定 allow。args ルールは後勝ちに注意（ccchain-dogfooding-phase1.md 参照）**
 
+- **Plan 0054 D 軸の事後観測（2026-07-17 開始）**: settings.json の ask に
+  Edit/Write(.claude/settings.json・settings.local.json・hooks/**) の6ルールを追加した。
+  観測観点: (1) この ask が対話セッションで煩雑に感じる頻度、(2) 自律ループ
+  （cron・/goal 自走）でエージェントが settings/hooks を正当に触ろうとして止まる事象。
+  止まりすぎる実害が出たら対象を絞る（オーナー留意点「AutoMode でも Ask で止まる」への
+  段階調整。ccchain v0.2.x の ask 降格と異なり Claude Code ネイティブ ask は対話では
+  ダイアログが出る）。なお実装作業自体が Bash（python）経由で settings.json を
+  書き換えられることを実証した — Bash 経路は本 Plan のスコープ外（deny パターン＋
+  ccchain の仕事）という前提節の再確認。code-review [High] を受け cp/mv の宛先保護は ccchain args で実装（Edit/Write の ask と2層。ccchain 無効の DS では cp/mv 迂回が残る既知の限界）
+
 ## 改善アクション
 
 - ADD フレームワーク開発の計画は `.claude/addf/plans-add/`、knowhow index は `INDEX.addf.md` で管理する（`.claude/addf/plans/` と `INDEX.md` はダウンストリームプロジェクト用）

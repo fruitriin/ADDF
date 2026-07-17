@@ -127,7 +127,15 @@
       "Bash(git branch -D *)",
       "Bash(git checkout -- *)",
       "Bash(git restore .)",
-      "Bash(git restore -- *)"
+      "Bash(git restore -- *)",
+      "Edit(/.claude/settings.json)",
+      "Write(/.claude/settings.json)",
+      "Edit(/.claude/settings.local.json)",
+      "Write(/.claude/settings.local.json)",
+      "Edit(/.claude/hooks/**)",
+      "Write(/.claude/hooks/**)",
+      "Edit(/.ccchain.conf)",
+      "Write(/.ccchain.conf)"
     ],
     "deny": [
       "Bash(rm -rf /)",

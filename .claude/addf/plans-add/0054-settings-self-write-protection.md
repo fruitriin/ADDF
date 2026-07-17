@@ -1,6 +1,6 @@
-# Plan 0054: settings.json / hooks 自己書き換え保護（検討スタブ）
+# Plan 0054: settings.json / hooks 自己書き換え保護
 
-## 実装状況: 未着手
+## 実装状況: 一部完了（D 軸実装完了 2026-07-17 — ask 8ルール＋ccchain cp/mv 宛先保護・code-review High/Medium 反映・事後観測開始。残: Edit/Write ツールでの ask 発火の実地確認〔オーナー回答待ち〕と init/migrate 二重確認の観測）
 
 owner_feedback: 済
 edge: derived-from 0053
@@ -116,6 +116,43 @@ sync-ccchain.py・/addf-permission-audit の提案反映）であり、書き換
   （オプトアウト）とするか
 - 「不便のない範囲で」との両立をどう測るか（Plan 0043 の Q3 解消時と同様、事後観測方式で
   段階調整する運びでよいか）
+
+## 実装（D 軸・確定設計 2026-07-17）
+
+- **`.claude/settings.json`（配布対象）の `permissions.ask` に以下を追加**:
+  `Edit/Write(.claude/settings.json)`・`Edit/Write(.claude/settings.local.json)`・
+  `Edit/Write(.claude/hooks/**)` の6ルール。既存 allow の裸 `Edit`/`Write` より
+  ask が優先評価されるため、保護対象のみ確認が挟まる
+- **本体にも D を入れて ask 頻度を実測する**（評価表の未決だった選択に YES —
+  settings.json は本体でも効くため自然にそうなる。頻度が高く自律ループを止める実害が
+  出たら Feedback 記録 → 対象を絞る事後観測方式。ccchain v0.2.x で同型の
+  「auto での ask」問題を実測済みであり、Claude Code ネイティブ ask は対話セッションでは
+  ダイアログが出る点が ccchain の degrade 降格とは異なる）
+- **B（hooks deny）オプションは初期スコープ外**（実測後に必要なら重ねる — B2 と同型の
+  実害トリガー方式）
+- Bash 経由（sed -i・リダイレクト・cp）は本 Plan のスコープ外のまま（deny パターン＋
+  ccchain という別レイヤーの仕事 — 前提節のとおり悪意対策ではなく事故防止）
+
+## code-review 反映（2026-07-17）
+
+- **[High] mv/cp 迂回経路**: `Bash(cp *)`（settings.json allow）・`Bash(mv *)`
+  （settings.local.json allow）で「別名に書いて置き換える」と Edit/Write の ask を素通りする。
+  Claude Code の permission パターンは中間ワイルドカード不可のため、**ccchain 側の
+  args 正規表現で対処** — cp/mv の宛先が settings/hooks/.ccchain.conf のとき ask
+  （後勝ちルールで specific を後置。通常の cp/mv・バイナリ入れ替えは allow 維持を test で確認）
+- **[Medium] .ccchain.conf も自己防衛機構**: ask に `Edit/Write(/.ccchain.conf)` を追加
+  （計8ルール）。cp/mv 宛先保護にも含めた
+- **[Medium] addf-init/migrate との相互作用**: init/migrate は settings.json を書く正当な
+  主体。ask との二重確認体験は次回の init/migrate 実機実行時に観測する（事後観測に追加 —
+  煩雑なら「migrate 手順は Bash cp で書く」明記へ切替）
+- **[Low] パスをルートアンカー化**: 全ルールを `/.claude/...` 形式に統一
+
+## 完了条件
+
+- [x] settings.json の ask に8ルール（settings×2・local×2・hooks/**×2・.ccchain.conf×2）が入り lint-json・run-all が通過する
+- [x] ccchain conf の cp/mv 宛先保護が test で検証済み（保護対象 ask・通常操作 allow）
+- [ ] Edit ツールで .claude/settings.json を編集しようとすると確認が挟まる（対話で実地確認） <!-- human-judgment -->
+- [x] Feedback.md に事後観測の観点（ask 頻度・init/migrate 二重確認・cp/mv は ccchain 依存）を記録する
 
 ## 着手のトリガー
 
