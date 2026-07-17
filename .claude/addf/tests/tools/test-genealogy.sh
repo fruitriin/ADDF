@@ -340,6 +340,100 @@ else
   FAIL=$((FAIL + 1))
 fi
 
+echo "Test 15: コードフェンス内の edge 例示は生成パーサに混入しない（code-review C2 回帰）"
+FBOX="$(mktemp -d)"
+mkdir -p "$FBOX/.claude/addf/plans"
+cat > "$FBOX/.claude/addf/plans/0001-fence.md" <<'FIXEOF'
+# Plan 0001: フェンス検証
+
+## 実装状況: 未着手
+
+edge: blocked-by owner
+
+書式の例:
+
+```
+edge: derived-from 0002
+edge: pruned
+```
+FIXEOF
+printf '# TODO\n\n| 優先度 | Phase | 計画ファイル | 状態 |\n|---|---|---|---|\n' > "$FBOX/TODO.md"
+edge_count=$(cd "$FBOX" && ADDF_DASHBOARD_ROOT="$FBOX" $RUN_PY -c "
+import importlib.util, pathlib
+spec = importlib.util.spec_from_file_location('gd', '$GEN_SCRIPT')
+gd = importlib.util.module_from_spec(spec); spec.loader.exec_module(gd)
+info = gd.parse_plan(pathlib.Path('$FBOX/.claude/addf/plans/0001-fence.md'))
+print(len(info['edges']))
+")
+if [ "$edge_count" = "1" ]; then
+  echo "  PASS: フェンス内の edge 2行は無視され本物の1行のみパースされる"
+  PASS=$((PASS + 1))
+else
+  echo "  FAIL: edge 数が期待 1 に対し $edge_count（フェンス内が混入している）"
+  FAIL=$((FAIL + 1))
+fi
+rm -rf "$FBOX"
+
+echo "Test 16: _mermaid_label が HTML を無害化する（code-review C1 回帰）"
+out=$($RUN_PY -c "
+import importlib.util
+spec = importlib.util.spec_from_file_location('gd', '$GEN_SCRIPT')
+gd = importlib.util.module_from_spec(spec); spec.loader.exec_module(gd)
+print(gd._mermaid_label('x</pre></div><img src=x onerror=alert(1)>'))
+")
+if echo "$out" | grep -q '</pre>'; then
+  echo "  FAIL: </pre> が素通りしている（HTML 注入可能）: $out"
+  FAIL=$((FAIL + 1))
+else
+  echo "  PASS: HTML タグがエスケープされる: $out"
+  PASS=$((PASS + 1))
+fi
+
+echo "Test 17: 自己参照エッジと5桁番号を lint が ERROR にする（code-review M1/M2 回帰）"
+SBOX="$(mktemp -d)"
+mkdir -p "$SBOX/.claude/addf/plans"
+cat > "$SBOX/.claude/addf/plans/0001-selfref.md" <<'FIXEOF'
+# Plan 0001: 自己参照
+
+## 実装状況: 未着手
+
+edge: derived-from 0001
+
+## 関連 Plan
+
+- [Plan 0001](0001-selfref.md)
+FIXEOF
+(cd "$SBOX" && $RUN_PY "$LINT_SCRIPT" > "$SBOX/lint.log" 2>&1)
+rc=$?
+if [ "$rc" -eq 1 ] && grep -q "自己参照" "$SBOX/lint.log"; then
+  echo "  PASS: 自己参照エッジが ERROR"
+  PASS=$((PASS + 1))
+else
+  echo "  FAIL: 自己参照が検出されない (rc=$rc)"
+  FAIL=$((FAIL + 1))
+fi
+cat > "$SBOX/.claude/addf/plans/0001-selfref.md" <<'FIXEOF'
+# Plan 0001: 5桁
+
+## 実装状況: 未着手
+
+edge: derived-from 00020
+
+## 関連 Plan
+
+- なし
+FIXEOF
+(cd "$SBOX" && $RUN_PY "$LINT_SCRIPT" > "$SBOX/lint2.log" 2>&1)
+rc=$?
+if [ "$rc" -eq 1 ]; then
+  echo "  PASS: 5桁番号が ERROR（先頭4桁への誤解決をしない）"
+  PASS=$((PASS + 1))
+else
+  echo "  FAIL: 5桁番号が素通り (rc=$rc)"
+  FAIL=$((FAIL + 1))
+fi
+rm -rf "$SBOX"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed, $SKIP skipped"
 [ "$FAIL" -eq 0 ]

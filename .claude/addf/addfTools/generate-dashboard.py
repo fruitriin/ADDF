@@ -107,7 +107,13 @@ def parse_plan(path: Path):
     }
     if not path.exists():
         return info
+    in_code = False  # コードフェンス内の edge:/フィールド例示を実データにしない（code-review C2）
     for line in path.read_text(encoding="utf-8").splitlines():
+        if re.match(r"^\s*(`{3,}|~{3,})", line):
+            in_code = not in_code
+            continue
+        if in_code:
+            continue
         if line.startswith("# ") and info["title"] == path.stem:
             info["title"] = re.sub(r"^Plan \d+:\s*", "", line[2:]).strip()
         elif line.startswith("## 実装状況:"):
@@ -473,7 +479,7 @@ def state_group(state: str) -> str:
 # --- 系統樹（Plan 0056 フェーズ1）------------------------------------------------
 
 # Plan 番号は4桁数字。ターゲット表記中の Plan 番号を抽出する
-PLAN_NUM_RE = re.compile(r"(\d{4})")
+PLAN_NUM_RE = re.compile(r"(?<!\d)(\d{4})(?!\d)")
 
 
 def _mermaid_label(text: str, max_len: int = 40) -> str:
@@ -485,6 +491,9 @@ def _mermaid_label(text: str, max_len: int = 40) -> str:
     s = re.sub(r"\s+", " ", (text or "")).strip()
     if len(s) > max_len:
         s = s[: max_len - 1] + "…"
+    # HTML エスケープを最初に適用する — Mermaid ブロックは <pre> 生 HTML パススルーで
+    # 出力されるため、タイトル由来の </pre><img onerror=...> が DOM 注入になる（code-review C1）
+    s = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
     # Mermaid ラベル内の `"` は #quot; へ、`[` `]` は括弧へ、`|` はスペースへ
     return (
         s.replace('"', "#quot;")
@@ -600,6 +609,18 @@ def build_genealogy_page(plan_info_map: dict) -> str:
         (s, d, label, style if style == "thick" else ("dotted" if (_is_pruned(s) or _is_pruned(d)) else style))
         for (s, d, label, style) in edges
     ]
+
+    # (src, dst) 単位で1本に集約 — derived-from / absorbed-into の双方向記録は同一関係の
+    # 対表現なので2本描くとノイズが倍になる（code-review H1）。完全重複の入力ミスも同時に吸収。
+    # thick（revives）が混在する場合は thick を優先して残す
+    seen_pairs = {}
+    for (src, d, label, style) in edges:
+        key = (src, d)
+        if key not in seen_pairs:
+            seen_pairs[key] = (src, d, label, style)
+        elif style == "thick" and seen_pairs[key][3] != "thick":
+            seen_pairs[key] = (src, d, label, style)
+    edges = list(seen_pairs.values())
 
     lines = ["---", "title: 系統樹", "---", "", "# Plan 系統樹", ""]
     lines += [
@@ -1335,7 +1356,10 @@ function decorate() {
   if (!available.value) return
   const p = pagePath()
   const list = comments.value.filter((c) => c.page === p && c.status !== 'resolved')
-  const blocks = Array.from(document.querySelectorAll(BLOCK_SEL))
+  // Mermaid ソース pre は描画時に DOM 置換されアンカーが永続孤児化するため対象外（code-review M3）
+  const blocks = Array.from(document.querySelectorAll(BLOCK_SEL)).filter(
+    (b) => !b.closest('.addf-mermaid')
+  )
   // 同一テキストのブロックが複数ある場合に区別するため出現番号（0始まり）も振る
   const occCount = {}
   for (const b of blocks) {
@@ -1473,7 +1497,7 @@ function onMouseOver(e) {
     return
   }
   const block = t.closest(BLOCK_SEL)
-  if (!block) {
+  if (!block || block.closest('.addf-mermaid')) {
     scheduleHide()
     return
   }

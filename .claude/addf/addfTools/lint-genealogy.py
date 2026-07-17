@@ -36,7 +36,7 @@ PRUNED_META_LABELS = ["理由", "証拠", "復活条件"]
 
 HEADER_RE = re.compile(r"^##\s*実装状況[:：]")
 EDGE_RE = re.compile(r"^edge:\s*(.+?)\s*$")
-PLAN_NUM_RE = re.compile(r"^(\d{4})")
+PLAN_NUM_RE = re.compile(r"^(\d{4})(?!\d)")
 # 「関連 Plan」節見出し（レベル2〜4）。行頭アンカーで本文中の言及を除外
 RELATED_HEADING_RE = re.compile(r"^(#{2,4})\s*関連\s*Plan\s*$")
 FENCE_RE = re.compile(r"^\s*(?:`{3,}|~{3,})")
@@ -119,6 +119,8 @@ def _plan_num_from_target(target: str):
 
 def check_plan(path: str, all_plan_nums: set):
     global checked_files
+    m_self = re.search(r"(?<!\d)(\d{4})(?!\d)", os.path.basename(path))
+    self_num = m_self.group(1) if m_self else None
     with open(path, encoding="utf-8") as f:
         lines = f.read().splitlines()
     if not has_header(lines):
@@ -169,6 +171,9 @@ def check_plan(path: str, all_plan_nums: set):
                     "（owner / external / 4桁 Plan 番号）"
                 )
                 continue
+            if num == self_num:
+                errors.append(f"ERROR: {loc} — 自己参照エッジ（自 Plan `{num}` を対象にできません）")
+                continue
             if num not in all_plan_nums:
                 errors.append(
                     f"ERROR: {loc} — blocked-by が指す Plan `{num}` が plans ディレクトリに"
@@ -195,6 +200,9 @@ def check_plan(path: str, all_plan_nums: set):
             errors.append(
                 f"ERROR: {loc} — `{etype}` の対象 Plan 番号（4桁）を認識できません: `{raw}`"
             )
+            continue
+        if num == self_num:
+            errors.append(f"ERROR: {loc} — 自己参照エッジ（自 Plan `{num}` を対象にできません）")
             continue
         if num not in all_plan_nums:
             errors.append(
