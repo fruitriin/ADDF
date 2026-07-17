@@ -1,8 +1,7 @@
 # Plan 0068: compile_pattern の URL スキーム検出設計と同期契約 lint 化（Plan 0059/0060 レビュー残件回収）
 
-## 実装状況: 一部完了（2026-07-18。項目1・2・3 は完了。項目4〔CI downstream 模擬 run-all.sh〕は本 Plan スコープ内では実施せず切り出し推奨と判断 — 実測で hook テスト等多数が DS 非対応で FAIL するため、DS 対応化には Plan 0059 の延長として本格的な取り組みが必要）
+## 実装状況: 完了（2026-07-18。BoundaryPattern〔マッチ後前方文脈判定〕・remote 由来 self URL 判定〔git@/ssh:///https 3形式・host 小文字化・user@ 剥がし〕・ペア9 lint〔テキスト一致＋必須シンボル＋順序ドリフト明示〕・テスト計32件追加。code-review H-1/M-1〜3/L-1〜2 全反映。CI downstream 模擬は Plan 0069 に切り出し）
 
-owner_feedback: 不要
 edge: derived-from 0059
 edge: derived-from 0060
 
