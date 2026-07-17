@@ -1,6 +1,6 @@
 # Plan 0054: settings.json / hooks 自己書き換え保護
 
-## 実装状況: 一部完了（D 軸実装完了 2026-07-17 — ask 8ルール＋ccchain cp/mv 宛先保護・code-review High/Medium 反映・事後観測開始。残: Edit/Write ツールでの ask 発火の実地確認〔オーナー回答待ち〕と init/migrate 二重確認の観測）
+## 実装状況: 完了（2026-07-17。D 軸 = ask 8ルール〔settings・local・hooks・.ccchain.conf のルートアンカー Edit/Write〕＋ccchain args の cp/mv 宛先保護。ask 発火の実地確認済み〔ダイアログ→拒否→不実行・即時有効〕。code-review High/Medium 反映。init/migrate 二重確認と ask 頻度は事後観測 — Feedback 記録済み）
 
 owner_feedback: 済
 edge: derived-from 0053
@@ -151,7 +151,7 @@ sync-ccchain.py・/addf-permission-audit の提案反映）であり、書き換
 
 - [x] settings.json の ask に8ルール（settings×2・local×2・hooks/**×2・.ccchain.conf×2）が入り lint-json・run-all が通過する
 - [x] ccchain conf の cp/mv 宛先保護が test で検証済み（保護対象 ask・通常操作 allow）
-- [ ] Edit ツールで .claude/settings.json を編集しようとすると確認が挟まる（対話で実地確認） <!-- human-judgment -->
+- [x] Edit ツールで .claude/settings.json を編集しようとすると確認が挟まる（2026-07-17 実地確認 — ダイアログ表示→オーナー拒否→編集不実行の一巡を確認。設定はセッション中に即時有効） <!-- human-judgment -->
 - [x] Feedback.md に事後観測の観点（ask 頻度・init/migrate 二重確認・cp/mv は ccchain 依存）を記録する
 
 ## 着手のトリガー
