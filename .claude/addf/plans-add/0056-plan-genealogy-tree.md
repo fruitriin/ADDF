@@ -1,8 +1,83 @@
-# Plan 0056: Plan 系統樹 — 剪定・派生・復活を一級データにするロードマップ表現（検討スタブ）
+# Plan 0056: Plan 系統樹 — 剪定・派生・復活を一級データにするロードマップ表現
 
-## 実装状況: 未着手
+## 実装状況: 進行中（2026-07-17 標準テンプレートへ昇格・着手。オーナー5問回答済み）
 
 owner_feedback: 済
+
+## エッジ行の書式（確定仕様）
+
+Plan の既存慣習（`## 実装状況:` ヘッダ直後の行頭 key:value — `owner_feedback` /
+`execution_style` と同型・grep 行頭一致で拾える）に合わせ、YAML frontmatter は導入しない:
+
+```
+edge: derived-from 0053
+edge: absorbed-into 0043
+edge: pruned 0044
+edge: revives 0026
+edge: blocked-by owner
+edge: blocked-by external gh-pages-setting
+edge: blocked-by 0040
+```
+
+- 1エッジ1行・複数可。値は `<型> <対象>`。対象は Plan 4桁番号、blocked-by のみ
+  `owner` / `external <一言>` / Plan 番号を許す（オーナー回答: オーナーブロックと
+  それ以外のブロックを分けて表示）
+- **pruned はメタデータ必須**（オーナー回答: pruned のみ必須・他は任意）。詳細は
+  「関連 Plan」セクション側に `理由: / 証拠: / 復活条件:` を書く（1行に収まらないため）。
+  lint は pruned エッジを持つ Plan の「関連 Plan」節に3項目の存在を要求する
+- **併用の同期**（オーナー回答: frontmatter 相当＋セクションの併用）: `edge:` 行に Plan 番号を
+  持つエッジは、「関連 Plan」セクションに対応するリンクが存在すること（lint 検査）。
+  逆方向リンク（knowhow 双方向原則）は既存の「関連 Plan は双方向」宣言に従う
+- 完了 Plan にも edge 行は残す（来歴 — owner_feedback と違い完了後も削除しない）
+
+## 変更内容（フェーズ）
+
+### フェーズ1: エッジ基盤と系統樹ビュー
+
+- `PlanTemplate.md` に edge 行の書式コメントを追記
+- `generate-dashboard.py` に「系統樹」ページを追加:
+  - 全 Plan の `edge:` 行と TODO 状態をパースし Mermaid `graph TD` を生成
+  - ノード装飾: 完了=灰 / 進行中=青 / 未着手=白 / **blocked-by owner=赤枠強調** /
+    blocked-by external・Plan=黄枠（オーナー/その他ブロックの区分表示）
+  - pruned エッジは点線・revives は太線で「探索の地形」を可視化
+  - Mermaid 描画: `mermaid` を devDependency に追加し、ダッシュボードのテーマで
+    クライアントサイドレンダリング（ローカル専用のため CDN 不使用）
+- `lint-template-sync.py` にペア9(edge 整合)ではなく**独立 lint `lint-genealogy.py`** を新設
+  （edge 構文・対象 Plan 実在・pruned メタデータ・セクション併記の検査。
+  lint-template-sync のペア追加は addf-lint 表更新義務が重いため独立ファイルにする）
+- テスト: 合成 Plan フィクスチャ（drift-injection・Plan 0件 DS でも成立）
+
+### フェーズ2: 全件遡及付与
+
+- Plan 0001〜0068 の全件に edge 行を遡及付与（オーナー回答: 動作確認を兼ねて全件）
+- 実例系譜（0026/0043/0044/0045/0049/0053/0054 等）は Plan 本文・出典欄から根拠を取る。
+  エッジが1本も無い Plan は付与しない（無理に作らない — 孤立ノードも情報）
+- 付与後に lint-genealogy・run-all 全通過を確認
+
+## 影響範囲
+
+- generate-dashboard.py・PlanTemplate.md・package.json（mermaid devDependency）・
+  addfTools（lint-genealogy.py 新設）・tests・plans-add 全件（edge 行のみ・本文不変）
+- lint-plan-status.py は `## 実装状況:` 行のみ検査のため干渉しない
+
+## テスト方針
+
+- lint-genealogy: 合成フィクスチャで構文エラー・存在しない対象・pruned メタデータ欠落・
+  セクション不併記を検出（欠如=SKIP 設計・DS で誤 FAIL しない）
+- ダッシュボード: 系統樹ページの生成・Mermaid コード内に owner ブロックの classDef が
+  含まれることを grep 検証。描画はブラウザ目視 <!-- human-judgment -->
+
+## 破壊的変更の許容範囲
+
+なし（edge 行の追加のみ。既存パーサ（owner_feedback 等）は行頭一致で無干渉）
+
+## 完了条件
+
+- [ ] `edge:` 行書式が PlanTemplate.md に記載されている
+- [ ] ダッシュボードに系統樹ページが生成され、owner/external ブロックが区分表示される
+- [ ] lint-genealogy.py が構文・実在・pruned メタデータ・併記を検査し run-all に組み込まれている
+- [ ] 全 Plan（0001〜0068）に実在系譜の edge 行が遡及付与され lint 通過
+- [ ] ブラウザで系統樹を目視確認（オーナー） <!-- human-judgment -->
 
 > 出典: オーナー発案（2026-07-16 対話セッション）。未完了タスクロードマップを「純粋な
 > フェーズ進行（積み上げ式）」から「クリティカルパスを意識した系統樹」で表す構想。
