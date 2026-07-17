@@ -52,6 +52,18 @@
   分けるとこの形のドリフトが生まれる。lint ペア6 が最後の網になるが、発見が次の lint
   実行まで遅延する）
 
+- **ccchain 実運用の観測記録（2026-07-17・Plan 0040 事後観測方式の実測データ）**:
+  直近セッション群のトランスクリプト発掘で「dynamic command detected」による deny を
+  21件確認（主因: for ループ・ヒアドキュメント・変数代入起点の複合コマンド）。3つの発見:
+  (1) **dynamic 検出は fallback: ask ではなく deny 直行** — エージェントは都度 python
+  スクリプト化などで迂回しており、迂回は成功するがターン浪費が発生している。
+  (2) **python3 heredoc は中身が何であれ allow** — `python3 - <<EOF` 内の os.system 等は
+  静的解析されず素通り。「bash 制御構文は止まるが python に書けば通る」非対称があり、
+  ガードの実効は bash 形式の事故防止に限定される（エージェント自身が無自覚にこの迂回を
+  常用している実態も確認）。(3) **ccchain は実行ログを永続化しない** — 効果測定・段階調整の
+  材料がトランスクリプト発掘でしか得られない。ask 二重化（git reset --hard 等）は
+  message 付きで正しく機能している
+
 ## 改善アクション
 
 - ADD フレームワーク開発の計画は `.claude/addf/plans-add/`、knowhow index は `INDEX.addf.md` で管理する（`.claude/addf/plans/` と `INDEX.md` はダウンストリームプロジェクト用）
