@@ -2,6 +2,8 @@
 
 ## 実装状況: 一部完了（実装完了 2026-07-17 — 残は Issue #30・#31 返信のみ〔オーナー確認待ち〕。addf-implementer worktree 実装 → main へ cherry-pick。項目1: make_sandbox を疑似コピー方式に〔検査能力維持〕・項目2: TODO 両書式受理＋回帰テスト・項目3: 既存の動的アサーションで穴なしを確認し downstream 分岐を明示的に踏む Test 16 のみ追加・項目4: CI downstream 模擬は規模判断で別 Plan 切り出し推奨。テスト24件追加・run-all 全通過）
 
+edge: absorbed-into 0068
+
 > 出典: GitHub Issue #30（test-template-sync.sh の make_sandbox() が ProgressTemplate.addf.md を
 > 無条件 cp して downstream で必ず失敗する — MagiaMagica 実測）・Issue #31（v0.6.1 移行後の
 > downstream で 2 テストスイート失敗と lint ペア6 誤検出 — 下流で対処実装・テスト済みの上流反映提案）
@@ -10,6 +12,7 @@
 
 - [Plan 0055: taskbar.fm 移行フィードバック回収](0055-downstream-migration-feedback-taskbar.md) — Issue #29（同じ「downstream で必ず FAIL」欠陥クラス）の先行対応。本 Plan はその残存同型（#30）と別ダウンストリームからの追加報告（#31）の回収
 - [Plan 0052: migrate ランタイム強化](0052-migrate-runtime-hardening.md) — Test 15 の SKIP フォールバック（wardrobe-test 由来）の先行対応。#31 現象2 と突き合わせて残作業を確定する
+- [Plan 0068: compile_pattern の URL スキーム検出設計と同期契約 lint 化](0068-residual-path-scheme-detection.md) — 本 Plan 項目4（CI downstream 模擬）の切り出し先
 
 ## 目的
 

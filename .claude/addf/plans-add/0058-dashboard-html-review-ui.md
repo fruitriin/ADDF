@@ -3,6 +3,13 @@
 ## 実装状況: 一部完了（フェーズA・B・C 完了 2026-07-16。A: ダッシュボード実装＋オーナー実物確認済み。B: crit ドッグフーディング一周実測。C: アンカーコメント UI〔Layout.vue＋/api/comments Vite プラグイン〕・DashboardComments.json・crit 未解決コメント集約・ブートシーケンス 1.7 配線・折りたたみ構文2系統〔::: details 推奨＋details/summary パススルー〕・3体レビュー反映〔Critical 2/High 1/Medium 4 ほか〕・テスト17件全通過。オーナー動線確認済み 2026-07-16〔コメント13件が UI 経由で往復。追加フィードバックで draft モデル・送信待ちスタック一覧・ガイダンスモーダルを実装〕。`/crit` プラグイン導入は保留）
 
 owner_feedback: 済
+edge: absorbed-into 0065
+edge: absorbed-into 0066
+
+## 関連 Plan
+
+- [Plan 0065: README にローカルダッシュボード機能の記載を追加する](0065-readme-dashboard-gap.md) — 本 Plan フェーズC の doc-review で発見された README 記載漏れの切り出し先
+- [Plan 0066: ダッシュボードに ADDF 設定（Behavior.toml）ページを追加する](0066-dashboard-behavior-settings-page.md) — 本 Plan 完了直後のオーナー発案（設定ページ機能追加）を独立 Plan として切り出し
 
 > 出典: オーナー発案（2026-07-16 対話セッション）。Dashboard を md から HTML にしたい。
 > VitePress 的な markdown to html がベースで、折りたたみ・画像・ページ切り替えで

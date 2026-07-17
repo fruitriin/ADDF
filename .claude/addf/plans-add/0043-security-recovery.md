@@ -2,6 +2,9 @@
 
 ## 実装状況: 完了（2026-07-07・4項目とも実装。「不便のない範囲で」の指針を最大限保守的に解釈した最小実装）
 
+edge: derived-from 0026
+edge: derived-from 0033
+
 - **項目1（deny ルール整備）**: settings.json に `deny` セクションを新設し、極端な破壊操作のみ11パターン（`rm -rf /` / `rm -rf ~` / `chmod 777 /` / `dd if=* of=/dev/*` / `mkfs.*` / `shutdown *` / `reboot *` 等）を明示 deny。既存の allow/ask は無変更で実運用への影響ゼロ。実運用で問題が観測されたら Feedback.md で追加・削除
 - **項目2（addf-init 実物レビュー）**: Phase 3 の前に「バイナリ実物 preview」ステップを追加（バイナリ4本の SHA-256 とサイズ・種別を preview / skip 可能・skip でも verify-checksums.sh で改竄検出は担保）。テキストファイルは `git diff` で確認できるため preview 対象外
 - **項目3（破壊的 git 対策）**: `.claude/hooks/destructive-git-guard.sh` を PreToolUse(Bash) に配線。5パターン（reset --hard / push --force / clean -f / branch -D / checkout -- .）に理由メッセージを stderr 提示。同時に settings.json `ask` に `git branch -D *` / `git checkout -- *` / `git restore .` / `git restore -- *` を追加（doc-review Critical 1 対応 — 従来 ask に含まれていなかった branch -D と checkout -- . にも確認ダイアログが入るようになった）。ブロックは settings.json ask、フックは理由提示の分業設計。13テスト通過。⚠️ 実効性検証は申し送り: PreToolUse フックの stderr がエージェントに届くかは未検証

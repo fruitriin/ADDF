@@ -3,6 +3,7 @@
 ## 実装状況: 未着手
 
 owner_feedback: 不要
+edge: derived-from 0058
 
 > 出典: オーナー発案（2026-07-16 対話セッション — Plan 0058 フェーズC 完了直後）。
 > 「ADDF の設定（Behavior.toml）と取りうる設定の有効値をダッシュボードのページに

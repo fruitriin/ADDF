@@ -5,6 +5,7 @@
 owner_feedback: 待ち
 feedback_ask: 「起きた問題：/改善方法：」フィールド必須化の温度感（強制か推奨か）と、現行 Feedback.md 構造からの移行範囲
 feedback_since: 2026-07-16
+edge: blocked-by owner
 
 > 出典: GitHub Issue #5（オーナー起票 2026-05-10。「フリーフォーマットすぎて書きにくい」—
 > モデルによっては knowhow には書くが Feedback.md への記載に心理的ハードルがあり、記載しない

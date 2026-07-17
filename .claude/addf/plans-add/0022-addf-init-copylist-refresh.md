@@ -2,6 +2,12 @@
 
 ## 実装状況: 完了（2026-06-10、PR #11）
 
+edge: derived-from 0015
+
+## 関連 Plan
+
+- [Plan 0015: 既存プロジェクトへの ADDF 組み込み](0015-existing-project-install.md) — 本 Plan の起票元（0015 の突合確認で発見された残差分を切り出し）
+
 全4項目を実装した。機械化は案 (a)（lint へのペア5追加）を採用:
 - カテゴリ1に `Questions.example.md` / `Dashboard.example.md` を追加、Progress.md 生成元を `ProgressTemplate.md` と明記
 - .gitignore マージブロック例は計画外の改善として「クローン元 `<tmp>/addf-source/.gitignore` を正とする」方式に変更（列挙の陳腐化を構造的に排除。本体 .gitignore とのドリフトを実装中に発見したため）

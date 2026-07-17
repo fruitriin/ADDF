@@ -2,6 +2,8 @@
 
 ## 実装状況: 一部完了（実装完了 2026-07-17 — 残は Issue #33 返信のみ〔オーナー確認待ち〕。addf-implementer worktree 実装 → main へ cherry-pick。compile_pattern に lookbehind 境界〔1文字境界維持＋(?<![A-Za-z0-9]/)＋自リポジトリ絶対パスの正 lookbehind 例外〕を両ファイル同期導入・Test 13.5〔12件・ドリフト注入 TDD〕。既知の限界〔別名 clone 先の絶対パス〕は docstring 明記で受容。run-all 全通過）
 
+edge: absorbed-into 0068
+
 > 出典: GitHub Issue #33（外部 URL・他プロジェクトパスへの lint/rewrite 誤検知 — 下流で
 > 根本対処を実装・テスト済みの上流反映提案。次回 `/addf-migrate` で下流修正が上書き消失する
 > リスクがあるため早期反映を希望）
@@ -10,6 +12,7 @@
 
 - [Plan 0052: migrate ランタイム強化](0052-migrate-runtime-hardening.md) — 同じ migrate-paths 系の残存パス検査を強化した先行 Plan（gitignore 旧位置パターン検知）
 - [Plan 0055: taskbar.fm 移行フィードバック回収](0055-downstream-migration-feedback-taskbar.md) — 同系のダウンストリーム実測フィードバック回収の前例
+- [Plan 0068: compile_pattern の URL スキーム検出設計と同期契約 lint 化](0068-residual-path-scheme-detection.md) — 本 Plan の Stage 2 レビュー残件（basename 誤検知の根治設計・同期契約 lint 化・CI downstream 模擬）の切り出し先
 
 ## 目的
 

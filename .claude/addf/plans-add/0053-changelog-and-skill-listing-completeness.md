@@ -2,6 +2,12 @@
 
 ## 実装状況: 完了（2026-07-11。別セッションが着手・本セッションが引き継いで完走。項目1〜5を全て実装。code-review・doc-review・contribution-agentのレビュー指摘（Critical/Warning計5件）を全て反映。うち1件（Plan 0026残Critical項目の誤記）はPlan 0054として切り出しTODO最優先登録。run-all.sh・/addf-lint 全通過）
 
+edge: absorbed-into 0054
+
+## 関連 Plan
+
+- [Plan 0054: settings.json / hooks 自己書き換え保護](0054-settings-self-write-protection.md) — 本 Plan の doc-review で発掘された Plan 0026 の [Critical] 誤記から派生し、独立 Plan として切り出された
+
 > 出典: バックログ枯渇時のオーナー標準リクエスト（TODO.addf.md「タスクが無くなったら
 > プロジェクトの品質を向上させる計画を追加する」）。着手時の自己調査で、working tree に
 > 前サイクル由来と見られる未コミットの CHANGELOG.md／README.md／README.en.md 差分

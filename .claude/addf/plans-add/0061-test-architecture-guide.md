@@ -5,6 +5,7 @@
 owner_feedback: 待ち
 feedback_ask: ガイド新設の採否と置き場所（guides/ 新規 or 既存 GUI テストドキュメントへの統合）
 feedback_since: 2026-07-16
+edge: blocked-by owner
 
 > 出典: GitHub Issue #32（SDIT 実運用実績に基づく 3層テストアーキテクチャのガイド化提案 —
 > wasurenainder からの知見移転）・Issue #6（オーナー起票「UIを使ったテストの効率化」—

@@ -2,6 +2,8 @@
 
 ## 実装状況: 完了（2026-07-07）
 
+edge: derived-from 0041
+
 - 実装: `.claude/hooks/pre-compact-archive.sh`（PreCompact 配線・オプトイン・36テスト全通過）
 - 設定: `.claude/addf/Behavior.toml` に `[transcript-archive]` セクション（enable/archive_dir/max_generations）
 - 復元手順 knowhow: `.claude/addf/knowhow/ADDF/transcript-archive-restore.md`（INDEX.addf.md 登録・context-and-transcript.md と相互リンク）

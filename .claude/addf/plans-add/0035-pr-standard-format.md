@@ -2,6 +2,9 @@
 
 ## 実装状況: 完了（2026-07-05 フェーズA・B・C すべて完了）
 
+edge: derived-from 0028
+edge: derived-from 0033
+
 ### フェーズA 実装記録（2026-07-05）
 
 - `.claude/addf/templates/PlanTemplate.md` 新設 — Plan 0033 項目4 を本 Plan で引き取り実施。

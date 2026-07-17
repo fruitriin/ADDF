@@ -3,6 +3,8 @@
 ## 実装状況: 未着手
 
 owner_feedback: 不要
+edge: derived-from 0059
+edge: derived-from 0060
 
 > 出典: Plan 0059・0060 の Stage 2 レビュー（code-review H-1/M-1/M-3・contribution-agent Low）。
 > lookbehind 境界（Plan 0060）は Issue #33 の誤検知を解消したが、basename 文字列一致という

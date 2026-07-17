@@ -2,6 +2,8 @@
 
 ## 実装状況: 完了（2026-07-10。README.md / README.en.md に skills.md・model-allocation.md の行を追加）
 
+edge: derived-from 0039
+
 > 出典: Plan 0039 フェーズ2（VitePress サイト骨格）の doc-review Warning。VitePress サイトの
 > サイドバー（`.claude/addf/guides/` 全10ファイルを機械的に掲載）と突き合わせたところ、
 > README.md（および README.en.md）の「ドキュメント」テーブルが2件不足していることが判明した。

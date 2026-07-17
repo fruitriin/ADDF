@@ -3,6 +3,14 @@
 ## 実装状況: 未着手
 
 owner_feedback: 済
+edge: derived-from 0053
+edge: revives 0026
+
+## 関連 Plan
+
+- [Plan 0053: CHANGELOG・README スキル一覧の網羅性回収と再発防止](0053-changelog-and-skill-listing-completeness.md) — 本 Plan の起票元（0053 doc-review が Plan 0026 の [Critical] 誤記を発掘し切り出し）
+- [Plan 0026: プロジェクトレビュー残課題バックログ](0026-review-residual-backlog.md) — 復活元（[Critical]「settings.json/hooks 自己書き換え保護」が Plan 0043 で明示的にスコープ外とされたまま放置されていた枝の再起票）
+- [Plan 0043: セキュリティ回収](0043-security-recovery.md) — 本 Plan の対象が Plan 0043 で明示的にスコープ外とされた経緯
 
 > 出典: Plan 0026 のレビューで検出された [Critical]「settings.json / hooks 自己書き換え保護
 > （`Write`/`Edit` に対する deny）」。Plan 0043（セキュリティ回収）本文92行目で「本 Plan では

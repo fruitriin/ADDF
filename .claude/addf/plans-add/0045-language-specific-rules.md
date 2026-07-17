@@ -3,12 +3,22 @@
 ## 実装状況: 完了（2026-07-10。実測の結果、現行の ADDF ダウンストリームでは言語別ルールによる
 肥大化は観測されず、意図的な不採用として決定）
 
+edge: derived-from 0005
+edge: pruned language-specific-rules
+
 > 出典: Plan 0036 ドッグフーディング検出 #7「0005 の High 推奨『言語別ルール分離』後続 Plan 不在」— オーナー指示「B3 = 起票と実施でよさそう」に基づき回収。ただし埋没監査の提案は「回収計画に起こす（不要ならその旨の明記を提案）」— 実施可否も含めて判断する Plan。
 
 ## 関連 Plan
 
 - [Plan 0005: everything claude code research](0005-everything-claude-code-research.md) — 埋没項目 #7 の出典
 - [Plan 0038: 投機適性](0038-speculation-fitness.md) — 「不向き / 禁止」判定枠組み（言語別ルール分離が投機に馴染むかの判定にも使う）
+
+### 剪定（pruned）した対象の記録
+
+- **対象: 言語別ルール分離パターン（language-specific-rules）の CLAUDE.md/CLAUDE.repo.md への導入**
+  - 理由: EnumaElish・wasurenainder ほか実測ダウンストリームで、言語別ルールによる肥大化の実害が観測されず、分離パターンを事前導入する便益がない
+  - 証拠: 2026-07-10 拡大再実測（`/Users/riin/workspace/` 配下の複数ダウンストリーム — EnumaElish・wasurenainder・taskbar など — を対象に確認済み。詳細は本 Plan 項目1の実測記録）
+  - 復活条件: 実運用で CLAUDE.repo.md の言語別ルールが肥大化し、可読性・保守性に実害が観測された場合
 
 ## 目的
 

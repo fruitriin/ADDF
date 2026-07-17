@@ -3,6 +3,7 @@
 ## 実装状況: 一部完了（フェーズ1・2・3 完了 2026-07-17 — webManual/ へ移動・Pages workflow 新設・gh api で Pages 有効化済み〔https://fruitriin.github.io/ADDF/〕。残: フェーズ4〔ドキュメント拡充〕はロードマップ後段で実施予定）
 
 owner_feedback: 済
+edge: absorbed-into 0050
 
 ### 実装記録
 
@@ -42,6 +43,7 @@ owner_feedback: 済
 - [Plan 0037: ADDF ディレクトリ集約](0037-addf-directory-consolidation.md) — `docs/` 明け渡し・`.claude/addf/` 集約で docs 配下の構造が大きく変わる。**本 Plan のサイト構築（フェーズ2以降）は 0037 の後に着手する**（パス張り替えの手戻り防止）。ドリフト対策エージェントの取り込み（フェーズ1）は独立しており先行してよい
 - [Plan 0003: 英語ドキュメント](0003-english-docs.md) — 日英2ロケール構成の前提となる既存英訳資産
 - [Plan 0040: EnumaElish (ccchain) オプトイン統合](0040-ccchain-optin.md) — 同じく EnumaElish 由来の取り込み。本 Plan はドキュメント基盤、0040 はツール統合で独立
+- [Plan 0050: README ドキュメントテーブルギャップ](0050-readme-docs-table-gap.md) — 本 Plan フェーズ2 の doc-review で発見された既存ドリフト（README「ドキュメント」テーブル掲載漏れ）の切り出し先
 
 ## 目的
 

@@ -3,6 +3,11 @@
 ## 実装状況: 未着手
 
 owner_feedback: 不要
+edge: derived-from 0056
+
+## 関連 Plan
+
+- [Plan 0056: Plan 系統樹](0056-plan-genealogy-tree.md)（検討スタブ） — 本 Plan の起票元（0056 の未解決の問い対話中にオーナーから示された Plan ブレインストーミング構想を切り出し）
 
 > 出典: オーナー発案（2026-07-16 Plan 0056 へのアンカーコメント dc_mrnmgc32vjlq）。
 > 「Plan 100 まで ADDF を良いものになるように色々考えて、何ターンかけてもいいよ」と

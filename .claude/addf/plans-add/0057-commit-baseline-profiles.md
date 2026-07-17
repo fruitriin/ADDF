@@ -3,6 +3,11 @@
 ## 実装状況: 未着手
 
 owner_feedback: 済
+edge: derived-from 0054
+
+## 関連 Plan
+
+- [Plan 0054: settings.json / hooks 自己書き換え保護](0054-settings-self-write-protection.md) — 本 Plan の起票元（0054 の設計整理で得た「保護強度を配布先で変える」示唆を .gitignore ADDF ブロックへ一般化）
 
 > 出典: オーナー発案（2026-07-16 対話セッション）。Plan 0054 の設計整理で得た
 > 「保護強度を配布先で変える」示唆を、`.gitignore` の ADDF ブロック（＝何をコミットし

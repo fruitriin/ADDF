@@ -2,6 +2,8 @@
 
 ## 実装状況: 完了（2026-07-07）
 
+edge: derived-from 0041
+
 - 項目1（境界緩和）: DelegationRules.md の「Progress.md の境界」節で「`## タスク` 以降は触らない・`## 運用ルール` 節はテンプレートに合わせて同期してよい」を明記
 - 項目2（DelegationRules.md 新設）: `.claude/addf/templates/DelegationRules.md` 新設。5項目（Progress.md 境界・git 操作・単一ソース・スコープ・ノウハウ記録）を含む。末尾に「プロジェクト固有ルール」節を用意（ダウンストリーム追記枠）。addf-dev.md / addf-speculate.md から参照追加
 - 項目3（境界の明文化・機械保証）: lint-template-sync.py の check_pair1 docstring に検査境界を明文化。test-template-sync.sh に Test 4b（タスク欄変更で誤検知しない）を追加してドリフト注入 TDD

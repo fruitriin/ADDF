@@ -3,6 +3,16 @@
 ## 実装状況: 一部完了（2026-07-02 コード品質・ドキュメントの Medium/Low/Info 6件対応済み。2026-07-07 セキュリティ High と破壊的 git 対策は Plan 0043 で対応済み。**[Critical] settings.json/hooks 自己書き換え保護（Write/Edit の deny）は Plan 0043 対象外 — Plan 0054 として回収済み（2026-07-11 起票）**）
 
 owner_feedback: 不要
+edge: absorbed-into 0031
+edge: absorbed-into 0043
+edge: absorbed-into 0044
+
+## 関連 Plan
+
+- [Plan 0031: コミット済みバイナリの検証可能性](0031-binary-verification.md) — 本 Plan の Medium「バイナリ検証手段の不在」を回収
+- [Plan 0043: セキュリティ回収](0043-security-recovery.md) — 本 Plan のセキュリティ Critical/High（deny ルール・addf-init 実物レビュー・破壊的 git 対策）を回収
+- [Plan 0044: experience 運用方式の決定](0044-experience-strategy-decision.md) — 本 Plan の埋没項目「experience 運用方式（分離 vs 埋め込み）」を判断 Plan として回収
+- [Plan 0054: settings.json / hooks 自己書き換え保護](0054-settings-self-write-protection.md) — 本 Plan の [Critical]「settings.json/hooks 自己書き換え保護」が Plan 0043 対象外として残り、Plan 0054 として復活・回収
 
 ## 目的
 

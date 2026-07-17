@@ -3,6 +3,8 @@
 ## 実装状況: 一部完了（フェーズ1・2 完了・実地検証は別サイクル）
 
 owner_feedback: 済
+edge: absorbed-into 0042
+edge: absorbed-into 0046
 
 - フェーズ1（実測）: 2026-07-06 完了。`compact_boundary` エントリの `compactMetadata.preTokens` を根拠に auto-compact 発動点を測定
 - フェーズ2（教義の実装）: 2026-07-06 完了。context-reminder の注入文言追加・addf-dev.md ステップ5・ProgressTemplate 両方（同期ペア）に「満杯時の出口」教義を配線
@@ -18,6 +20,7 @@ owner_feedback: 済
 - [Plan 0017: 代替わり日記](0017-progress-checkpoints.md) — セッション間引き継ぎの既存基盤。「compaction 越え前提のタスク運び」の思想的土台
 - [Plan 0016: stop-or-go 教義](0016-stop-or-go-doctrine.md) — 「ループ中の突然死」への既存の備え。本 Plan は「突然死」ではなく「自主停止」を扱う
 - [Plan 0047: 変更ルート判断基準とフォローアップ切り出し粒度の再定義](0047-change-route-criteria-and-followup-granularity.md) — 本 Plan が扱った 200k→1M のコンテキスト事情変化を受けて、フォローアップ切り出し粒度を再定義する後続
+- [Plan 0046: 委譲プロンプトの禁止事項の境界緩和と共通テンプレート化](0046-delegation-prohibition-boundary.md) — 本 Plan 実装時に発生した委譲エージェントの Progress.md 同期ペア発火問題の切り出し先
 
 ## 目的
 
