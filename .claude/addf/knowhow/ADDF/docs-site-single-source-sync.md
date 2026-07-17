@@ -4,15 +4,19 @@ created: 2026-07-10
 last_verified: 2026-07-10
 depends_on:
   - scripts/sync-docs.mjs
-  - docs/.vitepress/config.mts
+  - .claude/addf/webManual/.vitepress/config.mts
   - .claude/addf/plans-add/0039-docs-website.md
 status: active
 ---
 
-# ドキュメントサイトで単一ソースを保つ — ビルド時生成 + リンク書き換え
+# ドキュメントサイトで単一ソースを保つ
+
+> 2026-07-17（v0.7.0 後・Plan 0039）: サイト置き場を `docs/` から `.claude/addf/webManual/` へ
+> 移動した（`docs/` はダウンストリームプロジェクト自身のために空ける — オーナー判断）。
+> 本文のパスは移動後のものに更新済み。 — ビルド時生成 + リンク書き換え
 
 > 出典: Plan 0039 フェーズ2（VitePress サイト骨格）。`.claude/addf/guides/` の内容を
-> VitePress サイトに載せる際、`docs/guide/*.md` を手動コピー（コミット対象）にするか
+> VitePress サイトに載せる際、`.claude/addf/webManual/guide/*.md` を手動コピー（コミット対象）にするか
 > ビルド時生成物（gitignore 対象）にするかの設計判断
 
 ## 発見した知見
@@ -20,14 +24,14 @@ status: active
 - **手動コピーは二重管理になり ADDF の「単一ソース化」哲学（`sync-lint-design.md`）と衝突する**。
   代わりに `scripts/sync-docs.mjs` という薄いビルドスクリプトを用意し、`npm run docs:sync`
   （`docs:dev`/`docs:build` から自動的に前段実行）で `.claude/addf/guides/*.md` を
-  `docs/guide/*.md` へその都度コピーする設計にした。`docs/guide/*.md` は `.gitignore` 対象の
+  `.claude/addf/webManual/guide/*.md` へその都度コピーする設計にした。`.claude/addf/webManual/guide/*.md` は `.gitignore` 対象の
   生成物であり、ソースは常に `.claude/addf/guides/` 側のみ
 - **相対リンクはコピー元のディレクトリ深さを前提にしているため、単純コピーだとリンク切れになる**。
   例: `.claude/addf/guides/setup.md` 内の `../../../CONTRIBUTING.md` は元の場所からは正しいが、
-  `docs/guide/setup.md` に配置すると同じ相対パスでは解決できない
+  `.claude/addf/webManual/guide/setup.md` に配置すると同じ相対パスでは解決できない
 - **リンク先を解決してから振り分ける**: リンクを `[text](path)` パターンで抽出し、
   `resolve(dirname(元ファイル), path)` で絶対パスに解決した上で、
-  - 他のガイド（`docs/guide/` に同居する）を指す場合 → `docs/guide/` 内の相対パス（`./name.md`）に書き換え
+  - 他のガイド（`.claude/addf/webManual/guide/` に同居する）を指す場合 → `.claude/addf/webManual/guide/` 内の相対パス（`./name.md`）に書き換え
   - それ以外（docs サイトに含まれないリポジトリファイル）を指す場合 → GitHub の blob URL
     （`https://github.com/<owner>/<repo>/blob/main/<path>`）に書き換え
   - 画像（`![alt](path)`）は blob（HTML ページ）ではなく raw
@@ -41,7 +45,7 @@ status: active
   この方針のおかげで、初回実装時にリンク書き換え漏れ4件を `npm run docs:build` 失敗として
   即座に検出できた
 - **軽量な回帰テストは vitepress のインストールなしで書ける**: `node scripts/sync-docs.mjs` を
-  実行し、生成された `docs/guide/*.md` に `](../` のような未書き換けの上位相対リンクが
+  実行し、生成された `.claude/addf/webManual/guide/*.md` に `](../` のような未書き換けの上位相対リンクが
   残っていないかを `grep` するだけで、リンク書き換えロジックの主要な退行は検出できる
   （`.claude/addf/tests/tools/test-sync-docs-links.sh`）。フルビルド（vitepress dev サーバ起動・
   実際のデッドリンク検出）は `npm run docs:build` の手動実行に任せてよい
@@ -54,7 +58,7 @@ status: active
 - リンク書き換えスクリプトは正規表現1本の実装で済むが、エッジケース（アンカー・画像・
   コードブロック内の疑似リンク）を最初から想定して実装しないと、後から静かに壊れる
   （実際に code-review で「アンカー・画像は考慮されていない」と Warning 指摘を受けた）
-- ダウンストリームには配布しない ADDF 本体固有の基盤（`package.json`・`scripts/`・`docs/`）を
+- ダウンストリームには配布しない ADDF 本体固有の基盤（`package.json`・`scripts/`・`.claude/addf/webManual/`）を
   追加する場合、対応するテスト（`.claude/addf/tests/tools/`）は
   「該当ファイル・ツール（今回は `node`）が無ければ SKIP」で書く。`.claude/addf/tests/` 自体は
   ダウンストリームにも配布されるため、本体固有機能のテストがダウンストリームで誤 FAIL しない

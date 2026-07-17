@@ -88,7 +88,26 @@
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: Plan 0039 — webManual/ への配置変更と GitHub Pages 有効化
+
+ロードマップ（オーナー指定 2026-07-17）: 0039 配置変更+Pages → 0056 系統樹 → 0048 褒め機構 → 0039 ドキュメント作成
+
+#### サブタスクチェックリスト
+
+- [ ] W-1: docs/ → .claude/addf/webManual/ へ移動（index.md・.vitepress/config.mts。生成物 guide/ dist/ は移動せず削除）
+- [ ] W-2: 配線更新（sync-docs.mjs・package.json docs:*・.gitignore）
+- [ ] W-3: Pages デプロイ workflow 新設（actions ベース・webManual をビルド）
+- [ ] W-4: 参照 grep と lint（residual-paths・template-sync）・ビルド実確認
+- [ ] W-5: Pages 有効化（gh api → 不可ならオーナー操作案内）・デプロイ確認
+- [ ] W-6: 完了処理（Plan/TODO 反映・コミット・push）
+
+#### 日記
+
+##### 2026-07-17 — 0039 着手（ゴール: Pages 有効化まで）
+**やったこと**: docs/ 構成を確認（index.md・config.mts がコミット対象、guide/・dist/ は生成物、Pages workflow 未作成）。
+**今の見立て**: 移動自体は小さい。Pages 有効化は gh api の build_type=workflow で試み、権限不足ならオーナー操作を案内。
+**次の自分へ**: compaction 後は git status と このチェックリストで現在地確認。webManual の存在確認 → W-2 以降を継続。
+**気になっていること**: knowhow・Plan 内の docs/ 旧パス言及が residual lint に引っかかる可能性（paths.toml は触らない方針 — 本体固有変更のため）。
 
 > 新しいタスク開始時は以下の構造で記録する:
 > `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）

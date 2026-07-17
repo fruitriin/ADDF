@@ -2,10 +2,10 @@
 node_modules
 
 # VitePress ドキュメントサイト（Plan 0039）
-docs/.vitepress/dist
-docs/.vitepress/cache
-# docs/guide/*.md は .claude/addf/guides/*.md からのビルド時生成物（単一ソースは guides/ 側）
-docs/guide/
+.claude/addf/webManual/.vitepress/dist
+.claude/addf/webManual/.vitepress/cache
+# .claude/addf/webManual/guide/*.md は .claude/addf/guides/*.md からのビルド時生成物（単一ソースは guides/ 側）
+.claude/addf/webManual/guide/
 
 # --- ADDF Framework (do not remove) ---
 .claude/commands/*.exp.md

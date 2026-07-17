@@ -1,10 +1,8 @@
 # Plan 0039: ADDF ドキュメント Web（VitePress）とドキュメントドリフト対策
 
-## 実装状況: 一部完了（フェーズ1・2 完了。フェーズ3〔公開 CI〕は GitHub Pages 有効化がオーナー操作のため未着手。2026-07-16 オーナー判断でサイト置き場を docs/ から .claude/addf/webManual/ へ移動することが確定 — 移動は次サイクルで実施）
+## 実装状況: 一部完了（フェーズ1・2・3 完了 2026-07-17 — webManual/ へ移動・Pages workflow 新設・gh api で Pages 有効化済み〔https://fruitriin.github.io/ADDF/〕。残: フェーズ4〔ドキュメント拡充〕はロードマップ後段で実施予定）
 
-owner_feedback: 待ち
-feedback_ask: GitHub Pages の有効化（リポジトリ設定でのオーナー操作。webManual/ への移動実施後）
-feedback_since: 2026-07-10
+owner_feedback: 済
 
 ### 実装記録
 

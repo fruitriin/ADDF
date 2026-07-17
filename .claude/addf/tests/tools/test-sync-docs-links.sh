@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-sync-docs-links.sh
-# scripts/sync-docs.mjs（Plan 0039 フェーズ2）が生成する docs/guide/*.md に、
+# scripts/sync-docs.mjs（Plan 0039 フェーズ2）が生成する .claude/addf/webManual/guide/*.md に、
 # 書き換え漏れの相対リンク（`](../` 形式）が残っていないことを検証する。
 # ADDF 本体固有の仕組みのため、scripts/sync-docs.mjs が存在しないダウンストリームでは SKIP する。
 
@@ -32,13 +32,13 @@ if [ ! -f "$SYNC_SCRIPT" ] || ! command -v node >/dev/null 2>&1; then
   exit 0
 fi
 
-echo "Test 1: sync-docs.mjs 実行後、docs/guide/*.md に未書き換えの上位相対リンクが残らない"
+echo "Test 1: sync-docs.mjs 実行後、.claude/addf/webManual/guide/*.md に未書き換えの上位相対リンクが残らない"
 (cd "$REPO_ROOT" && node "$SYNC_SCRIPT" >/dev/null 2>&1)
 sync_code=$?
 check "sync-docs.mjs が正常終了する" 0 "$sync_code"
 
-if grep -rn '](\.\./' "$REPO_ROOT/docs/guide/"*.md 2>/dev/null; then
-  echo "  FAIL: 未書き換えの上位相対リンク（\`](../\`）が docs/guide/ に残存"
+if grep -rn '](\.\./' "$REPO_ROOT/.claude/addf/webManual/guide/"*.md 2>/dev/null; then
+  echo "  FAIL: 未書き換えの上位相対リンク（\`](../\`）が .claude/addf/webManual/guide/ に残存"
   FAIL=$((FAIL + 1))
 else
   echo "  PASS: 未書き換えの上位相対リンクは残っていない"
@@ -49,9 +49,9 @@ echo "Test 2: 生成された各ガイドに元ファイルと同じ見出しが
 missing=0
 for src in "$REPO_ROOT/.claude/addf/guides/"*.md; do
   name="$(basename "$src")"
-  dest="$REPO_ROOT/docs/guide/$name"
+  dest="$REPO_ROOT/.claude/addf/webManual/guide/$name"
   if [ ! -f "$dest" ]; then
-    echo "  FAIL: $name が docs/guide/ に生成されていない"
+    echo "  FAIL: $name が .claude/addf/webManual/guide/ に生成されていない"
     missing=$((missing + 1))
     continue
   fi

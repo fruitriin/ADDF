@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// .claude/addf/guides/*.md を docs/guide/*.md へコピーする（単一ソースは .claude/addf/guides/）。
-// docs/guide/*.md はビルド時生成物のため .gitignore 対象。手で編集しないこと。
+// .claude/addf/guides/*.md を .claude/addf/webManual/guide/*.md へコピーする（単一ソースは .claude/addf/guides/）。
+// .claude/addf/webManual/guide/*.md はビルド時生成物のため .gitignore 対象。手で編集しないこと。
 //
 // ガイド内の相対リンクはコピー元のディレクトリ深さを前提にしているため、そのままでは
-// docs/guide/ に配置したときにリンク切れになる。リンク先を解決し、他のガイドを指す場合は
-// docs/guide/ 内の相対パスへ、docs サイトに含まれないリポジトリファイルを指す場合は
+// .claude/addf/webManual/guide/ に配置したときにリンク切れになる。リンク先を解決し、他のガイドを指す場合は
+// .claude/addf/webManual/guide/ 内の相対パスへ、webManual サイトに含まれないリポジトリファイルを指す場合は
 // GitHub の blob URL へ書き換える。
 
 import { readdirSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const repoRoot = join(__dirname, '..')
 const srcDir = join(repoRoot, '.claude/addf/guides')
-const destDir = join(repoRoot, 'docs/guide')
+const destDir = join(repoRoot, '.claude/addf/webManual/guide')
 const GITHUB_BLOB_BASE = 'https://github.com/fruitriin/ADDF/blob/main/'
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/fruitriin/ADDF/main/'
 
@@ -38,7 +38,7 @@ function rewriteLinks(content, sourceFile) {
     const resolvedAbs = resolve(dirname(sourceFile), hrefPath)
     const repoRelative = relative(repoRoot, resolvedAbs)
 
-    // 他のガイドを指している場合は docs/guide/ 内の相対パスに書き換える（画像は対象外）
+    // 他のガイドを指している場合は .claude/addf/webManual/guide/ 内の相対パスに書き換える（画像は対象外）
     const guideMatch = repoRelative.match(/^\.claude\/addf\/guides\/([^/]+)\.md$/)
     if (!isImage && guideMatch && guideNameSet.has(guideMatch[1])) {
       return `${prefix}./${guideMatch[1]}${fragment}${suffix}`
@@ -59,7 +59,7 @@ for (const file of files) {
 const indexBody = `# ガイド一覧
 
 > このページと配下のガイドは \`.claude/addf/guides/\` から自動生成されています（単一ソース）。
-> 内容を直したい場合は \`docs/guide/\` ではなく元ファイルを編集してください。
+> 内容を直したい場合は \`.claude/addf/webManual/guide/\` ではなく元ファイルを編集してください。
 
 ${files
   .map((file) => `- [${file.replace(/\.md$/, '')}](./${file.replace(/\.md$/, '')})`)
@@ -68,4 +68,4 @@ ${files
 
 writeFileSync(join(destDir, 'index.md'), indexBody)
 
-console.log(`docs/guide/ に ${files.length} 件のガイドを同期しました`)
+console.log(`.claude/addf/webManual/guide/ に ${files.length} 件のガイドを同期しました`)

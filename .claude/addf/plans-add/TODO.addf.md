@@ -47,7 +47,7 @@
 | 3 | 36 | `.claude/addf/plans-add/0036-plan-audit-skill.md` | 完了（2026-07-05。/addf-plan-audit 新設・migrate ワンショット統合。ドッグフーディング検出10件は処置提案としてオーナー判断待ち） |
 | **1** | 37 | `.claude/addf/plans-add/0037-addf-directory-consolidation.md` | 完了（フェーズ1〜3・v0.6.0 メジャーリリース 2026-07-06。オーナー同席の単一セッションで完走） |
 | 3 | 38 | `.claude/addf/plans-add/0038-speculation-fitness.md` | 完了（2026-07-05。投機適性3区分・Plan 化フォールバック・one-shot 定義の guides 単一ソース化・窓検出（手順 1.8）・reconcile check に pending_count 追加） |
-| 5 | 39 | `.claude/addf/plans-add/0039-docs-website.md` | 一部完了（フェーズ1=addf-doc-review-agent 逆輸入・フェーズ2=VitePressサイト骨格 完了 2026-07-10。フェーズ3=GitHub Pages公開はオーナー操作待ち。2026-07-16 サイト置き場を docs/ → .claude/addf/webManual/ へ移動することが確定〔次サイクルで移動実施〕） |
+| 5 | 39 | `.claude/addf/plans-add/0039-docs-website.md` | 一部完了（フェーズ1〜3 完了 2026-07-17 — webManual/ 移動・Pages workflow・gh api 有効化〔fruitriin.github.io/ADDF/〕。残: フェーズ4 ドキュメント拡充はロードマップ後段〔0056 → 0048 の後〕で実施） |
 | 4 | 40 | `.claude/addf/plans-add/0040-ccchain-optin.md` | 一部完了（フェーズ1・2 完了 2026-07-14。フェーズ1: オーナー対話セッションで直接着手指示・Q5解消。ADDF本体へccchain導入、`.ccchain.conf`を実運用コマンドで調整〔git reset --hard等の破壊的操作をask化・bash/uv run/gh読み取り系をallow化〕、settings.local.jsonにPreToolUse(Bash)フック配線。フェーズ2: `[ccchain]`オプトイン・`sync-ccchain.py`・`optional/ccchain/`テンプレート・`/addf-lint`セクション13・テスト23件を新設。フェーズ1/2の配線先は意図的に分離〔統合はフェーズ4〕。フェーズ3〔ガイド・migrate統合〕は未着手） |
 | **2** | 41 | `.claude/addf/plans-add/0041-context-exhaustion-loop-wall.md` | 一部完了（フェーズ1・2 完了 2026-07-06。実地検証は別サイクル。止まらない教義＋compaction 耐性のタスク運びを配線） |
 | 3 | 42 | `.claude/addf/plans-add/0042-precompact-transcript-archive.md` | 完了（2026-07-07。PreCompact フック・[transcript-archive] 設定・復元手順 knowhow・36テスト。code-review Warning 3件と Suggestion 4件、doc-review 指摘を全反映） |
