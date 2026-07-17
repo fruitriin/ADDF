@@ -89,16 +89,21 @@ def parse_todo_rows():
 # --- 抽出: Plan ヘッダ・FB フィールド ------------------------------------------
 
 FIELD_RE = re.compile(r"^(owner_feedback|feedback_ask|feedback_since):\s*(.+?)\s*$")
+# 系統樹エッジ（Plan 0056 フェーズ1）— 行頭 `edge:` の1行1エッジ。複数行可。
+# 値は「<type> [<target>]」形式。type は derived-from / absorbed-into / revives /
+# blocked-by / pruned の5種（詳細は lint-genealogy.py・PlanTemplate.md）
+EDGE_RE = re.compile(r"^edge:\s*(.+?)\s*$")
 
 
 def parse_plan(path: Path):
-    """Plan ファイルからタイトル・実装状況・FB フィールドを抽出する。"""
+    """Plan ファイルからタイトル・実装状況・FB フィールド・系統樹エッジを抽出する。"""
     info = {
         "title": path.stem,
         "status_line": "",
         "owner_feedback": None,
         "feedback_ask": None,
         "feedback_since": None,
+        "edges": [],  # [{type, target}] — 生値（バリデーションは lint-genealogy.py 側）
     }
     if not path.exists():
         return info
@@ -111,6 +116,12 @@ def parse_plan(path: Path):
             m = FIELD_RE.match(line)
             if m:
                 info[m.group(1)] = m.group(2)
+                continue
+            e = EDGE_RE.match(line)
+            if e:
+                parts = e.group(1).split(None, 1)
+                edge = {"type": parts[0], "target": parts[1] if len(parts) > 1 else ""}
+                info["edges"].append(edge)
     return info
 
 
@@ -459,6 +470,267 @@ def state_group(state: str) -> str:
     return "一部完了"
 
 
+# --- 系統樹（Plan 0056 フェーズ1）------------------------------------------------
+
+# Plan 番号は4桁数字。ターゲット表記中の Plan 番号を抽出する
+PLAN_NUM_RE = re.compile(r"(\d{4})")
+
+
+def _mermaid_label(text: str, max_len: int = 40) -> str:
+    """Mermaid ノードラベル用のサニタイズ。ダブルクォート・改行・角括弧を無害化する。
+
+    Plan タイトルは sv() の対象外（Mermaid は Vue コンパイル前に別プロセスで描画される
+    ため esc_vue とは異なる文字集合を無害化する必要がある — 独立した攻撃面）。
+    """
+    s = re.sub(r"\s+", " ", (text or "")).strip()
+    if len(s) > max_len:
+        s = s[: max_len - 1] + "…"
+    # Mermaid ラベル内の `"` は #quot; へ、`[` `]` は括弧へ、`|` はスペースへ
+    return (
+        s.replace('"', "#quot;")
+        .replace("[", "(")
+        .replace("]", ")")
+        .replace("|", " ")
+        .replace("`", "'")
+    )
+
+
+def _node_class(state: str, edge_types: set) -> str:
+    """TODO 状態と blocked-by/pruned マーカーからノードのクラスを決める。
+
+    優先順位: pruned > blockedOwner > blockedExternal > 状態由来（完了/進行中/一部完了/未着手）
+    """
+    if "pruned" in edge_types:
+        return "pruned"
+    if "blocked-owner" in edge_types:
+        return "blockedOwner"
+    if "blocked-external" in edge_types or "blocked-plan" in edge_types:
+        return "blockedExternal"
+    s = state or ""
+    if s.startswith("完了"):
+        return "done"
+    if s.startswith("進行中"):
+        return "inProgress"
+    if "一部完了" in s:
+        return "partial"
+    if s.startswith("要確認"):
+        return "blockedOwner"  # 要確認は事実上オーナー判断待ち
+    return "todo"
+
+
+def _classify_edge_target(target: str):
+    """blocked-by の target を "owner" / "external" / Plan 番号 / None に分類する。"""
+    t = (target or "").strip().lower()
+    if t.startswith("owner"):
+        return "owner"
+    if t.startswith("external"):
+        return "external"
+    m = PLAN_NUM_RE.search(target or "")
+    return m.group(1) if m else None
+
+
+def build_genealogy_page(plan_info_map: dict) -> str:
+    """Plan の edge フィールドから系統樹の Markdown ページを組み立てる。
+
+    plan_info_map: {num: {title, state, edges: [{type, target}]}}
+    Mermaid graph TD をフェンス無しの `<div class="addf-mermaid" v-pre>` で包む。
+    Layout.vue が mermaid を動的 import して描画する（fenced code block 経路は
+    v-pre レンダラで interpolation は防げても Prism ハイライトで DOM が壊れるため）。
+    """
+    # 参加ノード: エッジを持つ or エッジのターゲットになっている Plan
+    referenced = set()
+    edges = []               # [(src, dst, label, style)] style: "normal"/"dotted"/"thick"
+    node_edge_kinds = {}     # {num: set(edge_kinds)} — スタイル決定用
+    unknown_targets = []     # [(src, type, raw_target)] — 存在しない対象への言及
+    invalid = []             # [(src, edge_str, 理由)] — 構文エラー（表示のみ）
+
+    def _add_kind(num: str, kind: str):
+        node_edge_kinds.setdefault(num, set()).add(kind)
+
+    for num, info in plan_info_map.items():
+        for e in info["edges"]:
+            etype = e["type"]
+            target = e["target"]
+            if etype == "pruned":
+                referenced.add(num)
+                _add_kind(num, "pruned")
+                continue
+            if etype == "blocked-by":
+                cls = _classify_edge_target(target)
+                if cls == "owner":
+                    _add_kind(num, "blocked-owner")
+                    referenced.add(num)
+                elif cls == "external":
+                    _add_kind(num, "blocked-external")
+                    referenced.add(num)
+                elif cls and re.fullmatch(r"\d{4}", cls):
+                    _add_kind(num, "blocked-plan")
+                    referenced.add(num)
+                    referenced.add(cls)
+                    if cls not in plan_info_map:
+                        unknown_targets.append((num, etype, target))
+                    edges.append((cls, num, "blocked-by", "normal"))
+                else:
+                    invalid.append((num, f"edge: {etype} {target}", "blocked-by の対象を認識できません"))
+                continue
+            if etype in ("derived-from", "absorbed-into", "revives"):
+                tgt = _classify_edge_target(target)
+                if not tgt or not re.fullmatch(r"\d{4}", tgt or ""):
+                    invalid.append((num, f"edge: {etype} {target}", "対象 Plan 番号を認識できません"))
+                    continue
+                referenced.add(num)
+                referenced.add(tgt)
+                if tgt not in plan_info_map:
+                    unknown_targets.append((num, etype, target))
+                if etype == "derived-from":
+                    edges.append((tgt, num, "derived-from", "normal"))
+                elif etype == "absorbed-into":
+                    edges.append((num, tgt, "absorbed-into", "normal"))
+                elif etype == "revives":
+                    edges.append((tgt, num, "revives", "thick"))
+                continue
+            invalid.append((num, f"edge: {etype} {target}", "未知の edge 型"))
+
+    # 片方の端点が pruned なエッジは点線に格上げ（ただし revives は「復活」の視覚的
+     # 主張が最優先なので thick を保つ — 剪定枝に戻る流れの強調は他の何より重要）
+    def _is_pruned(n):
+        return "pruned" in node_edge_kinds.get(n, set())
+
+    edges = [
+        (s, d, label, style if style == "thick" else ("dotted" if (_is_pruned(s) or _is_pruned(d)) else style))
+        for (s, d, label, style) in edges
+    ]
+
+    lines = ["---", "title: 系統樹", "---", "", "# Plan 系統樹", ""]
+    lines += [
+        "未完了 Plan のロードマップを、剪定・派生・復活を一級データとして描画する（Plan 0056 フェーズ1）。",
+        "各ノードの色・枠は TODO 状態と blocked-by/pruned マーカーに基づく。",
+        "",
+        "- 完了=灰 / 進行中=青 / 一部完了=薄青 / 未着手=白",
+        "- blocked-by owner（オーナー判断待ち）=赤枠 / blocked-by external・Plan 番号=黄枠 / pruned=グレー破線",
+        "- pruned エッジ=点線 / revives エッジ=太線",
+        "",
+    ]
+
+    if not referenced:
+        lines += [
+            "> エッジ付き Plan がまだ登録されていません。`## 実装状況:` ヘッダの直後に",
+            "> `edge: derived-from 0053` のようなフィールドを追記するとここに現れます。",
+            "",
+        ]
+    else:
+        # ---- Mermaid グラフ ----
+        m = ["graph TD"]
+        # ノード定義（ソート）
+        for num in sorted(referenced):
+            info = plan_info_map.get(num, {"title": f"Plan {num}（未定義）", "state": ""})
+            label = _mermaid_label(f"Plan {num}: {info['title']}")
+            m.append(f'  P{num}["{label}"]')
+        # クラス割り当て
+        by_class = {}
+        for num in sorted(referenced):
+            info = plan_info_map.get(num, {"title": "", "state": ""})
+            klass = _node_class(info["state"], node_edge_kinds.get(num, set()))
+            by_class.setdefault(klass, []).append(f"P{num}")
+        for klass, nodes in by_class.items():
+            m.append(f"  class {','.join(nodes)} {klass};")
+        # エッジ描画
+        arrow_by_style = {"normal": "-->", "dotted": "-.->", "thick": "==>"}
+        for src, dst, label, style in edges:
+            arrow = arrow_by_style.get(style, "-->")
+            safe_label = _mermaid_label(label, max_len=18)
+            m.append(f"  P{src} {arrow}|{safe_label}| P{dst}")
+        # classDef 定義（テーマ非依存の固定色）
+        m += [
+            "  classDef done fill:#e8e8e8,stroke:#999,color:#666;",
+            "  classDef partial fill:#e8f2ff,stroke:#7aa9d7,color:#333;",
+            "  classDef inProgress fill:#c9e1ff,stroke:#4a7dbb,color:#12325a,stroke-width:2px;",
+            "  classDef todo fill:#ffffff,stroke:#bbb,color:#333;",
+            "  classDef blockedOwner fill:#ffffff,stroke:#c62828,stroke-width:3px,color:#8b1a1a;",
+            "  classDef blockedExternal fill:#ffffff,stroke:#d4a017,stroke-width:3px,color:#8a5300;",
+            "  classDef pruned fill:#f5f5f5,stroke:#999,stroke-dasharray:5 4,color:#777;",
+        ]
+        lines += [
+            '<div class="addf-mermaid" v-pre>',
+            "\n".join(m),
+            "</div>",
+            "",
+        ]
+
+        # ---- クリティカルパス（オーナーブロック / それ以外）----
+        blocked_owner = sorted(
+            n for n, k in node_edge_kinds.items() if "blocked-owner" in k
+        )
+        blocked_other = sorted(
+            n
+            for n, k in node_edge_kinds.items()
+            if ("blocked-external" in k or "blocked-plan" in k) and "blocked-owner" not in k
+        )
+        pruned_nodes = sorted(n for n, k in node_edge_kinds.items() if "pruned" in k)
+        lines += [
+            f"## クリティカルパス — オーナーブロック {len(blocked_owner)}件 / その他 {len(blocked_other)}件",
+            "",
+        ]
+        if blocked_owner:
+            lines += [f"### 🔴 オーナー判断待ち — {len(blocked_owner)}件", ""]
+            for num in blocked_owner:
+                info = plan_info_map.get(num, {"title": ""})
+                lines.append(
+                    f"- `{num}` [{sv(info['title'])}](/plans/{_stem_for(num, plan_info_map)})"
+                )
+            lines.append("")
+        if blocked_other:
+            lines += [f"### 🟡 その他のブロック — {len(blocked_other)}件", ""]
+            for num in blocked_other:
+                info = plan_info_map.get(num, {"title": ""})
+                lines.append(
+                    f"- `{num}` [{sv(info['title'])}](/plans/{_stem_for(num, plan_info_map)})"
+                )
+            lines.append("")
+        if pruned_nodes:
+            lines += [f"### ⚪ 剪定済み（休眠ノード） — {len(pruned_nodes)}件", ""]
+            for num in pruned_nodes:
+                info = plan_info_map.get(num, {"title": ""})
+                lines.append(
+                    f"- `{num}` [{sv(info['title'])}](/plans/{_stem_for(num, plan_info_map)}) "
+                    "— 復活条件は Plan 本文の「関連 Plan」節を参照"
+                )
+            lines.append("")
+
+    # 参考: 統計と診断
+    lines += [
+        f"## 統計 — 参加ノード {len(referenced)}件 / エッジ {len(edges)}本",
+        "",
+    ]
+    if unknown_targets:
+        lines += [
+            f"### ⚠ 存在しない Plan への言及 — {len(unknown_targets)}件",
+            "（lint-genealogy.py が同じ検出を ERROR として出します）",
+            "",
+        ]
+        for src, etype, tgt in unknown_targets:
+            lines.append(f"- Plan `{src}` の `edge: {etype} {sv(tgt)}` — 対象 Plan が見つかりません")
+        lines.append("")
+    if invalid:
+        lines += [
+            f"### ⚠ 構文エラー — {len(invalid)}件",
+            "（lint-genealogy.py が同じ検出を ERROR として出します）",
+            "",
+        ]
+        for src, s, reason in invalid:
+            lines.append(f"- Plan `{src}` の `{sv(s)}` — {reason}")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def _stem_for(num: str, plan_info_map: dict) -> str:
+    """Plan 番号から plans/xxxx-slug.md のステム名を推定する（プランビューアへのリンク用）。"""
+    for f in sorted(PLANS_DIR.glob(f"{num}-*.md")):
+        return f.stem
+    return num  # 未定義 Plan（未来からの言及等）はリンク先が無いが、生成は落とさない
+
+
 def build():
     todo_rows = parse_todo_rows()
     unanswered_qs, answered_qs = parse_questions()
@@ -743,7 +1015,28 @@ def build():
         lines.append("")
     write_out(OUT_DIR / "active.md", "\n".join(lines))
 
+    # ---- ページ: 系統樹（genealogy.md — Plan 0056 フェーズ1）----
+    # 全 Plan の edge フィールドを集約し、Mermaid graph TD に変換する。
+    # 記入漏れがあっても表示側は壊れない（未エッジ Plan はグラフに出ない）。
+    # 個別ノードのスタイルは TODO 状態 + blocked-by マーカー + pruned マーカーで決まる。
+    plan_edges = {}          # {num: {"title": str, "state": str, "edges": [{type, target}]}}
+    for f in sorted(PLANS_DIR.glob("[0-9]*.md")):
+        num_m = re.search(r"(\d{4})", f.name)
+        if not num_m:
+            continue
+        num = num_m.group(1)
+        info = parse_plan(f)
+        plan_edges[num] = {
+            "title": info["title"],
+            "edges": info["edges"],
+            "state": "",
+        }
+    for row in todo_rows:
+        num_m = re.search(r"(\d{4})", row["path"])
+        if num_m and num_m.group(1) in plan_edges:
+            plan_edges[num_m.group(1)]["state"] = row["state"]
 
+    write_out(OUT_DIR / "genealogy.md", build_genealogy_page(plan_edges))
 
     # ---- VitePress 設定・テーマ ----
     sidebar_json = json.dumps(plan_sidebar, ensure_ascii=False, indent=2)
@@ -940,6 +1233,7 @@ export default defineConfig({{
           items: [
             {{ text: '要フィードバック・計画', link: '/' }},
             {{ text: '進行中タスク', link: '/active' }},
+            {{ text: '系統樹', link: '/genealogy' }},
           ],
         }},
         {{ text: 'プランビューア', collapsed: true, items: {sidebar_json} }},
@@ -1312,7 +1606,10 @@ onUnmounted(() => {
   }
 })
 
-onContentUpdated(() => decorate())
+onContentUpdated(() => {
+  decorate()
+  renderMermaid()
+})
 
 watch(
   () => route.path,
@@ -1321,6 +1618,68 @@ watch(
     btn.value.visible = false
   }
 )
+
+// ---- Mermaid 描画（Plan 0056 フェーズ1 — 系統樹ページ用）----
+// generate-dashboard.py が `<div class="addf-mermaid" v-pre>...</div>` を出力する。
+// v-pre で Vue 展開を止めているためテキストがそのまま残る。ここで動的 import で
+// mermaid を読み込み、テキストを SVG に置換する。mermaid が入っていない環境
+// （ダウンストリームで npm install していない等）は WARN を出して原文表示にする
+// （欠如＝フェイルセーフ）。既存 Layout.vue の仕組み（アンカーコメント）を邪魔しない
+// ように、初期化・描画は addf-mermaid ブロックが実在するときだけ実行する。
+let mermaidPromise = null
+async function renderMermaid() {
+  if (typeof document === 'undefined') return
+  const targets = document.querySelectorAll('.addf-mermaid:not([data-addf-rendered])')
+  if (!targets.length) return
+  try {
+    if (!mermaidPromise) {
+      mermaidPromise = import('mermaid').then((mod) => {
+        const inst = mod.default
+        inst.initialize({
+          startOnLoad: false,
+          theme: 'default',
+          securityLevel: 'strict',
+          fontFamily: 'inherit',
+        })
+        return inst
+      })
+    }
+    const mermaid = await mermaidPromise
+    let idx = 0
+    for (const el of targets) {
+      el.setAttribute('data-addf-rendered', '1')
+      const src = (el.textContent || '').trim()
+      if (!src) continue
+      try {
+        const id = 'addf-mermaid-' + Date.now().toString(36) + '-' + idx++
+        const { svg } = await mermaid.render(id, src)
+        el.innerHTML = svg
+      } catch (e) {
+        el.innerHTML =
+          '<pre style="color:#a33;white-space:pre-wrap">Mermaid 描画エラー: ' +
+          String((e && e.message) || e).replace(/</g, '&lt;') +
+          '\n\n' +
+          src.replace(/</g, '&lt;') +
+          '</pre>'
+      }
+    }
+  } catch {
+    // mermaid が devDependency に入っていない環境では原文を <pre> で表示する
+    for (const el of targets) {
+      el.setAttribute('data-addf-rendered', '1')
+      const src = el.textContent || ''
+      el.innerHTML =
+        '<pre style="white-space:pre-wrap;font-size:12px;color:#666">' +
+        src.replace(/</g, '&lt;') +
+        '\n\n[mermaid が読み込めませんでした — devDependency に `mermaid` を追加してください]</pre>'
+    }
+  }
+}
+
+onMounted(async () => {
+  await nextTick()
+  renderMermaid()
+})
 </script>
 
 <template>

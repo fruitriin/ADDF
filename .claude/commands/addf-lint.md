@@ -205,6 +205,28 @@ exit code: 0 = OK / 1 = ERROR（`enable` が真偽値でない・`settings.json`
 妨げない WARNING に留める（フェイルセーフ側＝素通しの設計。詳細:
 `.claude/addf/knowhow/ADDF/ccchain-dogfooding-phase1.md`）。
 
+## 14. Plan 系統樹 edge 整合チェック
+
+`.claude/addf/plans-add/`・`.claude/addf/plans/` の Plan ファイルにある行頭 `edge:`
+フィールド（Plan 0056 フェーズ1・機械可読な系統樹エッジ）が、「関連 Plan」節の
+人間可読リンクと整合しているかを検査する（generate-dashboard.py の系統樹ページと
+同じソースを別経路で検証する）:
+
+```bash
+uv run --python 3.11 .claude/addf/addfTools/lint-genealogy.py
+```
+
+検査対象:
+- edge 型が既知の5種（derived-from / absorbed-into / revives / blocked-by / pruned）
+- 数値ターゲットの Plan が plans ディレクトリに実在する
+- pruned edge の「関連 Plan」節に理由・証拠・復活条件の3ラベルが揃っている
+- 数値ターゲットの edge が「関連 Plan」節に Markdown リンクを併記している
+
+exit code: 0 = OK / 1 = ERROR（構文・実在・メタデータ・リンク併記の欠陥） /
+2 = WARNING（既知型で挙動が疑わしい場合）。plans ディレクトリ不在は SKIP、
+エッジ付き Plan が 0 件でも exit 0（欠如＝ドリフトではない）。stdlib のみのため
+システム python3 でも動く。
+
 ## 結果報告
 
 全チェックの結果を以下の形式でまとめる:
@@ -227,4 +249,5 @@ exit code: 0 = OK / 1 = ERROR（`enable` が真偽値でない・`settings.json`
 11. Hooks 配線         ✓ / ⚠
 12. Plan 状態整合      ✓ / ⚠ / ✗
 13. ccchain 同期       ✓ / ⚠ / ✗
+14. Plan 系統樹 edge   ✓ / ⚠ / ✗
 ```

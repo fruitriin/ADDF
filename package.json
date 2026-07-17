@@ -20,6 +20,7 @@
     "url": "git+https://github.com/fruitriin/ADDF.git"
   },
   "devDependencies": {
+    "mermaid": "^11.4.1",
     "vitepress": "^1.6.4"
   }
 }
