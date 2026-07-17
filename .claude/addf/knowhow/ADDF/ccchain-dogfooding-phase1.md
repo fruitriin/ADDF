@@ -77,8 +77,9 @@ Phase 1 の運用期間中に頻度を観察し、あまりに頻発するよう
 
 ### バイナリ配置とビルド方式
 
-- `go install` 後のバイナリは `$GOPATH/bin`（asdf 環境では
-  `~/.asdf/installs/golang/<version>/bin/`）に入る。hook はプロジェクトルート相対の
+- `go install` 後のバイナリは GOBIN（この環境の実測では
+  `~/.asdf/installs/golang/<version>/bin/` — go 本体と同居。GOPATH の
+  `packages/bin` ではない点に注意〔v0.2.0 更新時に実測確認〕）に入る。hook はプロジェクトルート相対の
   `"$CLAUDE_PROJECT_DIR"/ccchain` を参照する設計のため、`cp` でプロジェクトルートに複製する
   （EnumaElish 自身の dogfooding knowhow: `go run` は毎回ビルドが走り hook レイテンシが
   数秒になるため不可）
@@ -86,6 +87,24 @@ Phase 1 の運用期間中に頻度を観察し、あまりに頻発するよう
   そもそも発生させない設計判断。各自 `go install` で取得する前提）
 - `.ccchain.conf`（プロジェクト共有・git 管理）と `.ccchain.local.conf`（個人上書き・
   gitignore 対象）は EnumaElish 自身の規約どおりに使い分ける
+
+### v0.2.0 への更新（2026-07-17 実測）
+
+- `go install github.com/fruitriin/EnumaElish/cmd/ccchain@v0.2.0` → GOBIN から `cp ./ccchain`。
+  go.mod が go >= 1.25 要求のため asdf の 1.24.10 から toolchain 自動スイッチ（go1.25.12）で
+  ビルドされる。`ccchain version` は「dev」のまま（version 埋め込みが ldflags 前提で
+  go install では入らない — モジュール版は `go version -m ./ccchain` で確認する）
+- **挙動変化1: for ループが dynamic deny から静的解析対象に**。`for ... do rm -rf ...` は
+  中身のルールが適用され ask になる（素通しではない）。while 等は引き続き
+  「dynamic command detected」deny。旧版で頻発したブロック（実測21件の主因）が解消
+- **挙動変化2: auto permission mode では ask がダイアログにならず即ブロックされる**。
+  `git push` を含む複合コマンドが「requires human approval, but the current mode (auto)
+  cannot show a confirmation dialog」で実行前に丸ごと止まった（旧版では push は通っていた）。
+  復旧手段はメッセージ内に案内される（対話セッションで再実行 / オーナーが
+  `ccchain approve --last`）。**複合コマンドは全体が実行前評価されるため、push を含む
+  チェーンは push だけ分離する**運用が要る
+- 入れ替え手順: 旧バイナリをバックアップ → cp → `ccchain check`（config 互換）→
+  `ccchain test`（実運用コマンド回帰）→ 次の Bash 実行が実フック疎通確認を兼ねる
 
 ### 権限フィルタが「一言の着手指示」では外部バイナリ導入・自己ゲートフック配線を通さない
 
