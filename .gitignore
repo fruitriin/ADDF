@@ -26,6 +26,8 @@ CLAUDE.local.md
 # 自由にチューニングする前提のためコミット対象、.ccchain.local.conf は個人上書きのため対象外
 /ccchain
 .ccchain.local.conf
+# ccchain 評価ログ（settings.log: オプトイン — コマンド文字列を含むためコミットしない）
+.ccchain/
 # ローカルダッシュボード（Plan 0058）— ディレクトリ全体が generate-dashboard.py の
 # 生成物（単一ソースはリポジトリ側の TODO・Plan・Questions・Progress）
 .claude/addf/dashboard/
