@@ -86,6 +86,16 @@ status: active
   変わったファイルだけ write。rmtree は dev サーバーの `.vitepress/cache` も
   巻き込むため廃止し、掃除は自分の管理領域〔トップ md・plans/*.md〕の個別 unlink に
   限定する）(2) 入力中テキストは localStorage に退避し、マウント時にパネルごと復元する
+- **Mermaid を VitePress に埋め込むときの3連罠**（Plan 0056 実測）: (1) フェンス
+  コードブロック方式は Prism ハイライトが DOM を壊すため `<div class="..." v-pre>` を使う。
+  (2) ただし div 直下の生テキストは markdown レンダリングで改行が失われ Mermaid が
+  "Expecting NEWLINE" でパース死する — `<pre>` で包む（HTML ブロックは無加工で通る）。
+  (3) `<pre>` 生 HTML パススルーにした瞬間、ラベル文字列の HTML エスケープが必須になる
+  （Mermaid 構文文字の無害化だけでは `</pre><img onerror>` 注入が通る — レンダラ別
+  ヘルパーにも HTML エスケープ層を最初に入れる）。さらに**行頭 key:value をパースする
+  実装が2つ以上あるなら、コードフェンス除外の意味論を必ず揃える** — 生成側だけフェンスを
+  無視した結果、仕様書自身の書式例が実データとしてグラフに混入した（lint は自分の正しい
+  パーサで検査するため「lint 通過なのに生成物が壊れている」状態になる）
 - **dev サーバーの `/api/*` ミドルウェアで read-modify-write するなら Promise キューで
   直列化する**。`await readReqBody()` を挟む素朴な実装は並行 POST で後勝ち上書きになり、
   ファイル全体を書き戻す設計ではコメント消失＝実害になる（レビュー中に stray な

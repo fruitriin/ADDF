@@ -88,7 +88,36 @@
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: Plan 0056 — Plan 系統樹（剪定・派生・復活の一級データ化）
+
+ロードマップ位置: 0039 Pages ✅ → **0056 系統樹（いま）** → 0048 褒め機構 → 0039 ドキュメント作成
+
+#### サブタスクチェックリスト
+
+- [x] G-1: Plan 0056 を標準テンプレートへ書き直し（edge 行書式確定）
+- [x] G-2: 実装A 完了・統合（edge パース・系統樹ページ・lint-genealogy・テスト14件・mermaid devDep）
+- [x] G-3: 実装B 完了・統合（31 Plan へ遡及。pruned 自己マーカー整合を統合時に修正）
+- [x] G-4: Stage 2 完了 — code-review 6件（C1 XSS・C2 フェンス混入・H1 重複エッジ・M1〜M3）全反映・テスト18件・run-all 通過・修正後描画を Playwright 確認
+- [x] G-5: 完了処理（Plan/TODO 反映・knowhow・アーカイブ・コミット）
+
+#### 日記
+
+##### 2026-07-17 — 0056 着手（エッジ書式を決めてから2体並列委譲する計画）
+**やったこと**: ゴール受領。5問のオーナー回答（5種暫定・pruned のみ必須・併用記録・owner/external ブロック区分・全件遡及）を前提に進行設計。
+**今の見立て**: エッジ記録は Plan の既存慣習（ヘッダ直後の行頭 key:value — owner_feedback と同型）で `edge:` 行にする。YAML frontmatter は Plan に存在しないため導入しない。Mermaid 描画はダッシュボード（ローカル）に mermaid devDependency を追加してクライアントレンダリング。
+**次の自分へ**: compaction 後は Plan 0056 本文（標準化済みか）と git branch -a（worktree 委譲の有無）で現在地確認。
+**気になっていること**: 68ファイル遡及（実装B）は機械編集だが、lint（plan-status・residual-paths）を通る形式であること。B の完了後に A の lint が全 Plan を検査して初めて全体整合が確認できる — 統合順は A→B でなく「両方統合→lint」。
+
+##### 2026-07-17 — code-review が Critical 2件を実測検出・フェーズ内修正中
+**やったこと**: A/B 統合・pruned 整合・Mermaid pre 包み・Playwright 確認まで完了後、code-review が C1(_mermaid_label の HTML エスケープ欠落=pre 内 XSS)・C2(parse_plan がフェンス内 edge を除外せず Plan 0056 の書式例がグラフ混入 — 「剪定2件」の1件は誤検出だった)・H1(双方向記録の重複エッジ)・M1(自己参照)・M2(5桁誤マッチ)・M3(mermaid pre とコメント UI の干渉)を検出。
+**次の自分へ**: 修正対象は generate-dashboard.py の _mermaid_label(HTML エスケープ先行)・parse_plan(in_code フェンス追跡)・build_genealogy_page((src,dst) dedup)・BLOCK_SEL 処理(closest('.addf-mermaid') 除外)、lint-genealogy.py(自己参照 ERROR・PLAN_NUM_RE 境界)、test-genealogy.sh(フェンス/自己参照/エスケープのテスト追加)。修正後: lint-genealogy → 再生成(genealogy.md の汚染除去確認: pruned は 0045 のみ1件になるはず) → run-all → コミット。
+**気になっていること**: コンテキスト 634k。compaction 後はこのエントリーから再開。
 
 > 新しいタスク開始時は以下の構造で記録する:
 > `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）
+
+##### 2026-07-17 — Plan 0056 フェーズ1・2 完了（オーナー目視確認待ち）
+**やったこと**: code-review 6件を全反映（フェンス追跡・HTML エスケープ・エッジ集約・自己参照/5桁 lint・コメント UI 除外）。テスト18件・run-all 通過・修正後描画を Playwright 確認。knowhow に Mermaid 3連罠を記録。
+**今の見立て**: 残は オーナーの系統樹目視確認のみ（ダッシュボードキューに掲載済み）。
+**次の自分へ**: ロードマップ次段は Plan 0048（褒め機構）— Q6 で「無人で進めない」と自己判断した経緯があるため、オーナー同席の対話で進めること。その後 0039 フェーズ4（ドキュメント作成）。
+**気になっていること**: なし

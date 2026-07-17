@@ -1,8 +1,10 @@
 # Plan 0056: Plan 系統樹 — 剪定・派生・復活を一級データにするロードマップ表現
 
-## 実装状況: 進行中（2026-07-17 標準テンプレートへ昇格・着手。オーナー5問回答済み）
+## 実装状況: 一部完了（フェーズ1・2 完了 2026-07-17 — edge 基盤・系統樹ページ・lint-genealogy・テスト18件・31 Plan 遡及・code-review 6件反映〔C2: 自 Plan の書式例混入をフェンス追跡で解消・C1: Mermaid ラベル XSS 遮断・H1: 双方向重複1本化ほか〕。残: オーナーのブラウザ目視確認のみ）
 
-owner_feedback: 済
+owner_feedback: 待ち
+feedback_ask: 系統樹ページのブラウザ目視確認（dashboard:dev → サイドバー「系統樹」）
+feedback_since: 2026-07-17
 edge: absorbed-into 0067
 
 ## 関連 Plan
@@ -78,10 +80,10 @@ edge: blocked-by 0040
 
 ## 完了条件
 
-- [ ] `edge:` 行書式が PlanTemplate.md に記載されている
-- [ ] ダッシュボードに系統樹ページが生成され、owner/external ブロックが区分表示される
-- [ ] lint-genealogy.py が構文・実在・pruned メタデータ・併記を検査し run-all に組み込まれている
-- [ ] 全 Plan（0001〜0068）に実在系譜の edge 行が遡及付与され lint 通過
+- [x] `edge:` 行書式が PlanTemplate.md に記載されている
+- [x] ダッシュボードに系統樹ページが生成され、owner/external ブロックが区分表示される
+- [x] lint-genealogy.py が構文・実在・pruned メタデータ・併記を検査し run-all に組み込まれている
+- [x] 全 Plan（0001〜0068）に実在系譜の edge 行が遡及付与され lint 通過
 - [ ] ブラウザで系統樹を目視確認（オーナー） <!-- human-judgment -->
 
 > 出典: オーナー発案（2026-07-16 対話セッション）。未完了タスクロードマップを「純粋な
