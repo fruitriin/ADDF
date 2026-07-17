@@ -88,7 +88,32 @@
 
 ## タスク
 
-（現在タスクなし）
+### 現在のタスク: Plan 0039 — webManual/ への配置変更と GitHub Pages 有効化
+
+ロードマップ（オーナー指定 2026-07-17）: 0039 配置変更+Pages → 0056 系統樹 → 0048 褒め機構 → 0039 ドキュメント作成
+
+#### サブタスクチェックリスト
+
+- [x] W-1: docs/ → .claude/addf/webManual/ へ移動
+- [x] W-2: 配線更新（sync-docs.mjs・package.json・.gitignore・test-sync-docs-links.sh・knowhow）
+- [x] W-3: Pages デプロイ workflow 新設（.github/workflows/docs.yml）
+- [x] W-4: 参照 grep と lint・ビルド実確認（run-all 全通過）
+- [x] W-5: Pages 有効化（gh api build_type=workflow で成功・オーナー操作不要）・初回デプロイ success・HTTP 200 確認
+- [x] W-6: 完了処理（Plan/TODO 反映・コミット・push 済み）
+
+##### 2026-07-17 — Plan 0039 フェーズ3 完了（Pages 公開）
+**やったこと**: webManual/ 移動・配線更新・docs.yml 新設・gh api で Pages 有効化・初回デプロイ success・https://fruitriin.github.io/ADDF/ が HTTP 200 でタイトル表示を確認。
+**今の見立て**: ゴール「0039 を Pages 有効化まで」達成。
+**次の自分へ**: ロードマップ次段は Plan 0056（系統樹）→ 0048（褒め機構）→ 0039 フェーズ4（ドキュメント拡充）。0056 は5問全回答済みで標準テンプレート化から着手できる。
+**気になっていること**: なし
+
+#### 日記
+
+##### 2026-07-17 — 0039 着手（ゴール: Pages 有効化まで）
+**やったこと**: docs/ 構成を確認（index.md・config.mts がコミット対象、guide/・dist/ は生成物、Pages workflow 未作成）。
+**今の見立て**: 移動自体は小さい。Pages 有効化は gh api の build_type=workflow で試み、権限不足ならオーナー操作を案内。
+**次の自分へ**: compaction 後は git status と このチェックリストで現在地確認。webManual の存在確認 → W-2 以降を継続。
+**気になっていること**: knowhow・Plan 内の docs/ 旧パス言及が residual lint に引っかかる可能性（paths.toml は触らない方針 — 本体固有変更のため）。
 
 > 新しいタスク開始時は以下の構造で記録する:
 > `### 現在のタスク: <Plan 名>` → `#### サブタスクチェックリスト` → `#### 日記`（運用ルール 3.5 の4項目書式）
