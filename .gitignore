@@ -32,3 +32,4 @@ CLAUDE.local.md
 # 生成物（単一ソースはリポジトリ側の TODO・Plan・Questions・Progress）
 .claude/addf/dashboard/
 # --- /ADDF Framework ---
+__pycache__/
