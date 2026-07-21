@@ -146,6 +146,25 @@ Phase 1 の運用期間中に頻度を観察し、あまりに頻発するよう
   （MatchedRule 未伝播・別 Plan 対応予定）
 - 入れ替え検証は v0.2.1 と同一手順（広域 test → cp → 次実行で疎通）で問題なし
 
+### ADDF プロファイルへの緩和（2026-07-21・オーナー指示）
+
+- **運用原則: ask/deny で止まったら迂回しない**。python 等での迂回はガードの意味と
+  観測データの両方を消す（rm ask → os.unlink 迂回をオーナーが指摘）。正道は
+  (a) ルール調整の提案 or (b) `ccchain approve --last` の依頼。stats の実績が調整判断の材料
+- **rm 緩和**: 基本 allow・再帰（-r/-R）のみ ask・一時領域（/tmp・/private/tmp・
+  /var/folders）と .git/*.lock は再帰でも allow（後勝ち）。実測で deny 降格の主因が
+  「scratchpad/mktemp の掃除」だったことに基づく。極端系（rm -rf / 等）は settings.json
+  deny が別レイヤーで有効
+- **破壊的 git の ask は settings.json ネイティブ ask に一本化**: ccchain ask は
+  auto で deny 降格（人間が判断できない）、ネイティブ ask は auto でもダイアログが出る
+  （Plan 0054 実証）。「止まるが人間が通せる」形に変わる。destructive-git-guard の
+  理由提示は維持
+- **デフォルト preset の同名コマンドルールは後勝ち**: `allow rm`（緩和ブロック）を
+  足しても後方の preset `ask rm` が勝つ — 緩和時は旧ルールの削除まで確認する
+  （test で全パターン検証するまで気づけない）
+- これらは**配布原本（optional/ccchain/.ccchain.conf）にも判断根拠コメント付きで反映済み**
+  — ADDF プロファイルとして DS にも知見が届く（オーナー方針: 本体だけの調整に留めない）
+
 ### 権限フィルタが「一言の着手指示」では外部バイナリ導入・自己ゲートフック配線を通さない
 
 対話セッションでオーナーが「cchain やってみたいな」と発言しただけでは、(1) `go install` に
