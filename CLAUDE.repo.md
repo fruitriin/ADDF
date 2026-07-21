@@ -6,12 +6,17 @@
 - @.claude/addf/plans-add/TODO.addf.md — ADDF 開発タスクバックログ
 - `.claude/addf/plans-add/`: ADDF 開発の実装計画ファイル
 
-## 保護対象ファイルの編集原則（Plan 0054 D 軸の運用）
+## ファイル編集とコマンドの選び方（Plan 0054 D 軸の運用・2026-07-21 オーナー方針）
 
-`.claude/settings.json`・`.claude/settings.local.json`・`.claude/hooks/**`・`.ccchain.conf` を
-編集するときは、**必ず Edit / Write ツールを使う**（permissions.ask の確認ダイアログを
-受けるのが D 軸の設計意図）。Bash 経由（python ワンライナー・heredoc・sed -i・
-リダイレクト）での書き換えは、技術的に可能でも**選ばない** — ask の迂回はガードの意味と
-観測データの両方を消す（2026-07-21 オーナー指摘。ccchain の ask/deny で止まったときも
-同様に、迂回せずルール調整の提案か `ccchain approve --last` の依頼で対処する）。
-複数ファイル一括編集の python ワンライナーは保護対象**以外**のファイルにのみ使ってよい。
+- **保護対象**（`.claude/settings.json`・`.claude/settings.local.json`・`.claude/hooks/**`・
+  `.ccchain.conf`）の編集は**必ず Edit / Write ツールを使う** — permissions.ask の
+  確認ダイアログを受けるのが D 軸の設計意図。Bash 経由の書き換えは技術的に可能でも選ばない
+  （ask の迂回はガードの意味と観測データの両方を消す）
+- **それ以外も、素朴なコマンドとツールを優先する**: 単発の編集は Edit ツール、テキスト処理は
+  sed / awk / grep 等の素のコマンドで書く。**python ヒアドキュメントの長塊を常用しない** —
+  auto モードの分類器にも確認ダイアログを読む人間にも不透明で、脳死 Accept を誘発する。
+  旧 ccchain の dynamic deny を避ける目的で python に逃げていた経緯があるが、現在は
+  for ループ解析（v0.2.1+）・sed/awk allow・rm 緩和が揃っており、素朴なコマンドは普通に通る。
+  python スクリプトは「本当に複雑な一括処理」に限定し、その場合も何をするか一言添える
+- ccchain の ask / deny で止まったときは迂回せず、ルール調整の提案か
+  `ccchain approve --last` の依頼で対処する
