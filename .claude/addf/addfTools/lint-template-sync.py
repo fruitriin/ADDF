@@ -308,6 +308,8 @@ def check_pair2(repo_kind):
     # ペア2専用ホワイトリスト: ADDF 版にのみ存在してよい意図的差分（strip 済みで比較）
     whitelist_addf_only = {
         '- ADD フレームワークテスト: `bash .claude/addf/tests/run-all.sh`',
+        # ccchain ドッグフーディング観測ステップ（ADDF 本体専用 — Plan 0040 系の観測フロー）
+        '13.5. **ccchain ドッグフーディング観測**（「13.5」は番号参照を壊さない枝番。ADDF 本体専用 — DS 版テンプレートには存在しない）: `./ccchain stats --since 24h` を実行し、タスク中の deny / ask の発生を確認する。誤 deny・煩雑な ask・ルール調整候補があれば `.claude/addf/Feedback.md` の ccchain 観測記録に追記する。EnumaElish 本体の問題（バグ・機能不足）なら Issue 起票を検討する。stats が空・ccchain 不在ならスキップしてよい（煩雑さ・調整要否の体感評価を含むため人間判断） <!-- human-judgment -->',
     }
 
     def normalize(lines, is_addf):

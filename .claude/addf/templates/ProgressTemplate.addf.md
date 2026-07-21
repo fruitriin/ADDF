@@ -78,6 +78,7 @@
 11. `.claude/addf/Feedback.md` にPlan, TODO, Progress推進エンジンの問題の記録・改善アクションを追記する。反映済みの項目は削除する
 12. `.claude/addf/Feedback.md` にプロジェクト進行上の問題の記録・改善アクションを追記する。反映済みの項目は削除する
 13. Progress 推進エンジン自体に関するフィードバック・ノウハウがあれば、テンプレート（`.claude/addf/templates/ProgressTemplate.addf.md`）の改善案を `.claude/addf/Feedback.md` に記録する
+13.5. **ccchain ドッグフーディング観測**（「13.5」は番号参照を壊さない枝番。ADDF 本体専用 — DS 版テンプレートには存在しない）: `./ccchain stats --since 24h` を実行し、タスク中の deny / ask の発生を確認する。誤 deny・煩雑な ask・ルール調整候補があれば `.claude/addf/Feedback.md` の ccchain 観測記録に追記する。EnumaElish 本体の問題（バグ・機能不足）なら Issue 起票を検討する。stats が空・ccchain 不在ならスキップしてよい（煩雑さ・調整要否の体感評価を含むため人間判断） <!-- human-judgment -->
 
 #### アーカイブとコミット
 
